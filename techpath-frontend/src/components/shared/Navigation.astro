@@ -1,0 +1,43 @@
+---
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+
+const navItems = [
+  { label: 'Services', href: '/services' },
+  { label: 'Solutions', href: '/solutions' },
+  { label: 'Case Studies', href: '/case-studies' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'About', href: '/about' },
+  { label: 'Pricing', href: '/pricing' },
+];
+
+const isActive = (href: string): boolean => {
+  if (href === '/') return currentPath === '/';
+  return currentPath.startsWith(href);
+};
+---
+
+<nav class="hidden lg:block">
+  <ul class="flex items-center gap-1">
+    {
+      navItems.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            class={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              isActive(item.href)
+                ? 'bg-primary-500/10 text-primary-400'
+                : 'text-slate-300 hover:bg-slate-800/50 hover:text-white'
+            }`}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+

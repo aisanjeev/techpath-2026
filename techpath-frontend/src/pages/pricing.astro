@@ -1,0 +1,131 @@
+---
+import MainLayout from '@layouts/MainLayout.astro';
+import Breadcrumb from '@components/shared/Breadcrumb.astro';
+import PricingTable from '@components/sections/PricingTable.astro';
+import FAQSection from '@components/sections/FAQSection.astro';
+import CTA from '@components/shared/CTA.astro';
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Pricing', href: '/pricing', current: true },
+];
+
+const plans = [
+  {
+    name: 'Starter',
+    description: 'Perfect for small projects and startups',
+    price: '$2,500',
+    period: 'per project',
+    features: [
+      'Up to 5 pages',
+      'Basic SEO optimization',
+      'Mobile responsive design',
+      'Contact form integration',
+      '30 days support',
+      'Source code delivery',
+    ],
+    cta: 'Get Started',
+    highlighted: false,
+  },
+  {
+    name: 'Professional',
+    description: 'Ideal for growing businesses',
+    price: '$7,500',
+    period: 'per project',
+    features: [
+      'Up to 15 pages',
+      'Advanced SEO optimization',
+      'Custom design system',
+      'CMS integration',
+      'API development',
+      '90 days support',
+      'Performance optimization',
+      'Analytics setup',
+    ],
+    cta: 'Get Started',
+    highlighted: true,
+  },
+  {
+    name: 'Enterprise',
+    description: 'For large-scale applications',
+    price: 'Custom',
+    period: 'contact us',
+    features: [
+      'Unlimited pages',
+      'Custom AI solutions',
+      'Dedicated team',
+      'Priority support 24/7',
+      'SLA guarantee',
+      'Security audits',
+      'Load testing',
+      'Training & documentation',
+    ],
+    cta: 'Contact Sales',
+    highlighted: false,
+  },
+];
+
+const faqs = [
+  {
+    question: 'What payment methods do you accept?',
+    answer:
+      'We accept all major credit cards, bank transfers, and can accommodate purchase orders for enterprise clients. Payment terms are typically 50% upfront and 50% on project completion.',
+  },
+  {
+    question: 'Can I upgrade my plan later?',
+    answer:
+      'Yes, you can upgrade your plan at any time. We\'ll work with you to seamlessly transition your project to include additional features and capabilities.',
+  },
+  {
+    question: 'What happens after the support period ends?',
+    answer:
+      'After your included support period, you can purchase extended support packages. We also offer maintenance retainers for ongoing updates and improvements.',
+  },
+  {
+    question: 'Do you offer refunds?',
+    answer:
+      'We offer a satisfaction guarantee on our work. If you\'re not happy with the initial concepts, we\'ll work with you to make it right or provide a partial refund.',
+  },
+];
+---
+
+<MainLayout
+  title="Pricing"
+  description="Transparent pricing for TechPath's IT services. From startup projects to enterprise solutions, find the right plan for your needs."
+>
+  <section class="py-16 lg:py-24">
+    <div class="container mx-auto px-4">
+      <Breadcrumb items={breadcrumbItems} />
+
+      <!-- Header -->
+      <div class="mx-auto mb-16 max-w-3xl text-center">
+        <h1 class="mb-6 font-heading text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+          Simple, Transparent <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">Pricing</span>
+        </h1>
+        <p class="text-lg text-slate-400 md:text-xl">
+          Choose the plan that fits your needs. All plans include our commitment to quality and
+          your success.
+        </p>
+      </div>
+
+      <!-- Pricing Table -->
+      <PricingTable plans={plans} />
+
+      <!-- FAQ Section -->
+      <div class="mt-24">
+        <h2 class="mb-12 text-center font-heading text-3xl font-bold text-white">
+          Frequently Asked Questions
+        </h2>
+        <FAQSection faqs={faqs} />
+      </div>
+    </div>
+  </section>
+
+  <CTA
+    title="Need a Custom Quote?"
+    description="Every project is unique. Let's discuss your specific requirements."
+    primaryButton={{ label: 'Schedule a Call', href: '/contact' }}
+    secondaryButton={{ label: 'View Services', href: '/services' }}
+  />
+</MainLayout>
+

@@ -1,0 +1,69 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  primaryButton: {
+    label: string;
+    href: string;
+  };
+  secondaryButton?: {
+    label: string;
+    href: string;
+  };
+}
+
+const { title, description, primaryButton, secondaryButton } = Astro.props;
+---
+
+<section class="py-20">
+  <div class="container mx-auto px-4">
+    <div
+      class="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-8 md:p-16"
+    >
+      <!-- Background decorations -->
+      <div
+        class="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-primary-500/10 blur-3xl"
+      >
+      </div>
+      <div
+        class="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-secondary-500/10 blur-3xl"
+      >
+      </div>
+
+      <div class="relative z-10 mx-auto max-w-3xl text-center">
+        <h2 class="mb-4 font-heading text-3xl font-bold text-white md:text-4xl lg:text-5xl">
+          {title}
+        </h2>
+        <p class="mb-8 text-lg text-slate-400">
+          {description}
+        </p>
+        <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <a
+            href={primaryButton.href}
+            class="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 px-8 py-4 font-semibold text-white transition-all hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:shadow-primary-500/25"
+          >
+            {primaryButton.label}
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </a>
+          {
+            secondaryButton && (
+              <a
+                href={secondaryButton.href}
+                class="inline-flex items-center justify-center rounded-lg border border-slate-700 bg-slate-800/50 px-8 py-4 font-semibold text-white transition-all hover:border-slate-600 hover:bg-slate-800"
+              >
+                {secondaryButton.label}
+              </a>
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+

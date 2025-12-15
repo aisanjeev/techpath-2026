@@ -1,0 +1,74 @@
+---
+interface Tab {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  tabs: Tab[];
+  defaultTab?: string;
+}
+
+const { tabs, defaultTab } = Astro.props;
+const activeTab = defaultTab || tabs[0]?.id;
+---
+
+<div class="tabs-container">
+  {/* Tab List */}
+  <div class="mb-6 flex gap-2 border-b border-slate-800" role="tablist">
+    {
+      tabs.map((tab) => (
+        <button
+          type="button"
+          role="tab"
+          id={`tab-${tab.id}`}
+          aria-controls={`panel-${tab.id}`}
+          aria-selected={tab.id === activeTab}
+          data-tab={tab.id}
+          class={`tab-button -mb-px border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+            tab.id === activeTab
+              ? 'border-primary-500 text-primary-400'
+              : 'border-transparent text-slate-400 hover:text-white'
+          }`}
+        >
+          {tab.label}
+        </button>
+      ))
+    }
+  </div>
+
+  {/* Tab Panels */}
+  <div>
+    <slot />
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.tabs-container').forEach((container) => {
+    const buttons = container.querySelectorAll('.tab-button');
+    const panels = container.querySelectorAll('[role="tabpanel"]');
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const tabId = button.getAttribute('data-tab');
+
+        // Update buttons
+        buttons.forEach((btn) => {
+          const isActive = btn.getAttribute('data-tab') === tabId;
+          btn.setAttribute('aria-selected', isActive.toString());
+          btn.classList.toggle('border-primary-500', isActive);
+          btn.classList.toggle('text-primary-400', isActive);
+          btn.classList.toggle('border-transparent', !isActive);
+          btn.classList.toggle('text-slate-400', !isActive);
+        });
+
+        // Update panels
+        panels.forEach((panel) => {
+          const isActive = panel.id === `panel-${tabId}`;
+          panel.classList.toggle('hidden', !isActive);
+        });
+      });
+    });
+  });
+</script>
+

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" fill="none">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0ea5e9"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <!-- Icon -->
+  <rect x="0" y="4" width="40" height="40" rx="10" fill="url(#logoGradient)"/>
+  <text x="20" y="28" dominant-baseline="middle" text-anchor="middle" 
+        font-family="system-ui, sans-serif" font-size="24" font-weight="bold" fill="white">T</text>
+  <!-- Text -->
+  <text x="52" y="32" font-family="system-ui, sans-serif" font-size="26" font-weight="bold" fill="white">
+    TechPath
+  </text>
+</svg>
+

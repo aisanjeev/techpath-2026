@@ -1,0 +1,122 @@
+---
+import MainLayout from '@layouts/MainLayout.astro';
+import Breadcrumb from '@components/shared/Breadcrumb.astro';
+import ServiceCard from './_components/ServiceCard.astro';
+import CTA from '@components/shared/CTA.astro';
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Services', href: '/services', current: true },
+];
+
+const services = [
+  {
+    title: 'AI & Machine Learning',
+    slug: 'ai-consulting',
+    description:
+      'Transform your business with custom AI solutions. From predictive analytics to natural language processing, we build intelligent systems that drive results.',
+    icon: 'brain',
+    features: [
+      'Custom ML Model Development',
+      'Natural Language Processing',
+      'Computer Vision Solutions',
+      'Predictive Analytics',
+    ],
+  },
+  {
+    title: 'Cloud Infrastructure',
+    slug: 'cloud-services',
+    description:
+      'Scalable, secure cloud architecture on AWS, Azure, and Google Cloud. We design and implement infrastructure that grows with your business.',
+    icon: 'cloud',
+    features: [
+      'Cloud Migration',
+      'Kubernetes & Containerization',
+      'Serverless Architecture',
+      'DevOps & CI/CD',
+    ],
+  },
+  {
+    title: 'Web Development',
+    slug: 'web-development',
+    description:
+      'Modern, performant web applications built with cutting-edge technologies. From startups to enterprise, we deliver exceptional digital experiences.',
+    icon: 'code',
+    features: [
+      'Full-Stack Development',
+      'Progressive Web Apps',
+      'E-commerce Solutions',
+      'API Development',
+    ],
+  },
+  {
+    title: 'Data Analytics',
+    slug: 'data-analytics',
+    description:
+      'Turn your data into actionable insights. We build data pipelines, dashboards, and analytics platforms that empower data-driven decisions.',
+    icon: 'chart',
+    features: ['Data Warehousing', 'Business Intelligence', 'Real-time Analytics', 'Data Visualization'],
+  },
+  {
+    title: 'Cybersecurity',
+    slug: 'cybersecurity',
+    description:
+      'Protect your digital assets with enterprise-grade security. From audits to implementation, we ensure your systems are secure and compliant.',
+    icon: 'shield',
+    features: [
+      'Security Audits',
+      'Penetration Testing',
+      'Compliance (SOC 2, HIPAA)',
+      'Incident Response',
+    ],
+  },
+  {
+    title: 'Digital Transformation',
+    slug: 'digital-transformation',
+    description:
+      'End-to-end digital transformation consulting. We help you modernize legacy systems and build future-proof technology strategies.',
+    icon: 'transform',
+    features: [
+      'Legacy Modernization',
+      'Process Automation',
+      'Technology Strategy',
+      'Change Management',
+    ],
+  },
+];
+---
+
+<MainLayout
+  title="Our Services"
+  description="Explore TechPath's comprehensive IT services including AI solutions, cloud infrastructure, web development, and data analytics."
+>
+  <section class="py-16 lg:py-24">
+    <div class="container mx-auto px-4">
+      <Breadcrumb items={breadcrumbItems} />
+
+      <!-- Header -->
+      <div class="mx-auto mb-16 max-w-3xl text-center">
+        <h1 class="mb-6 font-heading text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+          Our <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">Services</span>
+        </h1>
+        <p class="text-lg text-slate-400 md:text-xl">
+          From AI-powered solutions to cloud infrastructure, we provide end-to-end technology
+          services that drive business growth and innovation.
+        </p>
+      </div>
+
+      <!-- Services Grid -->
+      <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        {services.map((service) => <ServiceCard {...service} />)}
+      </div>
+    </div>
+  </section>
+
+  <CTA
+    title="Need a Custom Solution?"
+    description="Let's discuss your unique requirements and build something amazing together."
+    primaryButton={{ label: 'Contact Us', href: '/contact' }}
+    secondaryButton={{ label: 'View Pricing', href: '/pricing' }}
+  />
+</MainLayout>
+

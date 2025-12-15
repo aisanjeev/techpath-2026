@@ -1,0 +1,147 @@
+---
+import MainLayout from './MainLayout.astro';
+import Breadcrumb from '@components/shared/Breadcrumb.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  author: string;
+  image?: string;
+  tags?: string[];
+  readingTime?: number;
+}
+
+const { title, description, pubDate, author, image, tags = [], readingTime } = Astro.props;
+
+const formattedDate = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+}).format(pubDate);
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
+  { label: title, href: '#', current: true },
+];
+---
+
+<MainLayout title={title} description={description} image={image}>
+  <article class="py-12 lg:py-20">
+    <div class="container mx-auto max-w-4xl px-4">
+      <!-- Breadcrumb -->
+      <Breadcrumb items={breadcrumbItems} />
+
+      <!-- Article Header -->
+      <header class="mb-12">
+        <!-- Tags -->
+        {
+          tags.length > 0 && (
+            <div class="mb-4 flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <a
+                  href={`/blog/tags/${tag.toLowerCase()}`}
+                  class="rounded-full bg-primary-500/10 px-3 py-1 text-sm font-medium text-primary-400 transition-colors hover:bg-primary-500/20"
+                >
+                  {tag}
+                </a>
+              ))}
+            </div>
+          )
+        }
+
+        <!-- Title -->
+        <h1
+          class="mb-6 font-heading text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl"
+        >
+          {title}
+        </h1>
+
+        <!-- Meta Info -->
+        <div class="flex flex-wrap items-center gap-4 text-slate-400">
+          <div class="flex items-center gap-2">
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-secondary-500"
+            >
+              <span class="text-sm font-bold text-white">{author.charAt(0)}</span>
+            </div>
+            <span class="font-medium text-slate-200">{author}</span>
+          </div>
+          <span class="text-slate-600">•</span>
+          <time datetime={pubDate.toISOString()}>{formattedDate}</time>
+          {
+            readingTime && (
+              <>
+                <span class="text-slate-600">•</span>
+                <span>{readingTime} min read</span>
+              </>
+            )
+          }
+        </div>
+      </header>
+
+      <!-- Featured Image -->
+      {
+        image && (
+          <div class="mb-12 overflow-hidden rounded-2xl">
+            <img
+              src={image}
+              alt={title}
+              class="h-auto w-full object-cover"
+              loading="eager"
+              decoding="async"
+            />
+          </div>
+        )
+      }
+
+      <!-- Article Content -->
+      <div
+        class="prose prose-lg prose-invert max-w-none prose-headings:font-heading prose-headings:font-bold prose-h2:mt-12 prose-h2:text-3xl prose-h3:mt-8 prose-h3:text-2xl prose-p:text-slate-300 prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-white prose-code:rounded prose-code:bg-slate-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-primary-300 prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800"
+      >
+        <slot />
+      </div>
+
+      <!-- Article Footer -->
+      <footer class="mt-16 border-t border-slate-800 pt-8">
+        <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
+          <div class="flex flex-wrap gap-2">
+            {
+              tags.map((tag) => (
+                <a
+                  href={`/blog/tags/${tag.toLowerCase()}`}
+                  class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-400 transition-colors hover:border-primary-500 hover:text-primary-400"
+                >
+                  #{tag}
+                </a>
+              ))
+            }
+          </div>
+          <div class="flex gap-4">
+            <span class="text-slate-500">Share:</span>
+            <a
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(Astro.url.toString())}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-slate-400 transition-colors hover:text-primary-400"
+              aria-label="Share on Twitter"
+            >
+              Twitter
+            </a>
+            <a
+              href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(Astro.url.toString())}&title=${encodeURIComponent(title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-slate-400 transition-colors hover:text-primary-400"
+              aria-label="Share on LinkedIn"
+            >
+              LinkedIn
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </article>
+</MainLayout>
+

@@ -1,0 +1,99 @@
+---
+interface Props {
+  id: string;
+  title?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+}
+
+const { id, title, size = 'md' } = Astro.props;
+
+const sizes = {
+  sm: 'max-w-sm',
+  md: 'max-w-lg',
+  lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
+};
+---
+
+<div
+  id={id}
+  class="modal fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby={`${id}-title`}
+>
+  <div
+    class={`modal-content w-full rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl ${sizes[size]}`}
+  >
+    {/* Header */}
+    {
+      title && (
+        <div class="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+          <h2 id={`${id}-title`} class="font-heading text-xl font-bold text-white">
+            {title}
+          </h2>
+          <button
+            type="button"
+            class="modal-close rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
+            aria-label="Close modal"
+          >
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      )
+    }
+
+    {/* Body */}
+    <div class="p-6">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ id }}>
+  const modal = document.getElementById(id);
+  const closeButtons = modal?.querySelectorAll('.modal-close');
+
+  // Close on backdrop click
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  });
+
+  // Close on button click
+  closeButtons?.forEach((button) => {
+    button.addEventListener('click', () => {
+      modal?.classList.add('hidden');
+      modal?.classList.remove('flex');
+    });
+  });
+
+  // Close on escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal?.classList.contains('hidden')) {
+      modal?.classList.add('hidden');
+      modal?.classList.remove('flex');
+    }
+  });
+
+  // Expose open/close functions globally
+  window[`open_${id.replace(/-/g, '_')}`] = () => {
+    modal?.classList.remove('hidden');
+    modal?.classList.add('flex');
+  };
+
+  window[`close_${id.replace(/-/g, '_')}`] = () => {
+    modal?.classList.add('hidden');
+    modal?.classList.remove('flex');
+  };
+</script>
+

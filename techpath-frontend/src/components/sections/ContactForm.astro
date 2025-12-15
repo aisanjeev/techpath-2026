@@ -1,0 +1,143 @@
+---
+const services = [
+  { value: '', label: 'Select a service' },
+  { value: 'ai-consulting', label: 'AI & Machine Learning' },
+  { value: 'cloud-services', label: 'Cloud Infrastructure' },
+  { value: 'web-development', label: 'Web Development' },
+  { value: 'data-analytics', label: 'Data Analytics' },
+  { value: 'cybersecurity', label: 'Cybersecurity' },
+  { value: 'other', label: 'Other' },
+];
+---
+
+<form id="contact-form" class="space-y-6">
+  <!-- Name and Email Row -->
+  <div class="grid gap-6 md:grid-cols-2">
+    <div>
+      <label for="name" class="mb-2 block text-sm font-medium text-slate-300">
+        Full Name <span class="text-red-400">*</span>
+      </label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        required
+        class="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-white placeholder-slate-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        placeholder="John Doe"
+      />
+    </div>
+    <div>
+      <label for="email" class="mb-2 block text-sm font-medium text-slate-300">
+        Email Address <span class="text-red-400">*</span>
+      </label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        required
+        class="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-white placeholder-slate-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        placeholder="john@company.com"
+      />
+    </div>
+  </div>
+
+  <!-- Company and Service Row -->
+  <div class="grid gap-6 md:grid-cols-2">
+    <div>
+      <label for="company" class="mb-2 block text-sm font-medium text-slate-300">
+        Company Name
+      </label>
+      <input
+        type="text"
+        id="company"
+        name="company"
+        class="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-white placeholder-slate-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        placeholder="Acme Inc."
+      />
+    </div>
+    <div>
+      <label for="service" class="mb-2 block text-sm font-medium text-slate-300">
+        Service Interested In
+      </label>
+      <select
+        id="service"
+        name="service"
+        class="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-white focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      >
+        {services.map((service) => <option value={service.value}>{service.label}</option>)}
+      </select>
+    </div>
+  </div>
+
+  <!-- Message -->
+  <div>
+    <label for="message" class="mb-2 block text-sm font-medium text-slate-300">
+      Message <span class="text-red-400">*</span>
+    </label>
+    <textarea
+      id="message"
+      name="message"
+      required
+      rows="5"
+      class="w-full resize-none rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-white placeholder-slate-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      placeholder="Tell us about your project..."></textarea>
+  </div>
+
+  <!-- Submit Button -->
+  <button
+    type="submit"
+    id="submit-button"
+    class="w-full rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 py-4 font-semibold text-white transition-all hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:shadow-primary-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    Send Message
+  </button>
+
+  <!-- Form Message -->
+  <p id="form-message" class="hidden text-center text-sm"></p>
+</form>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
+  const formMessage = document.getElementById('form-message');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    submitButton.disabled = true;
+    submitButton.textContent = 'Sending...';
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (formMessage) {
+        formMessage.classList.remove('hidden', 'text-red-400', 'text-green-400');
+        formMessage.classList.add(result.success ? 'text-green-400' : 'text-red-400');
+        formMessage.textContent = result.success ? result.message : result.error;
+      }
+
+      if (result.success) {
+        form.reset();
+      }
+    } catch {
+      if (formMessage) {
+        formMessage.classList.remove('hidden', 'text-green-400');
+        formMessage.classList.add('text-red-400');
+        formMessage.textContent = 'An error occurred. Please try again.';
+      }
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Send Message';
+    }
+  });
+</script>
+

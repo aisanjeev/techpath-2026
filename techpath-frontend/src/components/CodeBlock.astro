@@ -1,0 +1,263 @@
+---
+/**
+ * CodeBlock Component
+ * Enhanced code block with syntax highlighting, copy button, and line numbers
+ */
+
+interface Props {
+  /** The code to display */
+  code: string;
+  /** Programming language for syntax highlighting */
+  language?: string;
+  /** Optional title/filename */
+  title?: string;
+  /** Lines to highlight (1-indexed) */
+  highlightLines?: number[];
+  /** Show line numbers */
+  showLineNumbers?: boolean;
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {
+  code,
+  language = 'text',
+  title,
+  highlightLines = [],
+  showLineNumbers = true,
+  class: className,
+} = Astro.props;
+
+// Split code into lines for line number display
+const lines = code.split('\n');
+
+// Generate unique ID for copy functionality
+const blockId = `code-block-${Math.random().toString(36).substring(2, 9)}`;
+
+// Language display names
+const languageNames: Record<string, string> = {
+  js: 'JavaScript',
+  javascript: 'JavaScript',
+  ts: 'TypeScript',
+  typescript: 'TypeScript',
+  jsx: 'JSX',
+  tsx: 'TSX',
+  html: 'HTML',
+  css: 'CSS',
+  scss: 'SCSS',
+  json: 'JSON',
+  yaml: 'YAML',
+  yml: 'YAML',
+  md: 'Markdown',
+  markdown: 'Markdown',
+  py: 'Python',
+  python: 'Python',
+  rb: 'Ruby',
+  ruby: 'Ruby',
+  go: 'Go',
+  rust: 'Rust',
+  rs: 'Rust',
+  java: 'Java',
+  kotlin: 'Kotlin',
+  swift: 'Swift',
+  php: 'PHP',
+  sql: 'SQL',
+  bash: 'Bash',
+  sh: 'Shell',
+  shell: 'Shell',
+  zsh: 'Zsh',
+  powershell: 'PowerShell',
+  dockerfile: 'Dockerfile',
+  docker: 'Docker',
+  nginx: 'Nginx',
+  graphql: 'GraphQL',
+  astro: 'Astro',
+  vue: 'Vue',
+  svelte: 'Svelte',
+  text: 'Plain Text',
+};
+
+const displayLanguage = languageNames[language.toLowerCase()] || language.toUpperCase();
+---
+
+<div class={`code-block-wrapper my-6 rounded-xl border border-slate-800 bg-slate-900 overflow-hidden ${className || ''}`} id={blockId}>
+  {/* Header with title and copy button */}
+  <div class="code-block-header flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700">
+    <div class="flex items-center gap-3">
+      {/* Decorative dots */}
+      <div class="flex gap-1.5">
+        <span class="w-3 h-3 rounded-full bg-red-500/60"></span>
+        <span class="w-3 h-3 rounded-full bg-yellow-500/60"></span>
+        <span class="w-3 h-3 rounded-full bg-green-500/60"></span>
+      </div>
+      
+      {/* Title or filename */}
+      {title && (
+        <span class="text-sm text-slate-400 font-mono">{title}</span>
+      )}
+    </div>
+
+    <div class="flex items-center gap-2">
+      {/* Language badge */}
+      <span class="text-xs text-slate-500 font-medium px-2 py-0.5 bg-slate-700/50 rounded">
+        {displayLanguage}
+      </span>
+
+      {/* Copy button */}
+      <button
+        class="copy-button flex items-center gap-1.5 px-2 py-1 text-xs text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors"
+        data-code={code}
+        aria-label="Copy code to clipboard"
+      >
+        <svg class="copy-icon w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+        <svg class="check-icon w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span class="copy-text">Copy</span>
+      </button>
+    </div>
+  </div>
+
+  {/* Code content */}
+  <div class="code-block-content overflow-x-auto">
+    <pre class="p-0 m-0 bg-transparent"><code class={`language-${language} block p-4 text-sm leading-relaxed font-mono`}>
+      {showLineNumbers ? (
+        <table class="code-table w-full border-collapse">
+          <tbody>
+            {lines.map((line, index) => {
+              const lineNumber = index + 1;
+              const isHighlighted = highlightLines.includes(lineNumber);
+              return (
+                <tr class={`code-line ${isHighlighted ? 'highlighted' : ''}`}>
+                  <td class="line-number select-none text-right pr-4 text-slate-600 w-12 align-top">
+                    {lineNumber}
+                  </td>
+                  <td class="line-content whitespace-pre">
+                    {line || ' '}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      ) : (
+        lines.map((line, index) => {
+          const lineNumber = index + 1;
+          const isHighlighted = highlightLines.includes(lineNumber);
+          return (
+            <span class={`block ${isHighlighted ? 'highlighted-line' : ''}`}>
+              {line || ' '}
+            </span>
+          );
+        })
+      )}
+    </code></pre>
+  </div>
+</div>
+
+<style>
+  .code-block-wrapper {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  .code-table {
+    border-spacing: 0;
+  }
+
+  .code-line {
+    @apply transition-colors;
+  }
+
+  .code-line.highlighted td {
+    @apply bg-primary-500/10;
+  }
+
+  .code-line.highlighted .line-number {
+    @apply text-primary-400;
+  }
+
+  .highlighted-line {
+    @apply bg-primary-500/10 -mx-4 px-4;
+  }
+
+  .line-number {
+    @apply sticky left-0 bg-slate-900;
+  }
+
+  /* Syntax highlighting colors (basic) */
+  .code-block-content :global(.keyword) {
+    @apply text-secondary-400;
+  }
+
+  .code-block-content :global(.string) {
+    @apply text-accent-400;
+  }
+
+  .code-block-content :global(.comment) {
+    @apply text-slate-500 italic;
+  }
+
+  .code-block-content :global(.function) {
+    @apply text-primary-400;
+  }
+
+  .code-block-content :global(.number) {
+    @apply text-yellow-400;
+  }
+
+  .code-block-content :global(.operator) {
+    @apply text-slate-300;
+  }
+
+  /* Scrollbar styling */
+  .code-block-content::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .code-block-content::-webkit-scrollbar-track {
+    @apply bg-slate-800;
+  }
+
+  .code-block-content::-webkit-scrollbar-thumb {
+    @apply bg-slate-700 rounded;
+  }
+
+  .code-block-content::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-600;
+  }
+</style>
+
+<script>
+  // Copy functionality
+  document.querySelectorAll('.copy-button').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const code = button.getAttribute('data-code');
+      if (!code) return;
+
+      try {
+        await navigator.clipboard.writeText(code);
+        
+        // Show success state
+        const copyIcon = button.querySelector('.copy-icon');
+        const checkIcon = button.querySelector('.check-icon');
+        const copyText = button.querySelector('.copy-text');
+        
+        copyIcon?.classList.add('hidden');
+        checkIcon?.classList.remove('hidden');
+        if (copyText) copyText.textContent = 'Copied!';
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+          copyIcon?.classList.remove('hidden');
+          checkIcon?.classList.add('hidden');
+          if (copyText) copyText.textContent = 'Copy';
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    });
+  });
+</script>
+

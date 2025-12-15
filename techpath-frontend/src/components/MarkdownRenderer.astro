@@ -1,0 +1,237 @@
+---
+/**
+ * MarkdownRenderer Component
+ * Renders markdown content with beautiful, professional styling
+ */
+import '@styles/markdown.css';
+
+interface Props {
+  /** The rendered HTML content from astro:content */
+  content: string;
+  /** Article title */
+  title?: string;
+  /** Article description */
+  description?: string;
+  /** Author name */
+  author?: string;
+  /** Publication date */
+  pubDate?: Date;
+  /** Reading time in minutes */
+  readingTime?: number;
+  /** Cover image URL */
+  image?: string;
+  /** Tags array */
+  tags?: string[];
+  /** Show table of contents */
+  showToc?: boolean;
+  /** Custom class names */
+  class?: string;
+}
+
+const {
+  content,
+  title,
+  description,
+  author,
+  pubDate,
+  readingTime,
+  image,
+  tags = [],
+  showToc = false,
+  class: className = '',
+} = Astro.props;
+
+// Format date
+const formattedDate = pubDate
+  ? new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(pubDate)
+  : null;
+
+// Extract headings for TOC (simple regex approach)
+const headingMatches = content.match(/<h([2-3])[^>]*id="([^"]*)"[^>]*>([^<]*)<\/h[2-3]>/g) || [];
+const tableOfContents = headingMatches.map((match) => {
+  const levelMatch = match.match(/<h([2-3])/);
+  const idMatch = match.match(/id="([^"]*)"/);
+  const textMatch = match.match(/>([^<]*)</);
+  return {
+    level: levelMatch ? parseInt(levelMatch[1]) : 2,
+    id: idMatch ? idMatch[1] : '',
+    text: textMatch ? textMatch[1] : '',
+  };
+});
+---
+
+<article class={`markdown-renderer ${className}`}>
+  {/* Article Header */}
+  {(title || author || pubDate) && (
+    <header class="article-header mb-12">
+      {/* Tags */}
+      {tags.length > 0 && (
+        <div class="flex flex-wrap gap-2 mb-4">
+          {tags.map((tag) => (
+            <a
+              href={`/blog/tags/${tag.toLowerCase()}`}
+              class="px-3 py-1 text-sm font-medium bg-primary-500/10 text-primary-400 rounded-full hover:bg-primary-500/20 transition-colors"
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      )}
+
+      {/* Title */}
+      {title && (
+        <h1 class="font-heading text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
+          {title}
+        </h1>
+      )}
+
+      {/* Description */}
+      {description && (
+        <p class="text-xl text-slate-400 leading-relaxed mb-6">
+          {description}
+        </p>
+      )}
+
+      {/* Meta information */}
+      <div class="flex flex-wrap items-center gap-4 text-sm text-slate-400">
+        {/* Author */}
+        {author && (
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center">
+              <span class="text-white text-sm font-bold">{author.charAt(0)}</span>
+            </div>
+            <span class="font-medium text-slate-300">{author}</span>
+          </div>
+        )}
+
+        {/* Date */}
+        {formattedDate && (
+          <>
+            <span class="text-slate-600">•</span>
+            <time datetime={pubDate?.toISOString()}>{formattedDate}</time>
+          </>
+        )}
+
+        {/* Reading time */}
+        {readingTime && (
+          <>
+            <span class="text-slate-600">•</span>
+            <span class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {readingTime} min read
+            </span>
+          </>
+        )}
+      </div>
+    </header>
+  )}
+
+  {/* Featured Image */}
+  {image && (
+    <figure class="mb-12 -mx-4 md:mx-0">
+      <img
+        src={image}
+        alt={title || 'Article cover image'}
+        class="w-full h-auto rounded-2xl shadow-2xl"
+        loading="eager"
+      />
+    </figure>
+  )}
+
+  {/* Content Layout with optional TOC */}
+  <div class={`content-layout ${showToc && tableOfContents.length > 0 ? 'with-toc' : ''}`}>
+    {/* Table of Contents Sidebar */}
+    {showToc && tableOfContents.length > 0 && (
+      <aside class="toc-sidebar hidden lg:block">
+        <nav class="sticky top-24">
+          <h4 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">
+            On this page
+          </h4>
+          <ul class="space-y-2 text-sm border-l border-slate-800 pl-4">
+            {tableOfContents.map((heading) => (
+              <li class={heading.level === 3 ? 'ml-4' : ''}>
+                <a
+                  href={`#${heading.id}`}
+                  class="text-slate-400 hover:text-primary-400 transition-colors block py-1"
+                >
+                  {heading.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
+    )}
+
+    {/* Main Content */}
+    <div class="markdown-content" set:html={content} />
+  </div>
+</article>
+
+<style>
+  .markdown-renderer {
+    @apply max-w-none;
+  }
+
+  .content-layout {
+    @apply relative;
+  }
+
+  .content-layout.with-toc {
+    @apply lg:grid lg:grid-cols-[1fr_220px] lg:gap-12;
+  }
+
+  .toc-sidebar {
+    @apply order-last;
+  }
+
+  .toc-sidebar nav {
+    @apply max-h-[calc(100vh-8rem)] overflow-y-auto;
+  }
+
+  /* Smooth scroll for anchor links */
+  :global(html) {
+    scroll-behavior: smooth;
+  }
+
+  /* Active TOC item highlighting (requires JS) */
+  .toc-sidebar a.active {
+    @apply text-primary-400 font-medium;
+  }
+</style>
+
+<script>
+  // Highlight current section in TOC
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const id = entry.target.getAttribute('id');
+        const tocLink = document.querySelector(`.toc-sidebar a[href="#${id}"]`);
+        
+        if (tocLink) {
+          if (entry.isIntersecting) {
+            // Remove active from all
+            document.querySelectorAll('.toc-sidebar a').forEach((a) => a.classList.remove('active'));
+            tocLink.classList.add('active');
+          }
+        }
+      });
+    },
+    {
+      rootMargin: '-80px 0px -80% 0px',
+      threshold: 0,
+    }
+  );
+
+  // Observe all headings with IDs
+  document.querySelectorAll('.markdown-content h2[id], .markdown-content h3[id]').forEach((heading) => {
+    observer.observe(heading);
+  });
+</script>
+

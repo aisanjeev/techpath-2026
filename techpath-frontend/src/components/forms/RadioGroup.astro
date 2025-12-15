@@ -1,0 +1,65 @@
+---
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  name: string;
+  options: Option[];
+  label?: string;
+  defaultValue?: string;
+  required?: boolean;
+  disabled?: boolean;
+  class?: string;
+}
+
+const {
+  name,
+  options,
+  label,
+  defaultValue,
+  required = false,
+  disabled = false,
+  class: className,
+} = Astro.props;
+---
+
+<div class={`form-group ${className || ''}`} role="radiogroup" aria-labelledby={`${name}-label`}>
+  {
+    label && (
+      <div id={`${name}-label`} class="mb-3 text-sm font-medium text-slate-300">
+        {label}
+        {required && <span class="text-red-400">*</span>}
+      </div>
+    )
+  }
+  <div class="space-y-2">
+    {
+      options.map((option) => (
+        <div class="flex items-center gap-3">
+          <div class="relative flex items-center">
+            <input
+              type="radio"
+              id={`${name}-${option.value}`}
+              name={name}
+              value={option.value}
+              checked={option.value === defaultValue}
+              required={required}
+              disabled={disabled}
+              class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-600 bg-slate-800/50 transition-colors checked:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+            <div class="pointer-events-none absolute left-1/2 top-1/2 hidden h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-500 peer-checked:block" />
+          </div>
+          <label
+            for={`${name}-${option.value}`}
+            class={`text-sm text-slate-300 ${disabled ? 'opacity-50' : 'cursor-pointer'}`}
+          >
+            {option.label}
+          </label>
+        </div>
+      ))
+    }
+  </div>
+</div>
+

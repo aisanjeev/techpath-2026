@@ -1,0 +1,1015 @@
+---
+/**
+ * Solutions Page
+ * Industry-focused solutions for B2B conversion
+ * Based on Solutions-Page-Guide.md
+ */
+import MainLayout from '@layouts/MainLayout.astro';
+import Breadcrumb from '@components/shared/Breadcrumb.astro';
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Solutions', href: '/solutions', current: true },
+];
+
+// Industry data with color coding
+const industries = [
+  {
+    id: 'healthcare',
+    name: 'Healthcare',
+    icon: '🏥',
+    color: '#0ea5e9',
+    colorClass: 'sky',
+    keyChallenge: 'Manual processes & compliance',
+    painPoints: [
+      {
+        title: 'Manual Processes Drain Resources',
+        description: 'Healthcare organizations lose $4.3M annually to manual administrative tasks.',
+        statistic: '73% report workflow inefficiencies',
+        impact: 'Lost productivity, staff burnout, delayed patient care',
+      },
+      {
+        title: 'Compliance & Security Concerns',
+        description: 'HIPAA violations average $2.8M per incident.',
+        statistic: '45% had compliance issues last year',
+        impact: 'Legal liability, reputation damage, operational disruption',
+      },
+      {
+        title: 'Data Fragmentation',
+        description: 'Patient data scattered across disconnected systems.',
+        statistic: 'Averaging 12 different systems per organization',
+        impact: 'Poor patient outcomes, inefficient care coordination',
+      },
+    ],
+    solutions: [
+      { title: 'Automated Patient Management', description: 'AI-powered workflows reduce administrative time by 65%', icon: '⚡', benefit: 'Save 20+ hours/week' },
+      { title: 'HIPAA-Compliant Systems', description: 'Enterprise-grade security with automatic compliance monitoring', icon: '🔒', benefit: 'Zero compliance violations' },
+      { title: 'Data Integration', description: 'Unified patient records across all departments', icon: '🔄', benefit: 'Real-time visibility' },
+      { title: 'Predictive Analytics', description: 'AI-driven insights for better patient outcomes', icon: '📊', benefit: 'Proactive care' },
+    ],
+    outcomes: ['35% reduction in operational costs', '50% faster patient onboarding', '98% compliance score'],
+    metric: { value: '65%', label: 'Time Savings', description: '20 hours saved weekly' },
+    caseStudy: {
+      company: "St. Mary's Hospital Network",
+      challenge: 'Managing patient data across 12 disconnected systems, causing 30+ hours/week of manual work',
+      solution: 'Implemented unified patient management platform with AI automation',
+      results: [
+        { value: '65%', label: 'Time Reduction' },
+        { value: '95%', label: 'Data Accuracy' },
+        { value: '$2.4M', label: 'Annual Savings' },
+      ],
+      testimonial: {
+        text: 'This solution transformed how we manage patient care. We reduced administrative burden and improved patient outcomes.',
+        author: 'Dr. James Chen',
+        title: 'Chief Medical Officer',
+      },
+    },
+  },
+  {
+    id: 'finance',
+    name: 'Financial Services',
+    icon: '🏦',
+    color: '#8b5cf6',
+    colorClass: 'violet',
+    keyChallenge: 'Fraud detection & regulatory compliance',
+    painPoints: [
+      {
+        title: 'Fraud Losses Escalating',
+        description: 'Financial fraud costs institutions billions annually.',
+        statistic: '$28.5B lost to fraud globally',
+        impact: 'Direct financial losses, customer trust erosion',
+      },
+      {
+        title: 'Regulatory Complexity',
+        description: 'Compliance requirements constantly evolving.',
+        statistic: 'Average $850K in regulatory fines',
+        impact: 'Legal penalties, operational overhead',
+      },
+      {
+        title: 'Risk Assessment Gaps',
+        description: 'Traditional methods miss emerging threats.',
+        statistic: '45% of institutions had compliance violations',
+        impact: 'Exposure to systemic risks, audit failures',
+      },
+    ],
+    solutions: [
+      { title: 'Fraud Detection AI', description: 'Real-time fraud prevention with machine learning', icon: '🛡️', benefit: '99.9% detection rate' },
+      { title: 'Regulatory Compliance', description: 'Automated GDPR, SOX, PCI-DSS monitoring', icon: '📋', benefit: 'Always audit-ready' },
+      { title: 'Risk Assessment', description: 'Predictive risk scoring and monitoring', icon: '⚠️', benefit: 'Proactive risk management' },
+      { title: 'Real-time Analytics', description: 'Instant insights across all transactions', icon: '📈', benefit: 'Faster decisions' },
+    ],
+    outcomes: ['42% faster compliance audits', '99.9% fraud detection', '$1.2M annual savings'],
+    metric: { value: '42%', label: 'Faster Compliance', description: '$1.2M savings/year' },
+    caseStudy: {
+      company: 'Global Bank Corp',
+      challenge: 'Manual compliance processes taking 60+ hours per audit with frequent violations',
+      solution: 'Deployed automated compliance monitoring with AI-powered fraud detection',
+      results: [
+        { value: '42%', label: 'Faster Audits' },
+        { value: '99.9%', label: 'Fraud Detection' },
+        { value: '$1.2M', label: 'Annual Savings' },
+      ],
+      testimonial: {
+        text: 'We went from dreading audits to welcoming them. The automation gave us confidence we never had before.',
+        author: 'Sarah Mitchell',
+        title: 'Chief Compliance Officer',
+      },
+    },
+  },
+  {
+    id: 'retail',
+    name: 'Retail & E-commerce',
+    icon: '🛒',
+    color: '#f59e0b',
+    colorClass: 'amber',
+    keyChallenge: 'Inventory management & customer experience',
+    painPoints: [
+      {
+        title: 'Inventory Discrepancies',
+        description: 'Stock issues leading to lost sales and excess costs.',
+        statistic: '15% inventory accuracy gap',
+        impact: 'Lost sales, excess holding costs, customer frustration',
+      },
+      {
+        title: 'Omnichannel Gaps',
+        description: 'Disconnected customer experiences across channels.',
+        statistic: '$250K+ lost to stockouts annually',
+        impact: 'Customer churn, inconsistent brand experience',
+      },
+      {
+        title: 'Supply Chain Visibility',
+        description: 'Limited visibility into supply chain operations.',
+        statistic: '30% of orders delayed due to visibility gaps',
+        impact: 'Delivery delays, customer complaints',
+      },
+    ],
+    solutions: [
+      { title: 'Inventory Management', description: 'AI-powered demand forecasting and stock optimization', icon: '📦', benefit: '40% reduction in stockouts' },
+      { title: 'Customer Analytics', description: 'Deep customer insights for personalization', icon: '👥', benefit: '25% higher conversion' },
+      { title: 'Omnichannel Integration', description: 'Seamless experience across all touchpoints', icon: '🔗', benefit: 'Unified customer view' },
+      { title: 'Supply Chain Optimization', description: 'End-to-end visibility and automation', icon: '🚚', benefit: 'Faster fulfillment' },
+    ],
+    outcomes: ['40% inventory reduction', '25% conversion increase', '95% on-time delivery'],
+    metric: { value: '40%', label: 'Inventory Reduction', description: '$500K savings/year' },
+    caseStudy: {
+      company: 'Fashion Forward Stores',
+      challenge: 'Chronic stockouts and overstocking issues costing $500K+ annually',
+      solution: 'Implemented AI-driven inventory management with demand forecasting',
+      results: [
+        { value: '40%', label: 'Stock Reduction' },
+        { value: '25%', label: 'Sales Increase' },
+        { value: '95%', label: 'Availability' },
+      ],
+      testimonial: {
+        text: 'We finally have the right products in the right stores at the right time. Game changer for our business.',
+        author: 'Michael Torres',
+        title: 'VP of Operations',
+      },
+    },
+  },
+  {
+    id: 'manufacturing',
+    name: 'Manufacturing',
+    icon: '🏭',
+    color: '#ef4444',
+    colorClass: 'red',
+    keyChallenge: 'Downtime reduction & production optimization',
+    painPoints: [
+      {
+        title: 'Unplanned Downtime',
+        description: 'Equipment failures causing production losses.',
+        statistic: '$2M+ annual downtime costs',
+        impact: 'Lost production, missed deadlines, emergency repairs',
+      },
+      {
+        title: 'Quality Control Issues',
+        description: 'Defects not caught until late in production.',
+        statistic: '80% of failures are preventable',
+        impact: 'Rework costs, warranty claims, reputation damage',
+      },
+      {
+        title: 'Supply Chain Disruptions',
+        description: 'Material shortages and delivery delays.',
+        statistic: '30% of production delays from supply issues',
+        impact: 'Production halts, expedited shipping costs',
+      },
+    ],
+    solutions: [
+      { title: 'Predictive Maintenance', description: 'AI predicts equipment failures before they happen', icon: '🔧', benefit: '80% fewer breakdowns' },
+      { title: 'Supply Chain Management', description: 'Real-time visibility and automated procurement', icon: '📦', benefit: 'Zero stockouts' },
+      { title: 'Quality Control Automation', description: 'Computer vision for defect detection', icon: '🔍', benefit: '99% defect detection' },
+      { title: 'Production Optimization', description: 'AI-driven scheduling and resource allocation', icon: '⚙️', benefit: '20% throughput increase' },
+    ],
+    outcomes: ['30% uptime improvement', '80% reduction in failures', '$2M+ annual savings'],
+    metric: { value: '30%', label: 'Uptime Improvement', description: '2000+ hours saved/year' },
+    caseStudy: {
+      company: 'Precision Manufacturing Inc',
+      challenge: 'Frequent equipment failures causing $2M+ in annual downtime costs',
+      solution: 'Deployed predictive maintenance with IoT sensors and AI analytics',
+      results: [
+        { value: '30%', label: 'Uptime Increase' },
+        { value: '80%', label: 'Fewer Failures' },
+        { value: '$2.1M', label: 'Cost Savings' },
+      ],
+      testimonial: {
+        text: 'We went from reactive firefighting to proactive maintenance. Our OEE improved dramatically.',
+        author: 'Robert Kim',
+        title: 'Plant Manager',
+      },
+    },
+  },
+  {
+    id: 'technology',
+    name: 'Technology & SaaS',
+    icon: '💻',
+    color: '#06b6d4',
+    colorClass: 'cyan',
+    keyChallenge: 'Scaling infrastructure & cost optimization',
+    painPoints: [
+      {
+        title: 'Cloud Cost Overruns',
+        description: 'Unoptimized cloud spending draining budgets.',
+        statistic: '35% of cloud spend is wasted',
+        impact: 'Budget overruns, resource waste',
+      },
+      {
+        title: 'Security Vulnerabilities',
+        description: 'Growing attack surface as systems scale.',
+        statistic: '5.4B records compromised in breaches',
+        impact: 'Data breaches, compliance failures',
+      },
+      {
+        title: 'Scaling Challenges',
+        description: 'Infrastructure struggling to keep up with growth.',
+        statistic: '40% of startups cite scaling as top challenge',
+        impact: 'Performance issues, customer churn',
+      },
+    ],
+    solutions: [
+      { title: 'Scalable Infrastructure', description: 'Auto-scaling architecture that grows with you', icon: '📈', benefit: 'Infinite scalability' },
+      { title: 'Security & Performance', description: 'Enterprise-grade security with zero-trust architecture', icon: '🔐', benefit: 'SOC 2 compliant' },
+      { title: 'DevOps Automation', description: 'CI/CD pipelines and infrastructure as code', icon: '🔄', benefit: '10x faster deployments' },
+      { title: 'Cost Optimization', description: 'AI-driven cloud spend analysis and optimization', icon: '💰', benefit: '50% cost reduction' },
+    ],
+    outcomes: ['50% cloud cost reduction', '99.99% uptime', '10x faster deployments'],
+    metric: { value: '50%', label: 'Cost Savings', description: '$2.5M+/year for enterprises' },
+    caseStudy: {
+      company: 'CloudTech Solutions',
+      challenge: 'Cloud costs spiraling out of control while struggling to maintain performance',
+      solution: 'Implemented cloud cost optimization with auto-scaling infrastructure',
+      results: [
+        { value: '50%', label: 'Cost Reduction' },
+        { value: '99.99%', label: 'Uptime' },
+        { value: '10x', label: 'Faster Deploys' },
+      ],
+      testimonial: {
+        text: 'We cut our AWS bill in half while actually improving performance. The ROI was immediate.',
+        author: 'David Park',
+        title: 'CTO',
+      },
+    },
+  },
+  {
+    id: 'education',
+    name: 'Education',
+    icon: '🎓',
+    color: '#10b981',
+    colorClass: 'emerald',
+    keyChallenge: 'Student engagement & administrative efficiency',
+    painPoints: [
+      {
+        title: 'Low Completion Rates',
+        description: 'Students dropping out before finishing courses.',
+        statistic: '40-60% course completion rates',
+        impact: 'Lost revenue, poor outcomes, reputation issues',
+      },
+      {
+        title: 'Engagement Gaps',
+        description: 'Students disengaged from learning materials.',
+        statistic: '50% of students report low engagement',
+        impact: 'Poor learning outcomes, high dropout rates',
+      },
+      {
+        title: 'Administrative Overhead',
+        description: 'Manual processes consuming staff time.',
+        statistic: '30% of budget on administrative tasks',
+        impact: 'Resource drain, staff burnout',
+      },
+    ],
+    solutions: [
+      { title: 'Student Engagement Platform', description: 'AI-powered personalized learning paths', icon: '📚', benefit: '35% higher completion' },
+      { title: 'Learning Analytics', description: 'Real-time insights into student progress', icon: '📊', benefit: 'Early intervention' },
+      { title: 'Administrative Automation', description: 'Automate enrollment, grading, and scheduling', icon: '⚡', benefit: '50% time savings' },
+      { title: 'Remote Learning Tools', description: 'Comprehensive virtual classroom solutions', icon: '🌐', benefit: 'Learn anywhere' },
+    ],
+    outcomes: ['35% higher completion rates', '50% administrative savings', '90% student satisfaction'],
+    metric: { value: '35%', label: 'Engagement Increase', description: '250 more completions/year' },
+    caseStudy: {
+      company: 'State University System',
+      challenge: 'Online course completion rates stuck at 45% with high administrative costs',
+      solution: 'Deployed AI-powered learning platform with automated administration',
+      results: [
+        { value: '35%', label: 'Completion Increase' },
+        { value: '50%', label: 'Admin Savings' },
+        { value: '92%', label: 'Satisfaction' },
+      ],
+      testimonial: {
+        text: 'Student success improved dramatically. The AI identifies at-risk students before they fall behind.',
+        author: 'Dr. Lisa Wang',
+        title: 'Dean of Online Learning',
+      },
+    },
+  },
+];
+
+const trustIndicators = [
+  { icon: '⭐', text: '500+ Clients Across Industries' },
+  { icon: '🏆', text: 'ISO 27001 & SOC 2 Certified' },
+  { icon: '🔒', text: 'Enterprise-Grade Security' },
+  { icon: '📈', text: 'Average 40% ROI in Year 1' },
+  { icon: '🌍', text: 'Available in 180+ Countries' },
+  { icon: '🕐', text: '24/7 Dedicated Support' },
+];
+
+const certifications = [
+  { name: 'ISO 27001', description: 'Information Security' },
+  { name: 'SOC 2 Type II', description: 'Service Organization Control' },
+  { name: 'HIPAA', description: 'Healthcare Compliance' },
+  { name: 'GDPR', description: 'Data Protection' },
+  { name: 'PCI DSS', description: 'Payment Security' },
+];
+---
+
+<MainLayout 
+  title="Industry Solutions" 
+  description="Tailored AI and tech solutions for healthcare, finance, retail, manufacturing, education, and SaaS. See how companies save 40%+ costs."
+>
+  <!-- HERO SECTION -->
+  <section class="hero-section relative min-h-[80vh] flex items-center">
+    <!-- Background gradient -->
+    <div class="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-primary-950"></div>
+    
+    <!-- Animated background elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl animate-float"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary-500/10 rounded-full blur-3xl animate-float animation-delay-300"></div>
+    </div>
+
+    <div class="container mx-auto px-4 relative z-10 py-20">
+      <Breadcrumb items={breadcrumbItems} />
+      
+      <div class="max-w-4xl mx-auto text-center mt-8">
+        <!-- Trust badge -->
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-400 text-sm mb-8">
+          <span>✓</span>
+          <span>Trusted by 500+ organizations worldwide</span>
+        </div>
+
+        <h1 class="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+          Industry-Specific Solutions
+          <span class="text-gradient"> That Fit Your Business</span>
+        </h1>
+        
+        <p class="text-xl text-slate-400 mb-8 max-w-2xl mx-auto">
+          Tailored AI and technology solutions for healthcare, finance, retail, manufacturing, education, and SaaS companies.
+        </p>
+
+        <!-- CTAs -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <a 
+            href="#consultation" 
+            class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-600 transition-all hover:shadow-lg hover:shadow-primary-500/25"
+          >
+            Start Free Consultation
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+          
+          <!-- Dropdown Button -->
+          <div class="relative" id="industry-dropdown-container">
+            <button 
+              type="button"
+              id="industry-dropdown-btn"
+              class="inline-flex items-center justify-center gap-2 px-8 py-4 border border-slate-700 text-white font-semibold rounded-lg hover:border-slate-600 hover:bg-slate-800/50 transition-all w-full sm:w-auto"
+            >
+              Explore Industries
+              <svg class="w-5 h-5 transition-transform" id="dropdown-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            
+            <!-- Dropdown Menu -->
+            <div 
+              id="industry-dropdown-menu"
+              class="absolute top-full left-0 right-0 sm:left-auto sm:right-auto sm:w-72 mt-2 py-2 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl shadow-black/50 hidden z-50 max-h-[60vh] overflow-y-auto"
+            >
+              {industries.map((industry) => (
+                <a 
+                  href={`#${industry.id}`}
+                  class="industry-dropdown-item flex items-center gap-3 px-4 py-3 hover:bg-slate-800 transition-colors"
+                  data-industry={industry.id}
+                >
+                  <span class="text-2xl">{industry.icon}</span>
+                  <div class="flex-1">
+                    <div class="font-medium text-white">{industry.name}</div>
+                    <div class="text-xs" style={`color: ${industry.color}`}>{industry.metric.value} {industry.metric.label}</div>
+                  </div>
+                  <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick benefits -->
+        <div class="flex flex-wrap justify-center gap-6 text-sm text-slate-400">
+          <span class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Industry-proven solutions
+          </span>
+          <span class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Compliance-ready implementations
+          </span>
+          <span class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Rapid ROI
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+      <svg class="w-6 h-6 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+      </svg>
+    </div>
+  </section>
+
+  <!-- OUTCOMES SHOWCASE -->
+  <section class="py-16 bg-slate-900/50 border-y border-slate-800">
+    <div class="container mx-auto px-4">
+      <h2 class="text-center font-heading text-2xl font-bold text-white mb-12">
+        Results That Matter
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        {industries.map((industry) => (
+          <div class="outcome-card text-center p-6 rounded-xl bg-slate-800/30 border border-slate-800 hover:border-slate-700 transition-all group">
+            <div class="text-3xl mb-2">{industry.icon}</div>
+            <div class="metric text-3xl md:text-4xl font-bold text-white mb-1" style={`color: ${industry.color}`}>
+              {industry.metric.value}
+            </div>
+            <div class="text-sm font-medium text-slate-300 mb-1">{industry.metric.label}</div>
+            <div class="text-xs text-slate-500">{industry.metric.description}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTIONS GRID -->
+  <section id="industries" class="py-20 scroll-mt-20">
+    <div class="container mx-auto px-4">
+      <header class="max-w-3xl mx-auto text-center mb-16">
+        <h2 class="font-heading text-3xl md:text-4xl font-bold text-white mb-4">
+          Solutions by Industry
+        </h2>
+        <p class="text-lg text-slate-400">
+          Every industry has unique challenges. We've developed specialized solutions that address your specific pain points.
+        </p>
+      </header>
+
+      <div class="space-y-24">
+        {industries.map((industry, index) => (
+          <div id={industry.id} class="industry-section scroll-mt-24">
+            <!-- Industry Header -->
+            <div class="flex flex-col lg:flex-row lg:items-center gap-6 mb-8">
+              <div class={`inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-${industry.colorClass}-500/10 border border-${industry.colorClass}-500/20`} style={`border-color: ${industry.color}30; background: ${industry.color}10`}>
+                <span class="text-4xl">{industry.icon}</span>
+                <div>
+                  <h3 class="font-heading text-2xl font-bold text-white">{industry.name}</h3>
+                  <p class="text-sm text-slate-400">{industry.keyChallenge}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+              <!-- Pain Points -->
+              <div class="space-y-4">
+                <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <span class="text-red-400">⚠️</span> Key Challenges
+                </h4>
+                {industry.painPoints.map((pain) => (
+                  <div class="pain-point p-4 rounded-xl bg-slate-800/30 border border-slate-800 hover:border-red-500/30 transition-all">
+                    <h5 class="font-semibold text-white mb-1">{pain.title}</h5>
+                    <p class="text-sm text-slate-400 mb-2">{pain.description}</p>
+                    <div class="flex flex-wrap gap-3 text-xs">
+                      <span class="px-2 py-1 rounded bg-red-500/10 text-red-400">{pain.statistic}</span>
+                      <span class="text-slate-500">{pain.impact}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <!-- Solutions -->
+              <div class="space-y-4">
+                <h4 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <span class="text-accent-400">✓</span> Our Solutions
+                </h4>
+                <div class="grid gap-4">
+                  {industry.solutions.map((solution) => (
+                    <div class="solution-item p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition-all group" style={`border-left: 3px solid ${industry.color}`}>
+                      <div class="flex items-start gap-3">
+                        <span class="text-2xl">{solution.icon}</span>
+                        <div class="flex-1">
+                          <h5 class="font-semibold text-white mb-1 group-hover:text-primary-400 transition-colors">{solution.title}</h5>
+                          <p class="text-sm text-slate-400 mb-2">{solution.description}</p>
+                          <span class="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full" style={`background: ${industry.color}20; color: ${industry.color}`}>
+                            {solution.benefit}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <!-- Outcomes -->
+                <div class="mt-6 p-4 rounded-xl bg-slate-800/50 border border-slate-800">
+                  <h5 class="text-sm font-semibold text-slate-400 mb-3">Expected Outcomes</h5>
+                  <div class="flex flex-wrap gap-2">
+                    {industry.outcomes.map((outcome) => (
+                      <span class="text-sm px-3 py-1 rounded-full bg-accent-500/10 text-accent-400 border border-accent-500/20">
+                        ✓ {outcome}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Case Study -->
+            <div class="mt-8 p-6 rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-800/50" style={`border-top: 3px solid ${industry.color}`}>
+              <div class="flex flex-col lg:flex-row gap-8">
+                <div class="flex-1">
+                  <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Case Study</span>
+                  <h4 class="font-heading text-xl font-bold text-white mt-1 mb-3">{industry.caseStudy.company}</h4>
+                  
+                  <div class="space-y-3 mb-6">
+                    <div>
+                      <span class="text-xs font-medium text-red-400">Challenge:</span>
+                      <p class="text-sm text-slate-400">{industry.caseStudy.challenge}</p>
+                    </div>
+                    <div>
+                      <span class="text-xs font-medium text-accent-400">Solution:</span>
+                      <p class="text-sm text-slate-400">{industry.caseStudy.solution}</p>
+                    </div>
+                  </div>
+
+                  <div class="flex flex-wrap gap-4">
+                    {industry.caseStudy.results.map((result) => (
+                      <div class="text-center">
+                        <div class="text-2xl font-bold" style={`color: ${industry.color}`}>{result.value}</div>
+                        <div class="text-xs text-slate-500">{result.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div class="lg:w-80 p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+                  <div class="flex items-start gap-3">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl" style={`background: ${industry.color}20`}>
+                      {industry.caseStudy.testimonial.author.charAt(0)}
+                    </div>
+                    <div class="flex-1">
+                      <p class="text-sm text-slate-300 italic mb-3">"{industry.caseStudy.testimonial.text}"</p>
+                      <p class="text-sm font-medium text-white">{industry.caseStudy.testimonial.author}</p>
+                      <p class="text-xs text-slate-500">{industry.caseStudy.testimonial.title}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {index < industries.length - 1 && (
+              <hr class="mt-16 border-slate-800" />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST & SOCIAL PROOF -->
+  <section class="py-20 bg-slate-900/50 border-y border-slate-800">
+    <div class="container mx-auto px-4">
+      <h2 class="text-center font-heading text-2xl font-bold text-white mb-12">
+        Trusted by Industry Leaders
+      </h2>
+
+      <!-- Trust Indicators -->
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-16">
+        {trustIndicators.map((indicator) => (
+          <div class="text-center p-4 rounded-xl bg-slate-800/30 border border-slate-800">
+            <span class="text-2xl block mb-2">{indicator.icon}</span>
+            <span class="text-sm text-slate-300">{indicator.text}</span>
+          </div>
+        ))}
+      </div>
+
+      <!-- Certifications -->
+      <div class="flex flex-wrap justify-center gap-6">
+        {certifications.map((cert) => (
+          <div class="flex items-center gap-3 px-6 py-3 rounded-xl bg-slate-800/50 border border-slate-700">
+            <div class="w-10 h-10 rounded-lg bg-primary-500/20 flex items-center justify-center">
+              <svg class="w-6 h-6 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div>
+              <div class="font-semibold text-white text-sm">{cert.name}</div>
+              <div class="text-xs text-slate-500">{cert.description}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CONSULTATION CTA -->
+  <section id="consultation" class="py-20 scroll-mt-20">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="font-heading text-3xl md:text-4xl font-bold text-white mb-4">
+            Ready to Transform Your Business?
+          </h2>
+          <p class="text-lg text-slate-400">
+            Schedule a free 30-minute consultation with our solutions architect.
+          </p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+          <!-- Contact Form -->
+          <div class="p-8 rounded-2xl bg-slate-900 border border-slate-800">
+            <h3 class="font-heading text-xl font-bold text-white mb-6">
+              Schedule Free Consultation
+            </h3>
+            <form class="space-y-4" action="/api/contact" method="POST">
+              <div>
+                <label for="name" class="block text-sm font-medium text-slate-300 mb-2">Full Name *</label>
+                <input 
+                  type="text" 
+                  id="name" 
+                  name="name" 
+                  required
+                  class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors"
+                  placeholder="John Smith"
+                />
+              </div>
+              <div>
+                <label for="email" class="block text-sm font-medium text-slate-300 mb-2">Work Email *</label>
+                <input 
+                  type="email" 
+                  id="email" 
+                  name="email" 
+                  required
+                  class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors"
+                  placeholder="john@company.com"
+                />
+              </div>
+              <div>
+                <label for="company" class="block text-sm font-medium text-slate-300 mb-2">Company *</label>
+                <input 
+                  type="text" 
+                  id="company" 
+                  name="company" 
+                  required
+                  class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors"
+                  placeholder="Acme Inc."
+                />
+              </div>
+              <div>
+                <label for="industry" class="block text-sm font-medium text-slate-300 mb-2">Industry *</label>
+                <select 
+                  id="industry" 
+                  name="industry" 
+                  required
+                  class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors"
+                >
+                  <option value="">Select your industry</option>
+                  <option value="healthcare">Healthcare</option>
+                  <option value="finance">Financial Services</option>
+                  <option value="retail">Retail & E-commerce</option>
+                  <option value="manufacturing">Manufacturing</option>
+                  <option value="technology">Technology & SaaS</option>
+                  <option value="education">Education</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label for="challenge" class="block text-sm font-medium text-slate-300 mb-2">Tell us about your challenge</label>
+                <textarea 
+                  id="challenge" 
+                  name="challenge" 
+                  rows="3"
+                  class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors resize-none"
+                  placeholder="What's your biggest technology challenge right now?"
+                ></textarea>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Timeline</label>
+                <div class="flex flex-wrap gap-3">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="timeline" value="immediate" class="text-primary-500 focus:ring-primary-500" />
+                    <span class="text-sm text-slate-400">Immediate</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="timeline" value="1-3months" class="text-primary-500 focus:ring-primary-500" />
+                    <span class="text-sm text-slate-400">1-3 months</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="timeline" value="3-6months" class="text-primary-500 focus:ring-primary-500" />
+                    <span class="text-sm text-slate-400">3-6 months</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="timeline" value="6+months" class="text-primary-500 focus:ring-primary-500" />
+                    <span class="text-sm text-slate-400">6+ months</span>
+                  </label>
+                </div>
+              </div>
+              <button 
+                type="submit"
+                class="w-full py-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-600 transition-all hover:shadow-lg hover:shadow-primary-500/25"
+              >
+                Schedule Consultation
+              </button>
+              <p class="text-xs text-slate-500 text-center">
+                You'll receive a free industry benchmark report after booking.
+              </p>
+            </form>
+          </div>
+
+          <!-- Alternative Options -->
+          <div class="space-y-6">
+            <div class="p-6 rounded-xl bg-slate-800/50 border border-slate-800">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-xl bg-secondary-500/20 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-6 h-6 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-white mb-2">Request Detailed Proposal</h4>
+                  <p class="text-sm text-slate-400 mb-4">Get a customized solution plan tailored to your specific needs.</p>
+                  <a href="/contact" class="text-sm text-secondary-400 hover:text-secondary-300 font-medium">
+                    Request Proposal →
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-6 rounded-xl bg-slate-800/50 border border-slate-800">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-xl bg-accent-500/20 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-6 h-6 text-accent-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-white mb-2">Talk to an Expert</h4>
+                  <p class="text-sm text-slate-400 mb-2">Prefer to talk? Call us directly.</p>
+                  <a href="tel:+15551234567" class="text-lg font-semibold text-accent-400 hover:text-accent-300">
+                    +1 (555) 123-4567
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-6 rounded-xl bg-gradient-to-br from-primary-500/10 to-secondary-500/10 border border-primary-500/20">
+              <h4 class="font-semibold text-white mb-2">What happens next?</h4>
+              <ul class="space-y-2 text-sm text-slate-400">
+                <li class="flex items-start gap-2">
+                  <span class="text-primary-400 mt-1">1.</span>
+                  <span>We'll contact you within 24 hours to schedule</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-primary-400 mt-1">2.</span>
+                  <span>30-min discovery call with a solutions architect</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-primary-400 mt-1">3.</span>
+                  <span>Receive a customized solution recommendation</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-primary-400 mt-1">4.</span>
+                  <span>Get a free industry benchmark report</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+  .hero-section {
+    background: linear-gradient(135deg, theme('colors.slate.950'), theme('colors.slate.900'));
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-400 via-secondary-400 to-accent-400 bg-clip-text text-transparent;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+
+  .animate-float {
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 3s;
+  }
+
+  /* Counter animation */
+  .metric {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Industry sections */
+  .industry-section {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Staggered animation for industry sections */
+  .industry-section:nth-child(1) { animation-delay: 0.1s; }
+  .industry-section:nth-child(2) { animation-delay: 0.2s; }
+  .industry-section:nth-child(3) { animation-delay: 0.3s; }
+  .industry-section:nth-child(4) { animation-delay: 0.4s; }
+  .industry-section:nth-child(5) { animation-delay: 0.5s; }
+  .industry-section:nth-child(6) { animation-delay: 0.6s; }
+
+  /* Outcome card hover */
+  .outcome-card:hover {
+    transform: translateY(-4px);
+    border-color: theme('colors.slate.700');
+  }
+
+  /* Pain point hover */
+  .pain-point:hover {
+    background: theme('colors.slate.800 / 50%');
+  }
+
+  /* Solution item hover */
+  .solution-item:hover {
+    background: theme('colors.slate.800 / 30%');
+  }
+
+  /* Dropdown styles */
+  #industry-dropdown-menu {
+    animation: dropdownFadeIn 0.2s ease-out;
+  }
+
+  @keyframes dropdownFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  #dropdown-arrow {
+    transition: transform 0.2s ease;
+  }
+</style>
+
+<script>
+  // Dropdown functionality
+  const dropdownBtn = document.getElementById('industry-dropdown-btn');
+  const dropdownMenu = document.getElementById('industry-dropdown-menu');
+  const dropdownArrow = document.getElementById('dropdown-arrow');
+  const dropdownItems = document.querySelectorAll('.industry-dropdown-item');
+  
+  let isDropdownOpen = false;
+
+  function toggleDropdown() {
+    isDropdownOpen = !isDropdownOpen;
+    dropdownMenu?.classList.toggle('hidden', !isDropdownOpen);
+    dropdownArrow?.classList.toggle('rotate-180', isDropdownOpen);
+  }
+
+  function closeDropdown() {
+    isDropdownOpen = false;
+    dropdownMenu?.classList.add('hidden');
+    dropdownArrow?.classList.remove('rotate-180');
+  }
+
+  // Toggle dropdown on button click
+  dropdownBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown();
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    const container = document.getElementById('industry-dropdown-container');
+    if (container && !container.contains(e.target as Node)) {
+      closeDropdown();
+    }
+  });
+
+  // Handle industry selection and scroll
+  dropdownItems.forEach((item) => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeDropdown();
+      
+      const industryId = item.getAttribute('data-industry');
+      if (industryId) {
+        const targetSection = document.getElementById(industryId);
+        if (targetSection) {
+          // Scroll to the industry section
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          
+          // Update URL hash without jumping
+          history.pushState(null, '', `#${industryId}`);
+          
+          // Also update the form industry select
+          const industrySelect = document.getElementById('industry') as HTMLSelectElement;
+          if (industrySelect) {
+            industrySelect.value = industryId;
+          }
+        }
+      }
+    });
+  });
+
+  // Pre-select industry from URL hash on load
+  const hash = window.location.hash.replace('#', '');
+  const industrySelect = document.getElementById('industry') as HTMLSelectElement;
+  
+  if (hash && industrySelect) {
+    const validIndustries = ['healthcare', 'finance', 'retail', 'manufacturing', 'technology', 'education'];
+    if (validIndustries.includes(hash)) {
+      industrySelect.value = hash;
+      // Scroll to the industry section on page load
+      setTimeout(() => {
+        const targetSection = document.getElementById(hash);
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 300);
+    }
+  }
+
+  // Smooth scroll for other anchor links (like consultation)
+  document.querySelectorAll('a[href^="#"]:not(.industry-dropdown-item)').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const href = this.getAttribute('href');
+      if (href) {
+        const target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    });
+  });
+
+  // Close dropdown on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeDropdown();
+    }
+  });
+</script>
+

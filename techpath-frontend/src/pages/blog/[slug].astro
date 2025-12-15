@@ -1,0 +1,74 @@
+---
+/**
+ * Dynamic Blog Post Page
+ * Renders individual blog posts with beautiful markdown styling
+ */
+import ArticleLayout from '@layouts/ArticleLayout.astro';
+import { getCollection } from 'astro:content';
+import { calculateReadingTime, getRelatedPosts } from '@utils/contentHelpers';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post, allPosts: posts },
+  }));
+}
+
+interface Props {
+  post: {
+    slug: string;
+    body: string;
+    data: {
+      title: string;
+      description: string;
+      pubDate: Date;
+      author: string;
+      image?: string;
+      tags?: string[];
+      readingTime?: number;
+      draft?: boolean;
+    };
+    render: () => Promise<{ Content: unknown }>;
+  };
+  allPosts: typeof props.post[];
+}
+
+const { post, allPosts } = Astro.props;
+const { Content } = await post.render();
+
+// Calculate reading time if not provided
+const readingTime = post.data.readingTime || calculateReadingTime(post.body);
+
+// Get related posts
+const relatedPosts = getRelatedPosts(post, allPosts, 3).map((p) => ({
+  slug: p.slug,
+  title: p.data.title,
+  description: p.data.description,
+  image: p.data.image,
+}));
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
+  { label: post.data.title, href: '#', current: true },
+];
+---
+
+<ArticleLayout
+  title={post.data.title}
+  description={post.data.description}
+  author={post.data.author}
+  pubDate={post.data.pubDate}
+  image={post.data.image}
+  tags={post.data.tags}
+  readingTime={readingTime}
+  breadcrumbs={breadcrumbItems}
+  relatedPosts={relatedPosts}
+  showToc={true}
+  showAuthorBio={true}
+  showShareButtons={true}
+  type="blog"
+>
+  <Content />
+</ArticleLayout>

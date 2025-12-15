@@ -1,0 +1,14 @@
+# TechPath robots.txt
+# https://techpath.biz
+
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_astro/
+
+# Sitemap
+Sitemap: https://techpath.biz/sitemap-index.xml
+

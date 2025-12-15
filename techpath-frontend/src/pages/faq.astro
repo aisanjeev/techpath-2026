@@ -1,0 +1,257 @@
+---
+/**
+ * FAQ Page
+ * Frequently Asked Questions with interactive accordion
+ */
+import MainLayout from '@layouts/MainLayout.astro';
+import Breadcrumb from '@components/shared/Breadcrumb.astro';
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'FAQ', href: '/faq', current: true },
+];
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface FAQCategory {
+  title: string;
+  icon: string;
+  questions: FAQItem[];
+}
+
+const faqCategories: FAQCategory[] = [
+  {
+    title: 'General',
+    icon: '💡',
+    questions: [
+      {
+        question: 'What services does TechPath offer?',
+        answer: 'TechPath provides comprehensive IT services including web development, AI consulting, cloud services, data analytics, and cybersecurity solutions. We work with businesses of all sizes to deliver custom technology solutions that drive growth and efficiency.',
+      },
+      {
+        question: 'Where is TechPath located?',
+        answer: 'Our headquarters is located in San Francisco, CA, but we work with clients globally. We have team members across multiple time zones, allowing us to provide support and collaboration regardless of your location.',
+      },
+      {
+        question: 'How long has TechPath been in business?',
+        answer: 'TechPath was founded with a mission to make enterprise-grade technology accessible to businesses of all sizes. Our team brings decades of combined experience from leading technology companies.',
+      },
+      {
+        question: 'Do you work with startups or only enterprise clients?',
+        answer: 'We work with businesses of all sizes, from early-stage startups to large enterprises. Our flexible engagement models allow us to scale our services to match your needs and budget.',
+      },
+    ],
+  },
+  {
+    title: 'Services & Pricing',
+    icon: '💰',
+    questions: [
+      {
+        question: 'How much do your services cost?',
+        answer: 'Our pricing varies based on the scope and complexity of each project. We offer three engagement models: Fixed Price for well-defined projects, Time & Materials for evolving needs, and Retainer agreements for ongoing support. Contact us for a custom quote.',
+      },
+      {
+        question: 'Do you offer free consultations?',
+        answer: 'Yes! We offer a free 30-minute discovery call to understand your needs and discuss how we can help. This helps both parties determine if we\'re a good fit before committing to a project.',
+      },
+      {
+        question: 'What is your typical project timeline?',
+        answer: 'Project timelines vary based on scope. A typical website project takes 4-8 weeks, while complex web applications can take 3-6 months. During our discovery phase, we\'ll provide a detailed timeline specific to your project.',
+      },
+      {
+        question: 'Do you offer maintenance and support after project completion?',
+        answer: 'Yes, every project includes 30 days of post-launch support. We also offer extended maintenance packages for clients who need ongoing support, updates, and improvements.',
+      },
+      {
+        question: 'What payment methods do you accept?',
+        answer: 'We accept bank transfers (ACH/Wire), credit cards, and can accommodate various payment schedules including milestone-based payments for larger projects.',
+      },
+    ],
+  },
+  {
+    title: 'Technical',
+    icon: '⚙️',
+    questions: [
+      {
+        question: 'What technologies do you specialize in?',
+        answer: 'Our tech stack includes React, Vue, Astro, and Next.js for frontend; Node.js, Python, and FastAPI for backend; PostgreSQL, MongoDB, and Redis for databases; and AWS, Azure, and Vercel for cloud infrastructure.',
+      },
+      {
+        question: 'Can you work with our existing technology stack?',
+        answer: 'Absolutely! We\'re flexible and can work with your existing infrastructure. We\'ll assess your current setup and recommend the best approach, whether that\'s integration, migration, or enhancement.',
+      },
+      {
+        question: 'Do you provide source code and documentation?',
+        answer: 'Yes, you own all the code we create for you. Upon project completion and full payment, we provide complete source code, documentation, and deployment guides.',
+      },
+      {
+        question: 'How do you ensure code quality?',
+        answer: 'We follow industry best practices including code reviews, automated testing, CI/CD pipelines, and documentation. Every project goes through thorough QA before delivery.',
+      },
+      {
+        question: 'Can you help with AI and machine learning projects?',
+        answer: 'Yes! Our AI consulting services include strategy development, model selection, implementation, and integration. We work with OpenAI, Azure AI, and custom ML solutions.',
+      },
+    ],
+  },
+  {
+    title: 'Process & Communication',
+    icon: '📋',
+    questions: [
+      {
+        question: 'How does your development process work?',
+        answer: 'We follow an agile methodology with 2-week sprints. You\'ll receive regular updates, demos, and have opportunities to provide feedback throughout the project. This ensures the final product meets your expectations.',
+      },
+      {
+        question: 'How will we communicate during the project?',
+        answer: 'We use a combination of Slack for daily communication, weekly video calls for progress updates, and project management tools (like Notion or Linear) for tracking tasks and milestones.',
+      },
+      {
+        question: 'Will I have a dedicated point of contact?',
+        answer: 'Yes, every client is assigned a dedicated project manager who serves as your main point of contact throughout the engagement. They\'ll coordinate all communication and ensure your project stays on track.',
+      },
+      {
+        question: 'What happens if I need changes after the project starts?',
+        answer: 'Change requests are a normal part of any project. We document all changes, assess their impact on timeline and budget, and proceed only after your approval. Small adjustments within scope are typically included.',
+      },
+    ],
+  },
+  {
+    title: 'Security & Compliance',
+    icon: '🔒',
+    questions: [
+      {
+        question: 'How do you handle data security?',
+        answer: 'We take security seriously. All data is encrypted in transit and at rest. We follow security best practices, conduct regular security audits, and can sign NDAs and data protection agreements.',
+      },
+      {
+        question: 'Are you compliant with GDPR and other regulations?',
+        answer: 'Yes, we build solutions that comply with GDPR, CCPA, and other relevant data protection regulations. We can also help you implement compliance features in your applications.',
+      },
+      {
+        question: 'Do you sign NDAs?',
+        answer: 'Yes, we\'re happy to sign NDAs before discussing project details. Confidentiality is important to us, and we treat all client information as strictly confidential.',
+      },
+    ],
+  },
+];
+---
+
+<MainLayout 
+  title="Frequently Asked Questions" 
+  description="Find answers to common questions about TechPath's services, pricing, process, and more."
+>
+  <section class="faq-page py-12 lg:py-20">
+    <div class="container mx-auto px-4">
+      <Breadcrumb items={breadcrumbItems} />
+
+      <header class="max-w-3xl mx-auto text-center mb-16">
+        <h1 class="font-heading text-4xl md:text-5xl font-bold text-white mb-6">
+          Frequently Asked Questions
+        </h1>
+        <p class="text-xl text-slate-400">
+          Find answers to common questions about our services, process, and more. 
+          Can't find what you're looking for? <a href="/contact" class="text-primary-400 hover:underline">Contact us</a>.
+        </p>
+      </header>
+
+      <!-- Category Navigation -->
+      <nav class="max-w-4xl mx-auto mb-12">
+        <ul class="flex flex-wrap justify-center gap-3">
+          {faqCategories.map((category, index) => (
+            <li>
+              <a 
+                href={`#category-${index}`}
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-300 hover:border-primary-500 hover:text-primary-400 transition-colors"
+              >
+                <span>{category.icon}</span>
+                <span>{category.title}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <!-- FAQ Categories -->
+      <div class="max-w-4xl mx-auto space-y-12">
+        {faqCategories.map((category, categoryIndex) => (
+          <div id={`category-${categoryIndex}`} class="scroll-mt-24">
+            <h2 class="flex items-center gap-3 font-heading text-2xl font-bold text-white mb-6">
+              <span class="text-3xl">{category.icon}</span>
+              {category.title}
+            </h2>
+            
+            <div class="space-y-4">
+              {category.questions.map((faq, faqIndex) => (
+                <details class="faq-item group rounded-xl border border-slate-800 bg-slate-900/50 overflow-hidden">
+                  <summary class="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer select-none">
+                    <span class="font-medium text-white group-open:text-primary-400 transition-colors">
+                      {faq.question}
+                    </span>
+                    <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 group-open:bg-primary-500 group-open:text-white transition-all">
+                      <svg class="w-4 h-4 transform group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <div class="px-6 pb-5 text-slate-300 leading-relaxed">
+                    {faq.answer}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- CTA Section -->
+      <div class="max-w-3xl mx-auto mt-20 p-8 rounded-2xl bg-gradient-to-br from-primary-500/10 to-secondary-500/10 border border-slate-800 text-center">
+        <h3 class="font-heading text-2xl font-bold text-white mb-3">
+          Still have questions?
+        </h3>
+        <p class="text-slate-400 mb-6">
+          Can't find the answer you're looking for? Our team is here to help.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-600 transition-colors"
+          >
+            Contact Us
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+          <a
+            href="/support"
+            class="inline-flex items-center gap-2 px-6 py-3 border border-slate-700 text-slate-300 font-semibold rounded-lg hover:border-slate-600 hover:text-white transition-colors"
+          >
+            Visit Support Center
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+  .faq-page {
+    @apply bg-slate-950;
+  }
+
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item summary {
+    list-style: none;
+  }
+
+  .faq-item[open] {
+    @apply border-primary-500/30;
+  }
+</style>
+

@@ -1,0 +1,83 @@
+---
+interface Item {
+  title: string;
+  content: string;
+}
+
+interface Props {
+  items: Item[];
+  allowMultiple?: boolean;
+}
+
+const { items, allowMultiple = false } = Astro.props;
+---
+
+<div class="accordion-container space-y-3" data-allow-multiple={allowMultiple}>
+  {
+    items.map((item, index) => (
+      <div class="accordion-item rounded-xl border border-slate-800 bg-slate-900/50">
+        <button
+          type="button"
+          class="accordion-trigger flex w-full items-center justify-between p-5 text-left"
+          aria-expanded="false"
+          aria-controls={`accordion-content-${index}`}
+        >
+          <span class="font-medium text-white">{item.title}</span>
+          <svg
+            class="accordion-icon h-5 w-5 text-slate-400 transition-transform duration-200"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <div
+          id={`accordion-content-${index}`}
+          class="accordion-content hidden"
+          role="region"
+        >
+          <div class="border-t border-slate-800 px-5 pb-5 pt-4 text-slate-400">
+            {item.content}
+          </div>
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  document.querySelectorAll('.accordion-container').forEach((container) => {
+    const allowMultiple = container.getAttribute('data-allow-multiple') === 'true';
+    const triggers = container.querySelectorAll('.accordion-trigger');
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const item = trigger.closest('.accordion-item');
+        const content = item?.querySelector('.accordion-content');
+        const icon = item?.querySelector('.accordion-icon');
+        const isExpanded = trigger.getAttribute('aria-expanded') === 'true';
+
+        if (!allowMultiple) {
+          // Close all other items
+          container.querySelectorAll('.accordion-item').forEach((otherItem) => {
+            if (otherItem !== item) {
+              const otherContent = otherItem.querySelector('.accordion-content');
+              const otherIcon = otherItem.querySelector('.accordion-icon');
+              const otherTrigger = otherItem.querySelector('.accordion-trigger');
+              otherContent?.classList.add('hidden');
+              otherIcon?.classList.remove('rotate-180');
+              otherTrigger?.setAttribute('aria-expanded', 'false');
+            }
+          });
+        }
+
+        // Toggle current item
+        trigger.setAttribute('aria-expanded', (!isExpanded).toString());
+        content?.classList.toggle('hidden');
+        icon?.classList.toggle('rotate-180');
+      });
+    });
+  });
+</script>
+

@@ -1,0 +1,94 @@
+---
+interface Testimonial {
+  quote: string;
+  author: string;
+  role: string;
+  company: string;
+  avatar?: string;
+}
+
+interface Props {
+  testimonials: Testimonial[];
+  title?: string;
+  subtitle?: string;
+}
+
+const {
+  testimonials,
+  title = 'What Our Clients Say',
+  subtitle = 'Hear from the businesses we\'ve helped transform.',
+} = Astro.props;
+---
+
+<section class="py-20 lg:py-28">
+  <div class="container mx-auto px-4">
+    <!-- Section Header -->
+    <div class="mx-auto mb-16 max-w-3xl text-center">
+      <h2 class="mb-4 font-heading text-3xl font-bold text-white md:text-4xl lg:text-5xl">
+        {title}
+      </h2>
+      <p class="text-lg text-slate-400">
+        {subtitle}
+      </p>
+    </div>
+
+    <!-- Testimonials Grid -->
+    <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      {
+        testimonials.map((testimonial, index) => (
+          <div
+            class="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/50 p-8"
+            style={`animation-delay: ${index * 100}ms`}
+          >
+            {/* Quote Icon */}
+            <svg
+              class="mb-6 h-10 w-10 text-primary-500/30"
+              fill="currentColor"
+              viewBox="0 0 32 32"
+            >
+              <path d="M10 8c-3.3 0-6 2.7-6 6v10h10V14H6c0-2.2 1.8-4 4-4V8zm14 0c-3.3 0-6 2.7-6 6v10h10V14h-8c0-2.2 1.8-4 4-4V8z" />
+            </svg>
+
+            {/* Quote */}
+            <blockquote class="mb-6 flex-1 text-lg text-slate-300">
+              "{testimonial.quote}"
+            </blockquote>
+
+            {/* Author */}
+            <div class="flex items-center gap-4">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary-500/20 to-secondary-500/20">
+                <span class="text-lg font-bold text-primary-400">
+                  {testimonial.author.charAt(0)}
+                </span>
+              </div>
+              <div>
+                <div class="font-semibold text-white">{testimonial.author}</div>
+                <div class="text-sm text-slate-400">
+                  {testimonial.role}, {testimonial.company}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- View All Link -->
+    <div class="mt-12 text-center">
+      <a
+        href="/testimonials"
+        class="inline-flex items-center gap-2 text-primary-400 transition-colors hover:text-primary-300"
+      >
+        Read more testimonials
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+

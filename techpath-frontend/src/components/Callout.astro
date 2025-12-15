@@ -1,0 +1,157 @@
+---
+/**
+ * Callout/Admonition Component
+ * Styled boxes for notes, warnings, tips, etc.
+ */
+
+type CalloutType = 'info' | 'warning' | 'success' | 'danger' | 'tip' | 'note';
+
+interface Props {
+  /** Type of callout - determines color scheme and icon */
+  type?: CalloutType;
+  /** Optional title for the callout */
+  title?: string;
+  /** Custom icon (overrides default) */
+  icon?: string;
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const { type = 'info', title, icon, class: className } = Astro.props;
+
+// Default titles for each type
+const defaultTitles: Record<CalloutType, string> = {
+  info: 'Info',
+  warning: 'Warning',
+  success: 'Success',
+  danger: 'Danger',
+  tip: 'Tip',
+  note: 'Note',
+};
+
+// Style configurations for each type
+const typeStyles: Record<CalloutType, { bg: string; border: string; iconBg: string; titleColor: string }> = {
+  info: {
+    bg: 'bg-primary-500/10',
+    border: 'border-primary-500',
+    iconBg: 'bg-primary-500/20 text-primary-400',
+    titleColor: 'text-primary-400',
+  },
+  warning: {
+    bg: 'bg-yellow-500/10',
+    border: 'border-yellow-500',
+    iconBg: 'bg-yellow-500/20 text-yellow-400',
+    titleColor: 'text-yellow-400',
+  },
+  success: {
+    bg: 'bg-accent-500/10',
+    border: 'border-accent-500',
+    iconBg: 'bg-accent-500/20 text-accent-400',
+    titleColor: 'text-accent-400',
+  },
+  danger: {
+    bg: 'bg-red-500/10',
+    border: 'border-red-500',
+    iconBg: 'bg-red-500/20 text-red-400',
+    titleColor: 'text-red-400',
+  },
+  tip: {
+    bg: 'bg-secondary-500/10',
+    border: 'border-secondary-500',
+    iconBg: 'bg-secondary-500/20 text-secondary-400',
+    titleColor: 'text-secondary-400',
+  },
+  note: {
+    bg: 'bg-slate-500/10',
+    border: 'border-slate-500',
+    iconBg: 'bg-slate-500/20 text-slate-400',
+    titleColor: 'text-slate-300',
+  },
+};
+
+const styles = typeStyles[type];
+const displayTitle = title || defaultTitles[type];
+---
+
+<div class={`callout callout-${type} ${styles.bg} ${styles.border} border-l-4 rounded-xl p-5 my-6 ${className || ''}`}>
+  <div class="flex items-start gap-4">
+    {/* Icon */}
+    <div class={`flex-shrink-0 w-8 h-8 rounded-lg ${styles.iconBg} flex items-center justify-center`}>
+      {type === 'info' && (
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )}
+      {type === 'warning' && (
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      )}
+      {type === 'success' && (
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )}
+      {type === 'danger' && (
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )}
+      {type === 'tip' && (
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      )}
+      {type === 'note' && (
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+      )}
+    </div>
+
+    {/* Content */}
+    <div class="flex-1 min-w-0">
+      {/* Title */}
+      <h5 class={`font-semibold ${styles.titleColor} mb-1`}>
+        {displayTitle}
+      </h5>
+
+      {/* Content slot */}
+      <div class="callout-content text-slate-300 text-sm leading-relaxed">
+        <slot />
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .callout-content :global(p) {
+    @apply mb-2;
+  }
+
+  .callout-content :global(p:last-child) {
+    @apply mb-0;
+  }
+
+  .callout-content :global(a) {
+    @apply text-inherit underline;
+  }
+
+  .callout-content :global(code) {
+    @apply px-1 py-0.5 bg-slate-800/50 rounded text-sm;
+  }
+
+  .callout-content :global(ul),
+  .callout-content :global(ol) {
+    @apply pl-5 space-y-1;
+  }
+
+  .callout-content :global(ul) {
+    @apply list-disc;
+  }
+
+  .callout-content :global(ol) {
+    @apply list-decimal;
+  }
+</style>
+

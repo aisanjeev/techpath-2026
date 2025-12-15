@@ -1,0 +1,122 @@
+---
+import Header from '@components/shared/Header.astro';
+import Footer from '@components/shared/Footer.astro';
+import '@styles/globals.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  canonicalUrl?: string;
+  noIndex?: boolean;
+}
+
+const {
+  title,
+  description = 'TechPath - AI-Powered IT Solutions for Modern Enterprises',
+  image = '/images/og-image.jpg',
+  canonicalUrl,
+  noIndex = false,
+} = Astro.props;
+
+const siteUrl = import.meta.env.SITE_URL || 'https://techpath.biz';
+const fullUrl = canonicalUrl || new URL(Astro.url.pathname, siteUrl).toString();
+const fullImageUrl = new URL(image, siteUrl).toString();
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Primary Meta Tags -->
+    <title>{title} | TechPath</title>
+    <meta name="title" content={`${title} | TechPath`} />
+    <meta name="description" content={description} />
+    {noIndex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={fullUrl} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={fullUrl} />
+    <meta property="og:title" content={`${title} | TechPath`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={fullImageUrl} />
+    <meta property="og:site_name" content="TechPath" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={fullUrl} />
+    <meta property="twitter:title" content={`${title} | TechPath`} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={fullImageUrl} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@100..900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "TechPath",
+        "url": "https://techpath.biz",
+        "logo": "https://techpath.biz/images/logo.svg",
+        "description": "AI-Powered IT Solutions for Modern Enterprises",
+        "sameAs": [
+          "https://twitter.com/techpath",
+          "https://linkedin.com/company/techpath"
+        ]
+      }
+    </script>
+  </head>
+  <body class="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
+    <div class="flex min-h-screen flex-col">
+      <Header />
+      <main class="flex-1">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: theme('colors.slate.900');
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: theme('colors.slate.700');
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.slate.600');
+  }
+
+  /* Selection */
+  ::selection {
+    background: theme('colors.primary.500 / 30%');
+    color: theme('colors.primary.100');
+  }
+</style>
+

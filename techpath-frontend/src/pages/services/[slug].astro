@@ -1,0 +1,85 @@
+---
+/**
+ * Dynamic Service Page
+ * Renders individual service pages from content collection
+ */
+import MainLayout from '@layouts/MainLayout.astro';
+import Breadcrumb from '@components/shared/Breadcrumb.astro';
+import ServiceHero from './_components/ServiceHero.astro';
+import ServiceCTA from './_components/ServiceCTA.astro';
+import { getCollection } from 'astro:content';
+import { calculateReadingTime } from '@utils/contentHelpers';
+import '@styles/markdown.css';
+
+export async function getStaticPaths() {
+  const services = await getCollection('services');
+  return services.map((service) => ({
+    params: { slug: service.slug },
+    props: { service },
+  }));
+}
+
+interface Props {
+  service: {
+    slug: string;
+    body: string;
+    data: {
+      title: string;
+      description: string;
+      icon: string;
+      features: string[];
+      price?: string;
+      cta: string;
+    };
+    render: () => Promise<{ Content: unknown }>;
+  };
+}
+
+const { service } = Astro.props;
+const { Content } = await service.render();
+const readingTime = calculateReadingTime(service.body);
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Services', href: '/services' },
+  { label: service.data.title, href: '#', current: true },
+];
+---
+
+<MainLayout title={service.data.title} description={service.data.description}>
+  <article class="service-page py-12 lg:py-20">
+    <div class="container mx-auto px-4">
+      <Breadcrumb items={breadcrumbItems} />
+
+      <ServiceHero
+        title={service.data.title}
+        description={service.data.description}
+        icon={service.data.icon}
+        features={service.data.features}
+      />
+
+      <!-- Reading time indicator -->
+      <div class="mx-auto max-w-4xl mt-8 flex items-center gap-2 text-sm text-slate-500">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{readingTime} min read</span>
+      </div>
+
+      <!-- Main Content with beautiful markdown styling -->
+      <div class="mx-auto mt-12 max-w-4xl">
+        <div class="markdown-content">
+          <Content />
+        </div>
+      </div>
+
+      <ServiceCTA title={service.data.title} cta={service.data.cta} price={service.data.price} />
+    </div>
+  </article>
+</MainLayout>
+
+<style>
+  .service-page {
+    @apply bg-slate-950;
+  }
+</style>

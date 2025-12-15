@@ -1,0 +1,143 @@
+---
+import MainLayout from './MainLayout.astro';
+import Breadcrumb from '@components/shared/Breadcrumb.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  section?: string;
+}
+
+const { title, description, section = 'Documentation' } = Astro.props;
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Documentation', href: '/docs' },
+  { label: section, href: '#', current: true },
+];
+
+// Documentation navigation structure
+const docSections = [
+  {
+    title: 'Getting Started',
+    links: [
+      { label: 'Introduction', href: '/docs' },
+      { label: 'Quick Start', href: '/docs/quick-start' },
+      { label: 'Installation', href: '/docs/installation' },
+    ],
+  },
+  {
+    title: 'Core Concepts',
+    links: [
+      { label: 'Architecture', href: '/docs/architecture' },
+      { label: 'API Overview', href: '/docs/api-overview' },
+      { label: 'Authentication', href: '/docs/authentication' },
+    ],
+  },
+  {
+    title: 'Guides',
+    links: [
+      { label: 'Integration Guide', href: '/docs/integration' },
+      { label: 'Best Practices', href: '/docs/best-practices' },
+      { label: 'Troubleshooting', href: '/docs/troubleshooting' },
+    ],
+  },
+];
+---
+
+<MainLayout title={title} description={description}>
+  <div class="py-12 lg:py-20">
+    <div class="container mx-auto px-4">
+      <!-- Breadcrumb -->
+      <Breadcrumb items={breadcrumbItems} />
+
+      <div class="mt-8 grid gap-12 lg:grid-cols-[280px_1fr]">
+        <!-- Sidebar Navigation -->
+        <aside class="hidden lg:block">
+          <nav class="sticky top-24 space-y-8">
+            {
+              docSections.map((section) => (
+                <div>
+                  <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-400">
+                    {section.title}
+                  </h3>
+                  <ul class="space-y-2">
+                    {section.links.map((link) => (
+                      <li>
+                        <a
+                          href={link.href}
+                          class="block rounded-lg px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-800/50 hover:text-white"
+                        >
+                          {link.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            }
+          </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="min-w-0">
+          <article class="max-w-3xl">
+            <!-- Page Header -->
+            <header class="mb-8">
+              <h1 class="mb-4 font-heading text-4xl font-bold text-white">{title}</h1>
+              {description && <p class="text-lg text-slate-400">{description}</p>}
+            </header>
+
+            <!-- Content -->
+            <div
+              class="prose prose-lg prose-invert max-w-none prose-headings:font-heading prose-headings:font-bold prose-h2:mt-10 prose-h2:scroll-mt-24 prose-h2:border-t prose-h2:border-slate-800 prose-h2:pt-8 prose-h2:text-2xl prose-h3:mt-6 prose-h3:text-xl prose-p:text-slate-300 prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-white prose-code:rounded prose-code:bg-slate-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-primary-300 prose-pre:bg-slate-900 prose-pre:border prose-pre:border-slate-800"
+            >
+              <slot />
+            </div>
+
+            <!-- Page Navigation -->
+            <nav class="mt-16 flex items-center justify-between border-t border-slate-800 pt-8">
+              <a
+                href="#"
+                class="group flex items-center gap-2 text-slate-400 transition-colors hover:text-white"
+              >
+                <svg
+                  class="h-5 w-5 transition-transform group-hover:-translate-x-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <span>Previous</span>
+              </a>
+              <a
+                href="#"
+                class="group flex items-center gap-2 text-slate-400 transition-colors hover:text-white"
+              >
+                <span>Next</span>
+                <svg
+                  class="h-5 w-5 transition-transform group-hover:translate-x-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"></path>
+                </svg>
+              </a>
+            </nav>
+          </article>
+        </main>
+      </div>
+    </div>
+  </div>
+</MainLayout>
+

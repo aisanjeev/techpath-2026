@@ -1,0 +1,147 @@
+---
+import MainLayout from '@layouts/MainLayout.astro';
+import Breadcrumb from '@components/shared/Breadcrumb.astro';
+import CTA from '@components/shared/CTA.astro';
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Careers', href: '/careers', current: true },
+];
+
+const benefits = [
+  { icon: '🏠', title: 'Remote First', description: 'Work from anywhere in the world' },
+  { icon: '📚', title: 'Learning Budget', description: '$2,500 annual education allowance' },
+  { icon: '🏥', title: 'Health Insurance', description: 'Comprehensive medical, dental, vision' },
+  { icon: '🏖️', title: 'Unlimited PTO', description: 'Take time when you need it' },
+  { icon: '💻', title: 'Equipment', description: 'Latest MacBook Pro + peripherals' },
+  { icon: '📈', title: 'Equity', description: 'Stock options for all employees' },
+];
+
+const openings = [
+  {
+    title: 'Senior Full-Stack Engineer',
+    department: 'Engineering',
+    location: 'Remote',
+    type: 'Full-time',
+    href: '/careers/senior-fullstack-engineer',
+  },
+  {
+    title: 'Machine Learning Engineer',
+    department: 'AI/ML',
+    location: 'Remote',
+    type: 'Full-time',
+    href: '/careers/ml-engineer',
+  },
+  {
+    title: 'Cloud Solutions Architect',
+    department: 'Infrastructure',
+    location: 'Remote',
+    type: 'Full-time',
+    href: '/careers/cloud-architect',
+  },
+  {
+    title: 'Product Designer',
+    department: 'Design',
+    location: 'Remote',
+    type: 'Full-time',
+    href: '/careers/product-designer',
+  },
+  {
+    title: 'Technical Project Manager',
+    department: 'Operations',
+    location: 'Remote',
+    type: 'Full-time',
+    href: '/careers/technical-pm',
+  },
+];
+---
+
+<MainLayout
+  title="Careers"
+  description="Join TechPath and help build the future of technology. We're looking for talented individuals passionate about AI, cloud, and software development."
+>
+  <section class="py-16 lg:py-24">
+    <div class="container mx-auto px-4">
+      <Breadcrumb items={breadcrumbItems} />
+
+      <!-- Header -->
+      <div class="mx-auto mb-16 max-w-3xl text-center">
+        <h1 class="mb-6 font-heading text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+          Join Our <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">Team</span>
+        </h1>
+        <p class="text-lg text-slate-400 md:text-xl">
+          We're building the future of enterprise technology. Join us and work on challenging
+          problems with talented people from around the world.
+        </p>
+      </div>
+
+      <!-- Benefits Section -->
+      <div class="mb-20">
+        <h2 class="mb-8 text-center font-heading text-2xl font-bold text-white">Why TechPath?</h2>
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {
+            benefits.map((benefit) => (
+              <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 transition-colors hover:border-primary-500/50">
+                <span class="mb-3 block text-3xl">{benefit.icon}</span>
+                <h3 class="mb-2 font-heading text-lg font-bold text-white">{benefit.title}</h3>
+                <p class="text-slate-400">{benefit.description}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Open Positions -->
+      <div>
+        <h2 class="mb-8 text-center font-heading text-2xl font-bold text-white">Open Positions</h2>
+        <div class="mx-auto max-w-3xl space-y-4">
+          {
+            openings.map((job) => (
+              <a
+                href={job.href}
+                class="group flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/50 p-6 transition-all hover:border-primary-500/50 hover:bg-slate-900 md:flex-row md:items-center md:justify-between"
+              >
+                <div>
+                  <h3 class="mb-1 font-heading text-lg font-bold text-white transition-colors group-hover:text-primary-400">
+                    {job.title}
+                  </h3>
+                  <div class="flex flex-wrap gap-3 text-sm text-slate-400">
+                    <span>{job.department}</span>
+                    <span>•</span>
+                    <span>{job.location}</span>
+                    <span>•</span>
+                    <span>{job.type}</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 text-sm font-medium text-primary-400">
+                  Apply Now
+                  <svg
+                    class="h-4 w-4 transition-transform group-hover:translate-x-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
+                  </svg>
+                </div>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CTA
+    title="Don't See the Right Role?"
+    description="We're always looking for talented people. Send us your resume and we'll keep you in mind."
+    primaryButton={{ label: 'Send Resume', href: 'mailto:careers@techpath.biz' }}
+    secondaryButton={{ label: 'Learn About Us', href: '/about' }}
+  />
+</MainLayout>
+
