@@ -4,8 +4,8 @@
  * Renders individual blog posts with beautiful markdown styling
  */
 import ArticleLayout from '@layouts/ArticleLayout.astro';
-import { getCollection } from 'astro:content';
-import { calculateReadingTime, getRelatedPosts } from '@utils/contentHelpers';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { calculateReadingTime } from '@utils/contentHelpers';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -16,22 +16,8 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  post: {
-    slug: string;
-    body: string;
-    data: {
-      title: string;
-      description: string;
-      pubDate: Date;
-      author: string;
-      image?: string;
-      tags?: string[];
-      readingTime?: number;
-      draft?: boolean;
-    };
-    render: () => Promise<{ Content: unknown }>;
-  };
-  allPosts: typeof props.post[];
+  post: CollectionEntry<'blog'>;
+  allPosts: CollectionEntry<'blog'>[];
 }
 
 const { post, allPosts } = Astro.props;
@@ -40,13 +26,17 @@ const { Content } = await post.render();
 // Calculate reading time if not provided
 const readingTime = post.data.readingTime || calculateReadingTime(post.body);
 
-// Get related posts
-const relatedPosts = getRelatedPosts(post, allPosts, 3).map((p) => ({
-  slug: p.slug,
-  title: p.data.title,
-  description: p.data.description,
-  image: p.data.image,
-}));
+// Get related posts (simple implementation - same tags)
+const relatedPosts = allPosts
+  .filter((p) => p.slug !== post.slug)
+  .filter((p) => p.data.tags?.some((tag) => post.data.tags?.includes(tag)))
+  .slice(0, 3)
+  .map((p) => ({
+    slug: p.slug,
+    title: p.data.title,
+    description: p.data.description,
+    image: p.data.image,
+  }));
 
 const breadcrumbItems = [
   { label: 'Home', href: '/' },
