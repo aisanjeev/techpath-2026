@@ -3,7 +3,7 @@ title: "Cloud Migration Best Practices: Lessons from 100+ Enterprise Migrations"
 description: "Practical insights and strategies for successful cloud migration, based on real-world experience with enterprise clients."
 pubDate: 2024-12-05
 author: "Marcus Chen"
-image: "/images/blog/cloud-migration.jpg"
+image: "/images/blog/cloud-migration.webp"
 tags: ["Cloud", "AWS", "Azure", "Migration", "DevOps"]
 readingTime: 10
 ---

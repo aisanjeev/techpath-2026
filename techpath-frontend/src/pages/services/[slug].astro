@@ -7,7 +7,7 @@ import MainLayout from '@layouts/MainLayout.astro';
 import Breadcrumb from '@components/shared/Breadcrumb.astro';
 import ServiceHero from './_components/ServiceHero.astro';
 import ServiceCTA from './_components/ServiceCTA.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import { calculateReadingTime } from '@utils/contentHelpers';
 import '@styles/markdown.css';
 
@@ -20,19 +20,7 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  service: {
-    slug: string;
-    body: string;
-    data: {
-      title: string;
-      description: string;
-      icon: string;
-      features: string[];
-      price?: string;
-      cta: string;
-    };
-    render: () => Promise<{ Content: unknown }>;
-  };
+  service: CollectionEntry<'services'>;
 }
 
 const { service } = Astro.props;
