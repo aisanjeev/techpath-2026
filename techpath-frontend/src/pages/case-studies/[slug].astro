@@ -1,0 +1,126 @@
+---
+/**
+ * Individual Case Study Page
+ * Uses ArticleLayout for consistent, professional styling like blog posts
+ */
+import ArticleLayout from '@layouts/ArticleLayout.astro';
+import { fetchCaseStudyBySlug } from '@services/caseStudyService';
+import { marked } from 'marked';
+
+// Server-render this page to fetch from API
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/case-studies');
+}
+
+const caseStudy = await fetchCaseStudyBySlug(slug);
+
+if (!caseStudy) {
+  return Astro.redirect('/404');
+}
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Case Studies', href: '/case-studies' },
+  { label: caseStudy.title, href: '#', current: true },
+];
+
+// Build content sections
+const sections: string[] = [];
+
+// Hero stat section
+if (caseStudy.stat_value) {
+  sections.push(`<div class="case-study-hero-stat"><span class="stat-value">${caseStudy.stat_value}</span><span class="stat-label">${caseStudy.stat_label || ''}</span></div>`);
+}
+
+// Client info
+sections.push(`**Client:** ${caseStudy.client_name}  \n**Industry:** ${caseStudy.industry}\n\n---`);
+
+// Challenge section
+sections.push(`## The Challenge\n\n${caseStudy.challenge}\n\n---`);
+
+// Solution section
+sections.push(`## Our Solution\n\n${caseStudy.solution}\n\n---`);
+
+// Results section
+sections.push(`## The Results\n\n${caseStudy.results}`);
+
+// Additional content
+if (caseStudy.content) {
+  sections.push(`---\n\n${caseStudy.content}`);
+}
+
+// Testimonial
+if (caseStudy.testimonial_quote) {
+  const author = caseStudy.testimonial_author || 'Client';
+  const role = caseStudy.testimonial_role ? `, ${caseStudy.testimonial_role}` : '';
+  sections.push(`---\n\n> "${caseStudy.testimonial_quote}"\n>\n> — **${author}**${role}`);
+}
+
+const fullContent = sections.join('\n\n');
+
+// Parse the full markdown
+const contentHtml = marked(fullContent);
+
+// Calculate approximate reading time
+const wordCount = fullContent.split(/\s+/).length;
+const readingTime = Math.ceil(wordCount / 200);
+---
+
+<ArticleLayout
+  title={caseStudy.title}
+  description={caseStudy.excerpt || `${caseStudy.client_name} case study: ${caseStudy.title}`}
+  author="TechPath Team"
+  pubDate={caseStudy.published_at ? new Date(caseStudy.published_at) : new Date(caseStudy.created_at)}
+  image={caseStudy.featured_image}
+  tags={caseStudy.tags.map(t => t.name)}
+  readingTime={readingTime}
+  breadcrumbs={breadcrumbItems}
+  showToc={true}
+  showAuthorBio={false}
+  showShareButtons={true}
+  type="service"
+>
+  <Fragment set:html={contentHtml} />
+</ArticleLayout>
+
+<style is:global>
+  /* Case Study Hero Stat */
+  .case-study-hero-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    margin: 2rem 0;
+    border-radius: 1.5rem;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(6, 182, 212, 0.1));
+    border: 1px solid rgba(20, 184, 166, 0.3);
+    text-align: center;
+  }
+  
+  .case-study-hero-stat .stat-value {
+    font-size: 4rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  
+  .case-study-hero-stat .stat-label {
+    font-size: 1.25rem;
+    color: rgb(148, 163, 184);
+  }
+  
+  @media (max-width: 640px) {
+    .case-study-hero-stat .stat-value {
+      font-size: 3rem;
+    }
+    .case-study-hero-stat .stat-label {
+      font-size: 1rem;
+    }
+  }
+</style>

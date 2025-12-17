@@ -1,0 +1,394 @@
+---
+/**
+ * TrainingEnquiryForm Component
+ * Dedicated form for training course inquiries
+ * Floats at bottom on mobile for easy access
+ */
+interface Props {
+  courseName?: string;
+  variant?: 'desktop' | 'mobile' | 'both';
+}
+
+const { courseName, variant = 'both' } = Astro.props;
+
+const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
+
+// Generate unique ID suffix for this instance
+const uniqueId = Math.random().toString(36).substring(2, 9);
+---
+
+{/* Desktop/Tablet Form (Inline) - Only show if variant is 'desktop' or 'both' */}
+{(variant === 'desktop' || variant === 'both') && (
+  <div class="training-form-desktop hidden md:block">
+    <div class="rounded-2xl border border-slate-700/50 bg-gradient-to-br from-slate-800/80 to-slate-900/80 p-6 backdrop-blur-sm">
+      <h3 class="mb-2 font-heading text-xl font-bold text-white">
+        Get Free Career Counseling
+      </h3>
+      <p class="mb-6 text-sm text-slate-400">
+        Talk to our experts and find the right course for you
+      </p>
+
+      <form class="training-enquiry-form space-y-4" data-variant="desktop">
+        {courseName && (
+          <input type="hidden" name="course" value={courseName} />
+        )}
+        
+        <div>
+          <input
+            type="text"
+            name="name"
+            placeholder="Your Name *"
+            required
+            class="w-full rounded-lg border border-slate-600 bg-slate-700/50 px-4 py-3 text-white placeholder-slate-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          />
+        </div>
+
+        <div>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email Address *"
+            required
+            class="w-full rounded-lg border border-slate-600 bg-slate-700/50 px-4 py-3 text-white placeholder-slate-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          />
+        </div>
+
+        <div>
+          <input
+            type="tel"
+            name="phone"
+            placeholder="Phone Number *"
+            required
+            pattern="[0-9]{10}"
+            class="w-full rounded-lg border border-slate-600 bg-slate-700/50 px-4 py-3 text-white placeholder-slate-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          />
+        </div>
+
+        <div>
+          <select
+            name="interest"
+            required
+            class="w-full rounded-lg border border-slate-600 bg-slate-700/50 px-4 py-3 text-white transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          >
+            <option value="" disabled selected class="text-slate-400">Select Course Interest *</option>
+            <option value="data-science">Data Science & Analytics</option>
+            <option value="cloud">Cloud & DevOps (AWS/Azure)</option>
+            <option value="ai-ml">AI & Machine Learning</option>
+            <option value="fullstack">Full Stack Development</option>
+            <option value="business">Business & Leadership</option>
+            <option value="not-sure">Not Sure - Need Guidance</option>
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          class="submit-btn w-full rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 py-3.5 font-semibold text-white transition-all hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:shadow-primary-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Get Free Consultation
+        </button>
+
+        <p class="form-message hidden text-center text-sm"></p>
+      </form>
+
+      <!-- Trust Indicators -->
+      <div class="mt-4 flex items-center justify-center gap-4 text-xs text-slate-400">
+        <span class="flex items-center gap-1">
+          <svg class="h-3.5 w-3.5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          No Spam
+        </span>
+        <span class="flex items-center gap-1">
+          <svg class="h-3.5 w-3.5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          Free Consultation
+        </span>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Mobile Floating Bottom Bar - Only show if variant is 'mobile' or 'both' */}
+{(variant === 'mobile' || variant === 'both') && (
+  <>
+    <div class="mobile-cta-bar fixed bottom-0 left-0 right-0 z-50 border-t border-slate-700 bg-slate-900/95 p-4 backdrop-blur-lg md:hidden">
+      <div class="flex items-center gap-3">
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-white">Start Your Tech Career</p>
+          <p class="text-xs text-slate-400">Free counseling available</p>
+        </div>
+        <button
+          type="button"
+          class="mobile-form-trigger rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-500/25"
+        >
+          Enquire Now
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Form Modal -->
+    <div class="mobile-form-modal fixed inset-0 z-[60] hidden">
+      <!-- Backdrop -->
+      <div class="mobile-form-backdrop absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+      
+      <!-- Form Panel -->
+      <div class="mobile-form-panel absolute bottom-0 left-0 right-0 max-h-[90vh] overflow-y-auto rounded-t-3xl bg-slate-900 p-6">
+        <!-- Handle -->
+        <div class="mb-4 flex justify-center">
+          <div class="h-1 w-12 rounded-full bg-slate-600"></div>
+        </div>
+        
+        <!-- Close Button -->
+        <button type="button" class="mobile-form-close absolute right-4 top-4 rounded-full p-2 text-slate-400 hover:bg-slate-800 hover:text-white">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <h3 class="mb-2 font-heading text-xl font-bold text-white">
+          Get Free Career Counseling
+        </h3>
+        <p class="mb-6 text-sm text-slate-400">
+          Our experts will help you choose the right path
+        </p>
+
+        <form class="training-enquiry-form space-y-4" data-variant="mobile">
+          {courseName && (
+            <input type="hidden" name="course" value={courseName} />
+          )}
+          
+          <div>
+            <input
+              type="text"
+              name="name"
+              placeholder="Your Name *"
+              required
+              class="w-full rounded-lg border border-slate-600 bg-slate-800 px-4 py-3.5 text-white placeholder-slate-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            />
+          </div>
+
+          <div>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email Address *"
+              required
+              class="w-full rounded-lg border border-slate-600 bg-slate-800 px-4 py-3.5 text-white placeholder-slate-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            />
+          </div>
+
+          <div>
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Phone Number *"
+              required
+              pattern="[0-9]{10}"
+              class="w-full rounded-lg border border-slate-600 bg-slate-800 px-4 py-3.5 text-white placeholder-slate-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            />
+          </div>
+
+          <div>
+            <select
+              name="interest"
+              required
+              class="w-full rounded-lg border border-slate-600 bg-slate-800 px-4 py-3.5 text-white transition-colors focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            >
+              <option value="" disabled selected>Select Course Interest *</option>
+              <option value="data-science">Data Science & Analytics</option>
+              <option value="cloud">Cloud & DevOps (AWS/Azure)</option>
+              <option value="ai-ml">AI & Machine Learning</option>
+              <option value="fullstack">Full Stack Development</option>
+              <option value="business">Business & Leadership</option>
+              <option value="not-sure">Not Sure - Need Guidance</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            class="submit-btn w-full rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 py-4 font-semibold text-white transition-all hover:from-primary-600 hover:to-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Get Free Consultation
+          </button>
+
+          <p class="form-message hidden text-center text-sm"></p>
+        </form>
+
+        <!-- Trust Indicators -->
+        <div class="mt-4 flex items-center justify-center gap-4 text-xs text-slate-400">
+          <span class="flex items-center gap-1">
+            <svg class="h-3.5 w-3.5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            No Spam
+          </span>
+          <span class="flex items-center gap-1">
+            <svg class="h-3.5 w-3.5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            Free Consultation
+          </span>
+          <span class="flex items-center gap-1">
+            <svg class="h-3.5 w-3.5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            100% Free
+          </span>
+        </div>
+      </div>
+    </div>
+  </>
+)}
+
+<script define:vars={{ apiBaseUrl }}>
+  const API_URL = apiBaseUrl;
+
+  // Initialize all mobile form modals on the page
+  function initMobileModals() {
+    const mobileModals = document.querySelectorAll('.mobile-form-modal');
+    const mobileTriggers = document.querySelectorAll('.mobile-form-trigger');
+    const mobileCloses = document.querySelectorAll('.mobile-form-close');
+    const mobileBackdrops = document.querySelectorAll('.mobile-form-backdrop');
+
+    function openMobileForm(modal) {
+      modal?.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileForm(modal) {
+      modal?.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    // Find the corresponding modal for each trigger (assuming they're siblings or in same parent)
+    mobileTriggers.forEach((trigger, index) => {
+      const modal = mobileModals[index] || mobileModals[0];
+      trigger.addEventListener('click', () => openMobileForm(modal));
+    });
+
+    mobileCloses.forEach((closeBtn) => {
+      const modal = closeBtn.closest('.mobile-form-modal');
+      closeBtn.addEventListener('click', () => closeMobileForm(modal));
+    });
+
+    mobileBackdrops.forEach((backdrop) => {
+      const modal = backdrop.closest('.mobile-form-modal');
+      backdrop.addEventListener('click', () => closeMobileForm(modal));
+    });
+
+    // Return close function for use after form submission
+    return closeMobileForm;
+  }
+
+  // Form submission handler
+  async function handleFormSubmit(form, closeModalFn) {
+    const formData = new FormData(form);
+    const messageEl = form.querySelector('.form-message');
+    const submitBtn = form.querySelector('.submit-btn');
+    const modal = form.closest('.mobile-form-modal');
+
+    const data = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      service_interest: formData.get('interest'),
+      message: `Training Enquiry - Course Interest: ${formData.get('interest')}${formData.get('course') ? ` | Specific Course: ${formData.get('course')}` : ''}`,
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    try {
+      const response = await fetch(`${API_URL}/api/v1/contact/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (messageEl) {
+        messageEl.classList.remove('hidden', 'text-red-400', 'text-green-400');
+
+        if (response.ok) {
+          messageEl.classList.add('text-green-400');
+          messageEl.textContent = '✅ Thank you! Our counselor will call you within 24 hours.';
+          form.reset();
+          // Close mobile modal after success
+          if (modal) {
+            setTimeout(() => {
+              closeModalFn(modal);
+            }, 2000);
+          }
+        } else {
+          messageEl.classList.add('text-red-400');
+          messageEl.textContent = result.detail || 'Something went wrong. Please try again.';
+        }
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      if (messageEl) {
+        messageEl.classList.remove('hidden', 'text-green-400');
+        messageEl.classList.add('text-red-400');
+        messageEl.textContent = 'Network error. Please check your connection.';
+      }
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Get Free Consultation';
+    }
+  }
+
+  // Initialize everything when DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    const closeModalFn = initMobileModals();
+
+    // Attach submit handlers to all training enquiry forms
+    const forms = document.querySelectorAll('.training-enquiry-form');
+    forms.forEach((form) => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await handleFormSubmit(form, closeModalFn);
+      });
+    });
+  });
+
+  // Also run immediately in case DOMContentLoaded already fired
+  if (document.readyState !== 'loading') {
+    const closeModalFn = initMobileModals();
+    const forms = document.querySelectorAll('.training-enquiry-form');
+    forms.forEach((form) => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await handleFormSubmit(form, closeModalFn);
+      });
+    });
+  }
+</script>
+
+<style>
+  /* Add padding to body for mobile floating bar */
+  @media (max-width: 767px) {
+    :global(body) {
+      padding-bottom: 80px;
+    }
+  }
+
+  /* Mobile form panel animation */
+  .mobile-form-panel {
+    transform: translateY(100%);
+    animation: slideUp 0.3s ease-out forwards;
+  }
+
+  @keyframes slideUp {
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  /* Select dropdown styling for dark mode */
+  select option {
+    background-color: #1e293b;
+    color: white;
+  }
+</style>

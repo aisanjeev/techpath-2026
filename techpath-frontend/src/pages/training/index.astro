@@ -1,0 +1,418 @@
+---
+/**
+ * Training Page
+ * High-converting landing page for TechPath training programs
+ * Following 7-section strategy for maximum SEO and conversions
+ */
+import MainLayout from '@layouts/MainLayout.astro';
+import TrainingHero from './_components/TrainingHero.astro';
+import PainPointsSection from './_components/PainPointsSection.astro';
+import USPSection from './_components/USPSection.astro';
+import CourseGrid from './_components/CourseGrid.astro';
+import TransformationStories from './_components/TransformationStories.astro';
+import OfferBanner from './_components/OfferBanner.astro';
+import TrainingEnquiryForm from './_components/TrainingEnquiryForm.astro';
+import FAQSection from '@components/sections/FAQSection.astro';
+import CTA from '@components/shared/CTA.astro';
+
+// Course Data - 15 courses across 5 categories
+const courses = [
+  // Data Science & Analytics
+  {
+    slug: 'data-science-masterclass',
+    name: 'Data Science Masterclass',
+    category: 'data-science',
+    rating: 4.9,
+    reviewCount: 456,
+    duration: '4 months',
+    batchSize: 20,
+    price: 24999,
+    originalPrice: 39999,
+    emiAvailable: true,
+    placementRate: 94,
+    skills: ['Python', 'SQL', 'Machine Learning', 'Tableau', 'Statistics'],
+    level: 'intermediate' as const,
+  },
+  {
+    slug: 'data-analytics-bootcamp',
+    name: 'Data Analytics Bootcamp',
+    category: 'data-science',
+    rating: 4.8,
+    reviewCount: 312,
+    duration: '3 months',
+    batchSize: 25,
+    price: 17999,
+    originalPrice: 27999,
+    emiAvailable: true,
+    placementRate: 92,
+    skills: ['Excel', 'SQL', 'Power BI', 'Tableau', 'Python Basics'],
+    level: 'beginner' as const,
+  },
+  {
+    slug: 'advanced-data-visualization',
+    name: 'Advanced Data Visualization',
+    category: 'data-science',
+    rating: 4.7,
+    reviewCount: 189,
+    duration: '6 weeks',
+    batchSize: 15,
+    price: 12999,
+    originalPrice: 18999,
+    emiAvailable: true,
+    placementRate: 88,
+    skills: ['Tableau', 'Power BI', 'D3.js', 'Storytelling'],
+    level: 'intermediate' as const,
+  },
+  
+  // Cloud & DevOps
+  {
+    slug: 'aws-solutions-architect',
+    name: 'AWS Solutions Architect',
+    category: 'cloud',
+    rating: 4.9,
+    reviewCount: 523,
+    duration: '3 months',
+    batchSize: 20,
+    price: 29999,
+    originalPrice: 45999,
+    emiAvailable: true,
+    placementRate: 96,
+    skills: ['AWS', 'EC2', 'S3', 'Lambda', 'VPC', 'CloudFormation'],
+    level: 'intermediate' as const,
+  },
+  {
+    slug: 'azure-devops-engineer',
+    name: 'Azure DevOps Engineer',
+    category: 'cloud',
+    rating: 4.8,
+    reviewCount: 287,
+    duration: '3 months',
+    batchSize: 18,
+    price: 27999,
+    originalPrice: 42999,
+    emiAvailable: true,
+    placementRate: 94,
+    skills: ['Azure', 'DevOps', 'CI/CD', 'Kubernetes', 'Docker'],
+    level: 'intermediate' as const,
+  },
+  {
+    slug: 'kubernetes-mastery',
+    name: 'Kubernetes Mastery',
+    category: 'cloud',
+    rating: 4.8,
+    reviewCount: 156,
+    duration: '8 weeks',
+    batchSize: 15,
+    price: 19999,
+    originalPrice: 29999,
+    emiAvailable: true,
+    placementRate: 91,
+    skills: ['Kubernetes', 'Docker', 'Helm', 'Istio', 'Prometheus'],
+    level: 'advanced' as const,
+  },
+
+  // AI & Machine Learning
+  {
+    slug: 'ai-ml-bootcamp',
+    name: 'AI/ML Engineering Bootcamp',
+    category: 'ai-ml',
+    rating: 4.9,
+    reviewCount: 678,
+    duration: '5 months',
+    batchSize: 20,
+    price: 34999,
+    originalPrice: 54999,
+    emiAvailable: true,
+    placementRate: 95,
+    skills: ['Python', 'TensorFlow', 'PyTorch', 'Deep Learning', 'NLP'],
+    level: 'intermediate' as const,
+  },
+  {
+    slug: 'generative-ai-llm',
+    name: 'Generative AI & LLM',
+    category: 'ai-ml',
+    rating: 4.9,
+    reviewCount: 234,
+    duration: '3 months',
+    batchSize: 15,
+    price: 39999,
+    originalPrice: 59999,
+    emiAvailable: true,
+    placementRate: 93,
+    skills: ['ChatGPT', 'LangChain', 'OpenAI', 'Prompt Engineering', 'RAG'],
+    level: 'advanced' as const,
+  },
+  {
+    slug: 'agentic-ai-development',
+    name: 'Agentic AI Development',
+    category: 'ai-ml',
+    rating: 4.8,
+    reviewCount: 89,
+    duration: '2 months',
+    batchSize: 12,
+    price: 44999,
+    originalPrice: 64999,
+    emiAvailable: true,
+    placementRate: 90,
+    skills: ['AI Agents', 'AutoGPT', 'CrewAI', 'LangGraph', 'Tool Calling'],
+    level: 'advanced' as const,
+  },
+
+  // Full Stack Development
+  {
+    slug: 'mern-fullstack',
+    name: 'MERN Full Stack Developer',
+    category: 'fullstack',
+    rating: 4.8,
+    reviewCount: 812,
+    duration: '4 months',
+    batchSize: 25,
+    price: 22999,
+    originalPrice: 35999,
+    emiAvailable: true,
+    placementRate: 93,
+    skills: ['MongoDB', 'Express', 'React', 'Node.js', 'REST APIs'],
+    level: 'beginner' as const,
+  },
+  {
+    slug: 'python-backend-developer',
+    name: 'Python Backend Developer',
+    category: 'fullstack',
+    rating: 4.7,
+    reviewCount: 423,
+    duration: '3 months',
+    batchSize: 20,
+    price: 19999,
+    originalPrice: 32999,
+    emiAvailable: true,
+    placementRate: 91,
+    skills: ['Python', 'Django', 'FastAPI', 'PostgreSQL', 'Redis'],
+    level: 'intermediate' as const,
+  },
+  {
+    slug: 'blockchain-web3',
+    name: 'Blockchain & Web3 Developer',
+    category: 'fullstack',
+    rating: 4.6,
+    reviewCount: 134,
+    duration: '3 months',
+    batchSize: 15,
+    price: 32999,
+    originalPrice: 49999,
+    emiAvailable: true,
+    placementRate: 85,
+    skills: ['Solidity', 'Ethereum', 'Smart Contracts', 'Web3.js', 'DeFi'],
+    level: 'advanced' as const,
+  },
+
+  // Business & Leadership
+  {
+    slug: 'business-analyst-certification',
+    name: 'Business Analyst Certification',
+    category: 'business',
+    rating: 4.7,
+    reviewCount: 367,
+    duration: '2 months',
+    batchSize: 30,
+    price: 14999,
+    originalPrice: 24999,
+    emiAvailable: true,
+    placementRate: 89,
+    skills: ['Requirements', 'JIRA', 'Agile', 'Documentation', 'SQL Basics'],
+    level: 'beginner' as const,
+  },
+  {
+    slug: 'project-management-pmp',
+    name: 'Project Management (PMP Prep)',
+    category: 'business',
+    rating: 4.8,
+    reviewCount: 256,
+    duration: '2 months',
+    batchSize: 25,
+    price: 18999,
+    originalPrice: 29999,
+    emiAvailable: true,
+    placementRate: 92,
+    skills: ['PMP', 'Scrum', 'Agile', 'Risk Management', 'Stakeholder Mgmt'],
+    level: 'intermediate' as const,
+  },
+  {
+    slug: 'digital-marketing-mastery',
+    name: 'Digital Marketing Mastery',
+    category: 'business',
+    rating: 4.6,
+    reviewCount: 445,
+    duration: '3 months',
+    batchSize: 30,
+    price: 12999,
+    originalPrice: 21999,
+    emiAvailable: true,
+    placementRate: 87,
+    skills: ['SEO', 'Google Ads', 'Social Media', 'Analytics', 'Content'],
+    level: 'beginner' as const,
+  },
+];
+
+// Training-specific FAQs
+const trainingFaqs = [
+  {
+    question: "Do I need prior coding experience to enroll?",
+    answer: "It depends on the course. Our beginner-level courses like MERN Full Stack and Data Analytics are designed for absolute beginners. Intermediate and advanced courses may require basic programming knowledge. Each course page lists specific prerequisites."
+  },
+  {
+    question: "What is your job guarantee policy?",
+    answer: "We offer placement assistance with a 94% success rate. While we can't legally guarantee a job, we provide resume building, mock interviews, and connect you with our 500+ hiring partners. If you don't get placed within 6 months of completion, you get a 50% refund."
+  },
+  {
+    question: "What if I don't like the course?",
+    answer: "We offer a 30-day money-back guarantee. If you're not satisfied within the first 30 days, simply request a refund - no questions asked. We want you to be 100% confident in your investment."
+  },
+  {
+    question: "Can I access the course content after completion?",
+    answer: "Yes! You get lifetime access to all course materials, including any future updates. You can revisit lessons, download resources, and access recordings anytime."
+  },
+  {
+    question: "What are the class timings?",
+    answer: "We offer flexible timing with both weekday (evening) and weekend batches. Live classes are recorded, so you can catch up if you miss a session. Most courses have 2-3 live sessions per week, each 2-3 hours long."
+  },
+  {
+    question: "Is there EMI option available?",
+    answer: "Yes! We offer flexible EMI options starting from ₹2,000/month depending on the course. We've partnered with leading fintech providers to offer 0% interest EMI for select courses."
+  },
+  {
+    question: "What projects will I build?",
+    answer: "Each course includes 5-10 hands-on projects that you'll add to your GitHub portfolio. Projects are industry-relevant and designed with input from hiring managers. You'll have real deployable applications by the end."
+  },
+  {
+    question: "How are the live classes conducted?",
+    answer: "Classes are conducted via Zoom with small batches (max 15-25 students). You'll interact directly with instructors, participate in live coding, and get instant doubt resolution. All sessions are recorded for later viewing."
+  },
+];
+
+// Schema.org JSON-LD for SEO
+const schemaOrg = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "TechPath Training",
+  "description": "Online tech courses and certification programs with live instructor training",
+  "url": "https://techpath.biz/training",
+  "logo": "https://techpath.biz/images/techpath-logo.webp",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "reviewCount": "2000",
+    "bestRating": "5"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Tech Training Courses",
+    "itemListElement": courses.slice(0, 5).map(course => ({
+      "@type": "Course",
+      "name": course.name,
+      "description": `Learn ${course.skills.join(', ')} with live instructor training`,
+      "provider": {
+        "@type": "Organization",
+        "name": "TechPath"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": course.price,
+        "priceCurrency": "INR"
+      }
+    }))
+  }
+};
+---
+
+<MainLayout
+  title="Online Tech Courses | Certificate Programs | TechPath Training"
+  description="Learn Data Science, AI, Cloud, Web Development with live instructors. Courses from ₹7K. 94% job placement. 30-day money-back guarantee. Enroll now!"
+>
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(schemaOrg)} />
+
+  <!-- Main Content with Sticky Form Sidebar on Desktop -->
+  <div class="relative">
+    <!-- Desktop Sticky Form Sidebar -->
+    <div class="sticky-form-container hidden lg:block">
+      <div class="sticky top-24 w-80 xl:w-96">
+        <TrainingEnquiryForm variant="desktop" />
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Section 1: Hero -->
+      <TrainingHero />
+
+      <!-- Section 2: Pain Points -->
+      <PainPointsSection />
+
+      <!-- Section 3: USP / Why Choose Us -->
+      <USPSection />
+
+      <!-- Section 4: Course Catalog -->
+      <CourseGrid courses={courses} />
+
+      <!-- Section 5: Transformation Stories -->
+      <TransformationStories />
+
+      <!-- Section 6: Offer + Urgency -->
+      <OfferBanner />
+
+      <!-- Section 7: FAQ -->
+      <section class="bg-slate-950 py-16 lg:py-24">
+        <div class="container mx-auto px-4">
+          <div class="mx-auto mb-12 max-w-3xl text-center">
+            <span class="mb-4 inline-block rounded-full bg-primary-500/10 px-4 py-1.5 text-sm font-semibold text-primary-400">
+              FAQ
+            </span>
+            <h2 class="mb-4 font-heading text-3xl font-bold text-white md:text-4xl">
+              Frequently Asked <span class="text-primary-400">Questions</span>
+            </h2>
+            <p class="text-lg text-slate-400">
+              Got questions? We've got answers.
+            </p>
+          </div>
+          <FAQSection faqs={trainingFaqs} />
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Mobile Floating Form (handled by component) -->
+  <TrainingEnquiryForm variant="mobile" />
+
+  <!-- Final CTA -->
+  <CTA
+    title="Ready to Transform Your Career?"
+    description="Join 50,000+ students who've changed their lives with TechPath training."
+    primaryButton={{ label: 'Explore Courses', href: '#courses' }}
+    secondaryButton={{ label: 'Talk to Counselor', href: '/contact' }}
+  />
+</MainLayout>
+
+<style>
+  /* Desktop layout with sticky sidebar */
+  @media (min-width: 1024px) {
+    .relative {
+      display: flex;
+      flex-direction: row-reverse;
+      gap: 2rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .sticky-form-container {
+      flex-shrink: 0;
+      padding-top: 2rem;
+    }
+
+    .main-content {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+</style>
+

@@ -1,0 +1,553 @@
+---
+/**
+ * Individual Course Detail Page
+ * Dynamic page for each training course
+ */
+import MainLayout from '@layouts/MainLayout.astro';
+import Breadcrumb from '@components/shared/Breadcrumb.astro';
+import FAQSection from '@components/sections/FAQSection.astro';
+import CTA from '@components/shared/CTA.astro';
+import TrainingEnquiryForm from './_components/TrainingEnquiryForm.astro';
+
+export const prerender = true;
+
+export function getStaticPaths() {
+  // Course data defined inside getStaticPaths for proper scoping
+  const courses = [
+    {
+      slug: 'data-science-masterclass',
+      name: 'Data Science Masterclass',
+      category: 'Data Science',
+      rating: 4.9,
+      reviewCount: 456,
+      duration: '4 months',
+      batchSize: 20,
+      price: 24999,
+      originalPrice: 39999,
+      emiAvailable: true,
+      placementRate: 94,
+      skills: ['Python', 'SQL', 'Machine Learning', 'Tableau', 'Statistics'],
+      level: 'intermediate',
+      description: 'Master data science from fundamentals to advanced ML. Build real-world projects and get job-ready in 4 months.',
+      curriculum: [
+        { week: '1-2', title: 'Python Programming & Statistics', topics: ['Python basics', 'NumPy', 'Pandas', 'Statistics fundamentals'] },
+        { week: '3-4', title: 'SQL & Data Manipulation', topics: ['SQL queries', 'Joins', 'Window functions', 'Database design'] },
+        { week: '5-8', title: 'Machine Learning Fundamentals', topics: ['Supervised learning', 'Regression', 'Classification', 'Model evaluation'] },
+        { week: '9-12', title: 'Advanced ML & Deep Learning', topics: ['Ensemble methods', 'Neural networks', 'NLP basics', 'Computer vision'] },
+        { week: '13-16', title: 'Projects & Placement Prep', topics: ['Capstone project', 'Portfolio building', 'Mock interviews', 'Resume review'] },
+      ],
+      instructor: { name: 'Dr. Amit Patel', role: 'Lead Data Scientist @ Google', experience: '12 years' },
+    },
+    {
+      slug: 'aws-solutions-architect',
+      name: 'AWS Solutions Architect',
+      category: 'Cloud & DevOps',
+      rating: 4.9,
+      reviewCount: 523,
+      duration: '3 months',
+      batchSize: 20,
+      price: 29999,
+      originalPrice: 45999,
+      emiAvailable: true,
+      placementRate: 96,
+      skills: ['AWS', 'EC2', 'S3', 'Lambda', 'VPC', 'CloudFormation'],
+      level: 'intermediate',
+      description: 'Become a certified AWS Solutions Architect. Learn to design scalable cloud architectures with hands-on labs.',
+      curriculum: [
+        { week: '1-2', title: 'AWS Fundamentals', topics: ['IAM', 'EC2', 'VPC', 'S3 basics'] },
+        { week: '3-4', title: 'Compute & Storage', topics: ['Auto Scaling', 'EBS', 'EFS', 'Lambda'] },
+        { week: '5-8', title: 'Networking & Security', topics: ['Route 53', 'CloudFront', 'WAF', 'Security best practices'] },
+        { week: '9-12', title: 'Architecture & Certification Prep', topics: ['Well-Architected Framework', 'Cost optimization', 'Exam prep', 'Mock tests'] },
+      ],
+      instructor: { name: 'Rajesh Kumar', role: 'Principal Cloud Architect @ AWS', experience: '15 years' },
+    },
+    {
+      slug: 'ai-ml-bootcamp',
+      name: 'AI/ML Engineering Bootcamp',
+      category: 'AI & Machine Learning',
+      rating: 4.9,
+      reviewCount: 678,
+      duration: '5 months',
+      batchSize: 20,
+      price: 34999,
+      originalPrice: 54999,
+      emiAvailable: true,
+      placementRate: 95,
+      skills: ['Python', 'TensorFlow', 'PyTorch', 'Deep Learning', 'NLP'],
+      level: 'intermediate',
+      description: 'Comprehensive AI/ML program covering deep learning, NLP, and computer vision with industry projects.',
+      curriculum: [
+        { week: '1-4', title: 'ML Foundations', topics: ['Python for ML', 'Math for ML', 'Classical ML algorithms'] },
+        { week: '5-8', title: 'Deep Learning', topics: ['Neural networks', 'CNNs', 'RNNs', 'Transformers'] },
+        { week: '9-12', title: 'NLP & Computer Vision', topics: ['Text processing', 'Sentiment analysis', 'Object detection', 'Image classification'] },
+        { week: '13-16', title: 'MLOps & Deployment', topics: ['Model deployment', 'MLflow', 'Docker for ML', 'Cloud ML services'] },
+        { week: '17-20', title: 'Projects & Placement', topics: ['Industry projects', 'Portfolio', 'Interview prep'] },
+      ],
+      instructor: { name: 'Dr. Priya Mehta', role: 'ML Research Lead @ Microsoft', experience: '10 years' },
+    },
+    {
+      slug: 'mern-fullstack',
+      name: 'MERN Full Stack Developer',
+      category: 'Full Stack Development',
+      rating: 4.8,
+      reviewCount: 812,
+      duration: '4 months',
+      batchSize: 25,
+      price: 22999,
+      originalPrice: 35999,
+      emiAvailable: true,
+      placementRate: 93,
+      skills: ['MongoDB', 'Express', 'React', 'Node.js', 'REST APIs'],
+      level: 'beginner',
+      description: 'Learn full stack web development with the MERN stack. Build 8+ projects including a full e-commerce app.',
+      curriculum: [
+        { week: '1-2', title: 'HTML, CSS & JavaScript', topics: ['HTML5', 'CSS3', 'Flexbox/Grid', 'ES6+ JavaScript'] },
+        { week: '3-6', title: 'React.js Mastery', topics: ['Components', 'Hooks', 'State management', 'React Router'] },
+        { week: '7-10', title: 'Node.js & Express', topics: ['REST APIs', 'Authentication', 'MongoDB', 'Mongoose'] },
+        { week: '11-16', title: 'Full Stack Projects', topics: ['E-commerce app', 'Social media clone', 'Deployment', 'CI/CD'] },
+      ],
+      instructor: { name: 'Vikram Sharma', role: 'Senior Engineer @ Netflix', experience: '8 years' },
+    },
+    {
+      slug: 'generative-ai-llm',
+      name: 'Generative AI & LLM',
+      category: 'AI & Machine Learning',
+      rating: 4.9,
+      reviewCount: 234,
+      duration: '3 months',
+      batchSize: 15,
+      price: 39999,
+      originalPrice: 59999,
+      emiAvailable: true,
+      placementRate: 93,
+      skills: ['ChatGPT', 'LangChain', 'OpenAI', 'Prompt Engineering', 'RAG'],
+      level: 'advanced',
+      description: 'Master Generative AI and Large Language Models. Build AI applications with ChatGPT, LangChain, and RAG.',
+      curriculum: [
+        { week: '1-2', title: 'LLM Fundamentals', topics: ['Transformer architecture', 'GPT models', 'OpenAI APIs'] },
+        { week: '3-4', title: 'Prompt Engineering', topics: ['Prompt design', 'Chain-of-thought', 'Few-shot learning'] },
+        { week: '5-8', title: 'LangChain & RAG', topics: ['LangChain framework', 'Vector databases', 'RAG pipelines'] },
+        { week: '9-12', title: 'Building AI Applications', topics: ['Chatbots', 'Document QA', 'Code assistants', 'Deployment'] },
+      ],
+      instructor: { name: 'Arjun Nair', role: 'AI Lead @ OpenAI Partner', experience: '7 years' },
+    },
+  ];
+
+  return courses.map(course => ({
+    params: { slug: course.slug },
+    props: { course },
+  }));
+}
+
+interface Course {
+  slug: string;
+  name: string;
+  category: string;
+  rating: number;
+  reviewCount: number;
+  duration: string;
+  batchSize: number;
+  price: number;
+  originalPrice: number;
+  emiAvailable: boolean;
+  placementRate: number;
+  skills: string[];
+  level: string;
+  description: string;
+  curriculum?: { week: string; title: string; topics: string[] }[];
+  instructor?: { name: string; role: string; experience: string };
+}
+
+interface Props {
+  course: Course;
+}
+
+const { course } = Astro.props as Props;
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Training', href: '/training' },
+  { label: course.name, href: '#', current: true },
+];
+
+const formatPrice = (amount: number) => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+const discount = Math.round(((course.originalPrice - course.price) / course.originalPrice) * 100);
+
+const faqs = [
+  { question: "What are the prerequisites for this course?", answer: `This is a ${course.level}-level course. ${course.level === 'beginner' ? 'No prior experience needed.' : course.level === 'intermediate' ? 'Basic programming knowledge is helpful.' : 'Strong programming fundamentals required.'}` },
+  { question: "What is the class schedule?", answer: `Live classes are held 3 times per week (2 hours each). We offer both weekday evening and weekend batches. All sessions are recorded.` },
+  { question: "Will I get a certificate?", answer: "Yes! Upon successful completion, you'll receive a verified certificate from TechPath that you can share on LinkedIn and add to your resume." },
+  { question: "What if I miss a live class?", answer: "No worries! All live sessions are recorded and available within 24 hours. You can also ask questions in our community forum." },
+];
+
+// Course-specific schema
+const courseSchema = {
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": course.name,
+  "description": course.description,
+  "provider": {
+    "@type": "Organization",
+    "name": "TechPath",
+    "sameAs": "https://techpath.biz"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": course.price,
+    "priceCurrency": "INR",
+    "availability": "https://schema.org/InStock"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": course.rating,
+    "reviewCount": course.reviewCount
+  }
+};
+---
+
+<MainLayout
+  title={`${course.name} | TechPath Training`}
+  description={course.description}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(courseSchema)} />
+
+  <section class="bg-slate-950 py-12 lg:py-20">
+    <div class="container mx-auto px-4">
+      <Breadcrumb items={breadcrumbItems} />
+
+      <div class="grid gap-12 lg:grid-cols-3">
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+          <!-- Header -->
+          <div class="mb-8">
+            <span class="mb-3 inline-block rounded-full bg-primary-500/10 px-3 py-1 text-sm font-medium text-primary-400">
+              {course.category}
+            </span>
+            <h1 class="mb-4 font-heading text-3xl font-bold text-white md:text-4xl lg:text-5xl">
+              {course.name}
+            </h1>
+            <p class="text-lg text-slate-300">
+              {course.description}
+            </p>
+            
+            <!-- Meta -->
+            <div class="mt-6 flex flex-wrap items-center gap-4 text-sm text-slate-400">
+              <div class="flex items-center gap-1">
+                <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span class="font-medium text-white">{course.rating}</span>
+                <span>({course.reviewCount} reviews)</span>
+              </div>
+              <span>•</span>
+              <span>{course.duration}</span>
+              <span>•</span>
+              <span class="capitalize">{course.level}</span>
+              <span>•</span>
+              <span class="text-green-400">{course.placementRate}% placement</span>
+            </div>
+          </div>
+
+          <!-- Skills -->
+          <div class="mb-8">
+            <h2 class="mb-4 font-heading text-xl font-bold text-white">Skills You'll Learn</h2>
+            <div class="flex flex-wrap gap-2">
+              {course.skills.map(skill => (
+                <span class="rounded-lg bg-slate-800 px-3 py-1.5 text-sm text-slate-300">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <!-- Curriculum -->
+          {course.curriculum && (
+            <div class="mb-8">
+              <h2 class="mb-4 font-heading text-xl font-bold text-white">Course Curriculum</h2>
+              <div class="space-y-4">
+                {course.curriculum.map((module) => (
+                  <div class="rounded-xl border border-slate-700/50 bg-slate-800/30 p-4">
+                    <div class="mb-2 flex items-center justify-between">
+                      <h3 class="font-semibold text-white">
+                        <span class="mr-2 text-primary-400">Week {module.week}:</span>
+                        {module.title}
+                      </h3>
+                    </div>
+                    <ul class="grid gap-1 sm:grid-cols-2">
+                      {module.topics.map(topic => (
+                        <li class="flex items-center gap-2 text-sm text-slate-400">
+                          <svg class="h-4 w-4 flex-shrink-0 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          {topic}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <!-- Instructor -->
+          {course.instructor && (
+            <div class="mb-8">
+              <h2 class="mb-4 font-heading text-xl font-bold text-white">Your Instructor</h2>
+              <div class="flex items-center gap-4 rounded-xl border border-slate-700/50 bg-slate-800/30 p-4">
+                <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 text-xl font-bold text-white">
+                  {course.instructor.name.split(' ').map(n => n[0]).join('')}
+                </div>
+                <div>
+                  <h3 class="font-semibold text-white">{course.instructor.name}</h3>
+                  <p class="text-sm text-primary-400">{course.instructor.role}</p>
+                  <p class="text-sm text-slate-400">{course.instructor.experience} experience</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <!-- FAQ -->
+          <div>
+            <h2 class="mb-4 font-heading text-xl font-bold text-white">Frequently Asked Questions</h2>
+            <FAQSection faqs={faqs} />
+          </div>
+        </div>
+
+        <!-- Sidebar - Enrollment Card -->
+        <div class="lg:col-span-1">
+          <div id="enroll" class="sticky top-24 rounded-2xl border border-slate-700/50 bg-slate-800/50 p-6">
+            <!-- Price -->
+            <div class="mb-4">
+              <div class="flex items-end gap-3">
+                <span class="text-3xl font-bold text-white">{formatPrice(course.price)}</span>
+                <span class="text-lg text-slate-400 line-through">{formatPrice(course.originalPrice)}</span>
+                <span class="rounded bg-green-500/20 px-2 py-0.5 text-sm font-medium text-green-400">
+                  {discount}% OFF
+                </span>
+              </div>
+              {course.emiAvailable && (
+                <p class="mt-1 text-sm text-slate-400">
+                  EMI from {formatPrice(Math.round(course.price / 6))}/month
+                </p>
+              )}
+            </div>
+
+            <!-- CTA -->
+            <button
+              type="button"
+              id="enroll-now-btn"
+              class="mb-3 block w-full rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 py-3.5 text-center font-semibold text-white transition-all hover:from-primary-600 hover:to-primary-700"
+            >
+              Enroll Now
+            </button>
+            <button
+              type="button"
+              id="request-callback-btn"
+              class="mb-6 block w-full rounded-xl border border-slate-600 bg-slate-700/50 py-3.5 text-center font-medium text-white transition-colors hover:bg-slate-700"
+            >
+              Request Callback
+            </button>
+            
+            <!-- Quick Enquiry Form (shown when clicking buttons) -->
+            <div id="quick-enquiry-form" class="mb-6 hidden rounded-xl border border-primary-500/30 bg-slate-800/50 p-4">
+              <h4 class="mb-3 font-semibold text-white">Quick Enquiry</h4>
+              <form id="sidebar-enquiry-form" class="space-y-3">
+                <input type="hidden" name="course" value={course.name} />
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Your Name *"
+                  required
+                  class="w-full rounded-lg border border-slate-600 bg-slate-700/50 px-3 py-2.5 text-sm text-white placeholder-slate-400 focus:border-primary-500 focus:outline-none"
+                />
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Phone Number *"
+                  required
+                  pattern="[0-9]{10}"
+                  class="w-full rounded-lg border border-slate-600 bg-slate-700/50 px-3 py-2.5 text-sm text-white placeholder-slate-400 focus:border-primary-500 focus:outline-none"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email Address *"
+                  required
+                  class="w-full rounded-lg border border-slate-600 bg-slate-700/50 px-3 py-2.5 text-sm text-white placeholder-slate-400 focus:border-primary-500 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  class="w-full rounded-lg bg-primary-500 py-2.5 text-sm font-semibold text-white hover:bg-primary-600"
+                >
+                  Submit Enquiry
+                </button>
+                <p id="sidebar-form-message" class="hidden text-center text-xs"></p>
+              </form>
+            </div>
+
+            <!-- Course includes -->
+            <div class="border-t border-slate-700/50 pt-4">
+              <h4 class="mb-3 font-semibold text-white">This course includes:</h4>
+              <ul class="space-y-2">
+                <li class="flex items-center gap-2 text-sm text-slate-300">
+                  <svg class="h-4 w-4 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {course.duration} of live training
+                </li>
+                <li class="flex items-center gap-2 text-sm text-slate-300">
+                  <svg class="h-4 w-4 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Max {course.batchSize} students/batch
+                </li>
+                <li class="flex items-center gap-2 text-sm text-slate-300">
+                  <svg class="h-4 w-4 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Certificate of completion
+                </li>
+                <li class="flex items-center gap-2 text-sm text-slate-300">
+                  <svg class="h-4 w-4 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                  </svg>
+                  Lifetime access to content
+                </li>
+                <li class="flex items-center gap-2 text-sm text-slate-300">
+                  <svg class="h-4 w-4 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Placement assistance
+                </li>
+              </ul>
+            </div>
+
+            <!-- Guarantee -->
+            <div class="mt-4 rounded-lg bg-green-500/10 p-3 text-center">
+              <p class="text-sm text-green-400">
+                🛡️ 30-Day Money-Back Guarantee
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mobile Floating Form -->
+  <TrainingEnquiryForm variant="mobile" courseName={course.name} />
+
+  <CTA
+    title="Have Questions About This Course?"
+    description="Our counselors are available to help you make the right choice."
+    primaryButton={{ label: 'Talk to Counselor', href: '/contact' }}
+    secondaryButton={{ label: 'View All Courses', href: '/training' }}
+  />
+</MainLayout>
+
+<script>
+  const API_URL = 'http://localhost:8000';
+  
+  // Sidebar form toggle
+  const enrollBtn = document.getElementById('enroll-now-btn');
+  const callbackBtn = document.getElementById('request-callback-btn');
+  const quickForm = document.getElementById('quick-enquiry-form');
+  
+  function toggleQuickForm() {
+    if (quickForm) {
+      const isHidden = quickForm.classList.contains('hidden');
+      if (isHidden) {
+        quickForm.classList.remove('hidden');
+        quickForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // Focus first input
+        quickForm.querySelector('input[name="name"]')?.focus();
+      } else {
+        quickForm.classList.add('hidden');
+      }
+    }
+  }
+  
+  // On mobile, open the mobile modal instead
+  function handleEnquiryClick() {
+    const isMobile = window.innerWidth < 1024; // lg breakpoint
+    
+    if (isMobile) {
+      // Trigger mobile form modal
+      const mobileModal = document.querySelector('.mobile-form-modal');
+      if (mobileModal) {
+        mobileModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+    } else {
+      toggleQuickForm();
+    }
+  }
+  
+  enrollBtn?.addEventListener('click', handleEnquiryClick);
+  callbackBtn?.addEventListener('click', handleEnquiryClick);
+  
+  // Sidebar form submission
+  const sidebarForm = document.getElementById('sidebar-enquiry-form');
+  const sidebarMessage = document.getElementById('sidebar-form-message');
+  
+  sidebarForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(sidebarForm);
+    const submitBtn = sidebarForm.querySelector('button[type="submit"]');
+    
+    const data = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      message: `Training Enquiry for: ${formData.get('course')}`,
+    };
+    
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+    }
+    
+    try {
+      const response = await fetch(`${API_URL}/api/v1/contact/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      
+      const result = await response.json();
+      
+      if (sidebarMessage) {
+        sidebarMessage.classList.remove('hidden', 'text-red-400', 'text-green-400');
+        
+        if (response.ok) {
+          sidebarMessage.classList.add('text-green-400');
+          sidebarMessage.textContent = '✅ Thank you! We\'ll call you soon.';
+          sidebarForm.reset();
+        } else {
+          sidebarMessage.classList.add('text-red-400');
+          sidebarMessage.textContent = result.detail || 'Something went wrong.';
+        }
+      }
+    } catch (error) {
+      console.error('Form error:', error);
+      if (sidebarMessage) {
+        sidebarMessage.classList.remove('hidden', 'text-green-400');
+        sidebarMessage.classList.add('text-red-400');
+        sidebarMessage.textContent = 'Network error. Please try again.';
+      }
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Enquiry';
+      }
+    }
+  });
+</script>
