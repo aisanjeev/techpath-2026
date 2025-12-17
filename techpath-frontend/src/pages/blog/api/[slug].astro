@@ -1,0 +1,65 @@
+---
+/**
+ * Dynamic Blog Post Page for API posts
+ * Renders blog posts fetched from FastAPI backend
+ */
+import ArticleLayout from '@layouts/ArticleLayout.astro';
+import { fetchBlogPostBySlug, fetchBlogPosts } from '@services/blogService';
+import { marked } from 'marked';
+
+// SSR - fetch from API at request time
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/blog');
+}
+
+// Fetch post from API
+const post = await fetchBlogPostBySlug(slug);
+
+if (!post) {
+  return Astro.redirect('/blog');
+}
+
+// Get related posts
+const allPosts = await fetchBlogPosts({ limit: 10 });
+const relatedPosts = allPosts
+  .filter((p) => p.slug !== slug)
+  .slice(0, 3)
+  .map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    description: p.excerpt || '',
+    image: p.featured_image,
+  }));
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
+  { label: post.title, href: '#', current: true },
+];
+
+// Parse markdown content to HTML
+const htmlContent = marked(post.content);
+---
+
+<ArticleLayout
+  title={post.title}
+  description={post.excerpt || ''}
+  author="TechPath Team"
+  pubDate={new Date(post.published_at || post.created_at)}
+  image={post.featured_image}
+  tags={post.tags.map((t) => t.name)}
+  readingTime={post.reading_time || 5}
+  breadcrumbs={breadcrumbItems}
+  relatedPosts={relatedPosts}
+  showToc={true}
+  showAuthorBio={true}
+  showShareButtons={true}
+  type="blog"
+>
+  <Fragment set:html={htmlContent} />
+</ArticleLayout>
+

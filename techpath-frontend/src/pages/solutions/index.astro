@@ -7,6 +7,8 @@
 import MainLayout from '@layouts/MainLayout.astro';
 import Breadcrumb from '@components/shared/Breadcrumb.astro';
 
+const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
+
 const breadcrumbItems = [
   { label: 'Home', href: '/' },
   { label: 'Solutions', href: '/solutions', current: true },
@@ -664,7 +666,7 @@ const certifications = [
             <h3 class="font-heading text-xl font-bold text-white mb-6">
               Schedule Free Consultation
             </h3>
-            <form class="space-y-4" action="/api/contact" method="POST">
+            <form id="solutions-form" class="space-y-4">
               <div>
                 <label for="name" class="block text-sm font-medium text-slate-300 mb-2">Full Name *</label>
                 <input 
@@ -749,10 +751,12 @@ const certifications = [
               </div>
               <button 
                 type="submit"
-                class="w-full py-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-600 transition-all hover:shadow-lg hover:shadow-primary-500/25"
+                id="solutions-submit-btn"
+                class="w-full py-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-600 transition-all hover:shadow-lg hover:shadow-primary-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Schedule Consultation
               </button>
+              <p id="solutions-message" class="hidden text-sm text-center"></p>
               <p class="text-xs text-slate-500 text-center">
                 You'll receive a free industry benchmark report after booking.
               </p>
@@ -1009,6 +1013,67 @@ const certifications = [
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeDropdown();
+    }
+  });
+</script>
+
+<script define:vars={{ apiBaseUrl }}>
+  // Solutions consultation form handler
+  const API_URL = apiBaseUrl;
+  const solutionsForm = document.getElementById('solutions-form');
+  const submitBtn = document.getElementById('solutions-submit-btn');
+  const formMessage = document.getElementById('solutions-message');
+
+  solutionsForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+    }
+
+    const formData = new FormData(solutionsForm);
+    const data = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      company: formData.get('company') || null,
+      service: formData.get('industry') || null,
+      message: formData.get('challenge') || 'Consultation request from Solutions page',
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/api/v1/contact/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (formMessage) {
+        formMessage.classList.remove('hidden', 'text-red-400', 'text-green-400');
+        
+        if (response.ok) {
+          formMessage.classList.add('text-green-400');
+          formMessage.textContent = result.message || 'Thank you! We will contact you within 24 hours.';
+          solutionsForm.reset();
+        } else {
+          formMessage.classList.add('text-red-400');
+          formMessage.textContent = result.detail || 'An error occurred. Please try again.';
+        }
+      }
+    } catch (error) {
+      console.error('Solutions form error:', error);
+      if (formMessage) {
+        formMessage.classList.remove('hidden', 'text-green-400');
+        formMessage.classList.add('text-red-400');
+        formMessage.textContent = 'Network error. Please check your connection.';
+      }
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Schedule Consultation';
+      }
     }
   });
 </script>

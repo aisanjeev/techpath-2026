@@ -4,6 +4,7 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import robotsTxt from 'astro-robots-txt';
 import compress from 'astro-compress';
+import node from '@astrojs/node';
 import { loadEnv } from 'vite';
 
 const env = loadEnv(process.env.NODE_ENV, process.cwd(), '');
@@ -19,7 +20,12 @@ export default defineConfig({
     compress(),
   ],
 
-  output: 'static', // Static generation (default in Astro 5)
+  // Server mode with prerender = true by default for most pages
+  // Use prerender = false for pages that need dynamic SSR
+  output: 'server',
+  adapter: node({
+    mode: 'standalone',
+  }),
 
   vite: {
     define: {

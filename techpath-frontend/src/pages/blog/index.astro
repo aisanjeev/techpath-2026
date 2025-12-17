@@ -3,13 +3,37 @@ import MainLayout from '@layouts/MainLayout.astro';
 import Breadcrumb from '@components/shared/Breadcrumb.astro';
 import Card from '@components/ui/Card.astro';
 import { getCollection } from 'astro:content';
+import { fetchBlogPosts, normalizeApiPost } from '@services/blogService';
+
+// SSR for this page - fetches from API at request time
+// Set to true for build-time generation, false for runtime SSR
+export const prerender = false;
 
 const breadcrumbItems = [
   { label: 'Home', href: '/' },
   { label: 'Blog', href: '/blog', current: true },
 ];
 
-const allPosts = await getCollection('blog');
+// Get posts from both sources
+const [collectionPosts, apiPosts] = await Promise.all([
+  getCollection('blog'),
+  fetchBlogPosts({ limit: 50 }),
+]);
+
+// Normalize API posts to match collection format
+const normalizedApiPosts = apiPosts.map(normalizeApiPost);
+
+// Combine and dedupe by slug (prefer API posts as they're more up-to-date)
+const apiSlugs = new Set(normalizedApiPosts.map((p) => p.slug));
+const uniqueCollectionPosts = collectionPosts.filter((p) => !apiSlugs.has(p.slug));
+
+// Combine all posts
+const allPosts = [...normalizedApiPosts, ...uniqueCollectionPosts.map((p) => ({
+  ...p,
+  source: 'collection' as const,
+}))];
+
+// Sort by date
 const sortedPosts = allPosts.sort(
   (a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
 );
@@ -40,7 +64,7 @@ const recentPosts = sortedPosts.slice(1, 7);
         featuredPost && (
           <article class="mb-16">
             <a
-              href={`/blog/${featuredPost.slug}`}
+              href={featuredPost.source === 'api' ? `/blog/api/${featuredPost.slug}` : `/blog/${featuredPost.slug}`}
               class="group relative flex flex-col overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/50 md:flex-row"
             >
               <div class="aspect-video w-full md:aspect-auto md:w-1/2">
@@ -88,7 +112,7 @@ const recentPosts = sortedPosts.slice(1, 7);
             <Card
               title={post.data.title}
               description={post.data.description}
-              href={`/blog/${post.slug}`}
+              href={post.source === 'api' ? `/blog/api/${post.slug}` : `/blog/${post.slug}`}
               image={post.data.image}
               meta={`${post.data.author} • ${new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',
