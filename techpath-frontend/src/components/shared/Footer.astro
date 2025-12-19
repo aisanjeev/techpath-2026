@@ -1,6 +1,15 @@
 ---
+import { Image } from 'astro:assets';
+import techpathLogo from '@/assets/images/techpath-logo.webp';
+import { fetchPublicSettings } from '@services/settingsService';
+
 const currentYear = new Date().getFullYear();
 const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
+
+// Fetch dynamic settings
+const settings = await fetchPublicSettings();
+const companyName = settings.company_name || 'TechPath';
+const companyEmail = settings.company_email || 'info@techpath.biz';
 
 const footerLinks = {
   services: [
@@ -31,11 +40,11 @@ const footerLinks = {
   ],
 };
 
+// Build social links from settings
 const socialLinks = [
-  { label: 'Twitter', href: 'https://twitter.com/techpath', icon: 'twitter' },
-  { label: 'LinkedIn', href: 'https://linkedin.com/company/techpath', icon: 'linkedin' },
-  { label: 'GitHub', href: 'https://github.com/techpath', icon: 'github' },
-];
+  settings.social_twitter && { label: 'Twitter', href: settings.social_twitter, icon: 'twitter' },
+  settings.social_linkedin && { label: 'LinkedIn', href: settings.social_linkedin, icon: 'linkedin' },
+].filter(Boolean) as { label: string; href: string; icon: string }[];
 ---
 
 <footer class="border-t border-slate-800 bg-slate-950">
@@ -44,9 +53,13 @@ const socialLinks = [
       <!-- Brand Column -->
       <div class="lg:col-span-2">
         <a href="/" class="flex items-center">
-          <img 
-            src="/images/techpath-logo.webp" 
+          <Image 
+            src={techpathLogo}
             alt="TechPath" 
+            width={160}
+            height={40}
+            loading="lazy"
+            decoding="async"
             class="h-8 w-auto md:h-10"
           />
         </a>
@@ -159,7 +172,7 @@ const socialLinks = [
       class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-800 pt-8 md:flex-row"
     >
       <p class="text-sm text-slate-500">
-        &copy; {currentYear} TechPath. All rights reserved.
+        &copy; {currentYear} {companyName}. All rights reserved.
       </p>
 
       <!-- Social Links -->

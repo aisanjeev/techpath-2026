@@ -14,244 +14,21 @@ import OfferBanner from './_components/OfferBanner.astro';
 import TrainingEnquiryForm from './_components/TrainingEnquiryForm.astro';
 import FAQSection from '@components/sections/FAQSection.astro';
 import CTA from '@components/shared/CTA.astro';
+import { fetchCourses, normalizeApiCourse } from '@services/courseService';
 
-// Course Data - 15 courses across 5 categories
-const courses = [
-  // Data Science & Analytics
-  {
-    slug: 'data-science-masterclass',
-    name: 'Data Science Masterclass',
-    category: 'data-science',
-    rating: 4.9,
-    reviewCount: 456,
-    duration: '4 months',
-    batchSize: 20,
-    price: 24999,
-    originalPrice: 39999,
-    emiAvailable: true,
-    placementRate: 94,
-    skills: ['Python', 'SQL', 'Machine Learning', 'Tableau', 'Statistics'],
-    level: 'intermediate' as const,
-  },
-  {
-    slug: 'data-analytics-bootcamp',
-    name: 'Data Analytics Bootcamp',
-    category: 'data-science',
-    rating: 4.8,
-    reviewCount: 312,
-    duration: '3 months',
-    batchSize: 25,
-    price: 17999,
-    originalPrice: 27999,
-    emiAvailable: true,
-    placementRate: 92,
-    skills: ['Excel', 'SQL', 'Power BI', 'Tableau', 'Python Basics'],
-    level: 'beginner' as const,
-  },
-  {
-    slug: 'advanced-data-visualization',
-    name: 'Advanced Data Visualization',
-    category: 'data-science',
-    rating: 4.7,
-    reviewCount: 189,
-    duration: '6 weeks',
-    batchSize: 15,
-    price: 12999,
-    originalPrice: 18999,
-    emiAvailable: true,
-    placementRate: 88,
-    skills: ['Tableau', 'Power BI', 'D3.js', 'Storytelling'],
-    level: 'intermediate' as const,
-  },
-  
-  // Cloud & DevOps
-  {
-    slug: 'aws-solutions-architect',
-    name: 'AWS Solutions Architect',
-    category: 'cloud',
-    rating: 4.9,
-    reviewCount: 523,
-    duration: '3 months',
-    batchSize: 20,
-    price: 29999,
-    originalPrice: 45999,
-    emiAvailable: true,
-    placementRate: 96,
-    skills: ['AWS', 'EC2', 'S3', 'Lambda', 'VPC', 'CloudFormation'],
-    level: 'intermediate' as const,
-  },
-  {
-    slug: 'azure-devops-engineer',
-    name: 'Azure DevOps Engineer',
-    category: 'cloud',
-    rating: 4.8,
-    reviewCount: 287,
-    duration: '3 months',
-    batchSize: 18,
-    price: 27999,
-    originalPrice: 42999,
-    emiAvailable: true,
-    placementRate: 94,
-    skills: ['Azure', 'DevOps', 'CI/CD', 'Kubernetes', 'Docker'],
-    level: 'intermediate' as const,
-  },
-  {
-    slug: 'kubernetes-mastery',
-    name: 'Kubernetes Mastery',
-    category: 'cloud',
-    rating: 4.8,
-    reviewCount: 156,
-    duration: '8 weeks',
-    batchSize: 15,
-    price: 19999,
-    originalPrice: 29999,
-    emiAvailable: true,
-    placementRate: 91,
-    skills: ['Kubernetes', 'Docker', 'Helm', 'Istio', 'Prometheus'],
-    level: 'advanced' as const,
-  },
+// Fetch courses from API (SSR)
+export const prerender = false;
 
-  // AI & Machine Learning
-  {
-    slug: 'ai-ml-bootcamp',
-    name: 'AI/ML Engineering Bootcamp',
-    category: 'ai-ml',
-    rating: 4.9,
-    reviewCount: 678,
-    duration: '5 months',
-    batchSize: 20,
-    price: 34999,
-    originalPrice: 54999,
-    emiAvailable: true,
-    placementRate: 95,
-    skills: ['Python', 'TensorFlow', 'PyTorch', 'Deep Learning', 'NLP'],
-    level: 'intermediate' as const,
-  },
-  {
-    slug: 'generative-ai-llm',
-    name: 'Generative AI & LLM',
-    category: 'ai-ml',
-    rating: 4.9,
-    reviewCount: 234,
-    duration: '3 months',
-    batchSize: 15,
-    price: 39999,
-    originalPrice: 59999,
-    emiAvailable: true,
-    placementRate: 93,
-    skills: ['ChatGPT', 'LangChain', 'OpenAI', 'Prompt Engineering', 'RAG'],
-    level: 'advanced' as const,
-  },
-  {
-    slug: 'agentic-ai-development',
-    name: 'Agentic AI Development',
-    category: 'ai-ml',
-    rating: 4.8,
-    reviewCount: 89,
-    duration: '2 months',
-    batchSize: 12,
-    price: 44999,
-    originalPrice: 64999,
-    emiAvailable: true,
-    placementRate: 90,
-    skills: ['AI Agents', 'AutoGPT', 'CrewAI', 'LangGraph', 'Tool Calling'],
-    level: 'advanced' as const,
-  },
+let courses: any[] = [];
+let fetchError = false;
 
-  // Full Stack Development
-  {
-    slug: 'mern-fullstack',
-    name: 'MERN Full Stack Developer',
-    category: 'fullstack',
-    rating: 4.8,
-    reviewCount: 812,
-    duration: '4 months',
-    batchSize: 25,
-    price: 22999,
-    originalPrice: 35999,
-    emiAvailable: true,
-    placementRate: 93,
-    skills: ['MongoDB', 'Express', 'React', 'Node.js', 'REST APIs'],
-    level: 'beginner' as const,
-  },
-  {
-    slug: 'python-backend-developer',
-    name: 'Python Backend Developer',
-    category: 'fullstack',
-    rating: 4.7,
-    reviewCount: 423,
-    duration: '3 months',
-    batchSize: 20,
-    price: 19999,
-    originalPrice: 32999,
-    emiAvailable: true,
-    placementRate: 91,
-    skills: ['Python', 'Django', 'FastAPI', 'PostgreSQL', 'Redis'],
-    level: 'intermediate' as const,
-  },
-  {
-    slug: 'blockchain-web3',
-    name: 'Blockchain & Web3 Developer',
-    category: 'fullstack',
-    rating: 4.6,
-    reviewCount: 134,
-    duration: '3 months',
-    batchSize: 15,
-    price: 32999,
-    originalPrice: 49999,
-    emiAvailable: true,
-    placementRate: 85,
-    skills: ['Solidity', 'Ethereum', 'Smart Contracts', 'Web3.js', 'DeFi'],
-    level: 'advanced' as const,
-  },
-
-  // Business & Leadership
-  {
-    slug: 'business-analyst-certification',
-    name: 'Business Analyst Certification',
-    category: 'business',
-    rating: 4.7,
-    reviewCount: 367,
-    duration: '2 months',
-    batchSize: 30,
-    price: 14999,
-    originalPrice: 24999,
-    emiAvailable: true,
-    placementRate: 89,
-    skills: ['Requirements', 'JIRA', 'Agile', 'Documentation', 'SQL Basics'],
-    level: 'beginner' as const,
-  },
-  {
-    slug: 'project-management-pmp',
-    name: 'Project Management (PMP Prep)',
-    category: 'business',
-    rating: 4.8,
-    reviewCount: 256,
-    duration: '2 months',
-    batchSize: 25,
-    price: 18999,
-    originalPrice: 29999,
-    emiAvailable: true,
-    placementRate: 92,
-    skills: ['PMP', 'Scrum', 'Agile', 'Risk Management', 'Stakeholder Mgmt'],
-    level: 'intermediate' as const,
-  },
-  {
-    slug: 'digital-marketing-mastery',
-    name: 'Digital Marketing Mastery',
-    category: 'business',
-    rating: 4.6,
-    reviewCount: 445,
-    duration: '3 months',
-    batchSize: 30,
-    price: 12999,
-    originalPrice: 21999,
-    emiAvailable: true,
-    placementRate: 87,
-    skills: ['SEO', 'Google Ads', 'Social Media', 'Analytics', 'Content'],
-    level: 'beginner' as const,
-  },
-];
+try {
+  const response = await fetchCourses({ limit: 50 });
+  courses = response.map(normalizeApiCourse);
+} catch (error) {
+  console.error('Error fetching courses from API:', error);
+  fetchError = true;
+}
 
 // Training-specific FAQs
 const trainingFaqs = [
@@ -303,24 +80,26 @@ const schemaOrg = {
     "reviewCount": "2000",
     "bestRating": "5"
   },
-  "hasOfferCatalog": {
-    "@type": "OfferCatalog",
-    "name": "Tech Training Courses",
-    "itemListElement": courses.slice(0, 5).map(course => ({
-      "@type": "Course",
-      "name": course.name,
-      "description": `Learn ${course.skills.join(', ')} with live instructor training`,
-      "provider": {
-        "@type": "Organization",
-        "name": "TechPath"
-      },
-      "offers": {
-        "@type": "Offer",
-        "price": course.price,
-        "priceCurrency": "INR"
-      }
-    }))
-  }
+  ...(courses.length > 0 && {
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Tech Training Courses",
+      "itemListElement": courses.slice(0, 5).map(course => ({
+        "@type": "Course",
+        "name": course.name,
+        "description": `Learn ${course.skills.join(', ')} with live instructor training`,
+        "provider": {
+          "@type": "Organization",
+          "name": "TechPath"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": course.price,
+          "priceCurrency": "INR"
+        }
+      }))
+    }
+  })
 };
 ---
 
@@ -352,7 +131,36 @@ const schemaOrg = {
       <USPSection />
 
       <!-- Section 4: Course Catalog -->
-      <CourseGrid courses={courses} />
+      {fetchError ? (
+        <section class="bg-slate-900 py-16">
+          <div class="container mx-auto px-4 text-center">
+            <div class="mx-auto max-w-md rounded-xl border border-red-500/30 bg-red-500/10 p-8">
+              <svg class="mx-auto h-12 w-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <h3 class="mt-4 text-xl font-semibold text-white">Unable to Load Courses</h3>
+              <p class="mt-2 text-slate-400">Please try again later or contact us for assistance.</p>
+              <a href="/contact" class="mt-4 inline-block rounded-lg bg-primary-500 px-6 py-2 text-white hover:bg-primary-600">
+                Contact Us
+              </a>
+            </div>
+          </div>
+        </section>
+      ) : courses.length === 0 ? (
+        <section class="bg-slate-900 py-16">
+          <div class="container mx-auto px-4 text-center">
+            <div class="mx-auto max-w-md p-8">
+              <svg class="mx-auto h-12 w-12 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              <h3 class="mt-4 text-xl font-semibold text-white">No Courses Available</h3>
+              <p class="mt-2 text-slate-400">New courses coming soon! Sign up to be notified.</p>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <CourseGrid courses={courses} />
+      )}
 
       <!-- Section 5: Transformation Stories -->
       <TransformationStories />

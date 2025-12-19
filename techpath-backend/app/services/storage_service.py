@@ -252,24 +252,78 @@ class AzureBlobStorageService(BaseStorageService):
 
 
 def get_storage_service() -> BaseStorageService:
-    """Factory function to get the appropriate storage service."""
-    if settings.is_local_storage:
+    """
+    Factory function to get the appropriate storage service.
+    
+    Checks Key Vault runtime secrets first, then falls back to environment variables.
+    """
+    from app.services.secrets_loader import runtime_secrets
+    
+    # Get storage type (Key Vault takes precedence)
+    storage_type = runtime_secrets.get("STORAGE_TYPE") or settings.STORAGE_TYPE
+    
+    if storage_type.lower() == "local":
         return LocalStorageService(settings.LOCAL_UPLOAD_PATH)
-    elif settings.is_azure_storage:
-        if not settings.AZURE_STORAGE_CONNECTION_STRING:
+    elif storage_type.lower() == "azure":
+        # Get Azure credentials (Key Vault takes precedence)
+        connection_string = (
+            runtime_secrets.get("AZURE_STORAGE_CONNECTION_STRING") 
+            or settings.AZURE_STORAGE_CONNECTION_STRING
+        )
+        container_name = (
+            runtime_secrets.get("AZURE_BLOB_CONTAINER") 
+            or settings.AZURE_BLOB_CONTAINER
+        )
+        
+        if not connection_string:
             raise ExternalServiceError(
                 "Azure Blob Storage",
-                "AZURE_STORAGE_CONNECTION_STRING not configured",
+                "AZURE_STORAGE_CONNECTION_STRING not configured (check Key Vault or env vars)",
             )
-        return AzureBlobStorageService(
-            settings.AZURE_STORAGE_CONNECTION_STRING,
-            settings.AZURE_BLOB_CONTAINER,
-        )
+        return AzureBlobStorageService(connection_string, container_name)
     else:
         # Default to local storage
         return LocalStorageService(settings.LOCAL_UPLOAD_PATH)
 
 
-# Global storage service instance
-storage_service = get_storage_service()
+class StorageServiceProxy:
+    """
+    Lazy proxy for storage service that initializes on first use.
+    
+    This allows the storage service to use secrets loaded from Key Vault
+    at application startup, rather than at module import time.
+    """
+    
+    _instance: Optional[BaseStorageService] = None
+    
+    def _get_service(self) -> BaseStorageService:
+        if self._instance is None:
+            self._instance = get_storage_service()
+        return self._instance
+    
+    def reset(self) -> None:
+        """Reset the cached instance (useful after loading new secrets)."""
+        self._instance = None
+    
+    async def upload_file(
+        self,
+        file: BinaryIO,
+        filename: str,
+        folder: str = "",
+        content_type: Optional[str] = None,
+    ) -> str:
+        return await self._get_service().upload_file(file, filename, folder, content_type)
+    
+    async def delete_file(self, file_path: str) -> bool:
+        return await self._get_service().delete_file(file_path)
+    
+    async def get_file_url(self, file_path: str) -> str:
+        return await self._get_service().get_file_url(file_path)
+    
+    async def file_exists(self, file_path: str) -> bool:
+        return await self._get_service().file_exists(file_path)
+
+
+# Global storage service instance (lazy loaded)
+storage_service = StorageServiceProxy()
 

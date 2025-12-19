@@ -75,7 +75,7 @@ const readingTime = Math.ceil(wordCount / 200);
   description={caseStudy.excerpt || `${caseStudy.client_name} case study: ${caseStudy.title}`}
   author="TechPath Team"
   pubDate={caseStudy.published_at ? new Date(caseStudy.published_at) : new Date(caseStudy.created_at)}
-  image={caseStudy.featured_image}
+  image={caseStudy.featured_image ?? undefined}
   tags={caseStudy.tags.map(t => t.name)}
   readingTime={readingTime}
   breadcrumbs={breadcrumbItems}

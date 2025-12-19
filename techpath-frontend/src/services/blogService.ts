@@ -5,17 +5,28 @@
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
 
+export interface ApiBlogCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 export interface ApiBlogPost {
   id: number;
   title: string;
   slug: string;
+  category_id: number;
+  category: ApiBlogCategory;
   excerpt: string | null;
   content: string;
+  content_type: 'html' | 'markdown';
   featured_image: string | null;
   status: string;
   featured: boolean;
   reading_time: number | null;
   published_at: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
   tags: { id: number; name: string; slug: string }[];
   created_at: string;
   updated_at?: string;
@@ -25,6 +36,8 @@ export interface ApiBlogPostList {
   id: number;
   title: string;
   slug: string;
+  category_id: number;
+  category: ApiBlogCategory;
   excerpt: string | null;
   featured_image: string | null;
   status: string;
@@ -48,10 +61,13 @@ export function normalizeApiPost(post: ApiBlogPost | ApiBlogPostList) {
       author: 'TechPath Team',
       image: post.featured_image,
       tags: post.tags.map((t) => t.name),
+      category: post.category?.name || 'Uncategorized',
+      categorySlug: post.category?.slug || 'uncategorized',
       readingTime: post.reading_time,
       draft: post.status !== 'published',
     },
     body: 'content' in post ? post.content : '',
+    contentType: 'content_type' in post ? post.content_type : 'markdown',
     source: 'api' as const,
   };
 }

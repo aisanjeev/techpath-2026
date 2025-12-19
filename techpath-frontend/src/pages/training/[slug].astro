@@ -1,168 +1,64 @@
 ---
 /**
  * Individual Course Detail Page
- * Dynamic page for each training course
+ * Dynamic page for each training course - fetches from API
  */
 import MainLayout from '@layouts/MainLayout.astro';
 import Breadcrumb from '@components/shared/Breadcrumb.astro';
 import FAQSection from '@components/sections/FAQSection.astro';
 import CTA from '@components/shared/CTA.astro';
 import TrainingEnquiryForm from './_components/TrainingEnquiryForm.astro';
+import { fetchCourseBySlug } from '@services/courseService';
 
-export const prerender = true;
+// SSR mode - fetch from API at request time
+export const prerender = false;
 
-export function getStaticPaths() {
-  // Course data defined inside getStaticPaths for proper scoping
-  const courses = [
-    {
-      slug: 'data-science-masterclass',
-      name: 'Data Science Masterclass',
-      category: 'Data Science',
-      rating: 4.9,
-      reviewCount: 456,
-      duration: '4 months',
-      batchSize: 20,
-      price: 24999,
-      originalPrice: 39999,
-      emiAvailable: true,
-      placementRate: 94,
-      skills: ['Python', 'SQL', 'Machine Learning', 'Tableau', 'Statistics'],
-      level: 'intermediate',
-      description: 'Master data science from fundamentals to advanced ML. Build real-world projects and get job-ready in 4 months.',
-      curriculum: [
-        { week: '1-2', title: 'Python Programming & Statistics', topics: ['Python basics', 'NumPy', 'Pandas', 'Statistics fundamentals'] },
-        { week: '3-4', title: 'SQL & Data Manipulation', topics: ['SQL queries', 'Joins', 'Window functions', 'Database design'] },
-        { week: '5-8', title: 'Machine Learning Fundamentals', topics: ['Supervised learning', 'Regression', 'Classification', 'Model evaluation'] },
-        { week: '9-12', title: 'Advanced ML & Deep Learning', topics: ['Ensemble methods', 'Neural networks', 'NLP basics', 'Computer vision'] },
-        { week: '13-16', title: 'Projects & Placement Prep', topics: ['Capstone project', 'Portfolio building', 'Mock interviews', 'Resume review'] },
-      ],
-      instructor: { name: 'Dr. Amit Patel', role: 'Lead Data Scientist @ Google', experience: '12 years' },
-    },
-    {
-      slug: 'aws-solutions-architect',
-      name: 'AWS Solutions Architect',
-      category: 'Cloud & DevOps',
-      rating: 4.9,
-      reviewCount: 523,
-      duration: '3 months',
-      batchSize: 20,
-      price: 29999,
-      originalPrice: 45999,
-      emiAvailable: true,
-      placementRate: 96,
-      skills: ['AWS', 'EC2', 'S3', 'Lambda', 'VPC', 'CloudFormation'],
-      level: 'intermediate',
-      description: 'Become a certified AWS Solutions Architect. Learn to design scalable cloud architectures with hands-on labs.',
-      curriculum: [
-        { week: '1-2', title: 'AWS Fundamentals', topics: ['IAM', 'EC2', 'VPC', 'S3 basics'] },
-        { week: '3-4', title: 'Compute & Storage', topics: ['Auto Scaling', 'EBS', 'EFS', 'Lambda'] },
-        { week: '5-8', title: 'Networking & Security', topics: ['Route 53', 'CloudFront', 'WAF', 'Security best practices'] },
-        { week: '9-12', title: 'Architecture & Certification Prep', topics: ['Well-Architected Framework', 'Cost optimization', 'Exam prep', 'Mock tests'] },
-      ],
-      instructor: { name: 'Rajesh Kumar', role: 'Principal Cloud Architect @ AWS', experience: '15 years' },
-    },
-    {
-      slug: 'ai-ml-bootcamp',
-      name: 'AI/ML Engineering Bootcamp',
-      category: 'AI & Machine Learning',
-      rating: 4.9,
-      reviewCount: 678,
-      duration: '5 months',
-      batchSize: 20,
-      price: 34999,
-      originalPrice: 54999,
-      emiAvailable: true,
-      placementRate: 95,
-      skills: ['Python', 'TensorFlow', 'PyTorch', 'Deep Learning', 'NLP'],
-      level: 'intermediate',
-      description: 'Comprehensive AI/ML program covering deep learning, NLP, and computer vision with industry projects.',
-      curriculum: [
-        { week: '1-4', title: 'ML Foundations', topics: ['Python for ML', 'Math for ML', 'Classical ML algorithms'] },
-        { week: '5-8', title: 'Deep Learning', topics: ['Neural networks', 'CNNs', 'RNNs', 'Transformers'] },
-        { week: '9-12', title: 'NLP & Computer Vision', topics: ['Text processing', 'Sentiment analysis', 'Object detection', 'Image classification'] },
-        { week: '13-16', title: 'MLOps & Deployment', topics: ['Model deployment', 'MLflow', 'Docker for ML', 'Cloud ML services'] },
-        { week: '17-20', title: 'Projects & Placement', topics: ['Industry projects', 'Portfolio', 'Interview prep'] },
-      ],
-      instructor: { name: 'Dr. Priya Mehta', role: 'ML Research Lead @ Microsoft', experience: '10 years' },
-    },
-    {
-      slug: 'mern-fullstack',
-      name: 'MERN Full Stack Developer',
-      category: 'Full Stack Development',
-      rating: 4.8,
-      reviewCount: 812,
-      duration: '4 months',
-      batchSize: 25,
-      price: 22999,
-      originalPrice: 35999,
-      emiAvailable: true,
-      placementRate: 93,
-      skills: ['MongoDB', 'Express', 'React', 'Node.js', 'REST APIs'],
-      level: 'beginner',
-      description: 'Learn full stack web development with the MERN stack. Build 8+ projects including a full e-commerce app.',
-      curriculum: [
-        { week: '1-2', title: 'HTML, CSS & JavaScript', topics: ['HTML5', 'CSS3', 'Flexbox/Grid', 'ES6+ JavaScript'] },
-        { week: '3-6', title: 'React.js Mastery', topics: ['Components', 'Hooks', 'State management', 'React Router'] },
-        { week: '7-10', title: 'Node.js & Express', topics: ['REST APIs', 'Authentication', 'MongoDB', 'Mongoose'] },
-        { week: '11-16', title: 'Full Stack Projects', topics: ['E-commerce app', 'Social media clone', 'Deployment', 'CI/CD'] },
-      ],
-      instructor: { name: 'Vikram Sharma', role: 'Senior Engineer @ Netflix', experience: '8 years' },
-    },
-    {
-      slug: 'generative-ai-llm',
-      name: 'Generative AI & LLM',
-      category: 'AI & Machine Learning',
-      rating: 4.9,
-      reviewCount: 234,
-      duration: '3 months',
-      batchSize: 15,
-      price: 39999,
-      originalPrice: 59999,
-      emiAvailable: true,
-      placementRate: 93,
-      skills: ['ChatGPT', 'LangChain', 'OpenAI', 'Prompt Engineering', 'RAG'],
-      level: 'advanced',
-      description: 'Master Generative AI and Large Language Models. Build AI applications with ChatGPT, LangChain, and RAG.',
-      curriculum: [
-        { week: '1-2', title: 'LLM Fundamentals', topics: ['Transformer architecture', 'GPT models', 'OpenAI APIs'] },
-        { week: '3-4', title: 'Prompt Engineering', topics: ['Prompt design', 'Chain-of-thought', 'Few-shot learning'] },
-        { week: '5-8', title: 'LangChain & RAG', topics: ['LangChain framework', 'Vector databases', 'RAG pipelines'] },
-        { week: '9-12', title: 'Building AI Applications', topics: ['Chatbots', 'Document QA', 'Code assistants', 'Deployment'] },
-      ],
-      instructor: { name: 'Arjun Nair', role: 'AI Lead @ OpenAI Partner', experience: '7 years' },
-    },
-  ];
+const { slug } = Astro.params;
 
-  return courses.map(course => ({
-    params: { slug: course.slug },
-    props: { course },
-  }));
+if (!slug) {
+  return Astro.redirect('/training');
 }
 
-interface Course {
-  slug: string;
-  name: string;
-  category: string;
-  rating: number;
-  reviewCount: number;
-  duration: string;
-  batchSize: number;
-  price: number;
-  originalPrice: number;
-  emiAvailable: boolean;
-  placementRate: number;
-  skills: string[];
-  level: string;
-  description: string;
-  curriculum?: { week: string; title: string; topics: string[] }[];
-  instructor?: { name: string; role: string; experience: string };
+// Fetch course from API
+const apiCourse = await fetchCourseBySlug(slug);
+
+// Redirect if course not found
+if (!apiCourse) {
+  return Astro.redirect('/training');
 }
 
-interface Props {
-  course: Course;
-}
-
-const { course } = Astro.props as Props;
+// Transform API course to expected format
+const course = {
+  slug: apiCourse.slug,
+  name: apiCourse.title,
+  category: apiCourse.category?.name || 'General',
+  rating: apiCourse.rating || 4.5,
+  reviewCount: apiCourse.review_count || 0,
+  duration: apiCourse.duration || '3 months',
+  batchSize: apiCourse.batch_size || 20,
+  price: apiCourse.price,
+  originalPrice: apiCourse.original_price || apiCourse.price,
+  emiAvailable: apiCourse.emi_available ?? true,
+  placementRate: apiCourse.placement_rate || 90,
+  skills: apiCourse.skills?.map((s: any) => s.name) || [],
+  level: apiCourse.level || 'intermediate',
+  description: apiCourse.short_description || apiCourse.description?.slice(0, 200) || '',
+  curriculum: apiCourse.curriculum?.map((m: any, i: number) => ({
+    week: m.duration || `${i * 2 + 1}-${i * 2 + 2}`,
+    title: m.title,
+    topics: m.topics || [],
+  })) || [],
+  instructor: apiCourse.instructor_name ? {
+    name: apiCourse.instructor_name,
+    role: apiCourse.instructor_title || 'Senior Instructor',
+    experience: '10+ years',
+  } : undefined,
+  learningOutcomes: apiCourse.learning_outcomes || [],
+  prerequisites: apiCourse.prerequisites || [],
+  videoUrl: apiCourse.video_url,
+  featuredImage: apiCourse.featured_image,
+  courseId: apiCourse.id,
+};
 
 const breadcrumbItems = [
   { label: 'Home', href: '/' },
@@ -467,7 +363,8 @@ const courseSchema = {
         quickForm.classList.remove('hidden');
         quickForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         // Focus first input
-        quickForm.querySelector('input[name="name"]')?.focus();
+        const nameInput = quickForm.querySelector('input[name="name"]') as HTMLInputElement | null;
+        nameInput?.focus();
       } else {
         quickForm.classList.add('hidden');
       }
@@ -494,14 +391,14 @@ const courseSchema = {
   callbackBtn?.addEventListener('click', handleEnquiryClick);
   
   // Sidebar form submission
-  const sidebarForm = document.getElementById('sidebar-enquiry-form');
+  const sidebarForm = document.getElementById('sidebar-enquiry-form') as HTMLFormElement | null;
   const sidebarMessage = document.getElementById('sidebar-form-message');
   
   sidebarForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const formData = new FormData(sidebarForm);
-    const submitBtn = sidebarForm.querySelector('button[type="submit"]');
+    const submitBtn = sidebarForm.querySelector('button[type="submit"]') as HTMLButtonElement | null;
     
     const data = {
       name: formData.get('name'),

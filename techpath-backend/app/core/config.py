@@ -119,6 +119,24 @@ class Settings(BaseSettings):
     # -----------------
     REDIS_URL: Optional[str] = Field(default=None)
 
+    # -----------------
+    # Azure Key Vault
+    # -----------------
+    AZURE_TENANT_ID: str = Field(default="")
+    AZURE_CLIENT_ID: str = Field(default="")
+    AZURE_CLIENT_SECRET: str = Field(default="")
+    AZURE_KEYVAULT_URL: str = Field(default="")
+
+    @property
+    def has_keyvault_config(self) -> bool:
+        """Check if Azure Key Vault is configured."""
+        return bool(
+            self.AZURE_TENANT_ID
+            and self.AZURE_CLIENT_ID
+            and self.AZURE_CLIENT_SECRET
+            and self.AZURE_KEYVAULT_URL
+        )
+
 
 @lru_cache
 def get_settings() -> Settings:

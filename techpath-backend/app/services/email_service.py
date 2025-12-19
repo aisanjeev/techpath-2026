@@ -1,9 +1,11 @@
-"""Email service for sending notifications."""
+"""Email service for sending notifications via SMTP or Azure Communication Services."""
 import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import List, Optional
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.exceptions import ExternalServiceError
@@ -11,20 +13,175 @@ from app.core.exceptions import ExternalServiceError
 logger = logging.getLogger(__name__)
 
 
+async def get_admin_email(db: AsyncSession, setting_key: str = "admin_notification_email") -> str:
+    """
+    Get admin notification email from app settings.
+    
+    Falls back to settings.ADMIN_EMAIL if not set in database.
+    """
+    from app.crud.app_setting import app_setting_crud
+    
+    value = await app_setting_crud.get_value(db, setting_key)
+    if value:
+        return value
+    
+    # Fallback to environment variable
+    return getattr(settings, "ADMIN_EMAIL", "admin@techpath.biz")
+
+
+async def get_contact_form_recipients(db: AsyncSession) -> List[str]:
+    """
+    Get contact form notification recipients from app settings.
+    
+    Returns a list of email addresses.
+    """
+    from app.crud.app_setting import app_setting_crud
+    
+    value = await app_setting_crud.get_value(db, "contact_form_recipients")
+    if value:
+        # Split by comma and strip whitespace
+        return [email.strip() for email in value.split(",") if email.strip()]
+    
+    # Fallback to admin email
+    admin_email = await get_admin_email(db)
+    return [admin_email]
+
+
+async def get_enrollment_notification_email(db: AsyncSession) -> str:
+    """Get enrollment notification email from app settings."""
+    from app.crud.app_setting import app_setting_crud
+    
+    value = await app_setting_crud.get_value(db, "enrollment_notification_email")
+    if value:
+        return value
+    
+    return await get_admin_email(db)
+
+
 class EmailService:
-    """Service for sending emails via SMTP."""
+    """Service for sending emails via SMTP or Azure Communication Services."""
 
     def __init__(self) -> None:
-        self.server = settings.SMTP_SERVER
-        self.port = settings.SMTP_PORT
-        self.user = settings.SMTP_USER
-        self.password = settings.SMTP_PASSWORD
+        # SMTP settings
+        self.smtp_server = settings.SMTP_SERVER
+        self.smtp_port = settings.SMTP_PORT
+        self.smtp_user = settings.SMTP_USER
+        self.smtp_password = settings.SMTP_PASSWORD
         self.from_email = settings.FROM_EMAIL
+        
+        # Azure Communication Services - loaded from Key Vault
+        self._azure_connection_string: Optional[str] = None
+        self._azure_sender: Optional[str] = None
+
+    def _get_azure_config(self) -> tuple[Optional[str], Optional[str]]:
+        """Get Azure Communication Services config from runtime secrets."""
+        from app.services.secrets_loader import runtime_secrets
+        
+        connection_string = runtime_secrets.get("AZURE_COMMUNICATION_EMAIL_CONNECTION_STRING")
+        sender = runtime_secrets.get("SENDER_ADDRESS")
+        return connection_string, sender
+
+    @property
+    def is_azure_configured(self) -> bool:
+        """Check if Azure Communication Services is configured."""
+        connection_string, sender = self._get_azure_config()
+        return bool(connection_string and sender)
+
+    @property
+    def is_smtp_configured(self) -> bool:
+        """Check if SMTP is configured."""
+        return settings.has_smtp_config
 
     @property
     def is_configured(self) -> bool:
-        """Check if email service is configured."""
-        return settings.has_smtp_config
+        """Check if any email service is configured."""
+        return self.is_azure_configured or self.is_smtp_configured
+
+    async def _send_via_azure(
+        self,
+        to_email: str,
+        subject: str,
+        html_content: str,
+        text_content: Optional[str] = None,
+    ) -> bool:
+        """Send email via Azure Communication Services."""
+        try:
+            from azure.communication.email import EmailClient
+            
+            connection_string, sender = self._get_azure_config()
+            if not connection_string or not sender:
+                logger.error("Azure Communication Services not configured")
+                return False
+            
+            email_client = EmailClient.from_connection_string(connection_string)
+            
+            message = {
+                "senderAddress": sender,
+                "recipients": {
+                    "to": [{"address": to_email}]
+                },
+                "content": {
+                    "subject": subject,
+                    "html": html_content,
+                }
+            }
+            
+            if text_content:
+                message["content"]["plainText"] = text_content
+            
+            poller = email_client.begin_send(message)
+            result = poller.result()
+            
+            logger.info(f"Email sent via Azure to {to_email}, message_id: {result.get('id', 'unknown')}")
+            return True
+            
+        except ImportError:
+            logger.error("azure-communication-email package not installed")
+            return False
+        except Exception as e:
+            logger.error(f"Error sending email via Azure: {e}")
+            raise ExternalServiceError("Azure Email Service", str(e))
+
+    async def _send_via_smtp(
+        self,
+        to_email: str,
+        subject: str,
+        html_content: str,
+        text_content: Optional[str] = None,
+        cc: Optional[List[str]] = None,
+        bcc: Optional[List[str]] = None,
+    ) -> bool:
+        """Send email via SMTP."""
+        try:
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = subject
+            msg["From"] = self.from_email
+            msg["To"] = to_email
+
+            if cc:
+                msg["Cc"] = ", ".join(cc)
+
+            if text_content:
+                msg.attach(MIMEText(text_content, "plain"))
+            msg.attach(MIMEText(html_content, "html"))
+
+            recipients = [to_email]
+            if cc:
+                recipients.extend(cc)
+            if bcc:
+                recipients.extend(bcc)
+
+            with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
+                server.starttls()
+                server.login(self.smtp_user, self.smtp_password)
+                server.sendmail(self.from_email, recipients, msg.as_string())
+
+            logger.info(f"Email sent via SMTP to {to_email}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Error sending email via SMTP: {e}")
+            raise ExternalServiceError("SMTP Email Service", str(e))
 
     async def send_email(
         self,
@@ -36,57 +193,23 @@ class EmailService:
         bcc: Optional[List[str]] = None,
     ) -> bool:
         """
-        Send an email.
-
-        Args:
-            to_email: Recipient email address
-            subject: Email subject
-            html_content: HTML body content
-            text_content: Plain text body (optional, derived from HTML if not provided)
-            cc: CC recipients
-            bcc: BCC recipients
-
-        Returns:
-            True if sent successfully
+        Send an email using the configured provider.
+        
+        Prefers Azure Communication Services, falls back to SMTP.
         """
         if not self.is_configured:
             logger.warning("Email service not configured, skipping email send")
             return False
 
-        try:
-            # Create message
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = subject
-            msg["From"] = self.from_email
-            msg["To"] = to_email
-
-            if cc:
-                msg["Cc"] = ", ".join(cc)
-
-            # Add text and HTML parts
-            if text_content:
-                msg.attach(MIMEText(text_content, "plain"))
-            msg.attach(MIMEText(html_content, "html"))
-
-            # Build recipients list
-            recipients = [to_email]
-            if cc:
-                recipients.extend(cc)
-            if bcc:
-                recipients.extend(bcc)
-
-            # Send email
-            with smtplib.SMTP(self.server, self.port) as server:
-                server.starttls()
-                server.login(self.user, self.password)
-                server.sendmail(self.from_email, recipients, msg.as_string())
-
-            logger.info(f"Email sent successfully to {to_email}")
-            return True
-
-        except Exception as e:
-            logger.error(f"Error sending email: {e}")
-            raise ExternalServiceError("Email Service", str(e))
+        # Try Azure first, then SMTP
+        if self.is_azure_configured:
+            logger.info(f"Sending email to {to_email} via Azure Communication Services")
+            return await self._send_via_azure(to_email, subject, html_content, text_content)
+        elif self.is_smtp_configured:
+            logger.info(f"Sending email to {to_email} via SMTP")
+            return await self._send_via_smtp(to_email, subject, html_content, text_content, cc, bcc)
+        
+        return False
 
     async def send_contact_notification(
         self,
@@ -187,4 +310,3 @@ class EmailService:
 
 # Global email service instance
 email_service = EmailService()
-

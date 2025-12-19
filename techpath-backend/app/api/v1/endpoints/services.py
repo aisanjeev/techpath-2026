@@ -10,6 +10,7 @@ from app.db.session import get_db
 from app.schemas.service import ServiceCreate, ServiceUpdate, ServiceResponse
 from app.schemas.common import MessageResponse, PaginatedResponse, PaginationMeta
 from app.api.v1.dependencies import get_current_admin_user
+from app.services.media_tracking_service import track_media_usage, remove_entity_media_usages
 from app.models.user import User
 
 router = APIRouter()
@@ -82,6 +83,17 @@ async def create_service(
         raise ConflictError("Service with this slug already exists")
 
     service = await service_crud.create(db, obj_in=service_in)
+    
+    # Track media usage for image
+    if service_in.image_url:
+        await track_media_usage(
+            db,
+            image_url=service_in.image_url,
+            entity_type="service",
+            entity_id=service.id,
+            field_name="image_url",
+        )
+    
     return ServiceResponse.model_validate(service)
 
 
@@ -103,7 +115,19 @@ async def update_service(
         if existing:
             raise ConflictError("Service with this slug already exists")
 
+    old_image_url = service.image_url
     service = await service_crud.update(db, db_obj=service, obj_in=service_in)
+    
+    # Track media usage for image (handles add/change/remove)
+    await track_media_usage(
+        db,
+        image_url=service_in.image_url,
+        entity_type="service",
+        entity_id=service.id,
+        field_name="image_url",
+        old_image_url=old_image_url,
+    )
+    
     return ServiceResponse.model_validate(service)
 
 
@@ -118,6 +142,9 @@ async def delete_service(
     if not service:
         raise NotFoundError("Service")
 
+    # Remove media usage records before deleting
+    await remove_entity_media_usages(db, "service", service_id)
+    
     await service_crud.delete(db, id=service_id)
     return MessageResponse(message="Service deleted successfully")
 

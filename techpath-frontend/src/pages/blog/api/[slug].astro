@@ -23,34 +23,51 @@ if (!post) {
   return Astro.redirect('/blog');
 }
 
-// Get related posts
+// Get related posts (prefer same category)
 const allPosts = await fetchBlogPosts({ limit: 10 });
 const relatedPosts = allPosts
   .filter((p) => p.slug !== slug)
+  .sort((a, b) => {
+    // Prioritize same category
+    const aMatch = a.category?.id === post.category?.id ? 1 : 0;
+    const bMatch = b.category?.id === post.category?.id ? 1 : 0;
+    return bMatch - aMatch;
+  })
   .slice(0, 3)
   .map((p) => ({
     slug: p.slug,
     title: p.title,
     description: p.excerpt || '',
-    image: p.featured_image,
+    image: p.featured_image ?? undefined,
   }));
 
 const breadcrumbItems = [
   { label: 'Home', href: '/' },
   { label: 'Blog', href: '/blog' },
+  { label: post.category?.name || 'Uncategorized', href: `/blog/category/${post.category?.slug || 'uncategorized'}` },
   { label: post.title, href: '#', current: true },
 ];
 
-// Parse markdown content to HTML
-const htmlContent = marked(post.content);
+// Parse content based on content_type
+let htmlContent: string;
+if (post.content_type === 'markdown' || post.content.startsWith('#') || post.content.includes('\n```')) {
+  // Parse markdown to HTML
+  htmlContent = await marked(post.content);
+} else {
+  // Already HTML
+  htmlContent = post.content;
+}
 ---
 
 <ArticleLayout
   title={post.title}
   description={post.excerpt || ''}
+  seoTitle={post.meta_title || undefined}
+  seoDescription={post.meta_description || undefined}
   author="TechPath Team"
   pubDate={new Date(post.published_at || post.created_at)}
-  image={post.featured_image}
+  image={post.featured_image ?? undefined}
+  category={{ name: post.category?.name || 'Uncategorized', slug: post.category?.slug || 'uncategorized' }}
   tags={post.tags.map((t) => t.name)}
   readingTime={post.reading_time || 5}
   breadcrumbs={breadcrumbItems}
@@ -62,4 +79,3 @@ const htmlContent = marked(post.content);
 >
   <Fragment set:html={htmlContent} />
 </ArticleLayout>
-

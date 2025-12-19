@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+:root {
+  --color-teal-50: #f0fdfa;
+  --color-teal-100: #ccfbf1;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488;
+  --color-teal-700: #0f766e;
+}
+
+/* Prose styles for rich text editor */
+.prose {
+  max-width: none;
+}
+
+.prose h1 {
+  @apply text-2xl font-bold mt-6 mb-4;
+}
+
+.prose h2 {
+  @apply text-xl font-bold mt-5 mb-3;
+}
+
+.prose h3 {
+  @apply text-lg font-bold mt-4 mb-2;
+}
+
+.prose p {
+  @apply my-3;
+}
+
+.prose ul,
+.prose ol {
+  @apply my-3 pl-6;
+}
+
+.prose ul {
+  @apply list-disc;
+}
+
+.prose ol {
+  @apply list-decimal;
+}
+
+.prose li {
+  @apply my-1;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 my-4;
+}
+
+.prose pre {
+  @apply bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto my-4;
+}
+
+.prose code {
+  @apply bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0;
+}
+
+.prose hr {
+  @apply my-6 border-gray-300;
+}
+
+.prose img {
+  @apply rounded-lg my-4;
+}
+
+.prose a {
+  @apply text-teal-600 underline;
+}
+
+/* Tiptap placeholder */
+.tiptap p.is-editor-empty:first-child::before {
+  color: #9ca3af;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Toast styles */
+.toast-success {
+  background-color: #10b981 !important;
+}
+
+.toast-error {
+  background-color: #ef4444 !important;
+}

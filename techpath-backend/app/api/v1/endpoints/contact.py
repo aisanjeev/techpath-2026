@@ -16,7 +16,7 @@ from app.schemas.contact import (
 )
 from app.schemas.common import MessageResponse
 from app.api.v1.dependencies import get_current_admin_user
-from app.services.email_service import email_service
+from app.services.email_service import email_service, get_contact_form_recipients
 from app.models.user import User
 
 router = APIRouter()
@@ -50,6 +50,20 @@ async def submit_contact_form(
 
     # Send notification emails in background
     if email_service.is_configured:
+        # Get admin recipients from app settings
+        admin_recipients = await get_contact_form_recipients(db)
+        
+        # Send notification to admin(s)
+        for admin_email in admin_recipients:
+            background_tasks.add_task(
+                email_service.send_contact_notification,
+                admin_email,
+                inquiry_in.name,
+                inquiry_in.email,
+                inquiry_in.subject,
+                inquiry_in.message,
+            )
+        
         # Send confirmation to user
         background_tasks.add_task(
             email_service.send_contact_confirmation,

@@ -12,6 +12,7 @@ from app.api.v1.router import router as v1_router
 from app.middleware.error_handlers import setup_exception_handlers
 from app.middleware.logging import LoggingMiddleware
 from app.db.session import init_db
+from app.services.secrets_loader import load_secrets_from_keyvault, runtime_secrets
 
 # Configure logging
 logging.basicConfig(
@@ -28,16 +29,32 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.APP_NAME} v{settings.APP_VERSION}")
     logger.info(f"Debug mode: {settings.DEBUG}")
     logger.info(f"Database: {'SQLite' if settings.is_sqlite else 'MySQL'}")
-    logger.info(f"Storage: {settings.STORAGE_TYPE}")
+
+    # Load secrets from Azure Key Vault
+    if settings.has_keyvault_config:
+        logger.info("Loading secrets from Azure Key Vault...")
+        secrets_result = await load_secrets_from_keyvault(update_db=True)
+        loaded = sum(1 for v in secrets_result.values() if v)
+        logger.info(f"Loaded {loaded}/{len(secrets_result)} secrets from Key Vault")
+    else:
+        logger.info("Key Vault not configured, using environment variables")
+
+    # Determine storage type (Key Vault value takes precedence)
+    storage_type = runtime_secrets.get("STORAGE_TYPE") or settings.STORAGE_TYPE
+    logger.info(f"Storage: {storage_type}")
 
     # Initialize database
     await init_db()
 
-    # Ensure upload directory exists for local storage
-    if settings.is_local_storage:
+    # Ensure upload directory exists for local storage and mount it
+    if storage_type.lower() == "local":
         upload_path = Path(settings.LOCAL_UPLOAD_PATH)
         upload_path.mkdir(parents=True, exist_ok=True)
         logger.info(f"Local upload path: {upload_path.absolute()}")
+        
+        # Mount static files for uploads
+        app.mount("/uploads", StaticFiles(directory=str(upload_path)), name="uploads")
+        logger.info("Mounted /uploads for serving uploaded files")
 
     yield
 
@@ -73,12 +90,6 @@ setup_exception_handlers(app)
 
 # Include API router
 app.include_router(v1_router, prefix="/api/v1")
-
-# Mount static files for local uploads
-if settings.is_local_storage:
-    upload_path = Path(settings.LOCAL_UPLOAD_PATH)
-    if upload_path.exists():
-        app.mount("/uploads", StaticFiles(directory=str(upload_path)), name="uploads")
 
 
 # Health check endpoint

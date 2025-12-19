@@ -1,0 +1,107 @@
+---
+/**
+ * Blog Posts by Category
+ * Lists all blog posts in a specific category
+ */
+import MainLayout from '@layouts/MainLayout.astro';
+import Breadcrumb from '@components/shared/Breadcrumb.astro';
+import Card from '@components/ui/Card.astro';
+import { fetchBlogPosts, normalizeApiPost } from '@services/blogService';
+
+// SSR - fetch from API at request time
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/blog');
+}
+
+// Fetch all posts and filter by category
+const allPosts = await fetchBlogPosts({ limit: 50 });
+const posts = allPosts.filter(p => p.category?.slug === slug);
+
+// Get category name from first post or format slug
+const categoryName = posts[0]?.category?.name 
+  || slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ');
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
+  { label: categoryName, href: '#', current: true },
+];
+
+const normalizedPosts = posts.map(normalizeApiPost);
+---
+
+<MainLayout
+  title={`${categoryName} - Blog`}
+  description={`Browse all blog posts in the "${categoryName}" category. Insights and tutorials from TechPath.`}
+>
+  <section class="py-16 lg:py-24">
+    <div class="container mx-auto px-4">
+      <Breadcrumb items={breadcrumbItems} />
+
+      {/* Header */}
+      <div class="max-w-3xl mb-12">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-teal-500/10 rounded-full mb-6">
+          <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+          </svg>
+          <span class="text-teal-400 font-medium">Category</span>
+        </div>
+        <h1 class="font-heading text-4xl md:text-5xl font-bold text-white mb-4">
+          {categoryName}
+        </h1>
+        <p class="text-xl text-slate-400">
+          {posts.length} article{posts.length !== 1 ? 's' : ''} in this category
+        </p>
+      </div>
+
+      {/* Posts Grid */}
+      {posts.length > 0 ? (
+        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {normalizedPosts.map((post) => (
+            <Card
+              title={post.data.title}
+              description={post.data.description}
+              href={post.source === 'api' ? `/blog/api/${post.slug}` : `/blog/${post.slug}`}
+              image={post.data.image}
+              tags={post.data.tags}
+              date={post.data.pubDate}
+            />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-16">
+          <div class="w-16 h-16 mx-auto mb-6 rounded-full bg-slate-800 flex items-center justify-center">
+            <svg class="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-white mb-2">No posts found</h2>
+          <p class="text-slate-400 mb-6">There are no posts in the "{categoryName}" category yet.</p>
+          <a href="/blog" class="inline-flex items-center gap-2 text-primary-400 hover:text-primary-300 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to all posts
+          </a>
+        </div>
+      )}
+
+      {/* Back to Blog Link */}
+      {posts.length > 0 && (
+        <div class="mt-12 text-center">
+          <a href="/blog" class="inline-flex items-center gap-2 text-primary-400 hover:text-primary-300 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            View all posts
+          </a>
+        </div>
+      )}
+    </div>
+  </section>
+</MainLayout>
+

@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import Navigation from './Navigation.astro';
+import techpathLogo from '@/assets/images/techpath-logo.webp';
 
 const currentPath = Astro.url.pathname;
 ---
@@ -9,9 +11,13 @@ const currentPath = Astro.url.pathname;
     <div class="flex h-18 items-center justify-between">
       <!-- Logo -->
       <a href="/" class="flex items-center">
-        <img 
-          src="/images/techpath-logo.webp" 
+        <Image 
+          src={techpathLogo}
           alt="TechPath" 
+          width={160}
+          height={40}
+          loading="eager"
+          decoding="async"
           class="h-8 w-auto md:h-10"
         />
       </a>

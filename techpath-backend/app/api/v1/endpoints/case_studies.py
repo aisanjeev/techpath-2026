@@ -17,6 +17,7 @@ from app.schemas.case_study import (
 )
 from app.schemas.common import MessageResponse
 from app.api.v1.dependencies import get_current_admin_user, get_optional_user
+from app.services.media_tracking_service import track_media_usage, remove_entity_media_usages
 from app.models.user import User
 
 router = APIRouter()
@@ -103,6 +104,17 @@ async def create_case_study(
         raise ConflictError("Case study with this slug already exists")
 
     case_study = await case_study_crud.create(db, obj_in=case_study_in, author_id=current_admin.id)
+    
+    # Track media usage for featured image
+    if case_study_in.featured_image:
+        await track_media_usage(
+            db,
+            image_url=case_study_in.featured_image,
+            entity_type="case_study",
+            entity_id=case_study.id,
+            field_name="featured_image",
+        )
+    
     return CaseStudyResponse.model_validate(case_study)
 
 
@@ -124,7 +136,19 @@ async def update_case_study(
         if existing:
             raise ConflictError("Case study with this slug already exists")
 
+    old_featured_image = case_study.featured_image
     case_study = await case_study_crud.update(db, db_obj=case_study, obj_in=case_study_in)
+    
+    # Track media usage for featured image (handles add/change/remove)
+    await track_media_usage(
+        db,
+        image_url=case_study_in.featured_image,
+        entity_type="case_study",
+        entity_id=case_study.id,
+        field_name="featured_image",
+        old_image_url=old_featured_image,
+    )
+    
     return CaseStudyResponse.model_validate(case_study)
 
 
@@ -139,6 +163,9 @@ async def delete_case_study(
     if not case_study:
         raise NotFoundError("Case study")
 
+    # Remove media usage records before deleting
+    await remove_entity_media_usages(db, "case_study", case_study_id)
+    
     await case_study_crud.delete(db, id=case_study_id)
     return MessageResponse(message="Case study deleted successfully")
 
