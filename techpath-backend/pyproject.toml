@@ -32,7 +32,7 @@ alembic = "^1.13.0"
 # Authentication
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-bcrypt = "^4.1.0"
+bcrypt = ">=4.0.0,<4.1.0"
 
 # Azure Services
 azure-storage-blob = "^12.19.0"
