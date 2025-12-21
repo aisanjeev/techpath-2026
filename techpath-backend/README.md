@@ -94,6 +94,151 @@ poetry run alembic revision --autogenerate -m "description"
 
 See [docs/API.md](docs/API.md) for detailed endpoint documentation.
 
+## Deployment (VPS with GitHub Actions)
+
+The backend uses a **branch-based deployment strategy** with staging and production environments.
+
+### Deployment Strategy
+
+| Branch | Environment | URL | Port |
+|--------|-------------|-----|------|
+| `develop` | Staging | `staging.api.techpath.biz` | 8093 |
+| `main` | Production | `api.techpath.biz` | 8092 |
+
+**Workflow:**
+1. Push to `develop` → Auto-deploys to **Staging**
+2. Test on staging, verify everything works
+3. Merge `develop` into `main` → Deploys to **Production** (with approval)
+
+### GitHub Setup
+
+#### Step 1: Create Environments
+
+Go to **Settings > Environments** and create two environments:
+
+1. **staging**
+   - No protection rules needed (auto-deploy)
+   
+2. **production**
+   - Enable "Required reviewers" and add yourself
+   - Optionally add wait timer (e.g., 5 minutes)
+
+#### Step 2: Add Repository Secrets
+
+Go to **Settings > Secrets and variables > Actions > Secrets**
+
+| Secret | Description | Example |
+|--------|-------------|---------|
+| `SSH_HOST` | VPS hostname or IP | `api.techpath.biz` |
+| `SSH_PASSWORD` | SSH password | `your-password` |
+| `SSH_PORT` | SSH port (optional) | `22` |
+
+#### Step 3: Add Environment Secrets
+
+For each environment (staging & production), add:
+
+| Secret | Description |
+|--------|-------------|
+| `ENV_FILE` | Full `.env` file contents for that environment |
+
+**Example ENV_FILE for Staging:**
+```env
+DATABASE_URL=mysql+aiomysql://user:pass@localhost/techpath_staging
+SECRET_KEY=staging-secret-key
+DEBUG=true
+STORAGE_TYPE=local
+```
+
+**Example ENV_FILE for Production:**
+```env
+DATABASE_URL=mysql+aiomysql://user:pass@localhost/techpath_prod
+SECRET_KEY=super-secure-production-key-change-me
+DEBUG=false
+STORAGE_TYPE=azure
+AZURE_STORAGE_CONNECTION_STRING=DefaultEndpointsProtocol=...
+AZURE_OPENAI_API_KEY=your-openai-key
+```
+
+### VPS Prerequisites
+
+Run these commands **once** on your VPS server:
+
+```bash
+# ===== STAGING USER SETUP =====
+sudo useradd -m techpath-staging-api
+sudo loginctl enable-linger techpath-staging-api
+
+# As techpath-staging-api user:
+sudo su - techpath-staging-api
+mkdir -p ~/htdocs/staging.api.techpath.biz
+mkdir -p ~/.config/systemd/user
+exit
+
+# ===== PRODUCTION USER SETUP =====
+sudo useradd -m techpath-api
+sudo loginctl enable-linger techpath-api
+
+# As techpath-api user:
+sudo su - techpath-api
+mkdir -p ~/htdocs/api.techpath.biz
+mkdir -p ~/.config/systemd/user
+exit
+```
+
+### Git Workflow
+
+```bash
+# Daily development - work on develop branch
+git checkout develop
+# ... make changes ...
+git add .
+git commit -m "feat: add new feature"
+git push origin develop
+# → Auto-deploys to staging
+
+# When ready for production
+git checkout main
+git merge develop
+git push origin main
+# → Go to GitHub Actions, approve the deployment
+```
+
+### Manual Deployment
+
+You can also trigger deployments manually from the GitHub Actions tab:
+1. Go to **Actions > Deploy Backend to VPS**
+2. Click **Run workflow**
+3. Select environment (staging or production)
+4. Click **Run workflow**
+
+### Service Management
+
+**Staging:**
+```bash
+# SSH as techpath-staging-api
+systemctl --user status techpath-staging-api
+journalctl --user -u techpath-staging-api -f
+systemctl --user restart techpath-staging-api
+```
+
+**Production:**
+```bash
+# SSH as techpath-api
+systemctl --user status techpath-api
+journalctl --user -u techpath-api -f
+systemctl --user restart techpath-api
+```
+
+### Environment Comparison
+
+| Aspect | Staging | Production |
+|--------|---------|------------|
+| Port | 8093 | 8092 |
+| Workers | 1 | 2 |
+| Auto-deploy | Yes | Requires approval |
+| Database | Test data (can reset) | Real data (precious!) |
+| Debug mode | Enabled | Disabled |
+
 ## License
 
 MIT
