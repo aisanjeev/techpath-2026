@@ -9,7 +9,8 @@
       "@layouts/*": ["src/layouts/*"],
       "@utils/*": ["src/utils/*"],
       "@types/*": ["src/types/*"],
-      "@styles/*": ["src/styles/*"]
+      "@styles/*": ["src/styles/*"],
+      "@services/*": ["src/services/*"]
     },
     "verbatimModuleSyntax": true,
     "strict": true,

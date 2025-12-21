@@ -22,11 +22,20 @@ interface RelatedPost {
   image?: string;
 }
 
+interface CategoryInfo {
+  name: string;
+  slug: string;
+}
+
 interface Props {
-  /** Page title */
+  /** Page title (displayed on page) */
   title: string;
-  /** Page description for SEO */
+  /** Page description/excerpt (displayed on page) */
   description: string;
+  /** SEO title for <head> (optional, defaults to title) */
+  seoTitle?: string;
+  /** SEO description for <head> meta (optional, defaults to description) */
+  seoDescription?: string;
   /** Author name */
   author?: string;
   /** Publication date */
@@ -35,6 +44,8 @@ interface Props {
   updatedDate?: Date;
   /** Featured image */
   image?: string;
+  /** Category (for blog posts) */
+  category?: CategoryInfo;
   /** Tags */
   tags?: string[];
   /** Reading time in minutes */
@@ -56,10 +67,13 @@ interface Props {
 const {
   title,
   description,
+  seoTitle,
+  seoDescription,
   author,
   pubDate,
   updatedDate,
   image,
+  category,
   tags = [],
   readingTime,
   breadcrumbs,
@@ -69,6 +83,10 @@ const {
   showShareButtons = true,
   type = 'blog',
 } = Astro.props;
+
+// Use SEO fields if provided, otherwise fallback to display fields
+const headTitle = seoTitle || title;
+const headDescription = seoDescription || description;
 
 // Format dates
 const formatDate = (date: Date) =>
@@ -85,7 +103,7 @@ const formattedUpdatedDate = updatedDate ? formatDate(updatedDate) : null;
 const currentUrl = Astro.url.href;
 ---
 
-<MainLayout title={title} description={description} image={image}>
+<MainLayout title={headTitle} description={headDescription} image={image}>
   <article class="article-layout py-12 lg:py-20">
     <div class="container mx-auto px-4">
       {/* Breadcrumbs */}
@@ -95,16 +113,32 @@ const currentUrl = Astro.url.href;
 
       {/* Article Header */}
       <header class="article-header max-w-4xl mx-auto mb-12">
-        {/* Tags */}
-        {tags.length > 0 && (
+        {/* Category and Tags */}
+        {(category || tags.length > 0) && (
           <div class="flex flex-wrap gap-2 mb-4">
-            {tags.map((tag) => (
+            {/* Category (styled differently) */}
+            {category && type === 'blog' && (
               <a
-                href={`/blog/tags/${tag.toLowerCase()}`}
-                class="px-3 py-1 text-sm font-medium bg-primary-500/10 text-primary-400 rounded-full hover:bg-primary-500/20 transition-colors"
+                href={`/blog/category/${category.slug}`}
+                class="px-3 py-1 text-sm font-medium bg-teal-500/20 text-teal-400 rounded-full hover:bg-teal-500/30 transition-colors"
               >
-                {tag}
+                {category.name}
               </a>
+            )}
+            {/* Tags */}
+            {tags.map((tag) => (
+              type === 'blog' ? (
+                <a
+                  href={`/blog/tags/${tag.toLowerCase().replace(/\s+/g, '-')}`}
+                  class="px-3 py-1 text-sm font-medium bg-primary-500/10 text-primary-400 rounded-full hover:bg-primary-500/20 transition-colors"
+                >
+                  {tag}
+                </a>
+              ) : (
+                <span class="px-3 py-1 text-sm font-medium bg-primary-500/10 text-primary-400 rounded-full">
+                  {tag}
+                </span>
+              )
             ))}
           </div>
         )}
@@ -193,12 +227,18 @@ const currentUrl = Astro.url.href;
           <div class="flex flex-wrap items-center gap-3 pb-8 border-b border-slate-800">
             <span class="text-sm text-slate-500">Tagged:</span>
             {tags.map((tag) => (
-              <a
-                href={`/blog/tags/${tag.toLowerCase()}`}
-                class="px-3 py-1 text-sm border border-slate-700 text-slate-400 rounded-full hover:border-primary-500 hover:text-primary-400 transition-colors"
-              >
-                #{tag}
-              </a>
+              type === 'blog' ? (
+                <a
+                  href={`/blog/tags/${tag.toLowerCase()}`}
+                  class="px-3 py-1 text-sm border border-slate-700 text-slate-400 rounded-full hover:border-primary-500 hover:text-primary-400 transition-colors"
+                >
+                  #{tag}
+                </a>
+              ) : (
+                <span class="px-3 py-1 text-sm border border-slate-700 text-slate-400 rounded-full">
+                  #{tag}
+                </span>
+              )
             ))}
           </div>
         )}

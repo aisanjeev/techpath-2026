@@ -8,6 +8,9 @@ const services = [
   { value: 'cybersecurity', label: 'Cybersecurity' },
   { value: 'other', label: 'Other' },
 ];
+
+// API URL - defaults to localhost for development
+const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
 ---
 
 <form id="contact-form" class="space-y-6">
@@ -96,9 +99,10 @@ const services = [
   <p id="form-message" class="hidden text-center text-sm"></p>
 </form>
 
-<script>
-  const form = document.getElementById('contact-form') as HTMLFormElement;
-  const submitButton = document.getElementById('submit-button') as HTMLButtonElement;
+<script define:vars={{ apiBaseUrl }}>
+  const API_URL = apiBaseUrl;
+  const form = document.getElementById('contact-form');
+  const submitButton = document.getElementById('submit-button');
   const formMessage = document.getElementById('form-message');
 
   form?.addEventListener('submit', async (e) => {
@@ -108,10 +112,17 @@ const services = [
     submitButton.textContent = 'Sending...';
 
     const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
+    const data = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      company: formData.get('company') || null,
+      message: formData.get('message'),
+      service: formData.get('service') || null,
+    };
 
     try {
-      const response = await fetch('/api/contact', {
+      // Call FastAPI backend directly
+      const response = await fetch(`${API_URL}/api/v1/contact/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -121,18 +132,22 @@ const services = [
 
       if (formMessage) {
         formMessage.classList.remove('hidden', 'text-red-400', 'text-green-400');
-        formMessage.classList.add(result.success ? 'text-green-400' : 'text-red-400');
-        formMessage.textContent = result.success ? result.message : result.error;
+        
+        if (response.ok) {
+          formMessage.classList.add('text-green-400');
+          formMessage.textContent = result.message || 'Thank you! We will get back to you soon.';
+          form.reset();
+        } else {
+          formMessage.classList.add('text-red-400');
+          formMessage.textContent = result.detail || 'An error occurred. Please try again.';
+        }
       }
-
-      if (result.success) {
-        form.reset();
-      }
-    } catch {
+    } catch (error) {
+      console.error('Form submission error:', error);
       if (formMessage) {
         formMessage.classList.remove('hidden', 'text-green-400');
         formMessage.classList.add('text-red-400');
-        formMessage.textContent = 'An error occurred. Please try again.';
+        formMessage.textContent = 'Network error. Please check your connection and try again.';
       }
     } finally {
       submitButton.disabled = false;

@@ -1,0 +1,78 @@
+---
+/**
+ * CountdownTimer Component
+ * Displays a countdown to a target date for urgency
+ */
+interface Props {
+  targetDate?: string; // ISO date string
+  label?: string;
+}
+
+const { 
+  targetDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Default: 7 days from now
+  label = "Offer expires in"
+} = Astro.props;
+---
+
+<div class="countdown-timer" data-target={targetDate}>
+  <p class="mb-3 text-sm font-medium text-slate-300">{label}</p>
+  <div class="flex justify-center gap-3">
+    <div class="countdown-unit rounded-lg bg-slate-800/80 px-4 py-3 text-center backdrop-blur-sm">
+      <span class="countdown-days block text-2xl font-bold text-white md:text-3xl">00</span>
+      <span class="text-xs text-slate-400">Days</span>
+    </div>
+    <div class="countdown-unit rounded-lg bg-slate-800/80 px-4 py-3 text-center backdrop-blur-sm">
+      <span class="countdown-hours block text-2xl font-bold text-white md:text-3xl">00</span>
+      <span class="text-xs text-slate-400">Hours</span>
+    </div>
+    <div class="countdown-unit rounded-lg bg-slate-800/80 px-4 py-3 text-center backdrop-blur-sm">
+      <span class="countdown-minutes block text-2xl font-bold text-white md:text-3xl">00</span>
+      <span class="text-xs text-slate-400">Minutes</span>
+    </div>
+    <div class="countdown-unit rounded-lg bg-slate-800/80 px-4 py-3 text-center backdrop-blur-sm">
+      <span class="countdown-seconds block text-2xl font-bold text-primary-400 md:text-3xl">00</span>
+      <span class="text-xs text-slate-400">Seconds</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const timer = document.querySelector('.countdown-timer');
+  if (timer) {
+    const targetDate = new Date(timer.getAttribute('data-target') || '').getTime();
+    
+    const daysEl = timer.querySelector('.countdown-days');
+    const hoursEl = timer.querySelector('.countdown-hours');
+    const minutesEl = timer.querySelector('.countdown-minutes');
+    const secondsEl = timer.querySelector('.countdown-seconds');
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        // Timer expired
+        if (daysEl) daysEl.textContent = '00';
+        if (hoursEl) hoursEl.textContent = '00';
+        if (minutesEl) minutesEl.textContent = '00';
+        if (secondsEl) secondsEl.textContent = '00';
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
+      if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+      if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+      if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+    }
+
+    // Update immediately and then every second
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  }
+</script>
+

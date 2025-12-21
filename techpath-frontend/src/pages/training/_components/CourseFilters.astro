@@ -1,0 +1,82 @@
+---
+/**
+ * CourseFilters Component
+ * Filter tabs for course catalog
+ */
+interface Props {
+  categories: { value: string; label: string }[];
+  activeCategory?: string;
+}
+
+const { categories, activeCategory = 'all' } = Astro.props;
+---
+
+<div class="course-filters mb-8">
+  <div class="flex flex-wrap justify-center gap-2">
+    {categories.map((cat) => (
+      <button
+        class={`filter-btn rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+          cat.value === activeCategory
+            ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/25'
+            : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+        }`}
+        data-category={cat.value}
+      >
+        {cat.label}
+      </button>
+    ))}
+  </div>
+</div>
+
+<script>
+  // Filter functionality
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  // Only select course cards (elements with .course-card class), not filter buttons
+  const courseCards = document.querySelectorAll('.course-card');
+
+  filterButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const category = btn.getAttribute('data-category');
+
+      // Update active button
+      filterButtons.forEach((b) => {
+        b.classList.remove('bg-primary-500', 'text-white', 'shadow-lg', 'shadow-primary-500/25');
+        b.classList.add('bg-slate-800', 'text-slate-300');
+      });
+      btn.classList.remove('bg-slate-800', 'text-slate-300');
+      btn.classList.add('bg-primary-500', 'text-white', 'shadow-lg', 'shadow-primary-500/25');
+
+      // Filter cards
+      courseCards.forEach((card) => {
+        const cardElement = card as HTMLElement;
+        const cardCategory = cardElement.getAttribute('data-category');
+        
+        if (category === 'all' || cardCategory === category) {
+          cardElement.style.display = '';
+          cardElement.classList.add('animate-fade-in');
+        } else {
+          cardElement.style.display = 'none';
+          cardElement.classList.remove('animate-fade-in');
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+</style>
+

@@ -1,11 +1,14 @@
 ---
 /**
  * Dynamic Blog Post Page
- * Renders individual blog posts with beautiful markdown styling
+ * Renders individual blog posts from content collections (Markdown)
  */
 import ArticleLayout from '@layouts/ArticleLayout.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { calculateReadingTime } from '@utils/contentHelpers';
+
+// Prerender this page - uses getStaticPaths for content collection posts
+export const prerender = true;
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');

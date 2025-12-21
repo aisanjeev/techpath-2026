@@ -1,0 +1,113 @@
+---
+/**
+ * Blog Posts by Tag
+ * Lists all blog posts with a specific tag
+ */
+import MainLayout from '@layouts/MainLayout.astro';
+import Breadcrumb from '@components/shared/Breadcrumb.astro';
+import Card from '@components/ui/Card.astro';
+import { fetchBlogPosts, normalizeApiPost } from '@services/blogService';
+
+// SSR - fetch from API at request time
+export const prerender = false;
+
+const { tag } = Astro.params;
+
+if (!tag) {
+  return Astro.redirect('/blog');
+}
+
+// Fetch posts filtered by tag
+const allPosts = await fetchBlogPosts({ limit: 50, tag });
+
+// If tag parameter doesn't match backend tag slug format, try to find posts anyway
+const posts = allPosts.length > 0 
+  ? allPosts 
+  : (await fetchBlogPosts({ limit: 50 })).filter(p => 
+      p.tags.some(t => t.slug === tag || t.name.toLowerCase() === tag.toLowerCase())
+    );
+
+// Format tag name for display (capitalize)
+const tagName = posts[0]?.tags.find(t => t.slug === tag)?.name 
+  || tag.charAt(0).toUpperCase() + tag.slice(1).replace(/-/g, ' ');
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
+  { label: `Tag: ${tagName}`, href: '#', current: true },
+];
+
+const normalizedPosts = posts.map(normalizeApiPost);
+---
+
+<MainLayout
+  title={`${tagName} - Blog`}
+  description={`Browse all blog posts tagged with "${tagName}". Insights and tutorials from TechPath.`}
+>
+  <section class="py-16 lg:py-24">
+    <div class="container mx-auto px-4">
+      <Breadcrumb items={breadcrumbItems} />
+
+      {/* Header */}
+      <div class="max-w-3xl mb-12">
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-primary-500/10 rounded-full mb-6">
+          <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          <span class="text-primary-400 font-medium">{tagName}</span>
+        </div>
+        <h1 class="font-heading text-4xl md:text-5xl font-bold text-white mb-4">
+          Posts tagged "{tagName}"
+        </h1>
+        <p class="text-xl text-slate-400">
+          {posts.length} article{posts.length !== 1 ? 's' : ''} found
+        </p>
+      </div>
+
+      {/* Posts Grid */}
+      {posts.length > 0 ? (
+        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {normalizedPosts.map((post) => (
+            <Card
+              title={post.data.title}
+              description={post.data.description}
+              href={post.source === 'api' ? `/blog/api/${post.slug}` : `/blog/${post.slug}`}
+              image={post.data.image}
+              tags={post.data.tags}
+              date={post.data.pubDate}
+            />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-16">
+          <div class="w-16 h-16 mx-auto mb-6 rounded-full bg-slate-800 flex items-center justify-center">
+            <svg class="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-white mb-2">No posts found</h2>
+          <p class="text-slate-400 mb-6">There are no posts with the tag "{tagName}" yet.</p>
+          <a href="/blog" class="inline-flex items-center gap-2 text-primary-400 hover:text-primary-300 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to all posts
+          </a>
+        </div>
+      )}
+
+      {/* Back to Blog Link */}
+      {posts.length > 0 && (
+        <div class="mt-12 text-center">
+          <a href="/blog" class="inline-flex items-center gap-2 text-primary-400 hover:text-primary-300 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            View all posts
+          </a>
+        </div>
+      )}
+    </div>
+  </section>
+</MainLayout>
+

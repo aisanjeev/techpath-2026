@@ -1,0 +1,162 @@
+---
+/**
+ * CourseCard Component
+ * Individual course card for the catalog grid
+ */
+interface Props {
+  slug: string;
+  name: string;
+  category: string;
+  rating: number;
+  reviewCount: number;
+  duration: string;
+  batchSize: number;
+  price: number;
+  originalPrice: number;
+  emiAvailable: boolean;
+  placementRate: number;
+  skills: string[];
+  level: 'beginner' | 'intermediate' | 'advanced';
+  image?: string;
+}
+
+const {
+  slug,
+  name,
+  category,
+  rating,
+  reviewCount,
+  duration,
+  batchSize,
+  price,
+  originalPrice,
+  emiAvailable,
+  placementRate,
+  skills,
+  level,
+  image,
+} = Astro.props;
+
+const discount = Math.round(((originalPrice - price) / originalPrice) * 100);
+
+const levelColors = {
+  beginner: 'bg-green-500/10 text-green-400 border-green-500/30',
+  intermediate: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
+  advanced: 'bg-red-500/10 text-red-400 border-red-500/30',
+};
+
+const formatPrice = (amount: number) => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+---
+
+<div class="course-card group flex flex-col overflow-hidden rounded-2xl border border-slate-700/50 bg-slate-800/50 transition-all hover:border-primary-500/50 hover:shadow-lg hover:shadow-primary-500/10" data-category={category}>
+  <!-- Image/Placeholder -->
+  <div class="relative aspect-video overflow-hidden bg-gradient-to-br from-primary-500/20 to-secondary-500/20">
+    {image ? (
+      <img src={image} alt={name} class="h-full w-full object-cover transition-transform group-hover:scale-105" />
+    ) : (
+      <div class="flex h-full w-full items-center justify-center">
+        <span class="text-5xl opacity-50">📚</span>
+      </div>
+    )}
+    
+    <!-- Discount Badge -->
+    {discount > 0 && (
+      <div class="absolute right-3 top-3 rounded-lg bg-red-500 px-2 py-1 text-xs font-bold text-white">
+        {discount}% OFF
+      </div>
+    )}
+    
+    <!-- Level Badge -->
+    <div class={`absolute left-3 top-3 rounded-lg border px-2 py-1 text-xs font-medium capitalize ${levelColors[level]}`}>
+      {level}
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="flex flex-1 flex-col p-5">
+    <!-- Category & Rating -->
+    <div class="mb-2 flex items-center justify-between">
+      <span class="text-xs font-medium uppercase tracking-wide text-primary-400">
+        {category.replace('-', ' ')}
+      </span>
+      <div class="flex items-center gap-1">
+        <svg class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <span class="text-sm font-medium text-white">{rating}</span>
+        <span class="text-xs text-slate-400">({reviewCount})</span>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <h3 class="mb-3 font-heading text-lg font-bold text-white transition-colors group-hover:text-primary-400">
+      {name}
+    </h3>
+
+    <!-- Skills Tags -->
+    <div class="mb-4 flex flex-wrap gap-1.5">
+      {skills.slice(0, 3).map((skill) => (
+        <span class="rounded-md bg-slate-700/50 px-2 py-0.5 text-xs text-slate-300">
+          {skill}
+        </span>
+      ))}
+      {skills.length > 3 && (
+        <span class="rounded-md bg-slate-700/50 px-2 py-0.5 text-xs text-slate-400">
+          +{skills.length - 3} more
+        </span>
+      )}
+    </div>
+
+    <!-- Meta Info -->
+    <div class="mb-4 grid grid-cols-3 gap-2 border-t border-slate-700/50 pt-4 text-center">
+      <div>
+        <span class="block text-xs text-slate-400">Duration</span>
+        <span class="text-sm font-medium text-white">{duration}</span>
+      </div>
+      <div>
+        <span class="block text-xs text-slate-400">Batch Size</span>
+        <span class="text-sm font-medium text-white">{batchSize} max</span>
+      </div>
+      <div>
+        <span class="block text-xs text-slate-400">Placement</span>
+        <span class="text-sm font-medium text-green-400">{placementRate}%</span>
+      </div>
+    </div>
+
+    <!-- Price & CTA -->
+    <div class="mt-auto">
+      <div class="mb-3 flex items-end gap-2">
+        <span class="text-2xl font-bold text-white">{formatPrice(price)}</span>
+        {originalPrice > price && (
+          <span class="text-sm text-slate-400 line-through">{formatPrice(originalPrice)}</span>
+        )}
+      </div>
+      {emiAvailable && (
+        <p class="mb-3 text-xs text-slate-400">
+          EMI available from {formatPrice(Math.round(price / 6))}/month
+        </p>
+      )}
+      <div class="flex gap-2">
+        <a
+          href={`/training/${slug}`}
+          class="flex-1 rounded-lg border border-slate-600 bg-slate-700/50 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-slate-700"
+        >
+          Explore
+        </a>
+        <a
+          href={`/training/${slug}#enroll`}
+          class="flex-1 rounded-lg bg-primary-500 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-primary-600"
+        >
+          Enroll Now
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+

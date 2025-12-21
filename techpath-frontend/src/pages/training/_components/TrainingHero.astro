@@ -1,0 +1,94 @@
+---
+/**
+ * TrainingHero Component
+ * Hero section with value proposition, dual CTAs, and trust badges
+ */
+interface Props {
+  title?: string;
+  subtitle?: string;
+  primaryCta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string };
+}
+
+const {
+  title = "Master In-Demand Tech Skills",
+  subtitle = "Live instructor training + Real-world projects + Job guarantee + 100% money back",
+  primaryCta = { label: "Start Free Trial", href: "#enroll" },
+  secondaryCta = { label: "View Course Catalog", href: "#courses" },
+} = Astro.props;
+
+const trustBadges = [
+  { icon: "⭐", value: "4.9/5", label: "2,000+ Reviews" },
+  { icon: "👨‍🎓", value: "50,000+", label: "Students Trained" },
+  { icon: "💼", value: "94%", label: "Job Placement" },
+  { icon: "🏆", value: "Since 2019", label: "Trusted Institute" },
+];
+---
+
+<section class="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-primary-950 py-20 lg:py-28">
+  <!-- Background Pattern -->
+  <div class="absolute inset-0 opacity-20">
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#1f293780_1px,transparent_1px),linear-gradient(to_bottom,#1f293780_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+  </div>
+  
+  <!-- Gradient Orbs -->
+  <div class="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-primary-500/20 blur-3xl"></div>
+  <div class="absolute -bottom-40 -right-40 h-80 w-80 rounded-full bg-secondary-500/20 blur-3xl"></div>
+
+  <div class="container relative mx-auto px-4">
+    <div class="mx-auto max-w-4xl text-center">
+      <!-- Badge -->
+      <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-500/30 bg-primary-500/10 px-4 py-2">
+        <span class="relative flex h-2 w-2">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-400 opacity-75"></span>
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-primary-500"></span>
+        </span>
+        <span class="text-sm font-medium text-primary-300">New Batch Starting January 2025</span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="mb-6 font-heading text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl">
+        {title}
+        <span class="mt-2 block bg-gradient-to-r from-primary-400 via-cyan-400 to-secondary-400 bg-clip-text text-transparent">
+          Land High-Paying Jobs in 90 Days
+        </span>
+      </h1>
+
+      <!-- Subheadline -->
+      <p class="mx-auto mb-10 max-w-2xl text-lg text-slate-300 md:text-xl">
+        {subtitle}
+      </p>
+
+      <!-- CTAs -->
+      <div class="mb-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <a
+          href={primaryCta.href}
+          class="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-primary-600 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-primary-500/25 transition-all hover:from-primary-600 hover:to-primary-700 hover:shadow-xl hover:shadow-primary-500/30"
+        >
+          {primaryCta.label}
+          <svg class="h-5 w-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+        <a
+          href={secondaryCta.href}
+          class="inline-flex items-center gap-2 rounded-xl border border-slate-600 bg-slate-800/50 px-8 py-4 text-lg font-semibold text-white backdrop-blur-sm transition-all hover:border-slate-500 hover:bg-slate-800"
+        >
+          {secondaryCta.label}
+        </a>
+      </div>
+
+      <!-- Trust Badges -->
+      <div class="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8">
+        {trustBadges.map((badge) => (
+          <div class="flex flex-col items-center rounded-xl border border-slate-700/50 bg-slate-800/30 p-4 backdrop-blur-sm">
+            <span class="mb-1 text-2xl">{badge.icon}</span>
+            <span class="text-xl font-bold text-white md:text-2xl">{badge.value}</span>
+            <span class="text-xs text-slate-400 md:text-sm">{badge.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+

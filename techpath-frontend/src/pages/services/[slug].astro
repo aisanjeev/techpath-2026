@@ -11,6 +11,9 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import { calculateReadingTime } from '@utils/contentHelpers';
 import '@styles/markdown.css';
 
+// Prerender this page - uses getStaticPaths for content collection
+export const prerender = true;
+
 export async function getStaticPaths() {
   const services = await getCollection('services');
   return services.map((service) => ({
