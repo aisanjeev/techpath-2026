@@ -84,6 +84,24 @@ async def get_current_user_info(
     return UserResponse.model_validate(current_user)
 
 
+@router.post("/logout", response_model=MessageResponse)
+async def logout(
+    current_user: User = Depends(get_current_user),
+) -> MessageResponse:
+    """
+    Logout current user.
+    
+    Since JWT tokens are stateless, the actual token invalidation
+    happens client-side by removing the token from storage.
+    This endpoint is provided for API consistency and logging purposes.
+    """
+    # In a production system, you might want to:
+    # - Add the token to a blacklist (if using Redis)
+    # - Log the logout event
+    # - Update user's last_logout timestamp
+    return MessageResponse(message="Successfully logged out")
+
+
 @router.post("/setup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def setup_admin(
     user_in: UserCreate,
