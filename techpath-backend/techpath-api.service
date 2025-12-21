@@ -1,0 +1,66 @@
+# =============================================================================
+# TechPath Production API Systemd Service File
+# =============================================================================
+# This file configures the TechPath FastAPI backend for PRODUCTION environment.
+#
+# INSTALLATION (for user-level systemd):
+# --------------------------------------
+# 1. Copy this file to ~/.config/systemd/user/techpath-api.service
+# 2. Run: systemctl --user daemon-reload
+# 3. Run: systemctl --user enable techpath-api.service
+# 4. Run: systemctl --user start techpath-api.service
+#
+# USEFUL COMMANDS:
+# ----------------
+# Check status:   systemctl --user status techpath-api
+# View logs:      journalctl --user -u techpath-api -f
+# Restart:        systemctl --user restart techpath-api
+# Stop:           systemctl --user stop techpath-api
+#
+# ENABLE LINGERING (required for service to run without login):
+# ------------------------------------------------------------
+# sudo loginctl enable-linger $USER
+# =============================================================================
+
+[Unit]
+Description=TechPath API Backend Service
+Documentation=https://github.com/techpath/techpath-2026
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# Working directory where the app is deployed
+WorkingDirectory=/home/techpath-api/htdocs/api.techpath.biz
+
+# Environment setup
+Environment="PATH=/home/techpath-api/htdocs/api.techpath.biz/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="PYTHONDONTWRITEBYTECODE=1"
+
+# Start command - uvicorn without --reload for production
+ExecStart=/home/techpath-api/htdocs/api.techpath.biz/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8092 --workers 2
+
+# Restart policy
+Restart=always
+RestartSec=10
+TimeoutStartSec=30
+TimeoutStopSec=30
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+
+# Security hardening (optional, comment out if causing issues)
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=techpath-api
+
+[Install]
+WantedBy=default.target
+

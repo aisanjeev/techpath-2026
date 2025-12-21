@@ -1,0 +1,53 @@
+# =============================================================================
+# TechPath Staging API Systemd Service File
+# =============================================================================
+# This file configures the TechPath FastAPI backend for STAGING environment.
+#
+# INSTALLATION:
+# -------------
+# 1. Copy to ~/.config/systemd/user/techpath-staging-api.service
+# 2. Run: systemctl --user daemon-reload
+# 3. Run: systemctl --user enable techpath-staging-api.service
+# 4. Run: systemctl --user start techpath-staging-api.service
+#
+# USEFUL COMMANDS:
+# ----------------
+# Check status:   systemctl --user status techpath-staging-api
+# View logs:      journalctl --user -u techpath-staging-api -f
+# Restart:        systemctl --user restart techpath-staging-api
+# =============================================================================
+
+[Unit]
+Description=TechPath Staging API Service
+Documentation=https://github.com/techpath/techpath-2026
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# Working directory - STAGING
+WorkingDirectory=/home/techpath-staging-api/htdocs/staging.api.techpath.biz
+
+# Environment setup
+Environment="PATH=/home/techpath-staging-api/htdocs/staging.api.techpath.biz/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="PYTHONDONTWRITEBYTECODE=1"
+
+# Start command - Single worker for staging (port 8093)
+ExecStart=/home/techpath-staging-api/htdocs/staging.api.techpath.biz/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8093
+
+# Restart policy
+Restart=always
+RestartSec=10
+TimeoutStartSec=30
+TimeoutStopSec=30
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=techpath-staging-api
+
+[Install]
+WantedBy=default.target
+

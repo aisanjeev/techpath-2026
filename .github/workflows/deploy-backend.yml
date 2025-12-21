@@ -1,0 +1,357 @@
+# =============================================================================
+# TechPath Backend Deployment Workflow
+# =============================================================================
+# This workflow automatically deploys the FastAPI backend to VPS.
+#
+# DEPLOYMENT STRATEGY:
+# --------------------
+# - Push to `develop` branch → Deploys to STAGING (automatic)
+# - Push to `main` branch    → Deploys to PRODUCTION (requires approval)
+#
+# ENVIRONMENTS:
+# -------------
+# Staging:    staging.api.techpath.biz (Port 8093)
+# Production: api.techpath.biz (Port 8092)
+#
+# REQUIRED GITHUB SECRETS (Repository Level):
+# -------------------------------------------
+# SSH_HOST     - VPS hostname or IP address
+# SSH_USER     - SSH username for production (techpath-api)
+# SSH_PASSWORD - SSH password for authentication
+# SSH_PORT     - SSH port (optional, defaults to 22)
+#
+# REQUIRED GITHUB SECRETS (Environment Level):
+# --------------------------------------------
+# For 'staging' environment:
+#   ENV_FILE - Staging environment variables
+#
+# For 'production' environment:
+#   ENV_FILE - Production environment variables
+#
+# VPS PREREQUISITES (run once on your server):
+# --------------------------------------------
+# # For production user
+# sudo useradd -m techpath-api
+# sudo loginctl enable-linger techpath-api
+# mkdir -p /home/techpath-api/htdocs/api.techpath.biz
+# mkdir -p ~/.config/systemd/user
+#
+# # For staging user
+# sudo useradd -m techpath-staging-api
+# sudo loginctl enable-linger techpath-staging-api
+# mkdir -p /home/techpath-staging-api/htdocs/staging.api.techpath.biz
+# mkdir -p ~/.config/systemd/user
+# =============================================================================
+
+name: Deploy Backend to VPS
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'techpath-backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+# =============================================================================
+# STAGING DEPLOYMENT
+# =============================================================================
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    
+    environment:
+      name: staging
+      url: https://staging.api.techpath.biz
+    
+    env:
+      DEPLOY_PATH: /home/techpath-staging-api/htdocs/staging.api.techpath.biz
+      SERVICE_NAME: techpath-staging-api
+      SSH_USER: techpath-staging-api
+      APP_PORT: 8093
+    
+    steps:
+      # -----------------------------------------------------------------------
+      # Step 1: Checkout the repository
+      # -----------------------------------------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # Step 2: Sync files to VPS
+      # -----------------------------------------------------------------------
+      - name: Deploy files to Staging VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "techpath-backend/"
+          target: ${{ env.DEPLOY_PATH }}
+          strip_components: 1
+          rm: false
+
+      # -----------------------------------------------------------------------
+      # Step 3: Setup environment and restart service
+      # -----------------------------------------------------------------------
+      - name: Setup and restart staging service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            
+            echo "=========================================="
+            echo "🚀 TechPath STAGING Deployment"
+            echo "=========================================="
+            
+            DEPLOY_DIR="${{ env.DEPLOY_PATH }}"
+            SERVICE_NAME="${{ env.SERVICE_NAME }}"
+            APP_PORT="${{ env.APP_PORT }}"
+            
+            cd "$DEPLOY_DIR"
+            
+            # Write .env file from GitHub secrets
+            echo "📝 Writing .env file..."
+            cat > .env << 'ENVEOF'
+            ${{ secrets.ENV_FILE }}
+            ENVEOF
+            chmod 600 .env
+            
+            # Clean up cache files
+            echo "🧹 Cleaning up cache files..."
+            find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+            find . -type f -name "*.pyc" -delete 2>/dev/null || true
+            
+            # Setup virtual environment
+            echo "🐍 Setting up Python virtual environment..."
+            if [ ! -d "venv" ]; then
+                python3 -m venv venv
+            fi
+            source venv/bin/activate
+            
+            # Install dependencies
+            echo "📦 Installing dependencies..."
+            pip install --upgrade pip poetry
+            poetry config virtualenvs.create false
+            poetry install --no-interaction --no-ansi --only main
+            
+            # Setup systemd service
+            echo "⚙️ Setting up systemd service..."
+            mkdir -p ~/.config/systemd/user
+            
+            cat > ~/.config/systemd/user/${SERVICE_NAME}.service << SERVICEEOF
+            [Unit]
+            Description=TechPath Staging API Service
+            After=network.target
+            
+            [Service]
+            Type=simple
+            WorkingDirectory=${DEPLOY_DIR}
+            Environment="PATH=${DEPLOY_DIR}/venv/bin:/usr/local/bin:/usr/bin:/bin"
+            Environment="PYTHONUNBUFFERED=1"
+            ExecStart=${DEPLOY_DIR}/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port ${APP_PORT}
+            Restart=always
+            RestartSec=10
+            
+            [Install]
+            WantedBy=default.target
+            SERVICEEOF
+            
+            # Restart service
+            echo "🔄 Restarting service..."
+            systemctl --user daemon-reload
+            systemctl --user enable ${SERVICE_NAME}.service 2>/dev/null || true
+            
+            # Kill any process on the port
+            PID=$(lsof -t -i:${APP_PORT} 2>/dev/null) || true
+            if [ -n "$PID" ]; then
+                kill -9 $PID 2>/dev/null || true
+                sleep 2
+            fi
+            
+            systemctl --user restart ${SERVICE_NAME}.service
+            sleep 5
+            
+            # Health check
+            echo "🏥 Health check..."
+            if systemctl --user is-active --quiet ${SERVICE_NAME}.service; then
+                echo "✅ Staging service is running on port ${APP_PORT}!"
+            else
+                echo "❌ Service failed!"
+                journalctl --user -u ${SERVICE_NAME}.service --no-pager -n 30
+                exit 1
+            fi
+            
+            echo "=========================================="
+            echo "✨ STAGING deployment complete!"
+            echo "   URL: https://staging.api.techpath.biz"
+            echo "=========================================="
+
+# =============================================================================
+# PRODUCTION DEPLOYMENT
+# =============================================================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    
+    environment:
+      name: production
+      url: https://api.techpath.biz
+    
+    env:
+      DEPLOY_PATH: /home/techpath-api/htdocs/api.techpath.biz
+      SERVICE_NAME: techpath-api
+      SSH_USER: techpath-api
+      APP_PORT: 8092
+    
+    steps:
+      # -----------------------------------------------------------------------
+      # Step 1: Checkout the repository
+      # -----------------------------------------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # Step 2: Sync files to VPS
+      # -----------------------------------------------------------------------
+      - name: Deploy files to Production VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "techpath-backend/"
+          target: ${{ env.DEPLOY_PATH }}
+          strip_components: 1
+          rm: false
+
+      # -----------------------------------------------------------------------
+      # Step 3: Setup environment and restart service
+      # -----------------------------------------------------------------------
+      - name: Setup and restart production service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            
+            echo "=========================================="
+            echo "🚀 TechPath PRODUCTION Deployment"
+            echo "=========================================="
+            
+            DEPLOY_DIR="${{ env.DEPLOY_PATH }}"
+            SERVICE_NAME="${{ env.SERVICE_NAME }}"
+            APP_PORT="${{ env.APP_PORT }}"
+            
+            cd "$DEPLOY_DIR"
+            
+            # Write .env file from GitHub secrets
+            echo "📝 Writing .env file..."
+            cat > .env << 'ENVEOF'
+            ${{ secrets.ENV_FILE }}
+            ENVEOF
+            chmod 600 .env
+            
+            # Clean up cache files
+            echo "🧹 Cleaning up cache files..."
+            find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+            find . -type f -name "*.pyc" -delete 2>/dev/null || true
+            
+            # Setup virtual environment
+            echo "🐍 Setting up Python virtual environment..."
+            if [ ! -d "venv" ]; then
+                python3 -m venv venv
+            fi
+            source venv/bin/activate
+            
+            # Install dependencies
+            echo "📦 Installing dependencies..."
+            pip install --upgrade pip poetry
+            poetry config virtualenvs.create false
+            poetry install --no-interaction --no-ansi --only main
+            
+            # Setup systemd service
+            echo "⚙️ Setting up systemd service..."
+            mkdir -p ~/.config/systemd/user
+            
+            cat > ~/.config/systemd/user/${SERVICE_NAME}.service << SERVICEEOF
+            [Unit]
+            Description=TechPath Production API Service
+            After=network.target
+            
+            [Service]
+            Type=simple
+            WorkingDirectory=${DEPLOY_DIR}
+            Environment="PATH=${DEPLOY_DIR}/venv/bin:/usr/local/bin:/usr/bin:/bin"
+            Environment="PYTHONUNBUFFERED=1"
+            ExecStart=${DEPLOY_DIR}/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port ${APP_PORT} --workers 2
+            Restart=always
+            RestartSec=10
+            
+            [Install]
+            WantedBy=default.target
+            SERVICEEOF
+            
+            # Restart service
+            echo "🔄 Restarting service..."
+            systemctl --user daemon-reload
+            systemctl --user enable ${SERVICE_NAME}.service 2>/dev/null || true
+            
+            # Kill any process on the port
+            PID=$(lsof -t -i:${APP_PORT} 2>/dev/null) || true
+            if [ -n "$PID" ]; then
+                kill -9 $PID 2>/dev/null || true
+                sleep 2
+            fi
+            
+            systemctl --user restart ${SERVICE_NAME}.service
+            sleep 5
+            
+            # Health check
+            echo "🏥 Health check..."
+            if systemctl --user is-active --quiet ${SERVICE_NAME}.service; then
+                echo "✅ Production service is running on port ${APP_PORT}!"
+            else
+                echo "❌ Service failed!"
+                journalctl --user -u ${SERVICE_NAME}.service --no-pager -n 30
+                exit 1
+            fi
+            
+            echo "=========================================="
+            echo "✨ PRODUCTION deployment complete!"
+            echo "   URL: https://api.techpath.biz"
+            echo "=========================================="
+
+      # -----------------------------------------------------------------------
+      # Step 4: Notify on failure
+      # -----------------------------------------------------------------------
+      - name: Deployment failed notification
+        if: failure()
+        run: |
+          echo "❌ PRODUCTION deployment failed!"
+          echo "Check the logs above for details."
