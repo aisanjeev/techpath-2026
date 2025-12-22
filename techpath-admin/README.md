@@ -4,6 +4,7 @@ Modern admin dashboard for TechPath CMS, built with Next.js 14, TypeScript, and 
 
 ## Features
 
+
 - **Dashboard**: Overview with stats and quick actions
 - **Services Management**: Full CRUD for service offerings
 - **Blog Posts**: Rich text editor (Tiptap) for creating/editing blog content
