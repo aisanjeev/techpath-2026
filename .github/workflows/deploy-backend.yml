@@ -107,12 +107,16 @@ jobs:
             
             cd "$DEPLOY_DIR"
             
-            # Write .env file from GitHub secrets
-            echo "📝 Writing .env file..."
-            cat > .env << 'ENVEOF'
+            # Create data directory for SQLite and uploads
+            echo "📁 Creating data directories..."
+            mkdir -p data/uploads
+            
+            # Write .env.local file from GitHub secrets
+            echo "📝 Writing .env.local file..."
+            cat > .env.local << 'ENVEOF'
             ${{ secrets.ENV_FILE }}
             ENVEOF
-            chmod 600 .env
+            chmod 600 .env.local
             
             # Clean up cache files
             echo "🧹 Cleaning up cache files..."
@@ -237,12 +241,16 @@ jobs:
             
             cd "$DEPLOY_DIR"
             
-            # Write .env file from GitHub secrets
-            echo "📝 Writing .env file..."
-            cat > .env << 'ENVEOF'
+            # Create data directory for SQLite and uploads
+            echo "📁 Creating data directories..."
+            mkdir -p data/uploads
+            
+            # Write .env.local file from GitHub secrets
+            echo "📝 Writing .env.local file..."
+            cat > .env.local << 'ENVEOF'
             ${{ secrets.ENV_FILE }}
             ENVEOF
-            chmod 600 .env
+            chmod 600 .env.local
             
             # Clean up cache files
             echo "🧹 Cleaning up cache files..."
