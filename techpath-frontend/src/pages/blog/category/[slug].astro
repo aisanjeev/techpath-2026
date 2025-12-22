@@ -66,9 +66,8 @@ const normalizedPosts = posts.map(normalizeApiPost);
               title={post.data.title}
               description={post.data.description}
               href={post.source === 'api' ? `/blog/api/${post.slug}` : `/blog/${post.slug}`}
-              image={post.data.image}
+              image={post.data.image ?? undefined}
               tags={post.data.tags}
-              date={post.data.pubDate}
             />
           ))}
         </div>
