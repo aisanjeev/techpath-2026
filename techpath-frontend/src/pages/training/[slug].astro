@@ -177,7 +177,7 @@ const courseSchema = {
                       </h3>
                     </div>
                     <ul class="grid gap-1 sm:grid-cols-2">
-                      {module.topics.map(topic => (
+                      {module.topics.map((topic: string) => (
                         <li class="flex items-center gap-2 text-sm text-slate-400">
                           <svg class="h-4 w-4 flex-shrink-0 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
