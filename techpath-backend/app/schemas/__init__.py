@@ -15,6 +15,12 @@ from app.schemas.contact import (
     NewsletterResponse,
 )
 from app.schemas.ai import ChatRequest, ChatResponse, SuggestionRequest, SuggestionResponse
+from app.schemas.pilot_signup import (
+    PilotSignupCreate,
+    PilotSignupUpdate,
+    PilotSignupResponse,
+    PilotSignupSubmitResponse,
+)
 
 __all__ = [
     # Common
@@ -46,5 +52,10 @@ __all__ = [
     "ChatResponse",
     "SuggestionRequest",
     "SuggestionResponse",
+    # Pilot Signup
+    "PilotSignupCreate",
+    "PilotSignupUpdate",
+    "PilotSignupResponse",
+    "PilotSignupSubmitResponse",
 ]
 

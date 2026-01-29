@@ -307,6 +307,101 @@ class EmailService:
 
         return await self.send_email(to_email, subject, html_content)
 
+    async def send_pilot_signup_notification(
+        self,
+        admin_email: str,
+        name: str,
+        email: str,
+        phone: str,
+        business_name: str,
+        industry: str,
+        message: Optional[str],
+    ) -> bool:
+        """Send notification about new pilot signup application."""
+        subject = f"New Pilot Application: {business_name} ({industry})"
+
+        # Format industry for display
+        industry_display = industry.replace("realestate", "Real Estate").title()
+        
+        # Format message section
+        message_section = ""
+        if message:
+            message_section = f"""
+            <h3>Message:</h3>
+            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                {message}
+            </div>
+            """
+
+        html_content = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #0ea5e9; border-bottom: 2px solid #0ea5e9; padding-bottom: 10px;">
+                    New Pilot Application Received
+                </h2>
+                
+                <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="margin-top: 0; color: #1f2937;">Contact Information</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold; width: 150px;">Name:</td>
+                            <td style="padding: 8px 0;">{name}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold;">Email:</td>
+                            <td style="padding: 8px 0;"><a href="mailto:{email}" style="color: #0ea5e9;">{email}</a></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold;">Phone:</td>
+                            <td style="padding: 8px 0;"><a href="tel:{phone}" style="color: #0ea5e9;">{phone}</a></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="margin-top: 0; color: #1f2937;">Business Information</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold; width: 150px;">Business Name:</td>
+                            <td style="padding: 8px 0;">{business_name}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; font-weight: bold;">Industry:</td>
+                            <td style="padding: 8px 0;">
+                                <span style="background-color: #0ea5e9; color: white; padding: 4px 12px; 
+                                             border-radius: 4px; font-size: 14px;">
+                                    {industry_display}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                {message_section}
+
+                <div style="margin: 30px 0; text-align: center;">
+                    <a href="{settings.FRONTEND_URL}/admin/pilot-signups" 
+                       style="background-color: #0ea5e9; color: white; padding: 12px 30px; 
+                              text-decoration: none; border-radius: 5px; display: inline-block;
+                              font-weight: bold;">
+                        View in Admin Panel
+                    </a>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+                
+                <p style="color: #6b7280; font-size: 12px; text-align: center;">
+                    This notification was sent from TechPath Pilot Signup Form.<br>
+                    <a href="{settings.FRONTEND_URL}" style="color: #0ea5e9;">techpath.biz</a>
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+
+        return await self.send_email(admin_email, subject, html_content)
+
 
 # Global email service instance
 email_service = EmailService()
