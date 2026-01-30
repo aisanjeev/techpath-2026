@@ -14,6 +14,8 @@ interface Props {
   price: number;
   originalPrice: number;
   emiAvailable: boolean;
+  /** Monthly EMI from API; fallback to price/6 when not set */
+  emiAmount?: number;
   placementRate: number;
   skills: string[];
   level: 'beginner' | 'intermediate' | 'advanced';
@@ -31,6 +33,7 @@ const {
   price,
   originalPrice,
   emiAvailable,
+  emiAmount,
   placementRate,
   skills,
   level,
@@ -58,7 +61,7 @@ const formatPrice = (amount: number) => {
   <!-- Image/Placeholder -->
   <div class="relative aspect-video overflow-hidden bg-gradient-to-br from-primary-500/20 to-secondary-500/20">
     {image ? (
-      <img src={image} alt={name} class="h-full w-full object-cover transition-transform group-hover:scale-105" />
+      <img src={image} alt={name} class="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy" decoding="async" />
     ) : (
       <div class="flex h-full w-full items-center justify-center">
         <span class="text-5xl opacity-50">📚</span>
@@ -99,17 +102,23 @@ const formatPrice = (amount: number) => {
       {name}
     </h3>
 
-    <!-- Skills Tags -->
-    <div class="mb-4 flex flex-wrap gap-1.5">
-      {skills.slice(0, 3).map((skill) => (
+    <!-- Skills You'll Learn (from API) -->
+    <div class="mb-4">
+      <span class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">Skills you'll learn</span>
+      <div class="flex flex-wrap gap-1.5">
+      {skills.length > 0 ? skills.slice(0, 4).map((skill) => (
         <span class="rounded-md bg-slate-700/50 px-2 py-0.5 text-xs text-slate-300">
           {skill}
         </span>
-      ))}
-      {skills.length > 3 && (
+      )) : null}
+      {skills.length > 4 && (
         <span class="rounded-md bg-slate-700/50 px-2 py-0.5 text-xs text-slate-400">
-          +{skills.length - 3} more
+          +{skills.length - 4} more
         </span>
+      )}
+      </div>
+      {skills.length === 0 && (
+        <span class="text-xs text-slate-500">See course details</span>
       )}
     </div>
 
@@ -139,7 +148,7 @@ const formatPrice = (amount: number) => {
       </div>
       {emiAvailable && (
         <p class="mb-3 text-xs text-slate-400">
-          EMI available from {formatPrice(Math.round(price / 6))}/month
+          EMI available from {formatPrice(emiAmount != null && emiAmount > 0 ? Math.round(emiAmount) : Math.round(price / 6))}/month
         </p>
       )}
       <div class="flex gap-2">

@@ -3,11 +3,14 @@ import MainLayout from '@layouts/MainLayout.astro';
 import Breadcrumb from '@components/shared/Breadcrumb.astro';
 import ServiceCard from './_components/ServiceCard.astro';
 import CTA from '@components/shared/CTA.astro';
+import { fetchServicesPageContent } from '@services/pageContentService';
 
 const breadcrumbItems = [
   { label: 'Home', href: '/' },
   { label: 'Services', href: '/services', current: true },
 ];
+
+const content = await fetchServicesPageContent();
 
 const services = [
   {
@@ -87,8 +90,11 @@ const services = [
 ---
 
 <MainLayout
-  title="Our Services"
-  description="Explore TechPath's comprehensive IT services including AI solutions, cloud infrastructure, web development, and data analytics."
+  title={content.seo?.title ?? 'Our Services'}
+  description={content.seo?.description ?? "Explore TechPath's comprehensive IT services including AI solutions, cloud infrastructure, web development, and data analytics."}
+  image={content.seo?.image ?? undefined}
+  canonicalUrl={content.seo?.canonical_url ?? undefined}
+  noIndex={content.seo?.no_index ?? false}
 >
   <section class="py-16 lg:py-24">
     <div class="container mx-auto px-4">
@@ -97,11 +103,14 @@ const services = [
       <!-- Header -->
       <div class="mx-auto mb-16 max-w-3xl text-center">
         <h1 class="mb-6 font-heading text-4xl font-bold text-white md:text-5xl lg:text-6xl">
-          Our <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">Services</span>
+          {content.hero.title.split(content.hero.title_highlight)[0]}
+          <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+            {content.hero.title_highlight}
+          </span>
+          {content.hero.title.split(content.hero.title_highlight)[1] ?? ''}
         </h1>
         <p class="text-lg text-slate-400 md:text-xl">
-          From AI-powered solutions to cloud infrastructure, we provide end-to-end technology
-          services that drive business growth and innovation.
+          {content.hero.subheadline}
         </p>
       </div>
 
@@ -113,10 +122,10 @@ const services = [
   </section>
 
   <CTA
-    title="Need a Custom Solution?"
-    description="Let's discuss your unique requirements and build something amazing together."
-    primaryButton={{ label: 'Contact Us', href: '/contact' }}
-    secondaryButton={{ label: 'View Pricing', href: '/pricing' }}
+    title={content.cta_title}
+    description={content.cta_description}
+    primaryButton={{ label: content.cta_primary_label, href: content.cta_primary_href }}
+    secondaryButton={{ label: content.cta_secondary_label, href: content.cta_secondary_href }}
   />
 </MainLayout>
 

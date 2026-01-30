@@ -248,6 +248,11 @@ export interface ProjectItem {
   description?: string;
 }
 
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
 export interface Course {
   id: number;
   title: string;
@@ -279,6 +284,7 @@ export interface Course {
   learning_outcomes?: string[];
   prerequisites?: string[];
   projects?: ProjectItem[];
+  faqs?: FAQItem[];
   certification_name?: string;
   certification_authority?: string;
   meta_title?: string;
@@ -321,6 +327,7 @@ export interface CourseCreate {
   learning_outcomes?: string[];
   prerequisites?: string[];
   projects?: ProjectItem[];
+  faqs?: FAQItem[];
   certification_name?: string;
   certification_authority?: string;
   meta_title?: string;

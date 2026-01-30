@@ -3,140 +3,61 @@ import MainLayout from '@layouts/MainLayout.astro';
 import HeroSection from '@components/sections/HeroSection.astro';
 import FeaturesGrid from '@components/sections/FeaturesGrid.astro';
 import ServiceShowcase from '@components/sections/ServiceShowcase.astro';
+import CaseStudyShowcase from '@components/sections/CaseStudyShowcase.astro';
 import Testimonials from '@components/sections/Testimonials.astro';
 import StatCounter from '@components/sections/StatCounter.astro';
 import FAQSection from '@components/sections/FAQSection.astro';
 import CTA from '@components/shared/CTA.astro';
+import { fetchHomePageContent } from '@services/pageContentService';
+import { fetchCaseStudies, normalizeCaseStudy } from '@services/caseStudyService';
 
-const services = [
-  {
-    title: 'AI & Machine Learning',
-    description: 'Custom AI solutions powered by cutting-edge machine learning models.',
-    icon: 'brain',
-    href: '/services/ai-consulting',
-  },
-  {
-    title: 'Cloud Infrastructure',
-    description: 'Scalable cloud architecture on AWS, Azure, and Google Cloud.',
-    icon: 'cloud',
-    href: '/services/cloud-services',
-  },
-  {
-    title: 'Web Development',
-    description: 'Modern, performant web applications built with latest technologies.',
-    icon: 'code',
-    href: '/services/web-development',
-  },
-  {
-    title: 'Data Analytics',
-    description: 'Transform your data into actionable business insights.',
-    icon: 'chart',
-    href: '/services/data-analytics',
-  },
-];
-
-const stats = [
-  { value: '150+', label: 'Projects Delivered' },
-  { value: '98%', label: 'Client Satisfaction' },
-  { value: '50+', label: 'Enterprise Clients' },
-  { value: '24/7', label: 'Support Available' },
-];
-
-const features = [
-  {
-    title: 'Enterprise-Grade Security',
-    description: 'SOC 2 compliant infrastructure with end-to-end encryption.',
-    icon: 'shield',
-  },
-  {
-    title: 'Scalable Architecture',
-    description: 'Built to grow with your business from startup to enterprise.',
-    icon: 'scale',
-  },
-  {
-    title: 'Expert Team',
-    description: 'Senior engineers with 10+ years of industry experience.',
-    icon: 'users',
-  },
-  {
-    title: 'Agile Delivery',
-    description: 'Rapid iteration with continuous integration and deployment.',
-    icon: 'rocket',
-  },
-];
-
-const testimonials = [
-  {
-    quote:
-      'TechPath transformed our legacy systems into a modern, AI-powered platform. The results exceeded our expectations.',
-    author: 'Sarah Chen',
-    role: 'CTO',
-    company: 'FinanceFlow Inc.',
-    avatar: '/images/testimonials/sarah.jpg',
-  },
-  {
-    quote:
-      'Their expertise in cloud migration saved us 40% on infrastructure costs while improving performance.',
-    author: 'Michael Roberts',
-    role: 'VP Engineering',
-    company: 'RetailMax',
-    avatar: '/images/testimonials/michael.jpg',
-  },
-  {
-    quote:
-      'The team delivered our AI chatbot ahead of schedule. Customer satisfaction improved by 35%.',
-    author: 'Emily Watson',
-    role: 'Director of Operations',
-    company: 'HealthTech Solutions',
-    avatar: '/images/testimonials/emily.jpg',
-  },
-];
-
-const faqs = [
-  {
-    question: 'What industries do you specialize in?',
-    answer:
-      'We work across multiple industries including healthcare, finance, retail, and technology. Our solutions are tailored to meet specific industry requirements and compliance standards.',
-  },
-  {
-    question: 'How long does a typical project take?',
-    answer:
-      'Project timelines vary based on scope and complexity. A typical MVP takes 8-12 weeks, while enterprise solutions may take 4-6 months. We provide detailed timelines during our initial consultation.',
-  },
-  {
-    question: 'Do you offer ongoing support and maintenance?',
-    answer:
-      'Yes, we offer 24/7 support packages including monitoring, updates, security patches, and performance optimization. Our team ensures your systems run smoothly post-launch.',
-  },
-  {
-    question: 'What is your development methodology?',
-    answer:
-      'We follow Agile methodology with 2-week sprints, regular demos, and continuous feedback loops. This ensures transparency and allows for quick adjustments based on your needs.',
-  },
-];
+const content = await fetchHomePageContent();
+const caseStudiesSection = content.case_studies_section ?? {
+  section_title: 'Featured Case Studies',
+  section_subtitle: "Real stories of digital transformation. See how we've helped businesses achieve measurable results.",
+  limit: 6,
+  view_all_label: 'View All Case Studies',
+  view_all_href: '/case-studies',
+};
+const apiCaseStudies = await fetchCaseStudies({
+  limit: caseStudiesSection.limit ?? 6,
+  featured: true,
+});
+const caseStudies = apiCaseStudies.map(normalizeCaseStudy);
 ---
 
 <MainLayout
-  title="AI-Powered IT Solutions"
-  description="TechPath delivers enterprise-grade AI solutions, cloud infrastructure, and custom software development for modern businesses."
+  title={content.seo?.title ?? 'AI-Powered IT Solutions'}
+  description={content.seo?.description ?? 'TechPath delivers enterprise-grade AI solutions, cloud infrastructure, and custom software development for modern businesses.'}
+  image={content.seo?.image ?? undefined}
+  canonicalUrl={content.seo?.canonical_url ?? undefined}
+  noIndex={content.seo?.no_index ?? false}
 >
-  <HeroSection />
+  <HeroSection hero={content.hero} />
 
-  <StatCounter stats={stats} />
+  <StatCounter stats={content.stats} />
 
-  <ServiceShowcase services={services} />
+  <ServiceShowcase services={content.services} />
 
-  <FeaturesGrid features={features} />
+  <CaseStudyShowcase
+    caseStudies={caseStudies}
+    title={caseStudiesSection.section_title}
+    subtitle={caseStudiesSection.section_subtitle}
+    viewAllLabel={caseStudiesSection.view_all_label}
+    viewAllHref={caseStudiesSection.view_all_href}
+  />
 
-  <Testimonials testimonials={testimonials} />
+  <FeaturesGrid features={content.features} />
 
-  <FAQSection faqs={faqs} />
+  <Testimonials testimonials={content.testimonials} />
+
+  <FAQSection faqs={content.faqs} />
 
   <CTA
-    title="Ready to Transform Your Business?"
-    description="Let's discuss how our AI-powered solutions can drive your digital transformation."
-    primaryButton={{ label: 'Get Started', href: '/contact' }}
-    secondaryButton={{ label: 'View Case Studies', href: '/case-studies' }}
+    title={content.cta.title}
+    description={content.cta.description}
+    primaryButton={{ label: content.cta.primary_label, href: content.cta.primary_href }}
+    secondaryButton={{ label: content.cta.secondary_label, href: content.cta.secondary_href }}
   />
 </MainLayout>
 

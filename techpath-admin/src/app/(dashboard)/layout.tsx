@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth.store';
 import { useUIStore } from '@/store/ui.store';
@@ -15,19 +15,26 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { token, isAuthenticated, setLoading, isLoading } = useAuthStore();
+  const { token, setLoading, isLoading } = useAuthStore();
   const { sidebarCollapsed } = useUIStore();
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
-    // Check authentication
+    const unsub = useAuthStore.persist?.onFinishHydration?.(() => setHasHydrated(true));
+    if (useAuthStore.persist?.hasHydrated?.()) setHasHydrated(true);
+    return () => unsub?.();
+  }, []);
+
+  useEffect(() => {
+    if (!hasHydrated) return;
     if (!token) {
       router.push('/login');
       return;
     }
     setLoading(false);
-  }, [token, router, setLoading]);
+  }, [hasHydrated, token, router, setLoading]);
 
-  if (isLoading || !isAuthenticated) {
+  if (!hasHydrated || isLoading || !token) {
     return <PageLoader />;
   }
 

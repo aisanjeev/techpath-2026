@@ -77,12 +77,14 @@ export function normalizeApiPost(post: ApiBlogPost | ApiBlogPostList) {
  */
 export async function fetchBlogPosts(options?: {
   limit?: number;
+  skip?: number;
   featured?: boolean;
   tag?: string;
 }): Promise<ApiBlogPostList[]> {
   try {
     const params = new URLSearchParams();
     if (options?.limit) params.set('limit', options.limit.toString());
+    if (options?.skip != null) params.set('skip', options.skip.toString());
     if (options?.featured !== undefined) params.set('featured', options.featured.toString());
     if (options?.tag) params.set('tag', options.tag);
 
@@ -98,6 +100,41 @@ export async function fetchBlogPosts(options?: {
   } catch (error) {
     console.error('Error fetching blog posts from API:', error);
     return [];
+  }
+}
+
+/**
+ * Fetch published blog posts with pagination; returns posts and total count.
+ * Use for archive/list pages that need pagination UI.
+ */
+export async function fetchBlogPostsPaginated(options: {
+  limit: number;
+  skip: number;
+  tag?: string;
+}): Promise<{ posts: ApiBlogPostList[]; total: number }> {
+  try {
+    const params = new URLSearchParams();
+    params.set('limit', options.limit.toString());
+    params.set('skip', options.skip.toString());
+    if (options.tag) params.set('tag', options.tag);
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/blog/posts?${params.toString()}`);
+    
+    if (!response.ok) {
+      console.error('Failed to fetch blog posts from API:', response.status);
+      return { posts: [], total: 0 };
+    }
+
+    const totalHeader = response.headers.get('X-Total-Count');
+    const total = totalHeader != null ? parseInt(totalHeader, 10) : 0;
+    const posts: ApiBlogPostList[] = await response.json();
+    return {
+      posts,
+      total: Number.isNaN(total) ? posts.length : total,
+    };
+  } catch (error) {
+    console.error('Error fetching blog posts from API:', error);
+    return { posts: [], total: 0 };
   }
 }
 

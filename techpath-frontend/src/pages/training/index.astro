@@ -15,8 +15,8 @@ import TrainingEnquiryForm from './_components/TrainingEnquiryForm.astro';
 import FAQSection from '@components/sections/FAQSection.astro';
 import CTA from '@components/shared/CTA.astro';
 import { fetchCourses, normalizeApiCourse } from '@services/courseService';
+import { fetchTrainingPageContent, getDefaultTrainingContent } from '@services/trainingContentService';
 
-// Fetch courses from API (SSR)
 export const prerender = false;
 
 let courses: any[] = [];
@@ -30,64 +30,32 @@ try {
   fetchError = true;
 }
 
-// Training-specific FAQs
-const trainingFaqs = [
-  {
-    question: "Do I need prior coding experience to enroll?",
-    answer: "It depends on the course. Our beginner-level courses like MERN Full Stack and Data Analytics are designed for absolute beginners. Intermediate and advanced courses may require basic programming knowledge. Each course page lists specific prerequisites."
-  },
-  {
-    question: "What is your job guarantee policy?",
-    answer: "We offer placement assistance with a 94% success rate. While we can't legally guarantee a job, we provide resume building, mock interviews, and connect you with our 500+ hiring partners. If you don't get placed within 6 months of completion, you get a 50% refund."
-  },
-  {
-    question: "What if I don't like the course?",
-    answer: "We offer a 30-day money-back guarantee. If you're not satisfied within the first 30 days, simply request a refund - no questions asked. We want you to be 100% confident in your investment."
-  },
-  {
-    question: "Can I access the course content after completion?",
-    answer: "Yes! You get lifetime access to all course materials, including any future updates. You can revisit lessons, download resources, and access recordings anytime."
-  },
-  {
-    question: "What are the class timings?",
-    answer: "We offer flexible timing with both weekday (evening) and weekend batches. Live classes are recorded, so you can catch up if you miss a session. Most courses have 2-3 live sessions per week, each 2-3 hours long."
-  },
-  {
-    question: "Is there EMI option available?",
-    answer: "Yes! We offer flexible EMI options starting from ₹2,000/month depending on the course. We've partnered with leading fintech providers to offer 0% interest EMI for select courses."
-  },
-  {
-    question: "What projects will I build?",
-    answer: "Each course includes 5-10 hands-on projects that you'll add to your GitHub portfolio. Projects are industry-relevant and designed with input from hiring managers. You'll have real deployable applications by the end."
-  },
-  {
-    question: "How are the live classes conducted?",
-    answer: "Classes are conducted via Zoom with small batches (max 15-25 students). You'll interact directly with instructors, participate in live coding, and get instant doubt resolution. All sessions are recorded for later viewing."
-  },
-];
+// Training page content from API; fallback when API unavailable
+const contentFromApi = await fetchTrainingPageContent();
+const content = contentFromApi ?? getDefaultTrainingContent();
 
-// Schema.org JSON-LD for SEO
+// Schema.org JSON-LD for SEO (uses content.schema_defaults + courses)
 const schemaOrg = {
   "@context": "https://schema.org",
   "@type": "EducationalOrganization",
-  "name": "TechPath Training",
-  "description": "Online tech courses and certification programs with live instructor training",
+  "name": content.schema_defaults.name,
+  "description": content.schema_defaults.description,
   "url": "https://techpath.biz/training",
   "logo": "https://techpath.biz/images/techpath-logo.webp",
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "reviewCount": "2000",
+    "ratingValue": content.schema_defaults.rating_value,
+    "reviewCount": content.schema_defaults.review_count,
     "bestRating": "5"
   },
   ...(courses.length > 0 && {
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
       "name": "Tech Training Courses",
-      "itemListElement": courses.slice(0, 5).map(course => ({
+      "itemListElement": courses.slice(0, 5).map((course: { name: string; skills: string[]; price: number }) => ({
         "@type": "Course",
         "name": course.name,
-        "description": `Learn ${course.skills.join(', ')} with live instructor training`,
+        "description": `Learn ${course.skills?.join(', ') || ''} with live instructor training`,
         "provider": {
           "@type": "Organization",
           "name": "TechPath"
@@ -104,11 +72,14 @@ const schemaOrg = {
 ---
 
 <MainLayout
-  title="Online Tech Courses | Certificate Programs | TechPath Training"
-  description="Learn Data Science, AI, Cloud, Web Development with live instructors. Courses from ₹7K. 94% job placement. 30-day money-back guarantee. Enroll now!"
+  title={content.seo?.title ?? 'Online Tech Courses | Certificate Programs | TechPath Training'}
+  description={content.seo?.description ?? 'Learn Data Science, AI, Cloud, Web Development with live instructors. Courses from ₹7K. 94% job placement. 30-day money-back guarantee. Enroll now!'}
+  image={content.seo?.image ?? undefined}
+  canonicalUrl={content.seo?.canonical_url ?? undefined}
+  noIndex={content.seo?.no_index ?? false}
 >
   <!-- Schema.org JSON-LD -->
-  <script type="application/ld+json" set:html={JSON.stringify(schemaOrg)} />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(schemaOrg)} />
 
   <!-- Main Content with Sticky Form Sidebar on Desktop -->
   <div class="relative">
@@ -122,13 +93,13 @@ const schemaOrg = {
     <!-- Main Content -->
     <div class="main-content">
       <!-- Section 1: Hero -->
-      <TrainingHero />
+      <TrainingHero hero={content.hero} />
 
       <!-- Section 2: Pain Points -->
-      <PainPointsSection />
+      <PainPointsSection painPoints={content.pain_points} />
 
       <!-- Section 3: USP / Why Choose Us -->
-      <USPSection />
+      <USPSection usps={content.usps} />
 
       <!-- Section 4: Course Catalog -->
       {fetchError ? (
@@ -163,10 +134,10 @@ const schemaOrg = {
       )}
 
       <!-- Section 5: Transformation Stories -->
-      <TransformationStories />
+      <TransformationStories stories={content.stories} />
 
       <!-- Section 6: Offer + Urgency -->
-      <OfferBanner />
+      <OfferBanner offerBanner={content.offer_banner} />
 
       <!-- Section 7: FAQ -->
       <section class="bg-slate-950 py-16 lg:py-24">
@@ -182,7 +153,7 @@ const schemaOrg = {
               Got questions? We've got answers.
             </p>
           </div>
-          <FAQSection faqs={trainingFaqs} />
+          <FAQSection faqs={content.faqs} />
         </div>
       </section>
     </div>
@@ -193,10 +164,10 @@ const schemaOrg = {
 
   <!-- Final CTA -->
   <CTA
-    title="Ready to Transform Your Career?"
-    description="Join 50,000+ students who've changed their lives with TechPath training."
-    primaryButton={{ label: 'Explore Courses', href: '#courses' }}
-    secondaryButton={{ label: 'Talk to Counselor', href: '/contact' }}
+    title={content.cta.title}
+    description={content.cta.description}
+    primaryButton={{ label: content.cta.primary_button.label, href: content.cta.primary_button.href }}
+    secondaryButton={{ label: content.cta.secondary_button.label, href: content.cta.secondary_button.href }}
   />
 </MainLayout>
 

@@ -185,7 +185,7 @@ const faqCategories: FAQCategory[] = [
             </h2>
             
             <div class="space-y-4">
-              {category.questions.map((faq, faqIndex) => (
+              {category.questions.map((faq, _faqIndex) => (
                 <details class="faq-item group rounded-xl border border-slate-800 bg-slate-900/50 overflow-hidden">
                   <summary class="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer select-none">
                     <span class="font-medium text-white group-open:text-primary-400 transition-colors">

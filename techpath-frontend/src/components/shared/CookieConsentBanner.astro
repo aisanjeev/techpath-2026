@@ -1,0 +1,274 @@
+---
+/**
+ * Cookie Consent Banner
+ * Fixed to bottom of viewport; stores choice in localStorage.
+ * Include in MainLayout so it appears on every page.
+ */
+interface Props {
+  /** Message shown in the banner */
+  message?: string;
+  /** Label for "Accept All" button */
+  acceptLabel?: string;
+  /** Label for "Reject Non-Essential" button */
+  rejectLabel?: string;
+  /** Link to cookie policy (optional) */
+  policyHref?: string;
+  /** localStorage key for the user's choice */
+  storageKey?: string;
+}
+
+const {
+  message = "We use cookies to improve your experience, analyze site traffic, and personalize content. By clicking \"Accept All\", you consent to our use of cookies. See our ",
+  acceptLabel = "Accept All Cookies",
+  rejectLabel = "Reject Non-Essential",
+  policyHref = "/cookies",
+  storageKey = "techpath_cookie_consent",
+} = Astro.props;
+---
+
+<div
+  id="cookie-consent-banner"
+  class="cookie-banner"
+  data-consent-storage-key={storageKey}
+  role="dialog"
+  aria-label="Cookie consent"
+  aria-live="polite"
+  hidden
+>
+  <div class="cookie-banner__inner">
+    <p class="cookie-banner__message">
+      {message}
+      {policyHref ? (
+        <>
+          <a href={policyHref} class="cookie-banner__link">
+            Cookie Policy
+          </a>
+          {' for more.'}
+        </>
+      ) : null}
+    </p>
+    <div class="cookie-banner__actions">
+      <button type="button" class="cookie-banner__btn cookie-banner__btn--reject" data-action="reject">
+        {rejectLabel}
+      </button>
+      <button type="button" class="cookie-banner__btn cookie-banner__btn--accept" data-action="accept">
+        {acceptLabel}
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 9999;
+    padding: 1rem;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    background: linear-gradient(to top, rgb(15 23 42), rgb(30 41 59));
+    border-top: 1px solid rgb(51 65 85);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+    transform: translateY(100%);
+    opacity: 0;
+    visibility: hidden;
+    overflow-x: clip;
+    overflow-y: visible;
+    transition:
+      transform 0.35s ease-out,
+      opacity 0.35s ease-out,
+      visibility 0.35s;
+  }
+
+  .cookie-banner.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .cookie-banner[hidden] {
+    display: block !important;
+    transform: translateY(100%);
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .cookie-banner[hidden].is-visible {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .cookie-banner__inner {
+    max-width: min(1200px, 100%);
+    width: 100%;
+    min-width: 0;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    box-sizing: border-box;
+  }
+
+  .cookie-banner__message {
+    flex: 1 1 280px;
+    min-width: 0;
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: rgb(203 213 225);
+    overflow-wrap: break-word;
+  }
+
+  .cookie-banner__link {
+    color: rgb(94 234 212);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .cookie-banner__link:hover {
+    color: rgb(45 212 191);
+  }
+
+  .cookie-banner__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .cookie-banner__btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    border: none;
+  }
+
+  .cookie-banner__btn--reject {
+    background: transparent;
+    color: rgb(203 213 225);
+    border: 1px solid rgb(71 85 105);
+  }
+
+  .cookie-banner__btn--reject:hover {
+    background: rgb(51 65 85);
+    color: rgb(226 232 240);
+  }
+
+  .cookie-banner__btn--accept {
+    background: rgb(94 234 212);
+    color: rgb(15 23 42);
+  }
+
+  .cookie-banner__btn--accept:hover {
+    background: rgb(45 212 191);
+  }
+
+  @media (max-width: 640px) {
+    .cookie-banner {
+      padding: 0.75rem;
+      padding-left: max(0.75rem, env(safe-area-inset-left));
+      padding-right: max(0.75rem, env(safe-area-inset-right));
+      padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+
+    .cookie-banner__inner {
+      flex-direction: column;
+      align-items: stretch;
+      text-align: center;
+      gap: 0.75rem;
+    }
+
+    .cookie-banner__message {
+      flex: none;
+      width: 100%;
+    }
+
+    .cookie-banner__actions {
+      justify-content: stretch;
+      gap: 0.5rem;
+    }
+
+    .cookie-banner__btn {
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const bannerEl = document.getElementById('cookie-consent-banner');
+    const STORAGE_KEY =
+      bannerEl?.getAttribute('data-consent-storage-key') ?? 'techpath_cookie_consent';
+
+    if (!bannerEl) return;
+    const banner = bannerEl;
+
+    type ConsentStatus = 'accept' | 'reject' | null;
+
+    function getStoredConsent(): ConsentStatus {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw === 'accept' || raw === 'reject') return raw;
+      } catch {
+        /* ignore */
+      }
+      return null;
+    }
+
+    function setStoredConsent(value: 'accept' | 'reject'): void {
+      try {
+        localStorage.setItem(STORAGE_KEY, value);
+      } catch {
+        /* ignore */
+      }
+    }
+
+    function hideBanner(): void {
+      banner?.classList.remove('is-visible');
+      banner?.setAttribute('hidden', '');
+    }
+
+    function showBanner(): void {
+      banner?.removeAttribute('hidden');
+      requestAnimationFrame(() => {
+        banner?.classList.add('is-visible');
+      });
+    }
+
+    function onAccept(): void {
+      setStoredConsent('accept');
+      hideBanner();
+      document.dispatchEvent(new CustomEvent('cookie-consent-accept'));
+    }
+
+    function onReject(): void {
+      setStoredConsent('reject');
+      hideBanner();
+      document.dispatchEvent(new CustomEvent('cookie-consent-reject'));
+    }
+
+    banner.querySelectorAll('[data-action="accept"]').forEach((el) => {
+      el.addEventListener('click', onAccept);
+    });
+    banner.querySelectorAll('[data-action="reject"]').forEach((el) => {
+      el.addEventListener('click', onReject);
+    });
+
+    if (getStoredConsent() === null) {
+      showBanner();
+    }
+  })();
+</script>

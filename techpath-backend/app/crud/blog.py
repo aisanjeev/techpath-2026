@@ -161,6 +161,42 @@ class CRUDBlogPost(CRUDBase[BlogPost, BlogPostCreate, BlogPostUpdate]):
         result = await db.execute(query)
         return list(result.scalars().all())
 
+    async def get_multi_count(
+        self,
+        db: AsyncSession,
+        *,
+        filters: Optional[Dict[str, Any]] = None,
+    ) -> int:
+        """Count posts with same filters as get_multi (no pagination)."""
+        query = select(func.count()).select_from(BlogPost)
+        if filters:
+            for field, value in filters.items():
+                if hasattr(BlogPost, field) and value is not None:
+                    query = query.where(getattr(BlogPost, field) == value)
+        result = await db.execute(query)
+        return result.scalar() or 0
+
+    async def get_published_count(
+        self,
+        db: AsyncSession,
+        *,
+        featured: Optional[bool] = None,
+        tag_slug: Optional[str] = None,
+        category_slug: Optional[str] = None,
+    ) -> int:
+        """Count published posts with same filters as get_published."""
+        query = select(BlogPost.id).where(BlogPost.status == "published")
+        if featured is not None:
+            query = query.where(BlogPost.featured == featured)
+        if tag_slug:
+            query = query.join(BlogPost.tags).where(BlogTag.slug == tag_slug)
+        if category_slug:
+            query = query.join(BlogPost.category).where(
+                BlogCategory.slug == category_slug
+            )
+        result = await db.execute(select(func.count()).select_from(query.subquery()))
+        return result.scalar() or 0
+
     async def get_by_slug(self, db: AsyncSession, slug: str) -> Optional[BlogPost]:
         """Get post by slug with tags and category loaded."""
         result = await db.execute(

@@ -1,5 +1,6 @@
 """Error handling middleware and exception handlers."""
 import logging
+import traceback
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request, status
@@ -10,6 +11,10 @@ from pydantic import ValidationError
 from app.core.exceptions import APIException
 
 logger = logging.getLogger(__name__)
+
+# #region agent log
+DEBUG_LOG_PATH = r"d:\project\techpath\techpath-2026\.cursor\debug.log"
+# #endregion
 
 
 def setup_exception_handlers(app: FastAPI) -> None:
@@ -113,6 +118,28 @@ def setup_exception_handlers(app: FastAPI) -> None:
                 "method": request.method,
             },
         )
+        # #region agent log
+        try:
+            import json
+            entry = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "sessionId": "debug-session",
+                "hypothesisId": "H500",
+                "location": "error_handlers.py:general_exception_handler",
+                "message": "Unhandled exception causing 500",
+                "data": {
+                    "path": request.url.path,
+                    "method": request.method,
+                    "exc_type": type(exc).__name__,
+                    "exc_message": str(exc),
+                    "traceback": traceback.format_exc(),
+                },
+            }
+            with open(DEBUG_LOG_PATH, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, default=str) + "\n")
+        except Exception:
+            pass
+        # #endregion
 
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

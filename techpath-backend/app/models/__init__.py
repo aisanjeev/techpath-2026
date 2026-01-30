@@ -9,6 +9,7 @@ from app.models.media import MediaFile, MediaFileUsage
 from app.models.course import Course, CourseCategory, CourseEnrollment, Skill, course_skills
 from app.models.secret import SecretMetadata
 from app.models.app_setting import AppSetting
+from app.models.pilot_signup import PilotSignup
 
 __all__ = [
     "Base",
@@ -32,5 +33,6 @@ __all__ = [
     "course_skills",
     "SecretMetadata",
     "AppSetting",
+    "PilotSignup",
 ]
 

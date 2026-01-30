@@ -22,10 +22,11 @@ export const blogService = {
           tag: params.tag,
         },
       });
-      // Backend returns array, wrap in paginated format
+      const totalHeader = response.headers?.['x-total-count'];
+      const total = totalHeader != null ? parseInt(String(totalHeader), 10) : response.data.length;
       return {
         items: response.data,
-        total: response.data.length,
+        total: Number.isNaN(total) ? response.data.length : total,
       };
     } catch (error) {
       throw handleApiError(error);

@@ -1,5 +1,30 @@
 ---
+interface HomeHero {
+  badge_text: string;
+  headline: string;
+  headline_highlight: string;
+  subheadline: string;
+  primary_cta_label: string;
+  primary_cta_href: string;
+  secondary_cta_label: string;
+  secondary_cta_href: string;
+}
 
+interface Props {
+  hero?: HomeHero;
+}
+
+const { hero: heroProp } = Astro.props;
+const hero = heroProp ?? {
+  badge_text: 'Now offering GenAI Solutions',
+  headline: 'AI-Powered IT Solutions for',
+  headline_highlight: 'Modern Enterprises',
+  subheadline: 'Transform your business with cutting-edge AI, cloud infrastructure, and custom software solutions. We help enterprises innovate faster and scale smarter.',
+  primary_cta_label: 'Start Your Project',
+  primary_cta_href: '/contact',
+  secondary_cta_label: 'Watch Demo',
+  secondary_cta_href: '/case-studies',
+};
 ---
 
 <section class="relative overflow-hidden py-20 lg:py-32">
@@ -19,30 +44,29 @@
           <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-400 opacity-75"></span>
           <span class="relative inline-flex h-2 w-2 rounded-full bg-primary-500"></span>
         </span>
-        <span class="text-sm font-medium text-primary-400">Now offering GenAI Solutions</span>
+        <span class="text-sm font-medium text-primary-400">{hero.badge_text}</span>
       </div>
 
       <!-- Headline -->
       <h1 class="mb-6 font-heading text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl xl:text-7xl">
-        AI-Powered IT Solutions for
+        {hero.headline}
         <span class="bg-gradient-to-r from-primary-400 via-secondary-400 to-accent-400 bg-clip-text text-transparent">
-          Modern Enterprises
+          {hero.headline_highlight}
         </span>
       </h1>
 
       <!-- Subheadline -->
       <p class="mx-auto mb-10 max-w-2xl text-lg text-slate-400 md:text-xl">
-        Transform your business with cutting-edge AI, cloud infrastructure, and custom software
-        solutions. We help enterprises innovate faster and scale smarter.
+        {hero.subheadline}
       </p>
 
       <!-- CTA Buttons -->
       <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
         <a
-          href="/contact"
+          href={hero.primary_cta_href}
           class="group inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 px-8 py-4 font-semibold text-white transition-all hover:from-primary-600 hover:to-primary-700 hover:shadow-xl hover:shadow-primary-500/25"
         >
-          Start Your Project
+          {hero.primary_cta_label}
           <svg
             class="h-5 w-5 transition-transform group-hover:translate-x-1"
             fill="none"
@@ -53,7 +77,7 @@
           </svg>
         </a>
         <a
-          href="/case-studies"
+          href={hero.secondary_cta_href}
           class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-800/50 px-8 py-4 font-semibold text-white backdrop-blur-sm transition-all hover:border-slate-600 hover:bg-slate-800"
         >
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -69,7 +93,7 @@
               stroke-width="2"
               d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          Watch Demo
+          {hero.secondary_cta_label}
         </a>
       </div>
 

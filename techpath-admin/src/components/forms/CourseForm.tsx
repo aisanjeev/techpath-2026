@@ -16,7 +16,7 @@ import { MarkdownEditor } from '@/components/editors/MarkdownEditor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { slugify } from '@/lib/utils/format';
 import { courseService } from '@/services/course.service';
-import type { Course, CourseCategory, Skill, CourseCategoryTree } from '@/types/api';
+import type { Course, CourseCategory, Skill, CourseCategoryTree, CurriculumModule, ProjectItem, FAQItem } from '@/types/api';
 
 interface CourseFormProps {
   initialData?: Course;
@@ -39,12 +39,19 @@ export function CourseForm({ initialData, onSubmit, isLoading }: CourseFormProps
   );
   const [newOutcome, setNewOutcome] = useState('');
   const [newPrereq, setNewPrereq] = useState('');
+  const [curriculum, setCurriculum] = useState<CurriculumModule[]>(initialData?.curriculum || []);
+  const [projects, setProjects] = useState<ProjectItem[]>(initialData?.projects || []);
+  const [faqs, setFaqs] = useState<FAQItem[]>(initialData?.faqs || []);
+  const [newTopicByModule, setNewTopicByModule] = useState<Record<number, string>>({});
+  const [newSkillName, setNewSkillName] = useState('');
+  const [addingSkill, setAddingSkill] = useState(false);
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
@@ -84,6 +91,9 @@ export function CourseForm({ initialData, onSubmit, isLoading }: CourseFormProps
       skill_ids: initialData?.skills.map((s) => s.id) || [],
       learning_outcomes: initialData?.learning_outcomes || [],
       prerequisites: initialData?.prerequisites || [],
+      curriculum: initialData?.curriculum || [],
+      projects: initialData?.projects || [],
+      faqs: initialData?.faqs || [],
     },
   });
 
@@ -138,6 +148,39 @@ export function CourseForm({ initialData, onSubmit, isLoading }: CourseFormProps
     setValue('skill_ids', newSkills);
   };
 
+  const addNewSkill = async () => {
+    const name = newSkillName.trim();
+    if (!name) return;
+    setAddingSkill(true);
+    try {
+      const slug = slugify(name);
+      const newSkill = await courseService.createSkill({ name, slug });
+      setSkills((prev) => (prev.some((s) => s.id === newSkill.id) ? prev : [...prev, newSkill]));
+      const nextIds = selectedSkills.includes(newSkill.id)
+        ? selectedSkills
+        : [...selectedSkills, newSkill.id];
+      setSelectedSkills(nextIds);
+      setValue('skill_ids', nextIds);
+      setNewSkillName('');
+    } catch (error) {
+      console.error('Error creating skill:', error);
+      const err = error as { response?: { status?: number } };
+      if (err.response?.status === 409) {
+        const existing = skills.find((s) => s.slug === slugify(name));
+        if (existing) {
+          const nextIds = selectedSkills.includes(existing.id)
+            ? selectedSkills
+            : [...selectedSkills, existing.id];
+          setSelectedSkills(nextIds);
+          setValue('skill_ids', nextIds);
+          setNewSkillName('');
+        }
+      }
+    } finally {
+      setAddingSkill(false);
+    }
+  };
+
   const addLearningOutcome = () => {
     if (newOutcome.trim()) {
       const updated = [...learningOutcomes, newOutcome.trim()];
@@ -168,12 +211,131 @@ export function CourseForm({ initialData, onSubmit, isLoading }: CourseFormProps
     setValue('prerequisites', updated);
   };
 
+  const addCurriculumModule = () => {
+    const updated = [...curriculum, { title: '', topics: [] }];
+    setCurriculum(updated);
+    setValue('curriculum', updated);
+  };
+
+  const updateCurriculumModule = (index: number, field: 'title' | 'duration', value: string) => {
+    const updated = curriculum.map((m, i) =>
+      i === index ? { ...m, [field]: value } : m
+    );
+    setCurriculum(updated);
+    setValue('curriculum', updated);
+  };
+
+  const updateCurriculumTopics = (moduleIndex: number, topics: string[]) => {
+    setCurriculum((prev) => {
+      const updated = prev.map((m, i) =>
+        i === moduleIndex ? { ...m, topics } : m
+      );
+      setValue('curriculum', updated);
+      return updated;
+    });
+  };
+
+  const addTopicToModule = (moduleIndex: number, topic: string) => {
+    if (!topic.trim()) return;
+    setCurriculum((prev) => {
+      const mod = prev[moduleIndex];
+      const topics = [...(mod?.topics || []), topic.trim()];
+      const updated = prev.map((m, i) =>
+        i === moduleIndex ? { ...m, topics } : m
+      );
+      setValue('curriculum', updated);
+      return updated;
+    });
+  };
+
+  const removeTopicFromModule = (moduleIndex: number, topicIndex: number) => {
+    setCurriculum((prev) => {
+      const mod = prev[moduleIndex];
+      const topics = (mod?.topics || []).filter((_, i) => i !== topicIndex);
+      const updated = prev.map((m, i) =>
+        i === moduleIndex ? { ...m, topics } : m
+      );
+      setValue('curriculum', updated);
+      return updated;
+    });
+  };
+
+  const removeCurriculumModule = (index: number) => {
+    const updated = curriculum.filter((_, i) => i !== index);
+    setCurriculum(updated);
+    setValue('curriculum', updated);
+  };
+
+  const addProject = () => {
+    const updated = [...projects, { title: '' }];
+    setProjects(updated);
+    setValue('projects', updated);
+  };
+
+  const updateProject = (index: number, field: 'title' | 'description', value: string) => {
+    const updated = projects.map((p, i) =>
+      i === index ? { ...p, [field]: value } : p
+    );
+    setProjects(updated);
+    setValue('projects', updated);
+  };
+
+  const removeProject = (index: number) => {
+    const updated = projects.filter((_, i) => i !== index);
+    setProjects(updated);
+    setValue('projects', updated);
+  };
+
+  const addFaq = () => {
+    const updated = [...faqs, { question: '', answer: '' }];
+    setFaqs(updated);
+    setValue('faqs', updated);
+  };
+  const updateFaq = (index: number, field: 'question' | 'answer', value: string) => {
+    const updated = faqs.map((f, i) =>
+      i === index ? { ...f, [field]: value } : f
+    );
+    setFaqs(updated);
+    setValue('faqs', updated);
+  };
+  const removeFaq = (index: number) => {
+    const updated = faqs.filter((_, i) => i !== index);
+    setFaqs(updated);
+    setValue('faqs', updated);
+  };
+
   const handleFormSubmit = async (data: CourseFormData) => {
+    // Use form values (kept in sync via setValue) so we get latest curriculum/projects/faqs including topics
+    const formCurriculum = getValues('curriculum') ?? curriculum;
+    const formProjects = getValues('projects') ?? projects;
+    const formFaqs = getValues('faqs') ?? faqs;
+    const curriculumPayload = (Array.isArray(formCurriculum) ? formCurriculum : curriculum)
+      .filter((m: CurriculumModule) => m?.title?.trim())
+      .map((m: CurriculumModule) => ({
+        title: (m.title || '').trim(),
+        topics: Array.isArray(m.topics) ? m.topics : [],
+        duration: m.duration?.trim() || undefined,
+      }));
+    const projectsPayload = (Array.isArray(formProjects) ? formProjects : projects)
+      .filter((p: ProjectItem) => p?.title?.trim())
+      .map((p: ProjectItem) => ({
+        title: (p.title || '').trim(),
+        description: p.description?.trim() || undefined,
+      }));
+    const faqsPayload = (Array.isArray(formFaqs) ? formFaqs : faqs)
+      .filter((f: FAQItem) => f?.question?.trim() && f?.answer?.trim())
+      .map((f: FAQItem) => ({
+        question: (f.question || '').trim(),
+        answer: (f.answer || '').trim(),
+      }));
     await onSubmit({
       ...data,
       skill_ids: selectedSkills,
       learning_outcomes: learningOutcomes,
       prerequisites: prerequisites,
+      curriculum: curriculumPayload,
+      projects: projectsPayload,
+      faqs: faqsPayload,
     });
   };
 
@@ -487,6 +649,176 @@ export function CourseForm({ initialData, onSubmit, isLoading }: CourseFormProps
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Curriculum (Modules)</CardTitle>
+              <p className="text-sm text-gray-500 mt-1">Add modules with title, topics, and optional duration.</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {curriculum.map((module, modIndex) => (
+                <div key={modIndex} className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Input
+                      value={module.title}
+                      onChange={(e) => updateCurriculumModule(modIndex, 'title', e.target.value)}
+                      placeholder="Module title (e.g. Introduction to Python)"
+                      className="flex-1"
+                    />
+                    <Input
+                      value={module.duration || ''}
+                      onChange={(e) => updateCurriculumModule(modIndex, 'duration', e.target.value)}
+                      placeholder="Duration (e.g. 1 week)"
+                      className="w-28"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeCurriculumModule(modIndex)}
+                      className="text-red-500 hover:text-red-700 p-1"
+                      title="Remove module"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-xs font-medium text-gray-600">Topics</span>
+                    <div className="flex flex-wrap gap-2">
+                      {(module.topics || []).map((topic, topicIndex) => (
+                        <span
+                          key={topicIndex}
+                          className="inline-flex items-center gap-1 rounded-full bg-teal-100 px-2 py-0.5 text-sm text-teal-800"
+                        >
+                          {topic}
+                          <button
+                            type="button"
+                            onClick={() => removeTopicFromModule(modIndex, topicIndex)}
+                            className="hover:text-teal-600"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        value={newTopicByModule[modIndex] ?? ''}
+                        onChange={(e) => setNewTopicByModule((prev) => ({ ...prev, [modIndex]: e.target.value }))}
+                        placeholder="Add topic, press Enter"
+                        className="flex-1"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const v = newTopicByModule[modIndex]?.trim();
+                            if (v) {
+                              addTopicToModule(modIndex, v);
+                              setNewTopicByModule((prev) => ({ ...prev, [modIndex]: '' }));
+                            }
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          const v = newTopicByModule[modIndex]?.trim();
+                          if (v) {
+                            addTopicToModule(modIndex, v);
+                            setNewTopicByModule((prev) => ({ ...prev, [modIndex]: '' }));
+                          }
+                        }}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <Button type="button" variant="outline" onClick={addCurriculumModule} className="w-full">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Module
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Frequently Asked Questions</CardTitle>
+              <p className="text-sm text-gray-500 mt-1">Course-specific FAQs shown on the course detail page.</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {faqs.map((faq, index) => (
+                <div key={index} className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      value={faq.question}
+                      onChange={(e) => updateFaq(index, 'question', e.target.value)}
+                      placeholder="Question"
+                      className="flex-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeFaq(index)}
+                      className="text-red-500 hover:text-red-700 p-1 shrink-0"
+                      title="Remove FAQ"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <Textarea
+                    value={faq.answer}
+                    onChange={(e) => updateFaq(index, 'answer', e.target.value)}
+                    placeholder="Answer"
+                    rows={2}
+                    className="resize-none"
+                  />
+                </div>
+              ))}
+              <Button type="button" variant="outline" onClick={addFaq} className="w-full">
+                <Plus className="h-4 w-4 mr-2" />
+                Add FAQ
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Projects</CardTitle>
+              <p className="text-sm text-gray-500 mt-1">Hands-on projects included in the course.</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {projects.map((project, index) => (
+                <div key={index} className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      value={project.title}
+                      onChange={(e) => updateProject(index, 'title', e.target.value)}
+                      placeholder="Project title"
+                      className="flex-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeProject(index)}
+                      className="text-red-500 hover:text-red-700 p-1"
+                      title="Remove project"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <Textarea
+                    value={project.description || ''}
+                    onChange={(e) => updateProject(index, 'description', e.target.value)}
+                    placeholder="Brief description (optional)"
+                    rows={2}
+                    className="resize-none"
+                  />
+                </div>
+              ))}
+              <Button type="button" variant="outline" onClick={addProject} className="w-full">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Project
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Sidebar */}
@@ -502,6 +834,7 @@ export function CourseForm({ initialData, onSubmit, isLoading }: CourseFormProps
                   <option value="published">Published</option>
                   <option value="archived">Archived</option>
                 </Select>
+                <p className="text-xs text-amber-600 mt-1">Set to <strong>Published</strong> and keep <strong>Active</strong> on for the course to appear on the website.</p>
               </FormField>
 
               <Switch
@@ -560,8 +893,9 @@ export function CourseForm({ initialData, onSubmit, isLoading }: CourseFormProps
           <Card>
             <CardHeader>
               <CardTitle>Skills / Tags</CardTitle>
+              <p className="text-sm text-gray-500 mt-1">Select existing skills or add a new one below.</p>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               <div className="flex flex-wrap gap-2">
                 {skills.map((skill) => (
                   <button
@@ -577,7 +911,28 @@ export function CourseForm({ initialData, onSubmit, isLoading }: CourseFormProps
                     {skill.name}
                   </button>
                 ))}
-                {skills.length === 0 && <p className="text-sm text-gray-500">No skills available</p>}
+                {skills.length === 0 && (
+                  <p className="text-sm text-gray-500">No skills yet. Add one below.</p>
+                )}
+              </div>
+              <div className="flex gap-2 border-t border-gray-200 pt-4">
+                <Input
+                  value={newSkillName}
+                  onChange={(e) => setNewSkillName(e.target.value)}
+                  placeholder="New skill or tag name"
+                  className="flex-1"
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addNewSkill())}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addNewSkill}
+                  disabled={addingSkill || !newSkillName.trim()}
+                  loading={addingSkill}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add skill
+                </Button>
               </div>
             </CardContent>
           </Card>

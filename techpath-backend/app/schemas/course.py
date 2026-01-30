@@ -90,6 +90,12 @@ class ProjectItem(BaseModel):
     description: Optional[str] = None
 
 
+class FAQItem(BaseModel):
+    """Schema for a course FAQ item."""
+    question: str = Field(..., min_length=1, max_length=500)
+    answer: str = Field(..., min_length=1)
+
+
 # ----- Course Schemas -----
 
 class CourseBase(BaseModel):
@@ -153,6 +159,7 @@ class CourseCreate(CourseBase):
     learning_outcomes: Optional[List[str]] = None
     prerequisites: Optional[List[str]] = None
     projects: Optional[List[ProjectItem]] = None
+    faqs: Optional[List[FAQItem]] = None
     skill_ids: Optional[List[int]] = None
 
 
@@ -198,7 +205,8 @@ class CourseUpdate(BaseModel):
     learning_outcomes: Optional[List[str]] = None
     prerequisites: Optional[List[str]] = None
     projects: Optional[List[ProjectItem]] = None
-    
+    faqs: Optional[List[FAQItem]] = None
+
     # Certification
     certification_name: Optional[str] = Field(None, max_length=255)
     certification_authority: Optional[str] = Field(None, max_length=255)
@@ -227,12 +235,13 @@ class CourseResponse(CourseBase):
     learning_outcomes: Optional[List[str]] = None
     prerequisites: Optional[List[str]] = None
     projects: Optional[List[ProjectItem]] = None
+    faqs: Optional[List[FAQItem]] = None
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
-    @field_validator('curriculum', 'learning_outcomes', 'prerequisites', 'projects', mode='before')
+    @field_validator('curriculum', 'learning_outcomes', 'prerequisites', 'projects', 'faqs', mode='before')
     @classmethod
     def parse_json_fields(cls, v):
         """Parse JSON string fields into Python objects."""
@@ -254,6 +263,7 @@ class CourseListResponse(BaseModel):
     price: float
     original_price: Optional[float] = None
     emi_available: bool
+    emi_amount: Optional[float] = None
     currency: str
     duration: str
     batch_size: int

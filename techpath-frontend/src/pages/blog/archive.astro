@@ -1,0 +1,131 @@
+---
+/**
+ * Blog Archive - All posts with pagination
+ * Linked from blog index "View all posts"
+ */
+import MainLayout from '@layouts/MainLayout.astro';
+import Breadcrumb from '@components/shared/Breadcrumb.astro';
+import Card from '@components/ui/Card.astro';
+import { fetchBlogPostsPaginated, normalizeApiPost } from '@services/blogService';
+
+export const prerender = false;
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'All posts', href: '/blog/archive', current: true },
+];
+
+const perPage = 12;
+const currentPage = Math.max(1, parseInt(Astro.url.searchParams.get('page') ?? '1', 10) || 1);
+const skip = (currentPage - 1) * perPage;
+
+const { posts: apiPosts, total } = await fetchBlogPostsPaginated({
+  limit: perPage,
+  skip,
+});
+
+const sortedPosts = apiPosts.map(normalizeApiPost);
+const totalPages = Math.max(1, Math.ceil(total / perPage));
+const hasPrev = currentPage > 1;
+const hasNext = currentPage < totalPages;
+const prevHref = currentPage === 2 ? '/blog/archive' : `/blog/archive?page=${currentPage - 1}`;
+const nextHref = `/blog/archive?page=${currentPage + 1}`;
+---
+
+<MainLayout
+  title="All Blog Posts | TechPath Blog"
+  description="Browse all blog posts: insights on AI, cloud, web development, and digital transformation."
+>
+  <section class="py-16 lg:py-24">
+    <div class="container mx-auto px-4">
+      <Breadcrumb items={breadcrumbItems} />
+
+      <div class="mx-auto mb-12 max-w-3xl text-center">
+        <h1 class="mb-4 font-heading text-4xl font-bold text-white md:text-5xl">
+          All <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">Posts</span>
+        </h1>
+        <p class="text-slate-400">
+          {total} post{total === 1 ? '' : 's'} in the archive
+          {totalPages > 1 ? ` · Page ${currentPage} of ${totalPages}` : ''}.
+        </p>
+      </div>
+
+      <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        {
+          sortedPosts.map((post) => (
+            <Card
+              title={post.data.title}
+              description={post.data.description}
+              href={post.source === 'api' ? `/blog/api/${post.slug}` : `/blog/${post.slug}`}
+              image={post.data.image ?? undefined}
+              meta={`${post.data.author} • ${new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              }).format(post.data.pubDate)}`}
+              tags={post.data.tags}
+            />
+          ))
+        }
+      </div>
+
+      <!-- Pagination -->
+      {totalPages > 1 && (
+        <nav class="mt-12 flex flex-wrap items-center justify-center gap-2" aria-label="Archive pagination">
+          {hasPrev ? (
+            <a
+              href={prevHref}
+              class="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:border-primary-500 hover:text-primary-400"
+            >
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              Previous
+            </a>
+          ) : (
+            <span class="inline-flex cursor-not-allowed items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/30 px-4 py-2 text-sm text-slate-500">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              Previous
+            </span>
+          )}
+          <span class="px-2 text-slate-400">
+            Page {currentPage} of {totalPages}
+          </span>
+          {hasNext ? (
+            <a
+              href={nextHref}
+              class="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-slate-800/50 px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:border-primary-500 hover:text-primary-400"
+            >
+              Next
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          ) : (
+            <span class="inline-flex cursor-not-allowed items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/30 px-4 py-2 text-sm text-slate-500">
+              Next
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+          )}
+        </nav>
+      )}
+
+      <div class="mt-12 text-center">
+        <a
+          href="/blog"
+          class="inline-flex items-center gap-2 text-primary-400 transition-colors hover:text-primary-300"
+        >
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+          </svg>
+          Back to Blog
+        </a>
+      </div>
+    </div>
+  </section>
+</MainLayout>

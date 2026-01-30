@@ -120,6 +120,19 @@ export const courseSchema = z.object({
   // Complex fields
   learning_outcomes: z.array(z.string()).optional(),
   prerequisites: z.array(z.string()).optional(),
+  curriculum: z.array(z.object({
+    title: z.string().min(1),
+    topics: z.array(z.string()),
+    duration: z.string().optional(),
+  })).optional(),
+  projects: z.array(z.object({
+    title: z.string().min(1),
+    description: z.string().optional(),
+  })).optional(),
+  faqs: z.array(z.object({
+    question: z.string().min(1),
+    answer: z.string().min(1),
+  })).optional(),
 });
 
 export type CourseFormData = z.infer<typeof courseSchema>;
