@@ -1,6 +1,7 @@
 ---
 import Header from '@components/shared/Header.astro';
 import Footer from '@components/shared/Footer.astro';
+import CookieConsentBanner from '@components/shared/CookieConsentBanner.astro';
 import '@styles/globals.css';
 import { fetchPublicSettings } from '@services/settingsService';
 
@@ -66,8 +67,8 @@ const fullImageUrl = new URL(image, siteUrl).toString();
     <!-- Google Analytics -->
     {googleAnalyticsId && (
       <>
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}></script>
-        <script define:vars={{ googleAnalyticsId }}>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}></script>
+        <script is:inline define:vars={{ googleAnalyticsId }}>
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
@@ -89,7 +90,7 @@ const fullImageUrl = new URL(image, siteUrl).toString();
     />
 
     <!-- Schema.org JSON-LD -->
-    <script type="application/ld+json" set:html={JSON.stringify({
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": companyName,
@@ -110,6 +111,7 @@ const fullImageUrl = new URL(image, siteUrl).toString();
         <slot />
       </main>
       <Footer />
+      <CookieConsentBanner />
     </div>
   </body>
 </html>

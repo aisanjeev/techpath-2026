@@ -99,7 +99,7 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
   <p id="form-message" class="hidden text-center text-sm"></p>
 </form>
 
-<script define:vars={{ apiBaseUrl }}>
+<script is:inline define:vars={{ apiBaseUrl }}>
   const API_URL = apiBaseUrl;
   const form = document.getElementById('contact-form');
   const submitButton = document.getElementById('submit-button');

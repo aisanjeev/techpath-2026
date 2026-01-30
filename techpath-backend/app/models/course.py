@@ -145,7 +145,11 @@ class Course(Base, TimestampMixin):
     # Projects (stored as JSON)
     # Format: [{"title": "Project 1", "description": "..."}]
     projects: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # JSON string
-    
+
+    # FAQs (stored as JSON)
+    # Format: [{"question": "...", "answer": "..."}]
+    faqs: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # JSON string
+
     # Certification
     certification_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     certification_authority: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)

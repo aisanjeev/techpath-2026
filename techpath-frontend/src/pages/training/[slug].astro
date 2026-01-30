@@ -9,6 +9,8 @@ import FAQSection from '@components/sections/FAQSection.astro';
 import CTA from '@components/shared/CTA.astro';
 import TrainingEnquiryForm from './_components/TrainingEnquiryForm.astro';
 import { fetchCourseBySlug } from '@services/courseService';
+import { marked } from 'marked';
+import '@styles/markdown.css';
 
 // SSR mode - fetch from API at request time
 export const prerender = false;
@@ -40,13 +42,21 @@ const course = {
   originalPrice: apiCourse.original_price || apiCourse.price,
   emiAvailable: apiCourse.emi_available ?? true,
   placementRate: apiCourse.placement_rate || 90,
-  skills: apiCourse.skills?.map((s: any) => s.name) || [],
+  skills: (apiCourse.skills && Array.isArray(apiCourse.skills))
+    ? apiCourse.skills.map((s: { name?: string }) => s?.name).filter(Boolean)
+    : [],
   level: apiCourse.level || 'intermediate',
-  description: apiCourse.short_description || apiCourse.description?.slice(0, 200) || '',
+  shortDescription: apiCourse.short_description || '',
+  description: apiCourse.description || apiCourse.short_description || '',
   curriculum: apiCourse.curriculum?.map((m: any, i: number) => ({
-    week: m.duration || `${i * 2 + 1}-${i * 2 + 2}`,
+    index: i + 1,
+    duration: m.duration || '',
     title: m.title,
     topics: m.topics || [],
+  })) || [],
+  projects: apiCourse.projects?.map((p: { title: string; description?: string }) => ({
+    title: p.title,
+    description: p.description || '',
   })) || [],
   instructor: apiCourse.instructor_name ? {
     name: apiCourse.instructor_name,
@@ -55,10 +65,18 @@ const course = {
   } : undefined,
   learningOutcomes: apiCourse.learning_outcomes || [],
   prerequisites: apiCourse.prerequisites || [],
+  faqs: (apiCourse.faqs && apiCourse.faqs.length > 0)
+    ? apiCourse.faqs.map((f: { question: string; answer: string }) => ({ question: f.question, answer: f.answer }))
+    : undefined,
   videoUrl: apiCourse.video_url,
   featuredImage: apiCourse.featured_image,
   courseId: apiCourse.id,
 };
+
+// Render full description (markdown from admin) as HTML
+const descriptionHtml = course.description
+  ? await marked(course.description)
+  : '';
 
 const breadcrumbItems = [
   { label: 'Home', href: '/' },
@@ -76,19 +94,22 @@ const formatPrice = (amount: number) => {
 
 const discount = Math.round(((course.originalPrice - course.price) / course.originalPrice) * 100);
 
-const faqs = [
-  { question: "What are the prerequisites for this course?", answer: `This is a ${course.level}-level course. ${course.level === 'beginner' ? 'No prior experience needed.' : course.level === 'intermediate' ? 'Basic programming knowledge is helpful.' : 'Strong programming fundamentals required.'}` },
-  { question: "What is the class schedule?", answer: `Live classes are held 3 times per week (2 hours each). We offer both weekday evening and weekend batches. All sessions are recorded.` },
-  { question: "Will I get a certificate?", answer: "Yes! Upon successful completion, you'll receive a verified certificate from TechPath that you can share on LinkedIn and add to your resume." },
-  { question: "What if I miss a live class?", answer: "No worries! All live sessions are recorded and available within 24 hours. You can also ask questions in our community forum." },
-];
+// Use course FAQs from API if present; otherwise fallback to default FAQs
+const faqs = course.faqs && course.faqs.length > 0
+  ? course.faqs
+  : [
+      { question: "What are the prerequisites for this course?", answer: `This is a ${course.level}-level course. ${course.level === 'beginner' ? 'No prior experience needed.' : course.level === 'intermediate' ? 'Basic programming knowledge is helpful.' : 'Strong programming fundamentals required.'}` },
+      { question: "What is the class schedule?", answer: `Live classes are held 3 times per week (2 hours each). We offer both weekday evening and weekend batches. All sessions are recorded.` },
+      { question: "Will I get a certificate?", answer: "Yes! Upon successful completion, you'll receive a verified certificate from TechPath that you can share on LinkedIn and add to your resume." },
+      { question: "What if I miss a live class?", answer: "No worries! All live sessions are recorded and available within 24 hours. You can also ask questions in our community forum." },
+    ];
 
-// Course-specific schema
+// Course-specific schema (use short description for SEO)
 const courseSchema = {
   "@context": "https://schema.org",
   "@type": "Course",
   "name": course.name,
-  "description": course.description,
+  "description": course.shortDescription || course.description?.replace(/<[^>]+>/g, '').slice(0, 300) || course.name,
   "provider": {
     "@type": "Organization",
     "name": "TechPath",
@@ -110,9 +131,9 @@ const courseSchema = {
 
 <MainLayout
   title={`${course.name} | TechPath Training`}
-  description={course.description}
+  description={course.shortDescription || (typeof course.description === 'string' ? course.description.replace(/<[^>]+>/g, '').slice(0, 160) : '')}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(courseSchema)} />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(courseSchema)} />
 
   <section class="bg-slate-950 py-12 lg:py-20">
     <div class="container mx-auto px-4">
@@ -129,9 +150,16 @@ const courseSchema = {
             <h1 class="mb-4 font-heading text-3xl font-bold text-white md:text-4xl lg:text-5xl">
               {course.name}
             </h1>
-            <p class="text-lg text-slate-300">
-              {course.description}
-            </p>
+            {course.shortDescription && (
+              <p class="mb-4 max-w-3xl text-lg leading-relaxed text-slate-300">
+                {course.shortDescription}
+              </p>
+            )}
+            {descriptionHtml && (
+              <div class="max-w-3xl markdown-content prose prose-invert prose-slate prose-p:leading-relaxed prose-p:text-slate-300 prose-p:mb-4 prose-headings:text-white prose-li:text-slate-300">
+                <Fragment set:html={descriptionHtml} />
+              </div>
+            )}
             
             <!-- Meta -->
             <div class="mt-6 flex flex-wrap items-center gap-4 text-sm text-slate-400">
@@ -154,38 +182,65 @@ const courseSchema = {
           <!-- Skills -->
           <div class="mb-8">
             <h2 class="mb-4 font-heading text-xl font-bold text-white">Skills You'll Learn</h2>
-            <div class="flex flex-wrap gap-2">
-              {course.skills.map(skill => (
-                <span class="rounded-lg bg-slate-800 px-3 py-1.5 text-sm text-slate-300">
-                  {skill}
-                </span>
-              ))}
-            </div>
+            {course.skills.length > 0 ? (
+              <div class="flex flex-wrap gap-2">
+                {course.skills.map((skill) => (
+                  <span class="rounded-lg bg-slate-800 px-3 py-1.5 text-sm text-slate-300">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p class="text-slate-400">See the course curriculum below for topics covered.</p>
+            )}
           </div>
 
           <!-- Curriculum -->
-          {course.curriculum && (
+          {course.curriculum && course.curriculum.length > 0 && (
             <div class="mb-8">
               <h2 class="mb-4 font-heading text-xl font-bold text-white">Course Curriculum</h2>
               <div class="space-y-4">
                 {course.curriculum.map((module) => (
                   <div class="rounded-xl border border-slate-700/50 bg-slate-800/30 p-4">
-                    <div class="mb-2 flex items-center justify-between">
-                      <h3 class="font-semibold text-white">
-                        <span class="mr-2 text-primary-400">Week {module.week}:</span>
-                        {module.title}
-                      </h3>
+                    <div class="mb-2 flex flex-wrap items-center gap-2">
+                      <span class="text-primary-400 text-sm font-medium">Module {module.index}</span>
+                      {module.duration && (
+                        <span class="rounded bg-slate-700/50 px-2 py-0.5 text-xs text-slate-400">{module.duration}</span>
+                      )}
+                      <span class="w-full text-base font-medium text-white sm:w-auto sm:flex-1">{module.title}</span>
                     </div>
-                    <ul class="grid gap-1 sm:grid-cols-2">
-                      {module.topics.map((topic: string) => (
-                        <li class="flex items-center gap-2 text-sm text-slate-400">
-                          <svg class="h-4 w-4 flex-shrink-0 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                          </svg>
-                          {topic}
-                        </li>
-                      ))}
-                    </ul>
+                    {module.topics && module.topics.length > 0 && (
+                      <ul class="grid gap-1.5 sm:grid-cols-2">
+                        {module.topics.map((topic: string) => (
+                          <li class="flex items-center gap-2 text-sm text-slate-400">
+                            <svg class="h-4 w-4 flex-shrink-0 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            {topic}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <!-- Projects (same UI as Course Curriculum) -->
+          {course.projects && course.projects.length > 0 && (
+            <div class="mb-8">
+              <h2 class="mb-4 font-heading text-xl font-bold text-white">Projects</h2>
+              <div class="space-y-4">
+                {course.projects.map((project: { title: string; description?: string }, i: number) => (
+                  <div class="rounded-xl border border-slate-700/50 bg-slate-800/30 p-4">
+                    <div class="mb-2 flex flex-wrap items-center gap-2">
+                      <span class="text-primary-400 text-sm font-medium">Project {i + 1}</span>
+                      <span class="w-full text-base font-medium text-white sm:w-auto sm:flex-1">{project.title}</span>
+                    </div>
+                    {project.description && (
+                      <p class="text-sm text-slate-400">{project.description}</p>
+                    )}
                   </div>
                 ))}
               </div>

@@ -29,6 +29,11 @@ export interface ApiProjectItem {
   description?: string;
 }
 
+export interface ApiFAQItem {
+  question: string;
+  answer: string;
+}
+
 export interface ApiCourse {
   id: number;
   title: string;
@@ -60,6 +65,7 @@ export interface ApiCourse {
   learning_outcomes?: string[];
   prerequisites?: string[];
   projects?: ApiProjectItem[];
+  faqs?: ApiFAQItem[];
   certification_name?: string;
   certification_authority?: string;
   meta_title?: string;
@@ -82,6 +88,7 @@ export interface ApiCourseList {
   price: number;
   original_price?: number;
   emi_available: boolean;
+  emi_amount?: number;
   currency: string;
   duration: string;
   batch_size: number;
@@ -115,6 +122,7 @@ export function normalizeApiCourse(course: ApiCourse | ApiCourseList) {
     price: course.price,
     originalPrice: course.original_price,
     emiAvailable: course.emi_available,
+    emiAmount: course.emi_amount,
     placementRate: course.placement_rate,
     skills: course.skills.map(s => s.name),
     level: course.level,

@@ -1,70 +1,64 @@
 ---
 /**
  * PainPointsSection Component
- * Addresses user pain points to create urgency and empathy
+ * Addresses user pain points (content from API or fallback)
  */
-const painPoints = [
-  {
-    icon: "📉",
-    title: "Limited by Old Skills",
-    description: "Your current tech stack is becoming obsolete. Companies demand modern frameworks like React, Python, and Cloud - skills you haven't mastered yet.",
-    color: "text-red-400",
-    bgColor: "bg-red-500/10",
-    borderColor: "border-red-500/30",
-  },
-  {
-    icon: "💸",
-    title: "Expensive Bootcamps",
-    description: "Other institutes charge ₹2-5 Lakhs for weak outcomes. 50% of graduates don't even get jobs. Why pay premium for uncertain results?",
-    color: "text-orange-400",
-    bgColor: "bg-orange-500/10",
-    borderColor: "border-orange-500/30",
-  },
-  {
-    icon: "📚",
-    title: "No Real-World Experience",
-    description: "Online courses feel theoretical. You watch videos but can't build anything. Without actual project portfolios, recruiters ignore your resume.",
-    color: "text-yellow-400",
-    bgColor: "bg-yellow-500/10",
-    borderColor: "border-yellow-500/30",
-  },
-];
+interface Props {
+  painPoints: {
+    section_title: string;
+    section_subtext: string;
+    transition_text: string;
+    items: Array<{
+      icon: string;
+      title: string;
+      description: string;
+      color: string;
+      bg_color: string;
+      border_color: string;
+    }>;
+  };
+}
+
+const { painPoints } = Astro.props;
+const items = painPoints.items ?? [];
 ---
 
 <section class="bg-slate-950 py-16 lg:py-24">
   <div class="container mx-auto px-4">
     <div class="mx-auto mb-12 max-w-3xl text-center">
       <h2 class="mb-4 font-heading text-3xl font-bold text-white md:text-4xl">
-        Stuck Without a Clear <span class="text-primary-400">Tech Career Path?</span>
+        {painPoints.section_title}
       </h2>
       <p class="text-lg text-slate-400">
-        You're not alone. Thousands face these same challenges every day.
+        {painPoints.section_subtext}
       </p>
     </div>
 
-    <div class="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
-      {painPoints.map((point) => (
-        <div class={`group rounded-2xl border ${point.borderColor} ${point.bgColor} p-6 transition-all hover:scale-[1.02]`}>
-          <div class={`mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl ${point.bgColor} text-3xl`}>
-            {point.icon}
+    {items.length > 0 && (
+      <div class="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+        {items.map((point) => (
+          <div class={`group rounded-2xl border ${point.border_color} ${point.bg_color} p-6 transition-all hover:scale-[1.02]`}>
+            <div class={`mb-4 inline-flex h-14 w-14 items-center justify-center rounded-xl ${point.bg_color} text-3xl`}>
+              {point.icon}
+            </div>
+            <h3 class={`mb-3 font-heading text-xl font-bold ${point.color}`}>
+              {point.title}
+            </h3>
+            <p class="text-slate-400 leading-relaxed">
+              {point.description}
+            </p>
           </div>
-          <h3 class={`mb-3 font-heading text-xl font-bold ${point.color}`}>
-            {point.title}
-          </h3>
-          <p class="text-slate-400 leading-relaxed">
-            {point.description}
-          </p>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    )}
 
-    <!-- Transition statement -->
-    <div class="mx-auto mt-12 max-w-2xl text-center">
-      <p class="text-lg text-slate-300">
-        <span class="font-semibold text-primary-400">Good news:</span> There's a better way to break into tech — 
-        without breaking the bank or wasting months on theory.
-      </p>
-    </div>
+    {painPoints.transition_text && (
+      <div class="mx-auto mt-12 max-w-2xl text-center">
+        <p class="text-lg text-slate-300">
+          <span class="font-semibold text-primary-400">Good news:</span> {painPoints.transition_text}
+        </p>
+      </div>
+    )}
   </div>
 </section>
 

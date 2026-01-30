@@ -32,6 +32,15 @@ mkdir -p data/uploads
 poetry run uvicorn app.main:app --reload
 ```
 
+**First-time setup (recommended):** After migrations, seed default training page content so `/training` has hero, FAQs, stories, etc.:
+
+```bash
+poetry run alembic upgrade head
+python scripts/seed_training_page.py
+```
+
+Use `python scripts/seed_training_page.py --force` to overwrite existing content with defaults.
+
 Visit http://localhost:8000/docs for the Swagger UI.
 
 ## Project Structure
@@ -85,6 +94,16 @@ poetry run mypy app
 poetry run alembic upgrade head
 poetry run alembic revision --autogenerate -m "description"
 ```
+
+## Launch checklist
+
+Before going live (or after a fresh deploy):
+
+1. **Migrations:** `poetry run alembic upgrade head`
+2. **Seed training page content:** `python scripts/seed_training_page.py` (idempotent; inserts default hero, FAQs, stories, etc. for `/training` if missing)
+3. **Smoke-test:** Open `/api/v1/content/training-page` and `/training` (frontend) to confirm content loads. If the content API is down, the frontend uses a minimal fallback so the page still renders.
+
+The training page content is stored in `app_settings` (key `training_landing_content`). The API returns a built-in default when the key is missing, so the site works even without seeding.
 
 ## API Documentation
 

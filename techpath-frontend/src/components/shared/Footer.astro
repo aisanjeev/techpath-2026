@@ -9,7 +9,6 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
 // Fetch dynamic settings
 const settings = await fetchPublicSettings();
 const companyName = settings.company_name || 'TechPath';
-const companyEmail = settings.company_email || 'info@techpath.biz';
 
 const footerLinks = {
   services: [
@@ -209,7 +208,7 @@ const socialLinks = [
   </div>
 </footer>
 
-<script define:vars={{ apiBaseUrl }}>
+<script is:inline define:vars={{ apiBaseUrl }}>
   const API_URL = apiBaseUrl;
   const form = document.getElementById('newsletter-form');
   const message = document.getElementById('newsletter-message');

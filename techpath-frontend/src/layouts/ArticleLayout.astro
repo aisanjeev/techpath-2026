@@ -6,7 +6,6 @@
  */
 import MainLayout from './MainLayout.astro';
 import Breadcrumb from '@components/shared/Breadcrumb.astro';
-import MarkdownRenderer from '@components/MarkdownRenderer.astro';
 import '@styles/markdown.css';
 
 interface BreadcrumbItem {
@@ -54,6 +53,8 @@ interface Props {
   breadcrumbs?: BreadcrumbItem[];
   /** Related posts */
   relatedPosts?: RelatedPost[];
+  /** Base path for related post links (e.g. "/blog" for collection, "/blog/api" for API posts). Default "/blog". */
+  relatedPostBasePath?: string;
   /** Show TOC sidebar */
   showToc?: boolean;
   /** Show author bio section */
@@ -78,7 +79,8 @@ const {
   readingTime,
   breadcrumbs,
   relatedPosts = [],
-  showToc = true,
+  relatedPostBasePath = '/blog',
+  showToc: _showToc = true,
   showAuthorBio = true,
   showShareButtons = true,
   type = 'blog',
@@ -310,7 +312,7 @@ const currentUrl = Astro.url.href;
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedPosts.map((post) => (
                 <a
-                  href={`/blog/${post.slug}`}
+                  href={`${relatedPostBasePath}/${post.slug}`}
                   class="group block rounded-xl border border-slate-800 bg-slate-900/50 overflow-hidden hover:border-primary-500/50 transition-colors"
                 >
                   {post.image && (

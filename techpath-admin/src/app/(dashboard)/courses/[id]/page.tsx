@@ -43,7 +43,7 @@ export default function EditCoursePage() {
     if (!course) return;
     setIsSubmitting(true);
     try {
-      await courseService.update(course.id, {
+      const payload = {
         title: data.title,
         slug: data.slug,
         short_description: data.short_description || undefined,
@@ -79,7 +79,11 @@ export default function EditCoursePage() {
         skill_ids: data.skill_ids,
         learning_outcomes: data.learning_outcomes,
         prerequisites: data.prerequisites,
-      });
+        curriculum: data.curriculum ?? [],
+        projects: data.projects ?? [],
+        faqs: data.faqs ?? [],
+      };
+      await courseService.update(course.id, payload);
       toast.success('Course updated successfully');
       router.push('/courses');
     } catch (error) {

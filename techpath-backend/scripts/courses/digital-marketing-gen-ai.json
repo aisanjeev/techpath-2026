@@ -1,0 +1,127 @@
+{
+  "title": "Digital Marketing using Gen AI",
+  "slug": "digital-marketing-gen-ai",
+  "description": "Master **Digital Marketing** powered by **Generative AI** in 6 months. Learn SEO, content strategy, paid ads, and automation—then apply ChatGPT, Claude, and AI tools to create campaigns that convert. Industry-led, hands-on projects and live support.\n\n---\n\n### What you'll build\n\n- AI-driven content calendars and copy\n- SEO-optimized blogs and landing pages\n- Paid campaigns (Meta, Google) with AI creative\n- Email and social automation workflows\n- Real client-style projects and a portfolio\n\n---\n\n### Why Gen AI + Digital Marketing?\n\n| Area | You'll learn |\n|------|----------------|\n| **SEO** | Keywords, on-page, technical SEO, AI content briefs |\n| **Content** | Copywriting, blogs, scripts, AI prompts |\n| **Ads** | Meta & Google Ads, audiences, creatives, AI copy |\n| **Automation** | Email, social scheduling, chatbots |\n| **Analytics** | GA4, attribution, reporting with AI insights |\n\n---\n\n*6 months · Live classes · Beginner-friendly · Certificate on completion*",
+  "short_description": "6-month course: Digital Marketing + Gen AI. SEO, content, paid ads, and automation using ChatGPT, Claude, and AI tools. Live instructor, hands-on projects, certificate.",
+  "price": 0,
+  "original_price": 45000,
+  "emi_available": true,
+  "emi_amount": 7500,
+  "currency": "INR",
+  "duration": "6 months",
+  "duration_hours": 144,
+  "batch_size": 25,
+  "level": "beginner",
+  "rating": 0,
+  "review_count": 0,
+  "enrollment_count": 0,
+  "featured_image": null,
+  "video_url": null,
+  "instructor_name": "TechPath Instructor",
+  "instructor_title": "Digital Marketing & Gen AI Lead",
+  "instructor_bio": "Expert in performance marketing and AI-driven campaigns. 10+ years in digital marketing and early adopter of Gen AI for content and ads.",
+  "instructor_image": null,
+  "certification_name": "Digital Marketing with Gen AI Certificate",
+  "certification_authority": "TechPath",
+  "meta_title": "Digital Marketing using Gen AI – 6 Months Course | TechPath",
+  "meta_description": "Learn Digital Marketing with Gen AI in 6 months. SEO, content, paid ads, automation. Live classes, projects, certificate. Enroll now.",
+  "next_batch_date": null,
+  "status": "published",
+  "featured": true,
+  "is_active": true,
+  "learning_outcomes": [
+    "Plan and execute SEO with AI-powered keyword and content briefs",
+    "Write high-converting copy and content using Gen AI tools",
+    "Run and optimize Meta and Google Ads campaigns with AI creatives",
+    "Set up email and social automation with AI-assisted workflows",
+    "Measure performance with GA4 and AI-driven reporting",
+    "Build a portfolio of real client-style marketing projects"
+  ],
+  "prerequisites": [
+    "Basic computer and internet use",
+    "No prior marketing experience required",
+    "Laptop and stable internet for live classes"
+  ],
+  "curriculum": [
+    {
+      "title": "Foundations of Digital Marketing",
+      "topics": ["Marketing funnel", "Channels overview", "Goals and KPIs", "Intro to Gen AI for marketers"],
+      "duration": "2 weeks"
+    },
+    {
+      "title": "SEO with Gen AI",
+      "topics": ["Keyword research (AI tools)", "On-page SEO", "Content briefs with ChatGPT/Claude", "Technical SEO basics"],
+      "duration": "4 weeks"
+    },
+    {
+      "title": "Content & Copywriting with AI",
+      "topics": ["Copywriting fundamentals", "Prompts for ads and blogs", "Content calendars", "Brand voice and AI"],
+      "duration": "4 weeks"
+    },
+    {
+      "title": "Paid Ads (Meta & Google)",
+      "topics": ["Meta Ads setup", "Google Ads (Search & Display)", "Audiences and targeting", "AI-generated ad copy and creatives"],
+      "duration": "5 weeks"
+    },
+    {
+      "title": "Email & Social Automation",
+      "topics": ["Email marketing and sequences", "Social scheduling", "Chatbots and AI assistants", "Workflow automation"],
+      "duration": "3 weeks"
+    },
+    {
+      "title": "Analytics & Reporting",
+      "topics": ["GA4 setup and events", "Attribution and reporting", "AI insights and dashboards", "Client-ready reports"],
+      "duration": "2 weeks"
+    },
+    {
+      "title": "Capstone & Portfolio",
+      "topics": ["Real client-style project", "Portfolio and case study", "Presentation and review"],
+      "duration": "2 weeks"
+    }
+  ],
+  "projects": [
+    {
+      "title": "SEO Content Pack",
+      "description": "Keyword research, content brief, and one AI-assisted blog post for a chosen niche."
+    },
+    {
+      "title": "Paid Campaign (Meta or Google)",
+      "description": "End-to-end campaign: audience, creatives (AI-assisted), and performance report."
+    },
+    {
+      "title": "Email + Social Automation",
+      "description": "Simple email sequence and social calendar using automation tools and AI."
+    },
+    {
+      "title": "Capstone Portfolio Project",
+      "description": "Full marketing plan and 2–3 executed deliverables with a written case study."
+    }
+  ],
+  "faqs": [
+    {
+      "question": "Do I need prior marketing experience?",
+      "answer": "No. This course is designed for beginners. We start with marketing fundamentals and then layer in Gen AI tools step by step."
+    },
+    {
+      "question": "Which AI tools will we use?",
+      "answer": "We use ChatGPT, Claude, and other industry-standard AI tools for content, ads, and automation. You'll get hands-on practice with prompts and workflows."
+    },
+    {
+      "question": "What is the class schedule?",
+      "answer": "Live classes run 3 times per week (2 hours each) for 6 months. We offer weekday evening and weekend batches. All sessions are recorded."
+    },
+    {
+      "question": "Will I get a certificate?",
+      "answer": "Yes. On successful completion you'll receive a TechPath certificate in Digital Marketing with Gen AI that you can share on LinkedIn."
+    },
+    {
+      "question": "Is EMI available?",
+      "answer": "Yes. We offer EMI options starting from ₹7,500/month so you can pay in installments."
+    },
+    {
+      "question": "What projects will I build?",
+      "answer": "You'll complete an SEO content pack, a paid campaign (Meta or Google), an email/social automation project, and a capstone portfolio project with a full case study."
+    }
+  ],
+  "skill_ids": []
+}

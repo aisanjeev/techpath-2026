@@ -74,12 +74,14 @@ app = FastAPI(
 )
 
 # CORS middleware - allow all origins for development
+# Expose X-Total-Count so admin/frontend can read pagination total
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Total-Count"],
 )
 
 # Logging middleware

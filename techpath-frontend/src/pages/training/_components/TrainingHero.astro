@@ -1,27 +1,32 @@
 ---
 /**
  * TrainingHero Component
- * Hero section with value proposition, dual CTAs, and trust badges
+ * Hero section with value proposition, dual CTAs, and trust badges (content from API or fallback)
  */
 interface Props {
-  title?: string;
-  subtitle?: string;
-  primaryCta?: { label: string; href: string };
-  secondaryCta?: { label: string; href: string };
+  hero: {
+    title: string;
+    subtitle: string;
+    headline_subline: string;
+    badge_text: string;
+    primary_cta: { label: string; href: string };
+    secondary_cta: { label: string; href: string };
+    trust_badges: Array<{ icon: string; value: string; label: string }>;
+  };
 }
 
-const {
-  title = "Master In-Demand Tech Skills",
-  subtitle = "Live instructor training + Real-world projects + Job guarantee + 100% money back",
-  primaryCta = { label: "Start Free Trial", href: "#enroll" },
-  secondaryCta = { label: "View Course Catalog", href: "#courses" },
-} = Astro.props;
-
-const trustBadges = [
-  { icon: "⭐", value: "4.9/5", label: "2,000+ Reviews" },
-  { icon: "👨‍🎓", value: "50,000+", label: "Students Trained" },
-  { icon: "💼", value: "94%", label: "Job Placement" },
-  { icon: "🏆", value: "Since 2019", label: "Trusted Institute" },
+const { hero } = Astro.props;
+const title = hero.title;
+const subtitle = hero.subtitle;
+const headlineSubline = hero.headline_subline;
+const badgeText = hero.badge_text;
+const primaryCta = hero.primary_cta;
+const secondaryCta = hero.secondary_cta;
+const trustBadges = hero.trust_badges?.length ? hero.trust_badges : [
+  { icon: "⭐", value: "4.9/5", label: "Reviews" },
+  { icon: "👨‍🎓", value: "50,000+", label: "Students" },
+  { icon: "💼", value: "94%", label: "Placement" },
+  { icon: "🏆", value: "Since 2019", label: "Trusted" },
 ];
 ---
 
@@ -43,14 +48,14 @@ const trustBadges = [
           <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-400 opacity-75"></span>
           <span class="relative inline-flex h-2 w-2 rounded-full bg-primary-500"></span>
         </span>
-        <span class="text-sm font-medium text-primary-300">New Batch Starting January 2025</span>
+        <span class="text-sm font-medium text-primary-300">{badgeText}</span>
       </div>
 
       <!-- Headline -->
       <h1 class="mb-6 font-heading text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl">
         {title}
         <span class="mt-2 block bg-gradient-to-r from-primary-400 via-cyan-400 to-secondary-400 bg-clip-text text-transparent">
-          Land High-Paying Jobs in 90 Days
+          {headlineSubline}
         </span>
       </h1>
 

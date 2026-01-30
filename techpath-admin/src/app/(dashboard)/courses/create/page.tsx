@@ -16,7 +16,7 @@ export default function CreateCoursePage() {
   const handleSubmit = async (data: CourseFormData) => {
     setIsLoading(true);
     try {
-      await courseService.create({
+      const payload = {
         title: data.title,
         slug: data.slug,
         short_description: data.short_description || undefined,
@@ -52,7 +52,11 @@ export default function CreateCoursePage() {
         skill_ids: data.skill_ids,
         learning_outcomes: data.learning_outcomes,
         prerequisites: data.prerequisites,
-      });
+        curriculum: data.curriculum ?? [],
+        projects: data.projects ?? [],
+        faqs: data.faqs ?? [],
+      };
+      await courseService.create(payload);
       toast.success('Course created successfully');
       router.push('/courses');
     } catch (error) {

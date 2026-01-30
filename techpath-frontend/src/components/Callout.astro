@@ -17,7 +17,7 @@ interface Props {
   class?: string;
 }
 
-const { type = 'info', title, icon, class: className } = Astro.props;
+const { type = 'info', title, icon: _icon, class: className } = Astro.props;
 
 // Default titles for each type
 const defaultTitles: Record<CalloutType, string> = {

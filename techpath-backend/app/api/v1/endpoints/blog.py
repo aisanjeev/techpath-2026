@@ -2,6 +2,7 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query, UploadFile, File, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError, ConflictError, ValidationError
@@ -183,22 +184,23 @@ async def delete_category(
 
 # ----- Blog Posts -----
 
-@router.get("/posts", response_model=List[BlogPostListResponse])
+@router.get("/posts")
 async def list_posts(
     skip: int = Query(0, ge=0),
-    limit: int = Query(10, ge=1, le=50),
+    limit: int = Query(10, ge=1, le=100),
     featured: Optional[bool] = Query(None),
     tag: Optional[str] = Query(None, description="Filter by tag slug"),
     category: Optional[str] = Query(None, description="Filter by category slug"),
     status: Optional[str] = Query(None, description="Filter by status (admin only)"),
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_optional_user),
-) -> List[BlogPostListResponse]:
+) -> JSONResponse:
     """
     List blog posts with pagination and filtering.
+    Returns array of posts and X-Total-Count header for total matching count.
 
     - **skip**: Number of records to skip
-    - **limit**: Maximum records to return
+    - **limit**: Maximum records to return (default 10, max 100)
     - **featured**: Filter featured posts
     - **tag**: Filter by tag slug
     - **category**: Filter by category slug
@@ -206,6 +208,9 @@ async def list_posts(
     """
     # Non-admins can only see published posts
     if current_user is None or current_user.role != "admin":
+        total = await blog_crud.get_published_count(
+            db, featured=featured, tag_slug=tag, category_slug=category
+        )
         posts = await blog_crud.get_published(
             db, skip=skip, limit=limit, featured=featured, tag_slug=tag, category_slug=category
         )
@@ -216,7 +221,7 @@ async def list_posts(
             filters["status"] = status
         if featured is not None:
             filters["featured"] = featured
-
+        total = await blog_crud.get_multi_count(db, filters=filters if filters else None)
         posts = await blog_crud.get_multi(
             db,
             skip=skip,
@@ -226,7 +231,11 @@ async def list_posts(
             order_desc=True,
         )
 
-    return [BlogPostListResponse.model_validate(p) for p in posts]
+    data = [BlogPostListResponse.model_validate(p).model_dump(mode="json") for p in posts]
+    return JSONResponse(
+        content=data,
+        headers={"X-Total-Count": str(total)},
+    )
 
 
 @router.get("/posts/{slug}", response_model=BlogPostResponse)
@@ -265,7 +274,10 @@ async def create_post(
         raise NotFoundError("Category")
 
     post = await blog_crud.create(db, obj_in=post_in, author_id=current_admin.id)
-    
+
+    # Eager-load relationships so Pydantic model_validate does not trigger lazy load (MissingGreenlet)
+    await db.refresh(post, attribute_names=["tags", "category"])
+
     # Track media usage for featured image
     if post_in.featured_image:
         await track_media_usage(

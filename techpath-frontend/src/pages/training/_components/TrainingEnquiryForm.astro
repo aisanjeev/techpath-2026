@@ -12,9 +12,6 @@ interface Props {
 const { courseName, variant = 'both' } = Astro.props;
 
 const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
-
-// Generate unique ID suffix for this instance
-const uniqueId = Math.random().toString(36).substring(2, 9);
 ---
 
 {/* Desktop/Tablet Form (Inline) - Only show if variant is 'desktop' or 'both' */}
@@ -241,7 +238,7 @@ const uniqueId = Math.random().toString(36).substring(2, 9);
   </>
 )}
 
-<script define:vars={{ apiBaseUrl }}>
+<script is:inline define:vars={{ apiBaseUrl }}>
   const API_URL = apiBaseUrl;
 
   // Initialize all mobile form modals on the page

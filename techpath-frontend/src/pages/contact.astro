@@ -2,40 +2,22 @@
 import MainLayout from '@layouts/MainLayout.astro';
 import Breadcrumb from '@components/shared/Breadcrumb.astro';
 import ContactForm from '@components/sections/ContactForm.astro';
+import { fetchContactPageContent } from '@services/pageContentService';
 
 const breadcrumbItems = [
   { label: 'Home', href: '/' },
   { label: 'Contact', href: '/contact', current: true },
 ];
 
-const contactMethods = [
-  {
-    title: 'Email',
-    description: 'Send us an email anytime',
-    value: 'hello@techpath.biz',
-    href: 'mailto:hello@techpath.biz',
-    icon: 'email',
-  },
-  {
-    title: 'Phone',
-    description: 'Mon-Fri from 9am to 6pm',
-    value: '+1 (555) 123-4567',
-    href: 'tel:+15551234567',
-    icon: 'phone',
-  },
-  {
-    title: 'Office',
-    description: 'Visit our headquarters',
-    value: 'San Francisco, CA',
-    href: 'https://maps.google.com',
-    icon: 'location',
-  },
-];
+const content = await fetchContactPageContent();
 ---
 
 <MainLayout
-  title="Contact Us"
-  description="Get in touch with TechPath. We'd love to discuss your project and how we can help transform your business with AI-powered solutions."
+  title={content.seo?.title ?? 'Contact Us'}
+  description={content.seo?.description ?? "Get in touch with TechPath. We'd love to discuss your project and how we can help transform your business with AI-powered solutions."}
+  image={content.seo?.image ?? undefined}
+  canonicalUrl={content.seo?.canonical_url ?? undefined}
+  noIndex={content.seo?.no_index ?? false}
 >
   <section class="py-16 lg:py-24">
     <div class="container mx-auto px-4">
@@ -44,18 +26,21 @@ const contactMethods = [
       <!-- Header -->
       <div class="mx-auto mb-16 max-w-3xl text-center">
         <h1 class="mb-6 font-heading text-4xl font-bold text-white md:text-5xl lg:text-6xl">
-          Let's <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">Talk</span>
+          {content.hero.title.split(content.hero.title_highlight)[0]}
+          <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+            {content.hero.title_highlight}
+          </span>
+          {content.hero.title.split(content.hero.title_highlight)[1] ?? ''}
         </h1>
         <p class="text-lg text-slate-400 md:text-xl">
-          Have a project in mind? We'd love to hear about it. Get in touch and let's create
-          something amazing together.
+          {content.hero.subheadline}
         </p>
       </div>
 
       <!-- Contact Methods -->
       <div class="mx-auto mb-16 grid max-w-4xl gap-6 md:grid-cols-3">
         {
-          contactMethods.map((method) => (
+          content.contact_methods.map((method) => (
             <a
               href={method.href}
               class="group flex flex-col items-center rounded-2xl border border-slate-800 bg-slate-900/50 p-6 text-center transition-all hover:border-primary-500/50 hover:bg-slate-900"

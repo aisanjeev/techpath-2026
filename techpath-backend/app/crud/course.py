@@ -97,7 +97,7 @@ class CRUDCourse(CRUDBase[Course, CourseCreate, CourseUpdate]):
 
     def _serialize_json_fields(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Convert list/dict fields to JSON strings for storage."""
-        json_fields = ['curriculum', 'learning_outcomes', 'prerequisites', 'projects']
+        json_fields = ['curriculum', 'learning_outcomes', 'prerequisites', 'projects', 'faqs']
         for field in json_fields:
             if field in data and data[field] is not None:
                 if isinstance(data[field], (list, dict)):

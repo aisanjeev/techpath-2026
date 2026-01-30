@@ -233,5 +233,13 @@ const tableOfContents = headingMatches.map((match) => {
   document.querySelectorAll('.markdown-content h2[id], .markdown-content h3[id]').forEach((heading) => {
     observer.observe(heading);
   });
+
+  // Lazy load images in markdown body (body content is below the fold)
+  document.querySelectorAll('.markdown-content img').forEach((img) => {
+    if (!img.hasAttribute('loading')) {
+      img.setAttribute('loading', 'lazy');
+      img.setAttribute('decoding', 'async');
+    }
+  });
 </script>
 

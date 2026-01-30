@@ -3,73 +3,28 @@ import MainLayout from '@layouts/MainLayout.astro';
 import Breadcrumb from '@components/shared/Breadcrumb.astro';
 import StatCounter from '@components/sections/StatCounter.astro';
 import CTA from '@components/shared/CTA.astro';
+import { fetchAboutPageContent } from '@services/pageContentService';
 
 const breadcrumbItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about', current: true },
 ];
 
-const stats = [
-  { value: '10+', label: 'Years Experience' },
-  { value: '150+', label: 'Projects Completed' },
-  { value: '50+', label: 'Team Members' },
-  { value: '25+', label: 'Countries Served' },
-];
-
-const values = [
-  {
-    title: 'Innovation First',
-    description: 'We embrace emerging technologies and creative solutions to solve complex problems.',
-    icon: 'lightbulb',
-  },
-  {
-    title: 'Client Success',
-    description: 'Your success is our success. We measure ourselves by the impact we create for you.',
-    icon: 'trophy',
-  },
-  {
-    title: 'Transparency',
-    description: 'Open communication and honest assessments are the foundation of our partnerships.',
-    icon: 'eye',
-  },
-  {
-    title: 'Excellence',
-    description: 'We hold ourselves to the highest standards in code quality and delivery.',
-    icon: 'star',
-  },
-];
-
-const team = [
-  {
-    name: 'Alex Thompson',
-    role: 'CEO & Founder',
-    bio: '15+ years in tech leadership. Former VP Engineering at Fortune 500.',
-    image: '/images/team/alex.jpg',
-  },
-  {
-    name: 'Dr. Sarah Kim',
-    role: 'Chief AI Officer',
-    bio: 'PhD in Machine Learning. Published researcher with 50+ papers.',
-    image: '/images/team/sarah.jpg',
-  },
-  {
-    name: 'Marcus Chen',
-    role: 'CTO',
-    bio: 'Cloud architecture expert. AWS & Azure certified solutions architect.',
-    image: '/images/team/marcus.jpg',
-  },
-  {
-    name: 'Jessica Patel',
-    role: 'VP of Engineering',
-    bio: '12 years in full-stack development. Former tech lead at FAANG.',
-    image: '/images/team/jessica.jpg',
-  },
-];
+const content = await fetchAboutPageContent();
+const valueIcons: Record<string, string> = {
+  lightbulb: '💡',
+  trophy: '🏆',
+  eye: '👁️',
+  star: '⭐',
+};
 ---
 
 <MainLayout
-  title="About Us"
-  description="Learn about TechPath's mission to deliver innovative AI and IT solutions. Meet our team of experts dedicated to your success."
+  title={content.seo?.title ?? 'About Us'}
+  description={content.seo?.description ?? "Learn about TechPath's mission to deliver innovative AI and IT solutions. Meet our team of experts dedicated to your success."}
+  image={content.seo?.image ?? undefined}
+  canonicalUrl={content.seo?.canonical_url ?? undefined}
+  noIndex={content.seo?.no_index ?? false}
 >
   <section class="py-16 lg:py-24">
     <div class="container mx-auto px-4">
@@ -78,11 +33,14 @@ const team = [
       <!-- Hero Section -->
       <div class="mx-auto mb-20 max-w-4xl text-center">
         <h1 class="mb-6 font-heading text-4xl font-bold text-white md:text-5xl lg:text-6xl">
-          Building the <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">Future</span> of Technology
+          {content.hero.title.split(content.hero.title_highlight)[0]}
+          <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+            {content.hero.title_highlight}
+          </span>
+          {content.hero.title.split(content.hero.title_highlight)[1] ?? ''}
         </h1>
         <p class="text-lg text-slate-400 md:text-xl">
-          We're a team of passionate technologists dedicated to helping businesses harness the power
-          of AI, cloud computing, and modern software development.
+          {content.hero.subheadline}
         </p>
       </div>
 
@@ -90,19 +48,16 @@ const team = [
       <div class="relative mb-20 overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/50 p-8 md:p-12 lg:p-16">
         <div class="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-primary-500/10 blur-3xl"></div>
         <div class="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-secondary-500/10 blur-3xl"></div>
-        
         <div class="relative z-10 mx-auto max-w-3xl text-center">
-          <h2 class="mb-6 font-heading text-3xl font-bold text-white md:text-4xl">Our Mission</h2>
+          <h2 class="mb-6 font-heading text-3xl font-bold text-white md:text-4xl">{content.mission_title}</h2>
           <p class="text-lg leading-relaxed text-slate-300">
-            To democratize access to cutting-edge technology solutions, enabling businesses of all
-            sizes to compete and thrive in the digital age. We believe that the right technology,
-            implemented thoughtfully, can transform industries and improve lives.
+            {content.mission_text}
           </p>
         </div>
       </div>
 
       <!-- Stats -->
-      <StatCounter stats={stats} />
+      <StatCounter stats={content.stats} />
 
       <!-- Values Section -->
       <div class="mb-20 mt-20">
@@ -111,15 +66,10 @@ const team = [
         </h2>
         <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {
-            values.map((value) => (
+            content.values.map((value) => (
               <div class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 transition-colors hover:border-primary-500/50">
                 <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500/20 to-secondary-500/20">
-                  <span class="text-2xl">
-                    {value.icon === 'lightbulb' && '💡'}
-                    {value.icon === 'trophy' && '🏆'}
-                    {value.icon === 'eye' && '👁️'}
-                    {value.icon === 'star' && '⭐'}
-                  </span>
+                  <span class="text-2xl">{valueIcons[value.icon] ?? '•'}</span>
                 </div>
                 <h3 class="mb-2 font-heading text-xl font-bold text-white">{value.title}</h3>
                 <p class="text-slate-400">{value.description}</p>
@@ -139,7 +89,7 @@ const team = [
         </p>
         <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {
-            team.map((member) => (
+            content.team.map((member) => (
               <div class="group text-center">
                 <div class="mx-auto mb-4 h-40 w-40 overflow-hidden rounded-2xl bg-gradient-to-br from-primary-500/20 to-secondary-500/20 transition-transform group-hover:scale-105">
                   <div class="flex h-full w-full items-center justify-center text-4xl text-primary-400/50">
@@ -158,10 +108,10 @@ const team = [
   </section>
 
   <CTA
-    title="Join Our Team"
-    description="We're always looking for talented individuals to join our mission."
-    primaryButton={{ label: 'View Open Positions', href: '/careers' }}
-    secondaryButton={{ label: 'Contact Us', href: '/contact' }}
+    title={content.cta_title}
+    description={content.cta_description}
+    primaryButton={{ label: content.cta_primary_label, href: content.cta_primary_href }}
+    secondaryButton={{ label: content.cta_secondary_label, href: content.cta_secondary_href }}
   />
 </MainLayout>
 

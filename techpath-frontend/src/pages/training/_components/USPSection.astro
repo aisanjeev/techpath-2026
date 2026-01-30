@@ -1,50 +1,23 @@
 ---
 /**
  * USPSection Component
- * Highlights TechPath's unique selling propositions
+ * Highlights TechPath's unique selling propositions (content from API or fallback)
  */
-const usps = [
-  {
-    icon: "🎓",
-    title: "Expert Instructors",
-    highlights: [
-      "Real engineers with 7+ years experience",
-      "Currently working in top tech companies",
-      "Teach current market-relevant skills",
-    ],
-    color: "from-blue-500 to-cyan-500",
-  },
-  {
-    icon: "💻",
-    title: "Live + Interactive",
-    highlights: [
-      "Daily doubt-clearing sessions",
-      "Real-time code reviews",
-      "Small batches (max 20 students)",
-    ],
-    color: "from-purple-500 to-pink-500",
-  },
-  {
-    icon: "🚀",
-    title: "Job-Ready Projects",
-    highlights: [
-      "Build 5-10 live projects",
-      "Add to your GitHub portfolio",
-      "Get job interviews faster",
-    ],
-    color: "from-primary-500 to-secondary-500",
-  },
-  {
-    icon: "💰",
-    title: "Transparent Pricing",
-    highlights: [
-      "No hidden charges ever",
-      "30-day money-back guarantee",
-      "Flexible EMI options available",
-    ],
-    color: "from-green-500 to-emerald-500",
-  },
-];
+interface Props {
+  usps: {
+    section_title: string;
+    section_subtext: string;
+    items: Array<{
+      icon: string;
+      title: string;
+      highlights: string[];
+      color: string;
+    }>;
+  };
+}
+
+const { usps } = Astro.props;
+const items = usps.items ?? [];
 ---
 
 <section class="bg-slate-900 py-16 lg:py-24">
@@ -54,15 +27,16 @@ const usps = [
         Why Choose Us
       </span>
       <h2 class="mb-4 font-heading text-3xl font-bold text-white md:text-4xl">
-        Why Top Companies Choose <span class="text-primary-400">TechPath</span> Graduates
+        {usps.section_title}
       </h2>
       <p class="text-lg text-slate-400">
-        We don't just teach — we transform careers with a proven methodology.
+        {usps.section_subtext}
       </p>
     </div>
 
+    {items.length > 0 && (
     <div class="mx-auto grid max-w-6xl gap-6 md:grid-cols-2 lg:grid-cols-4">
-      {usps.map((usp) => (
+      {items.map((usp) => (
         <div class="group relative overflow-hidden rounded-2xl border border-slate-700/50 bg-slate-800/50 p-6 transition-all hover:border-slate-600 hover:bg-slate-800">
           <!-- Gradient overlay on hover -->
           <div class={`absolute inset-0 bg-gradient-to-br ${usp.color} opacity-0 transition-opacity group-hover:opacity-5`}></div>
@@ -86,6 +60,7 @@ const usps = [
         </div>
       ))}
     </div>
+    )}
   </div>
 </section>
 
