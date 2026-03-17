@@ -24,7 +24,6 @@ export default function CreateServicePage() {
         icon: data.icon || undefined,
         image_url: data.image_url || undefined,
         features: data.features || undefined,
-        price: data.price || undefined,
         cta_text: data.cta_text || undefined,
         cta_url: data.cta_url || undefined,
         featured: data.featured,

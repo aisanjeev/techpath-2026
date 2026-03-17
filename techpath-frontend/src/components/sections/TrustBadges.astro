@@ -1,0 +1,38 @@
+---
+/**
+ * Trust bar – "Trusted by leading companies" and stats (no logos for now).
+ * Content can be static or from shared content later.
+ */
+interface Stat {
+  value: string;
+  label: string;
+}
+
+const stats: Stat[] = [
+  { value: '500+', label: 'Models Deployed' },
+  { value: '95%', label: 'Client Retention' },
+  { value: '50+', label: 'Industries Served' },
+];
+---
+
+<section class="border-y border-slate-800 bg-slate-900/30 py-8">
+  <div class="container mx-auto px-4">
+    <p class="mb-6 text-center text-sm font-medium uppercase tracking-wider text-slate-500">
+      Trusted by leading companies
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-12 md:gap-16">
+      {
+        stats.map((stat) => (
+          <div class="text-center">
+            <div class="font-heading text-2xl font-bold text-white md:text-3xl">
+              {stat.value}
+            </div>
+            <div class="mt-1 text-sm text-slate-400">
+              {stat.label}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

@@ -9,6 +9,21 @@ export const loginSchema = z.object({
 export type LoginFormData = z.infer<typeof loginSchema>;
 
 // Service validations
+const servicePricingPlanItemSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  price: z.string(),
+  period: z.string(),
+  features: z.array(z.string()),
+  cta: z.string(),
+  highlighted: z.boolean().optional(),
+});
+
+const serviceFAQItemSchema = z.object({
+  question: z.string().min(1, 'Question is required'),
+  answer: z.string().min(1, 'Answer is required'),
+});
+
 export const serviceSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255, 'Title is too long'),
   slug: z.string().regex(/^[a-z0-9-]+$/, 'Slug must be lowercase letters, numbers, and hyphens only'),
@@ -17,12 +32,19 @@ export const serviceSchema = z.object({
   icon: z.string().optional().or(z.literal('')),
   image_url: z.string().url('Invalid URL').optional().or(z.literal('')),
   features: z.array(z.string()).optional(),
+  pricing_plans: z.array(servicePricingPlanItemSchema).optional(),
+  faqs: z.array(serviceFAQItemSchema).optional(),
   price: z.string().optional().or(z.literal('')),
   cta_text: z.string().optional().or(z.literal('')),
   cta_url: z.string().url('Invalid URL').optional().or(z.literal('')),
   featured: z.boolean(),
   display_order: z.number().int().min(0),
   is_active: z.boolean(),
+  meta_title: z.string().max(70, 'Meta title should be under 70 characters').optional().or(z.literal('')),
+  meta_description: z.string().max(160, 'Meta description should be under 160 characters').optional().or(z.literal('')),
+  og_image: z.string().url('Invalid URL').optional().or(z.literal('')),
+  canonical_url: z.string().url('Invalid URL').optional().or(z.literal('')),
+  no_index: z.boolean(),
 });
 
 export type ServiceFormData = z.infer<typeof serviceSchema>;

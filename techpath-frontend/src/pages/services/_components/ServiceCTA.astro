@@ -2,10 +2,9 @@
 interface Props {
   title: string;
   cta: string;
-  price?: string;
 }
 
-const { title, cta, price } = Astro.props;
+const { title, cta } = Astro.props;
 ---
 
 <section class="mx-auto mt-20 max-w-4xl">
@@ -27,25 +26,25 @@ const { title, cta, price } = Astro.props;
         Ready to get started with {title}?
       </h2>
 
-      <p class="mb-8 text-lg text-slate-400">
+      <p class="mb-4 text-lg text-slate-400">
         {cta}
       </p>
 
-      {
-        price && (
-          <div class="mb-8">
-            <span class="text-sm text-slate-400">Starting at</span>
-            <div class="mt-1 font-heading text-4xl font-bold text-white">{price}</div>
-          </div>
-        )
-      }
+      <div class="mb-6">
+        <p class="text-lg text-slate-300">
+          Every business is unique. We create custom solutions tailored to your specific needs and budget.
+        </p>
+        <p class="mt-2 text-sm text-slate-400">
+          Schedule a free consultation to discuss your project.
+        </p>
+      </div>
 
       <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
         <a
           href="/contact"
           class="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary-500 to-primary-600 px-8 py-4 font-semibold text-white transition-all hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:shadow-primary-500/25"
         >
-          Schedule a Consultation
+          Schedule Free Consultation
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               stroke-linecap="round"

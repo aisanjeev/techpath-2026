@@ -29,6 +29,21 @@ export interface LoginResponse {
 }
 
 // Service Types
+export interface ServicePricingPlanItem {
+  name: string;
+  description: string;
+  price: string;
+  period: string;
+  features: string[];
+  cta: string;
+  highlighted?: boolean;
+}
+
+export interface ServiceFAQItem {
+  question: string;
+  answer: string;
+}
+
 export interface Service {
   id: number;
   title: string;
@@ -38,12 +53,19 @@ export interface Service {
   icon?: string;
   image_url?: string;
   features?: string[];
+  pricing_plans?: ServicePricingPlanItem[];
+  faqs?: ServiceFAQItem[];
   price?: string;
   cta_text: string;
   cta_url?: string;
   featured: boolean;
   display_order: number;
   is_active: boolean;
+  meta_title?: string;
+  meta_description?: string;
+  og_image?: string;
+  canonical_url?: string;
+  no_index?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -56,12 +78,19 @@ export interface ServiceCreate {
   icon?: string;
   image_url?: string;
   features?: string[];
+  pricing_plans?: ServicePricingPlanItem[];
+  faqs?: ServiceFAQItem[];
   price?: string;
   cta_text?: string;
   cta_url?: string;
   featured?: boolean;
   display_order?: number;
   is_active?: boolean;
+  meta_title?: string;
+  meta_description?: string;
+  og_image?: string;
+  canonical_url?: string;
+  no_index?: boolean;
 }
 
 export interface ServiceUpdate extends Partial<ServiceCreate> {}

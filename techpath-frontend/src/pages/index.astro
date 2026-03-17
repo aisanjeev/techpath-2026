@@ -10,6 +10,7 @@ import FAQSection from '@components/sections/FAQSection.astro';
 import CTA from '@components/shared/CTA.astro';
 import { fetchHomePageContent } from '@services/pageContentService';
 import { fetchCaseStudies, normalizeCaseStudy } from '@services/caseStudyService';
+import { fetchServices } from '@services/serviceService';
 
 const content = await fetchHomePageContent();
 const caseStudiesSection = content.case_studies_section ?? {
@@ -19,6 +20,22 @@ const caseStudiesSection = content.case_studies_section ?? {
   view_all_label: 'View All Case Studies',
   view_all_href: '/case-studies',
 };
+
+// Fetch dynamic services from API
+const apiServices = await fetchServices();
+const dynamicServices = apiServices
+  .filter((s) => s.featured && s.is_active)
+  .slice(0, 4)
+  .map((s) => ({
+    title: s.title,
+    description: s.short_description || s.description.replace(/<[^>]+>/g, '').slice(0, 150),
+    icon: s.icon || 'code',
+    href: `/services/${s.slug}`,
+  }));
+
+// Use dynamic services if available, fallback to content.services
+const services = dynamicServices.length > 0 ? dynamicServices : content.services;
+
 const apiCaseStudies = await fetchCaseStudies({
   limit: caseStudiesSection.limit ?? 6,
   featured: true,
@@ -37,7 +54,7 @@ const caseStudies = apiCaseStudies.map(normalizeCaseStudy);
 
   <StatCounter stats={content.stats} />
 
-  <ServiceShowcase services={content.services} />
+  <ServiceShowcase services={services} />
 
   <CaseStudyShowcase
     caseStudies={caseStudies}

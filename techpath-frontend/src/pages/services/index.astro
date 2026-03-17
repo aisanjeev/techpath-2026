@@ -4,89 +4,26 @@ import Breadcrumb from '@components/shared/Breadcrumb.astro';
 import ServiceCard from './_components/ServiceCard.astro';
 import CTA from '@components/shared/CTA.astro';
 import { fetchServicesPageContent } from '@services/pageContentService';
+import { fetchServices } from '@services/serviceService';
 
 const breadcrumbItems = [
   { label: 'Home', href: '/' },
   { label: 'Services', href: '/services', current: true },
 ];
 
-const content = await fetchServicesPageContent();
+const [content, apiServices] = await Promise.all([
+  fetchServicesPageContent(),
+  fetchServices(),
+]);
 
-const services = [
-  {
-    title: 'AI & Machine Learning',
-    slug: 'ai-consulting',
-    description:
-      'Transform your business with custom AI solutions. From predictive analytics to natural language processing, we build intelligent systems that drive results.',
-    icon: 'brain',
-    features: [
-      'Custom ML Model Development',
-      'Natural Language Processing',
-      'Computer Vision Solutions',
-      'Predictive Analytics',
-    ],
-  },
-  {
-    title: 'Cloud Infrastructure',
-    slug: 'cloud-services',
-    description:
-      'Scalable, secure cloud architecture on AWS, Azure, and Google Cloud. We design and implement infrastructure that grows with your business.',
-    icon: 'cloud',
-    features: [
-      'Cloud Migration',
-      'Kubernetes & Containerization',
-      'Serverless Architecture',
-      'DevOps & CI/CD',
-    ],
-  },
-  {
-    title: 'Web Development',
-    slug: 'web-development',
-    description:
-      'Modern, performant web applications built with cutting-edge technologies. From startups to enterprise, we deliver exceptional digital experiences.',
-    icon: 'code',
-    features: [
-      'Full-Stack Development',
-      'Progressive Web Apps',
-      'E-commerce Solutions',
-      'API Development',
-    ],
-  },
-  {
-    title: 'Data Analytics',
-    slug: 'data-analytics',
-    description:
-      'Turn your data into actionable insights. We build data pipelines, dashboards, and analytics platforms that empower data-driven decisions.',
-    icon: 'chart',
-    features: ['Data Warehousing', 'Business Intelligence', 'Real-time Analytics', 'Data Visualization'],
-  },
-  {
-    title: 'Cybersecurity',
-    slug: 'cybersecurity',
-    description:
-      'Protect your digital assets with enterprise-grade security. From audits to implementation, we ensure your systems are secure and compliant.',
-    icon: 'shield',
-    features: [
-      'Security Audits',
-      'Penetration Testing',
-      'Compliance (SOC 2, HIPAA)',
-      'Incident Response',
-    ],
-  },
-  {
-    title: 'Digital Transformation',
-    slug: 'digital-transformation',
-    description:
-      'End-to-end digital transformation consulting. We help you modernize legacy systems and build future-proof technology strategies.',
-    icon: 'transform',
-    features: [
-      'Legacy Modernization',
-      'Process Automation',
-      'Technology Strategy',
-      'Change Management',
-    ],
-  },
-];
+const iconKeys = ['brain', 'cloud', 'code', 'chart', 'shield', 'transform'];
+const services = apiServices.map((s) => ({
+  title: s.title,
+  slug: s.slug,
+  description: s.short_description || s.description.replace(/<[^>]+>/g, '').slice(0, 300) || s.description,
+  icon: s.icon && iconKeys.includes(s.icon) ? s.icon : 'code',
+  features: s.features ?? [],
+}));
 ---
 
 <MainLayout
