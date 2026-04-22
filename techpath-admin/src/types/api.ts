@@ -16,9 +16,10 @@ export interface PaginatedResponse<T> {
 export interface User {
   id: number;
   email: string;
-  full_name: string;
+  name: string;
+  role: string;
   is_active: boolean;
-  is_superuser: boolean;
+  avatar_url?: string;
   created_at: string;
   updated_at?: string;
 }
@@ -148,6 +149,51 @@ export interface BlogPostCreate {
 }
 
 export interface BlogPostUpdate extends Partial<BlogPostCreate> {}
+
+// Page Types (standalone CMS pages served at domain.com/{slug})
+export interface Page {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  content_type: 'html' | 'markdown';
+  excerpt?: string;
+  featured_image?: string;
+  status: 'draft' | 'published' | 'archived';
+  meta_title?: string;
+  meta_description?: string;
+  published_at?: string;
+  author_id?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PageListItem {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  featured_image?: string;
+  status: 'draft' | 'published' | 'archived';
+  published_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PageCreate {
+  title: string;
+  slug: string;
+  content: string;
+  content_type?: 'html' | 'markdown';
+  excerpt?: string;
+  featured_image?: string;
+  status?: 'draft' | 'published' | 'archived';
+  meta_title?: string;
+  meta_description?: string;
+  published_at?: string;
+}
+
+export interface PageUpdate extends Partial<PageCreate> {}
 
 // Case Study Types
 export interface CaseStudyTag {

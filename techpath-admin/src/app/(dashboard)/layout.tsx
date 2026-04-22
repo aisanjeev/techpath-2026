@@ -2,39 +2,52 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { onAuthStateChanged } from 'firebase/auth';
+import { firebaseAuth } from '@/lib/firebase';
 import { useAuthStore } from '@/store/auth.store';
 import { useUIStore } from '@/store/ui.store';
+import { authService } from '@/services/auth.service';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { TopNav } from '@/components/layout/TopNav';
 import { PageLoader } from '@/components/ui/Spinner';
 import { cn } from '@/lib/utils/cn';
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { token, setLoading, isLoading } = useAuthStore();
+  const { user, login, logout, setLoading, isLoading } = useAuthStore();
   const { sidebarCollapsed } = useUIStore();
-  const [hasHydrated, setHasHydrated] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    const unsub = useAuthStore.persist?.onFinishHydration?.(() => setHasHydrated(true));
-    if (useAuthStore.persist?.hasHydrated?.()) setHasHydrated(true);
-    return () => unsub?.();
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        logout();
+        router.push('/login');
+        setChecked(true);
+        return;
+      }
+
+      // Fetch backend user profile if not already loaded
+      if (!user) {
+        try {
+          const backendUser = await authService.getCurrentUser();
+          login(backendUser);
+        } catch {
+          logout();
+          router.push('/login');
+        }
+      } else {
+        setLoading(false);
+      }
+
+      setChecked(true);
+    });
+
+    return () => unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (!hasHydrated) return;
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    setLoading(false);
-  }, [hasHydrated, token, router, setLoading]);
-
-  if (!hasHydrated || isLoading || !token) {
+  if (!checked || isLoading) {
     return <PageLoader />;
   }
 
@@ -53,4 +66,3 @@ export default function DashboardLayout({
     </div>
   );
 }
-

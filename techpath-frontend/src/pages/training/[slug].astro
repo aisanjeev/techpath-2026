@@ -404,7 +404,7 @@ const courseSchema = {
 </MainLayout>
 
 <script>
-  const API_URL = 'http://localhost:8000';
+  const API_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
   
   // Sidebar form toggle
   const enrollBtn = document.getElementById('enroll-now-btn');

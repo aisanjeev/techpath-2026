@@ -73,11 +73,11 @@ app = FastAPI(
     openapi_url="/openapi.json" if settings.DEBUG else None,
 )
 
-# CORS middleware - allow all origins for development
+# CORS middleware — origins controlled via CORS_ORIGINS env var
 # Expose X-Total-Count so admin/frontend can read pagination total
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

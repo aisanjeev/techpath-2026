@@ -135,10 +135,14 @@ jobs:
             pip install --upgrade pip poetry
             poetry config virtualenvs.create false
             poetry install --no-interaction --no-ansi --only main
-            
+
+            # Run database migrations
+            echo "🗄️ Running database migrations..."
+            poetry run alembic upgrade head
+
             # Setup systemd service
             echo "⚙️ Setting up systemd service..."
-            
+
             cat > /etc/systemd/system/${SERVICE_NAME}.service << SERVICEEOF
             [Unit]
             Description=TechPath Staging API Service
@@ -269,10 +273,14 @@ jobs:
             pip install --upgrade pip poetry
             poetry config virtualenvs.create false
             poetry install --no-interaction --no-ansi --only main
-            
+
+            # Run database migrations
+            echo "🗄️ Running database migrations..."
+            poetry run alembic upgrade head
+
             # Setup systemd service
             echo "⚙️ Setting up systemd service..."
-            
+
             cat > /etc/systemd/system/${SERVICE_NAME}.service << SERVICEEOF
             [Unit]
             Description=TechPath Production API Service

@@ -12,6 +12,7 @@ import TrustBadges from '@components/sections/TrustBadges.astro';
 import FAQSection from '@components/sections/FAQSection.astro';
 import { fetchServiceBySlug } from '@services/serviceService';
 import { fetchCaseStudies, normalizeCaseStudy } from '@services/caseStudyService';
+import { generateServiceSchema } from '@utils/seo';
 import '@styles/markdown.css';
 
 export const prerender = false;
@@ -46,6 +47,14 @@ const breadcrumbItems = [
 
 const caseStudies = apiCaseStudies.map(normalizeCaseStudy);
 
+const siteUrl = import.meta.env.SITE_URL || 'https://techpath.biz';
+const serviceUrl = `${siteUrl}/services/${slug}`;
+const serviceSchema = generateServiceSchema({
+  name: service.title,
+  description: heroDescription,
+  url: serviceUrl,
+});
+
 // Use dynamic FAQs from service, or fallback to default
 const serviceFaqs = service.faqs && service.faqs.length > 0 ? service.faqs : [
   { question: 'How long does implementation take?', answer: 'Timeline depends on scope. We typically deliver proof-of-concept in 4–8 weeks and full implementation in 2–6 months. We\'ll provide a detailed timeline during your free consultation.' },
@@ -64,6 +73,7 @@ const serviceFaqs = service.faqs && service.faqs.length > 0 ? service.faqs : [
   canonicalUrl={service.canonical_url || undefined}
   noIndex={service.no_index || false}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(serviceSchema)} slot="head" />
   <article class="service-page py-12 lg:py-20">
     <div class="container mx-auto px-4">
       <Breadcrumb items={breadcrumbItems} />

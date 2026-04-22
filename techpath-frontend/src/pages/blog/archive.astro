@@ -57,7 +57,7 @@ const nextHref = `/blog/archive?page=${currentPage + 1}`;
             <Card
               title={post.data.title}
               description={post.data.description}
-              href={post.source === 'api' ? `/blog/api/${post.slug}` : `/blog/${post.slug}`}
+              href={`/blog/${post.slug}`}
               image={post.data.image ?? undefined}
               meta={`${post.data.author} • ${new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',

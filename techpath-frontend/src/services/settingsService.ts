@@ -18,6 +18,7 @@ export interface PublicSettings {
   seo_default_title?: string;
   seo_default_description?: string;
   google_analytics_id?: string;
+  gtm_id?: string;
 }
 
 /**

@@ -1,0 +1,296 @@
+# =============================================================================
+# TechPath Admin (Next.js) Deployment Workflow
+# =============================================================================
+# Deploys techpath-admin (Next.js 16 App Router) to VPS via `next start`.
+#
+# DEPLOYMENT STRATEGY:
+# --------------------
+# - Push to `develop` branch → STAGING  (port 3083, staging.admin.techpath.biz)
+# - Push to `main`    branch → PRODUCTION (port 3082, admin.techpath.biz)
+#
+# NOTE: Ports and deploy paths are placeholders — adjust once VPS routing
+# (nginx/Caddy) is finalized. Keep SERVICE_NAME/DEPLOY_PATH/APP_PORT in sync.
+#
+# REQUIRED GITHUB SECRETS:
+# ------------------------
+# Repository Secrets:
+#   SSH_HOST, SSH_USER, SSH_PASSWORD, SSH_PORT (optional, default 22)
+#
+# Environment Secrets (Settings > Environments > [env] > Secrets):
+#   ADMIN_ENV_FILE - Full .env.local contents
+#                    (NEXT_PUBLIC_API_BASE_URL, Firebase NEXT_PUBLIC_* keys,
+#                     and any server-side secrets.)
+#   IMPORTANT: NEXT_PUBLIC_* vars are inlined at BUILD TIME — env file must
+#              be written BEFORE `npm run build`.
+#
+# VPS PREREQUISITES:
+# ------------------
+# - Node.js 20+ and npm installed
+# - mkdir -p /home/techpath-admin-staging/htdocs/staging.admin.techpath.biz
+# - mkdir -p /home/techpath-admin/htdocs/admin.techpath.biz
+# - Reverse proxy routes the public domain to 127.0.0.1:<APP_PORT>
+# =============================================================================
+
+name: Deploy Admin to VPS
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'techpath-admin/**'
+      - '.github/workflows/deploy-admin.yml'
+
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+# =============================================================================
+# STAGING DEPLOYMENT
+# =============================================================================
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+
+    environment:
+      name: staging
+      url: https://staging.admin.techpath.biz
+
+    env:
+      DEPLOY_PATH: /home/techpath-admin-staging/htdocs/staging.admin.techpath.biz
+      SERVICE_NAME: techpath-admin-staging
+      APP_PORT: 3083
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy files to Staging VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "techpath-admin/"
+          target: ${{ env.DEPLOY_PATH }}
+          strip_components: 1
+          rm: false
+
+      - name: Setup and restart staging service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+
+            echo "=========================================="
+            echo "🚀 TechPath Admin STAGING Deployment"
+            echo "=========================================="
+
+            DEPLOY_DIR="${{ env.DEPLOY_PATH }}"
+            SERVICE_NAME="${{ env.SERVICE_NAME }}"
+            APP_PORT="${{ env.APP_PORT }}"
+
+            cd "$DEPLOY_DIR"
+
+            # Write .env.local BEFORE build (NEXT_PUBLIC_* are inlined)
+            echo "📝 Writing .env.local..."
+            cat > .env.local << 'ENVEOF'
+            ${{ secrets.ADMIN_ENV_FILE }}
+            ENVEOF
+            chmod 600 .env.local
+
+            echo "🧹 Cleaning previous build..."
+            rm -rf .next node_modules/.cache 2>/dev/null || true
+
+            echo "📦 Installing dependencies (npm ci)..."
+            npm ci --no-audit --no-fund
+
+            echo "🔨 Building Next.js app..."
+            npm run build
+
+            echo "⚙️  Setting up systemd service..."
+            cat > /etc/systemd/system/${SERVICE_NAME}.service << SERVICEEOF
+            [Unit]
+            Description=TechPath Staging Admin (Next.js) Service
+            After=network.target
+
+            [Service]
+            Type=simple
+            User=root
+            WorkingDirectory=${DEPLOY_DIR}
+            Environment="NODE_ENV=production"
+            Environment="PORT=${APP_PORT}"
+            Environment="HOSTNAME=0.0.0.0"
+            Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+            ExecStart=/usr/bin/npm run start -- -p ${APP_PORT}
+            Restart=always
+            RestartSec=10
+
+            [Install]
+            WantedBy=multi-user.target
+            SERVICEEOF
+
+            echo "🔄 Restarting service..."
+            systemctl daemon-reload
+            systemctl enable ${SERVICE_NAME}.service 2>/dev/null || true
+
+            PID=$(lsof -t -i:${APP_PORT} 2>/dev/null) || true
+            if [ -n "$PID" ]; then
+                kill -9 $PID 2>/dev/null || true
+                sleep 2
+            fi
+
+            systemctl restart ${SERVICE_NAME}.service
+            sleep 5
+
+            echo "🏥 Health check..."
+            if systemctl is-active --quiet ${SERVICE_NAME}.service; then
+                echo "✅ Staging service is running on port ${APP_PORT}!"
+            else
+                echo "❌ Service failed!"
+                journalctl -u ${SERVICE_NAME}.service --no-pager -n 30
+                exit 1
+            fi
+
+            echo "=========================================="
+            echo "✨ STAGING deployment complete!"
+            echo "   URL: https://staging.admin.techpath.biz"
+            echo "=========================================="
+
+# =============================================================================
+# PRODUCTION DEPLOYMENT
+# =============================================================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+
+    environment:
+      name: production
+      url: https://admin.techpath.biz
+
+    env:
+      DEPLOY_PATH: /home/techpath-admin/htdocs/admin.techpath.biz
+      SERVICE_NAME: techpath-admin
+      APP_PORT: 3082
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy files to Production VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "techpath-admin/"
+          target: ${{ env.DEPLOY_PATH }}
+          strip_components: 1
+          rm: false
+
+      - name: Setup and restart production service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+
+            echo "=========================================="
+            echo "🚀 TechPath Admin PRODUCTION Deployment"
+            echo "=========================================="
+
+            DEPLOY_DIR="${{ env.DEPLOY_PATH }}"
+            SERVICE_NAME="${{ env.SERVICE_NAME }}"
+            APP_PORT="${{ env.APP_PORT }}"
+
+            cd "$DEPLOY_DIR"
+
+            echo "📝 Writing .env.local..."
+            cat > .env.local << 'ENVEOF'
+            ${{ secrets.ADMIN_ENV_FILE }}
+            ENVEOF
+            chmod 600 .env.local
+
+            echo "🧹 Cleaning previous build..."
+            rm -rf .next node_modules/.cache 2>/dev/null || true
+
+            echo "📦 Installing dependencies (npm ci)..."
+            npm ci --no-audit --no-fund
+
+            echo "🔨 Building Next.js app..."
+            npm run build
+
+            echo "⚙️  Setting up systemd service..."
+            cat > /etc/systemd/system/${SERVICE_NAME}.service << SERVICEEOF
+            [Unit]
+            Description=TechPath Production Admin (Next.js) Service
+            After=network.target
+
+            [Service]
+            Type=simple
+            User=root
+            WorkingDirectory=${DEPLOY_DIR}
+            Environment="NODE_ENV=production"
+            Environment="PORT=${APP_PORT}"
+            Environment="HOSTNAME=0.0.0.0"
+            Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+            ExecStart=/usr/bin/npm run start -- -p ${APP_PORT}
+            Restart=always
+            RestartSec=10
+
+            [Install]
+            WantedBy=multi-user.target
+            SERVICEEOF
+
+            echo "🔄 Restarting service..."
+            systemctl daemon-reload
+            systemctl enable ${SERVICE_NAME}.service 2>/dev/null || true
+
+            PID=$(lsof -t -i:${APP_PORT} 2>/dev/null) || true
+            if [ -n "$PID" ]; then
+                kill -9 $PID 2>/dev/null || true
+                sleep 2
+            fi
+
+            systemctl restart ${SERVICE_NAME}.service
+            sleep 5
+
+            echo "🏥 Health check..."
+            if systemctl is-active --quiet ${SERVICE_NAME}.service; then
+                echo "✅ Production service is running on port ${APP_PORT}!"
+            else
+                echo "❌ Service failed!"
+                journalctl -u ${SERVICE_NAME}.service --no-pager -n 30
+                exit 1
+            fi
+
+            echo "=========================================="
+            echo "✨ PRODUCTION deployment complete!"
+            echo "   URL: https://admin.techpath.biz"
+            echo "=========================================="
+
+      - name: Deployment failed notification
+        if: failure()
+        run: |
+          echo "❌ PRODUCTION deployment failed!"
+          echo "Check the logs above for details."

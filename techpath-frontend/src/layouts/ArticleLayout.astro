@@ -53,7 +53,7 @@ interface Props {
   breadcrumbs?: BreadcrumbItem[];
   /** Related posts */
   relatedPosts?: RelatedPost[];
-  /** Base path for related post links (e.g. "/blog" for collection, "/blog/api" for API posts). Default "/blog". */
+  /** Base path for related post links. Default "/blog". */
   relatedPostBasePath?: string;
   /** Show TOC sidebar */
   showToc?: boolean;
@@ -106,6 +106,7 @@ const currentUrl = Astro.url.href;
 ---
 
 <MainLayout title={headTitle} description={headDescription} image={image}>
+  <slot name="head" slot="head" />
   <article class="article-layout py-12 lg:py-20">
     <div class="container mx-auto px-4">
       {/* Breadcrumbs */}

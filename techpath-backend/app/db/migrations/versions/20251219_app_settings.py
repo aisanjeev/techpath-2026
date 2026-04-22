@@ -176,6 +176,15 @@ def upgrade() -> None:
             "value_type": "string",
             "display_order": 3,
         },
+        {
+            "key": "gtm_id",
+            "value": "",
+            "display_name": "Google Tag Manager ID",
+            "description": "GTM container ID (e.g. GTM-XXXXXXX). Leave blank to disable.",
+            "category": "seo",
+            "value_type": "string",
+            "display_order": 4,
+        },
     ]
     
     op.bulk_insert(settings_table, initial_settings)

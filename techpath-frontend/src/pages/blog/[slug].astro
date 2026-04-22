@@ -1,60 +1,134 @@
 ---
 /**
- * Dynamic Blog Post Page
- * Renders individual blog posts from content collections (Markdown)
+ * Blog post detail — handles both FastAPI backend posts and local
+ * content-collection posts (src/content/blog/*.md).
+ * All posts resolve at /blog/[slug] — no more /blog/api/* URLs.
  */
 import ArticleLayout from '@layouts/ArticleLayout.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
+import { fetchBlogPostBySlug, fetchBlogPosts } from '@services/blogService';
 import { calculateReadingTime } from '@utils/contentHelpers';
+import { generateArticleSchema } from '@utils/seo';
+import { marked } from 'marked';
 
-// Prerender this page - uses getStaticPaths for content collection posts
-export const prerender = true;
+export const prerender = false;
 
-export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  return posts.map((post) => ({
-    params: { slug: post.slug },
-    props: { post, allPosts: posts },
-  }));
+const { slug } = Astro.params;
+
+if (!slug) return Astro.redirect('/blog');
+
+// ── Try API post first ──────────────────────────────────────────────────────
+const apiPost = await fetchBlogPostBySlug(slug);
+
+let renderMode: 'api' | 'collection' = 'api';
+let htmlContent = '';
+let title = '';
+let description = '';
+let seoTitle: string | undefined;
+let seoDescription: string | undefined;
+let author = 'TechPath Team';
+let pubDate: Date = new Date();
+let image: string | undefined;
+let tags: string[] = [];
+let relatedPosts: { slug: string; title: string; description: string; image?: string }[] = [];
+let breadcrumbItems: { label: string; href: string; current?: boolean }[] = [];
+let CollectionContent: (() => unknown) | undefined;
+let readingTime = 5;
+let category: { name: string; slug: string } | undefined;
+
+if (apiPost) {
+  renderMode = 'api';
+  title = apiPost.title;
+  description = apiPost.excerpt || '';
+  seoTitle = apiPost.meta_title || undefined;
+  seoDescription = apiPost.meta_description || undefined;
+  pubDate = new Date(apiPost.published_at || apiPost.created_at);
+  image = apiPost.featured_image ?? undefined;
+  tags = apiPost.tags.map((t) => t.name);
+  readingTime = apiPost.reading_time || 5;
+  category = {
+    name: apiPost.category?.name || 'Uncategorized',
+    slug: apiPost.category?.slug || 'uncategorized',
+  };
+
+  const allApiPosts = await fetchBlogPosts({ limit: 10 });
+  relatedPosts = allApiPosts
+    .filter((p) => p.slug !== slug)
+    .sort((a, b) => {
+      const aMatch = a.category?.id === apiPost.category?.id ? 1 : 0;
+      const bMatch = b.category?.id === apiPost.category?.id ? 1 : 0;
+      return bMatch - aMatch;
+    })
+    .slice(0, 3)
+    .map((p) => ({ slug: p.slug, title: p.title, description: p.excerpt || '', image: p.featured_image ?? undefined }));
+
+  breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Blog', href: '/blog' },
+    { label: category.name, href: `/blog/category/${category.slug}` },
+    { label: title, href: '#', current: true },
+  ];
+
+  if (apiPost.content_type === 'markdown' || apiPost.content.startsWith('#') || apiPost.content.includes('\n```')) {
+    htmlContent = await marked(apiPost.content);
+  } else {
+    htmlContent = apiPost.content;
+  }
+} else {
+  // ── Fall back to content-collection post ────────────────────────────────
+  const collectionPosts = await getCollection('blog');
+  const post = collectionPosts.find((p) => p.slug === slug);
+
+  if (!post) return Astro.redirect('/404');
+
+  renderMode = 'collection';
+  const rendered = await post.render();
+  CollectionContent = rendered.Content as () => unknown;
+  title = post.data.title;
+  description = post.data.description;
+  author = post.data.author;
+  pubDate = post.data.pubDate;
+  image = post.data.image;
+  tags = post.data.tags || [];
+  readingTime = post.data.readingTime || calculateReadingTime(post.body);
+
+  const allPosts = collectionPosts.filter((p) => p.slug !== slug);
+  relatedPosts = allPosts
+    .filter((p) => p.data.tags?.some((t) => post.data.tags?.includes(t)))
+    .slice(0, 3)
+    .map((p) => ({ slug: p.slug, title: p.data.title, description: p.data.description, image: p.data.image }));
+
+  breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Blog', href: '/blog' },
+    { label: title, href: '#', current: true },
+  ];
 }
 
-interface Props {
-  post: CollectionEntry<'blog'>;
-  allPosts: CollectionEntry<'blog'>[];
-}
-
-const { post, allPosts } = Astro.props;
-const { Content } = await post.render();
-
-// Calculate reading time if not provided
-const readingTime = post.data.readingTime || calculateReadingTime(post.body);
-
-// Get related posts (simple implementation - same tags)
-const relatedPosts = allPosts
-  .filter((p) => p.slug !== post.slug)
-  .filter((p) => p.data.tags?.some((tag) => post.data.tags?.includes(tag)))
-  .slice(0, 3)
-  .map((p) => ({
-    slug: p.slug,
-    title: p.data.title,
-    description: p.data.description,
-    image: p.data.image,
-  }));
-
-const breadcrumbItems = [
-  { label: 'Home', href: '/' },
-  { label: 'Blog', href: '/blog' },
-  { label: post.data.title, href: '#', current: true },
-];
+const siteUrl = import.meta.env.SITE_URL || 'https://techpath.biz';
+const postUrl = `${siteUrl}/blog/${slug}`;
+const modifiedDate = apiPost?.updated_at ? new Date(apiPost.updated_at).toISOString() : pubDate.toISOString();
+const articleSchema = generateArticleSchema({
+  title,
+  description,
+  url: postUrl,
+  image,
+  publishedTime: pubDate.toISOString(),
+  modifiedTime: modifiedDate,
+  author,
+});
 ---
 
 <ArticleLayout
-  title={post.data.title}
-  description={post.data.description}
-  author={post.data.author}
-  pubDate={post.data.pubDate}
-  image={post.data.image}
-  tags={post.data.tags}
+  title={title}
+  description={description}
+  seoTitle={seoTitle}
+  seoDescription={seoDescription}
+  author={author}
+  pubDate={pubDate}
+  image={image}
+  category={category}
+  tags={tags}
   readingTime={readingTime}
   breadcrumbs={breadcrumbItems}
   relatedPosts={relatedPosts}
@@ -63,5 +137,9 @@ const breadcrumbItems = [
   showShareButtons={true}
   type="blog"
 >
-  <Content />
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} slot="head" />
+  {renderMode === 'api'
+    ? <Fragment set:html={htmlContent} />
+    : CollectionContent && <CollectionContent />
+  }
 </ArticleLayout>

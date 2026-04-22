@@ -4,7 +4,7 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import robotsTxt from 'astro-robots-txt';
 import compress from 'astro-compress';
-import vercel from '@astrojs/vercel';
+import node from '@astrojs/node';
 import { loadEnv } from 'vite';
 
 const env = loadEnv(process.env.NODE_ENV, process.cwd(), '');
@@ -28,33 +28,13 @@ export default defineConfig({
       CSS: true,
       HTML: true,
       JavaScript: true,
-      Image: false, // Let Vercel handle image optimization
+      Image: false,
       SVG: true,
     }),
   ],
 
-  // Server mode with prerender = true by default for most pages
-  // Use prerender = false for pages that need dynamic SSR
   output: 'server',
-  adapter: vercel({
-    // Enable Vercel's image optimization service
-    imageService: true,
-    // Enable Incremental Static Regeneration for better caching
-    isr: {
-      // Revalidate pages every hour (3600 seconds)
-      expiration: 3600,
-    },
-    // Enable Vercel Web Analytics (free)
-    webAnalytics: {
-      enabled: true,
-    },
-    // Enable Vercel Speed Insights (free)
-    speedInsights: {
-      enabled: true,
-    },
-    // Max duration for serverless functions (seconds)
-    maxDuration: 30,
-  }),
+  adapter: node({ mode: 'standalone' }),
 
   // Prefetch configuration for faster navigation
   prefetch: {
@@ -75,9 +55,7 @@ export default defineConfig({
   },
 
   image: {
-    // Use Vercel's image optimization in production
     service: { entrypoint: 'astro/assets/services/sharp' },
-    // Allowed remote image domains
     domains: ['techpath.biz'],
   },
 

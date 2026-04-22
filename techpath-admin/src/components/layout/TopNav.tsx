@@ -44,7 +44,7 @@ export function TopNav() {
               <User className="h-4 w-4" />
             </div>
             <span className="hidden text-sm font-medium text-gray-700 md:block">
-              {user?.full_name || user?.email || 'Admin'}
+              {user?.name || user?.email || 'Admin'}
             </span>
             <ChevronDown className="h-4 w-4 text-gray-500" />
           </button>

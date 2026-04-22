@@ -4,6 +4,7 @@ import Footer from '@components/shared/Footer.astro';
 import CookieConsentBanner from '@components/shared/CookieConsentBanner.astro';
 import '@styles/globals.css';
 import { fetchPublicSettings } from '@services/settingsService';
+import { getRobotsContent } from '@utils/seo';
 
 interface Props {
   title: string;
@@ -19,6 +20,7 @@ const settings = await fetchPublicSettings();
 const defaultDescription = settings.seo_default_description || 'TechPath - AI-Powered IT Solutions for Modern Enterprises';
 const companyName = settings.company_name || 'TechPath';
 const googleAnalyticsId = settings.google_analytics_id;
+const gtmId = settings.gtm_id;
 
 const {
   title,
@@ -31,6 +33,7 @@ const {
 const siteUrl = import.meta.env.SITE_URL || 'https://techpath.biz';
 const fullUrl = canonicalUrl || new URL(Astro.url.pathname, siteUrl).toString();
 const fullImageUrl = new URL(image, siteUrl).toString();
+const robotsContent = getRobotsContent(noIndex);
 ---
 
 <!doctype html>
@@ -44,7 +47,7 @@ const fullImageUrl = new URL(image, siteUrl).toString();
     <title>{title} | {companyName}</title>
     <meta name="title" content={`${title} | ${companyName}`} />
     <meta name="description" content={description} />
-    {noIndex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="robots" content={robotsContent} />
 
     <!-- Canonical URL -->
     <link rel="canonical" href={fullUrl} />
@@ -64,6 +67,17 @@ const fullImageUrl = new URL(image, siteUrl).toString();
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={fullImageUrl} />
 
+    <!-- Google Tag Manager -->
+    {gtmId && (
+      <script is:inline define:vars={{ gtmId }}>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer',gtmId);
+      </script>
+    )}
+
     <!-- Google Analytics -->
     {googleAnalyticsId && (
       <>
@@ -78,8 +92,9 @@ const fullImageUrl = new URL(image, siteUrl).toString();
     )}
 
     <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.png" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -103,8 +118,15 @@ const fullImageUrl = new URL(image, siteUrl).toString();
         settings.social_facebook,
       ].filter(Boolean)
     })} />
+    <slot name="head" />
   </head>
   <body class="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
+    {gtmId && (
+      <noscript>
+        <iframe src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+          height="0" width="0" style="display:none;visibility:hidden"></iframe>
+      </noscript>
+    )}
     <div class="flex min-h-screen flex-col">
       <Header />
       <main class="flex-1">

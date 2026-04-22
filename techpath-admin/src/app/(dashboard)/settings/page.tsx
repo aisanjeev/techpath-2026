@@ -36,7 +36,7 @@ export default function SettingsPage() {
             <FormField label="Full Name" htmlFor="name">
               <Input
                 id="name"
-                defaultValue={user?.full_name || ''}
+                defaultValue={user?.name || ''}
                 placeholder="Your name"
               />
             </FormField>
