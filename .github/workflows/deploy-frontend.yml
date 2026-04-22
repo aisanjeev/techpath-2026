@@ -67,9 +67,9 @@ jobs:
       url: https://staging.techpath.biz
 
     env:
-      DEPLOY_PATH: /home/techpath-www-staging/htdocs/staging.techpath.biz
-      SERVICE_NAME: techpath-www-staging
-      APP_PORT: 3093
+      DEPLOY_PATH: /home/techpath-staging/htdocs/staging.techpath.biz
+      SERVICE_NAME: techpath-staging
+      APP_PORT: 3007
 
     steps:
       - name: Checkout code
