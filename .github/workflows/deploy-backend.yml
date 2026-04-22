@@ -22,7 +22,11 @@
 #   SSH_PORT     - SSH port (optional, defaults to 22)
 #
 # Environment Secrets (Settings > Environments > [env] > Secrets):
-#   ENV_FILE     - Environment variables for staging/production
+#   ENV_FILE                     - Environment variables for staging/production
+#                                  Set FIREBASE_SERVICE_ACCOUNT_PATH=./firebase-service-account.json
+#   FIREBASE_SERVICE_ACCOUNT_B64 - base64-encoded firebase-service-account.json
+#                                  Generate locally:
+#                                    base64 -i firebase-service-account.json | pbcopy
 #
 # VPS PREREQUISITES:
 # ------------------
@@ -117,7 +121,14 @@ jobs:
             ${{ secrets.ENV_FILE }}
             ENVEOF
             chmod 600 .env.local
-            
+
+            # Write firebase service account from base64 secret
+            if [ -n "${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}" ]; then
+                echo "🔑 Writing firebase service account..."
+                echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}' | base64 -d > firebase-service-account.json
+                chmod 600 firebase-service-account.json
+            fi
+
             # Clean up cache files
             echo "🧹 Cleaning up cache files..."
             find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
@@ -255,7 +266,14 @@ jobs:
             ${{ secrets.ENV_FILE }}
             ENVEOF
             chmod 600 .env.local
-            
+
+            # Write firebase service account from base64 secret
+            if [ -n "${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}" ]; then
+                echo "🔑 Writing firebase service account..."
+                echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}' | base64 -d > firebase-service-account.json
+                chmod 600 firebase-service-account.json
+            fi
+
             # Clean up cache files
             echo "🧹 Cleaning up cache files..."
             find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
