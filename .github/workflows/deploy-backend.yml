@@ -149,7 +149,7 @@ jobs:
 
             # Run database migrations
             echo "🗄️ Running database migrations..."
-            poetry run alembic upgrade head
+            poetry run alembic upgrade heads
 
             # Setup systemd service
             echo "⚙️ Setting up systemd service..."
@@ -294,7 +294,7 @@ jobs:
 
             # Run database migrations
             echo "🗄️ Running database migrations..."
-            poetry run alembic upgrade head
+            poetry run alembic upgrade heads
 
             # Setup systemd service
             echo "⚙️ Setting up systemd service..."
