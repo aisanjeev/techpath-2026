@@ -61,6 +61,7 @@ export function ServiceForm({ initialData, onSubmit, isLoading }: ServiceFormPro
   const imageUrl = watch('image_url');
   const features = watch('features') || [];
   const faqs = watch('faqs') || [];
+  const pricingPlans = watch('pricing_plans') || [];
   const ogImage = watch('og_image');
   const noIndex = watch('no_index');
 
@@ -242,6 +243,129 @@ export function ServiceForm({ initialData, onSubmit, isLoading }: ServiceFormPro
                   placeholder="https://example.com/contact"
                 />
               </FormField>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Pricing Plans</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {pricingPlans.map((_, i) => (
+                <div key={i} className="space-y-2 rounded-lg border border-slate-700 bg-slate-950/50 p-4">
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <FormField label={`Plan ${i + 1} Name`} htmlFor={`plan-name-${i}`}>
+                      <Input
+                        id={`plan-name-${i}`}
+                        value={pricingPlans[i]?.name || ''}
+                        onChange={(e) => {
+                          const next = [...pricingPlans];
+                          next[i] = { ...next[i], name: e.target.value };
+                          setValue('pricing_plans', next);
+                        }}
+                        placeholder="e.g., Starter"
+                      />
+                    </FormField>
+                    <FormField label="Price" htmlFor={`plan-price-${i}`}>
+                      <Input
+                        id={`plan-price-${i}`}
+                        value={pricingPlans[i]?.price || ''}
+                        onChange={(e) => {
+                          const next = [...pricingPlans];
+                          next[i] = { ...next[i], price: e.target.value };
+                          setValue('pricing_plans', next);
+                        }}
+                        placeholder="e.g., $499"
+                      />
+                    </FormField>
+                    <FormField label="Period" htmlFor={`plan-period-${i}`}>
+                      <Input
+                        id={`plan-period-${i}`}
+                        value={pricingPlans[i]?.period || ''}
+                        onChange={(e) => {
+                          const next = [...pricingPlans];
+                          next[i] = { ...next[i], period: e.target.value };
+                          setValue('pricing_plans', next);
+                        }}
+                        placeholder="e.g., per month"
+                      />
+                    </FormField>
+                    <FormField label="CTA Label" htmlFor={`plan-cta-${i}`}>
+                      <Input
+                        id={`plan-cta-${i}`}
+                        value={pricingPlans[i]?.cta || ''}
+                        onChange={(e) => {
+                          const next = [...pricingPlans];
+                          next[i] = { ...next[i], cta: e.target.value };
+                          setValue('pricing_plans', next);
+                        }}
+                        placeholder="e.g., Get started"
+                      />
+                    </FormField>
+                  </div>
+                  <FormField label="Description" htmlFor={`plan-desc-${i}`}>
+                    <Textarea
+                      id={`plan-desc-${i}`}
+                      value={pricingPlans[i]?.description || ''}
+                      onChange={(e) => {
+                        const next = [...pricingPlans];
+                        next[i] = { ...next[i], description: e.target.value };
+                        setValue('pricing_plans', next);
+                      }}
+                      placeholder="Short description of what's included"
+                      rows={2}
+                    />
+                  </FormField>
+                  <FormField label="Features (one per line)" htmlFor={`plan-feats-${i}`}>
+                    <Textarea
+                      id={`plan-feats-${i}`}
+                      value={(pricingPlans[i]?.features || []).join('\n')}
+                      onChange={(e) => {
+                        const next = [...pricingPlans];
+                        next[i] = {
+                          ...next[i],
+                          features: e.target.value
+                            .split('\n')
+                            .map((f) => f.trim())
+                            .filter(Boolean),
+                        };
+                        setValue('pricing_plans', next);
+                      }}
+                      placeholder={'Feature one\nFeature two\nFeature three'}
+                      rows={4}
+                    />
+                  </FormField>
+                  <Switch
+                    checked={!!pricingPlans[i]?.highlighted}
+                    onChange={(checked) => {
+                      const next = [...pricingPlans];
+                      next[i] = { ...next[i], highlighted: checked };
+                      setValue('pricing_plans', next);
+                    }}
+                    label="Highlighted plan"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setValue('pricing_plans', pricingPlans.filter((_, j) => j !== i))}
+                  >
+                    Remove plan
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  setValue('pricing_plans', [
+                    ...pricingPlans,
+                    { name: '', description: '', price: '', period: '', features: [], cta: '', highlighted: false },
+                  ])
+                }
+              >
+                Add pricing plan
+              </Button>
             </CardContent>
           </Card>
 

@@ -53,11 +53,19 @@ export default function EditServicePage() {
         icon: data.icon || undefined,
         image_url: data.image_url || undefined,
         features: data.features || undefined,
+        pricing_plans: data.pricing_plans || undefined,
+        faqs: data.faqs || undefined,
+        price: data.price || undefined,
         cta_text: data.cta_text || undefined,
         cta_url: data.cta_url || undefined,
         featured: data.featured,
         display_order: data.display_order,
         is_active: data.is_active,
+        meta_title: data.meta_title || undefined,
+        meta_description: data.meta_description || undefined,
+        og_image: data.og_image || undefined,
+        canonical_url: data.canonical_url || undefined,
+        no_index: data.no_index,
       });
       toast.success('Service updated successfully');
       router.push('/services');

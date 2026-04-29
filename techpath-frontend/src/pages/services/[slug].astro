@@ -55,15 +55,8 @@ const serviceSchema = generateServiceSchema({
   url: serviceUrl,
 });
 
-// Use dynamic FAQs from service, or fallback to default
-const serviceFaqs = service.faqs && service.faqs.length > 0 ? service.faqs : [
-  { question: 'How long does implementation take?', answer: 'Timeline depends on scope. We typically deliver proof-of-concept in 4–8 weeks and full implementation in 2–6 months. We\'ll provide a detailed timeline during your free consultation.' },
-  { question: 'What if we don\'t have clean data?', answer: 'We help assess your data and can include data cleaning and preparation as part of the project. Many clients start with imperfect data—we build pipelines and processes to improve it.' },
-  { question: 'Do you provide training for our team?', answer: 'Yes. We include knowledge transfer and training as part of our engagements so your team can maintain and extend the solution.' },
-  { question: 'What\'s included in ongoing support?', answer: 'Support options include monitoring, bug fixes, performance optimization, and periodic retraining. We\'ll tailor a support plan to your needs during the consultation.' },
-  { question: 'Can we start with a pilot project?', answer: 'Absolutely. Many clients begin with a focused pilot to validate value before scaling. We\'ll define success metrics and a clear path to expansion.' },
-  { question: 'How do you ensure data security?', answer: 'We follow industry best practices: encryption in transit and at rest, access controls, and compliance with your security requirements (SOC 2, HIPAA, etc.). We can sign NDAs and security addendums.' },
-];
+const serviceFaqs = service.faqs ?? [];
+const pricingPlans = service.pricing_plans ?? [];
 ---
 
 <MainLayout
@@ -95,6 +88,61 @@ const serviceFaqs = service.faqs && service.faqs.length > 0 ? service.faqs : [
       )}
 
       <FlexibleEngagement />
+
+      {pricingPlans.length > 0 && (
+        <div class="mx-auto mt-20 max-w-6xl">
+          <h2 class="mb-10 text-center font-heading text-3xl font-bold text-white">
+            Pricing Plans
+          </h2>
+          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {pricingPlans.map((plan) => (
+              <div
+                class:list={[
+                  'flex flex-col rounded-2xl border p-6',
+                  plan.highlighted
+                    ? 'border-primary-500 bg-primary-500/5 shadow-lg shadow-primary-500/10'
+                    : 'border-slate-800 bg-slate-900/50',
+                ]}
+              >
+                <h3 class="font-heading text-xl font-semibold text-white">{plan.name}</h3>
+                {plan.description && (
+                  <p class="mt-2 text-sm text-slate-400">{plan.description}</p>
+                )}
+                <div class="mt-4 flex items-baseline gap-2">
+                  <span class="font-heading text-3xl font-bold text-white">{plan.price}</span>
+                  {plan.period && <span class="text-sm text-slate-400">{plan.period}</span>}
+                </div>
+                {plan.features && plan.features.length > 0 && (
+                  <ul class="mt-6 space-y-2">
+                    {plan.features.map((feat) => (
+                      <li class="flex items-start gap-2 text-sm text-slate-300">
+                        <svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {plan.cta && (
+                  <a
+                    href={service.cta_url || '/contact'}
+                    class:list={[
+                      'mt-auto inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors',
+                      plan.highlighted
+                        ? 'bg-primary-500 text-white hover:bg-primary-400'
+                        : 'border border-slate-700 text-white hover:border-primary-500 hover:text-primary-400',
+                      'mt-6',
+                    ]}
+                  >
+                    {plan.cta}
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <!-- Case studies -->
       <div class="mx-auto mt-20 max-w-6xl">
@@ -157,13 +205,14 @@ const serviceFaqs = service.faqs && service.faqs.length > 0 ? service.faqs : [
         )}
       </div>
 
-      <!-- FAQ -->
-      <div class="mx-auto mt-20 max-w-4xl">
-        <h2 class="mb-10 text-center font-heading text-3xl font-bold text-white">
-          Frequently Asked Questions
-        </h2>
-        <FAQSection faqs={serviceFaqs} />
-      </div>
+      {serviceFaqs.length > 0 && (
+        <div class="mx-auto mt-20 max-w-4xl">
+          <h2 class="mb-10 text-center font-heading text-3xl font-bold text-white">
+            Frequently Asked Questions
+          </h2>
+          <FAQSection faqs={serviceFaqs} />
+        </div>
+      )}
 
       <ServiceCTA
         title={service.title}

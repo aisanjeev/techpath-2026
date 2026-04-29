@@ -40,6 +40,7 @@ class ServiceCreate(ServiceBase):
     image_url: Optional[str] = None
     features: Optional[List[str]] = None
     pricing_plans: Optional[List[ServicePricingPlanItem]] = None
+    faqs: Optional[List[ServiceFAQItem]] = None
     price: Optional[str] = None
     cta_text: str = Field(default="Learn More", max_length=100)
     cta_url: Optional[str] = None
@@ -66,6 +67,7 @@ class ServiceUpdate(BaseModel):
     image_url: Optional[str] = None
     features: Optional[List[str]] = None
     pricing_plans: Optional[List[ServicePricingPlanItem]] = None
+    faqs: Optional[List[ServiceFAQItem]] = None
     price: Optional[str] = None
     cta_text: Optional[str] = Field(None, max_length=100)
     cta_url: Optional[str] = None
@@ -89,6 +91,7 @@ class ServiceResponse(ServiceBase):
     image_url: Optional[str] = None
     features: Optional[List[str]] = None
     pricing_plans: Optional[List[ServicePricingPlanItem]] = None
+    faqs: Optional[List[ServiceFAQItem]] = None
     price: Optional[str] = None
     cta_text: str
     cta_url: Optional[str] = None
