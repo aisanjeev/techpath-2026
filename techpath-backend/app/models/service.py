@@ -38,6 +38,15 @@ class Service(Base, TimestampMixin):
     # FAQs (JSON string)
     faqs: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
+    # Bento layout (homepage)
+    layout_size: Mapped[str] = mapped_column(String(20), default="small", nullable=False)
+    badge_label: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    tags: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # JSON array string
+    stat_label: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    stat_value: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    accent_color: Mapped[str] = mapped_column(String(20), default="blue", nullable=False)
+    graphic_variant: Mapped[str] = mapped_column(String(20), default="none", nullable=False)
+
     def __repr__(self) -> str:
         return f"<Service(id={self.id}, title='{self.title}', slug='{self.slug}')>"
 

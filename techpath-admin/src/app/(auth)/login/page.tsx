@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
 import { Eye, EyeOff } from 'lucide-react';
 import { loginSchema, type LoginFormData } from '@/lib/validations';
 import { authService } from '@/services/auth.service';
@@ -54,8 +55,15 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-teal-50 to-cyan-100 p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-teal-600 text-2xl font-bold text-white shadow-lg">
-            T
+          <div className="mx-auto mb-4">
+            <Image
+              src="/logo.png"
+              alt="TechPath Logo"
+              width={56}
+              height={56}
+              className="mx-auto"
+              priority
+            />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">TechPath Admin</h1>
           <p className="mt-1 text-sm text-gray-600">Sign in to your account</p>

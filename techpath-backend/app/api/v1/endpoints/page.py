@@ -60,9 +60,12 @@ async def list_pages(
             order_desc=True,
         )
 
-    data = [
-        PageListResponse.model_validate(p).model_dump(mode="json") for p in pages
-    ]
+    data = []
+    for p in pages:
+        r = PageListResponse.model_validate(p)
+        if r.featured_image:
+            r.featured_image = await storage_service.resolve_url(r.featured_image)
+        data.append(r.model_dump(mode="json"))
     return JSONResponse(content=data, headers={"X-Total-Count": str(total)})
 
 
@@ -88,7 +91,10 @@ async def get_page(
             if pub_at > now:
                 raise NotFoundError("Page")
 
-    return PageResponse.model_validate(page)
+    response = PageResponse.model_validate(page)
+    if response.featured_image:
+        response.featured_image = await storage_service.resolve_url(response.featured_image)
+    return response
 
 
 @router.post("", response_model=PageResponse, status_code=status.HTTP_201_CREATED)

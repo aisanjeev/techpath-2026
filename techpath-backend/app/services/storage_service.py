@@ -124,6 +124,14 @@ class LocalStorageService(BaseStorageService):
         full_path = self.upload_path / file_path
         return await aiofiles.os.path.exists(full_path)
 
+    async def resolve_url(self, path_or_url: str) -> str:
+        """Return a valid URL from a local path or existing local URL."""
+        if not path_or_url:
+            return path_or_url
+        if path_or_url.startswith("/uploads/"):
+            return path_or_url
+        return await self.get_file_url(path_or_url)
+
 
 class AzureBlobStorageService(BaseStorageService):
     """Azure Blob Storage service for production."""
@@ -226,14 +234,14 @@ class AzureBlobStorageService(BaseStorageService):
 
             blob_client = self._get_container_client().get_blob_client(file_path)
 
-            # Generate SAS token for read access (valid for 1 hour)
+            # Generate SAS token for read access (valid for 7 days)
             sas_token = generate_blob_sas(
                 account_name=self._get_client().account_name,
                 container_name=self.container_name,
                 blob_name=file_path,
                 account_key=self._get_client().credential.account_key,
                 permission=BlobSasPermissions(read=True),
-                expiry=datetime.utcnow() + timedelta(hours=1),
+                expiry=datetime.utcnow() + timedelta(days=7),
             )
 
             return f"{blob_client.url}?{sas_token}"
@@ -249,6 +257,19 @@ class AzureBlobStorageService(BaseStorageService):
             return blob_client.exists()
         except Exception:
             return False
+
+    async def resolve_url(self, path_or_url: str) -> str:
+        """Get a fresh SAS URL from a blob path or an existing (possibly expired) SAS URL."""
+        if not path_or_url:
+            return path_or_url
+        if path_or_url.startswith("https://"):
+            try:
+                blob_path = path_or_url.split(f"/{self.container_name}/", 1)[1].split("?")[0]
+            except IndexError:
+                return path_or_url
+        else:
+            blob_path = path_or_url
+        return await self.get_file_url(blob_path)
 
 
 def get_storage_service() -> BaseStorageService:
@@ -322,6 +343,9 @@ class StorageServiceProxy:
     
     async def file_exists(self, file_path: str) -> bool:
         return await self._get_service().file_exists(file_path)
+
+    async def resolve_url(self, path_or_url: str) -> str:
+        return await self._get_service().resolve_url(path_or_url)
 
 
 # Global storage service instance (lazy loaded)

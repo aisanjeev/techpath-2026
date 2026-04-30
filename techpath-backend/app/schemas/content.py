@@ -163,6 +163,7 @@ class HomeTestimonialItem(BaseModel):
     role: str = ""
     company: str = ""
     avatar: str = ""
+    logo: str = ""
 
 
 class HomeCtaContent(BaseModel):
@@ -186,11 +187,10 @@ class HomeLandingContent(BaseModel):
     seo: PageSeoContent = Field(default_factory=PageSeoContent)
     hero: HomeHeroContent = Field(default_factory=HomeHeroContent)
     stats: List[HomeStatItem] = Field(default_factory=list)
-    services: List[HomeServiceItem] = Field(default_factory=list)
+    features: List[HomeFeatureItem] = Field(default_factory=list)
     case_studies_section: HomeCaseStudiesSection = Field(
         default_factory=HomeCaseStudiesSection
     )
-    features: List[HomeFeatureItem] = Field(default_factory=list)
     testimonials: List[HomeTestimonialItem] = Field(default_factory=list)
     faqs: List[FaqItem] = Field(default_factory=list)
     cta: HomeCtaContent = Field(default_factory=HomeCtaContent)

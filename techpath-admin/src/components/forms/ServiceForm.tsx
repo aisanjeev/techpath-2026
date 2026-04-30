@@ -51,6 +51,13 @@ export function ServiceForm({ initialData, onSubmit, isLoading }: ServiceFormPro
       og_image: initialData?.og_image || '',
       canonical_url: initialData?.canonical_url || '',
       no_index: initialData?.no_index ?? false,
+      layout_size: initialData?.layout_size || 'small',
+      badge_label: initialData?.badge_label || '',
+      tags: initialData?.tags || [],
+      stat_label: initialData?.stat_label || '',
+      stat_value: initialData?.stat_value || '',
+      accent_color: initialData?.accent_color || 'blue',
+      graphic_variant: initialData?.graphic_variant || 'none',
     },
   });
 
@@ -64,6 +71,17 @@ export function ServiceForm({ initialData, onSubmit, isLoading }: ServiceFormPro
   const pricingPlans = watch('pricing_plans') || [];
   const ogImage = watch('og_image');
   const noIndex = watch('no_index');
+  const tags = watch('tags') || [];
+  const accentColor = watch('accent_color') || 'blue';
+  const graphicVariant = watch('graphic_variant') || 'none';
+
+  const ACCENT_SWATCHES: Array<{ value: 'purple' | 'cyan' | 'green' | 'amber' | 'blue'; bg: string; label: string }> = [
+    { value: 'purple', bg: 'bg-purple-500', label: 'Purple' },
+    { value: 'cyan', bg: 'bg-cyan-500', label: 'Cyan' },
+    { value: 'green', bg: 'bg-green-500', label: 'Green' },
+    { value: 'amber', bg: 'bg-amber-500', label: 'Amber' },
+    { value: 'blue', bg: 'bg-blue-500', label: 'Blue' },
+  ];
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
@@ -177,6 +195,134 @@ export function ServiceForm({ initialData, onSubmit, isLoading }: ServiceFormPro
                   error={!!errors.image_url}
                   placeholder="Upload service image"
                 />
+              </FormField>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Bento Layout (Homepage)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                label="Layout Size"
+                htmlFor="layout_size"
+                error={errors.layout_size?.message}
+                description="Large = 2×2, Wide = 3×1, Small = 1×1"
+              >
+                <Select id="layout_size" {...register('layout_size')} error={!!errors.layout_size}>
+                  <option value="small">Small (1×1)</option>
+                  <option value="wide">Wide (3×1)</option>
+                  <option value="large">Large (2×2)</option>
+                </Select>
+              </FormField>
+
+              <FormField
+                label="Badge Label"
+                htmlFor="badge_label"
+                error={errors.badge_label?.message}
+                description="Optional pill shown in the card corner"
+              >
+                <Input
+                  id="badge_label"
+                  {...register('badge_label')}
+                  error={!!errors.badge_label}
+                  placeholder="FEATURED, TRENDING, NEW…"
+                  maxLength={50}
+                />
+              </FormField>
+
+              <FormField label="Tag pills (shown on Large card)" error={errors.tags?.message}>
+                <div className="space-y-2">
+                  {tags.map((_, i) => (
+                    <div key={i} className="flex gap-2">
+                      <Input
+                        value={tags[i] ?? ''}
+                        onChange={(e) => {
+                          const next = [...tags];
+                          next[i] = e.target.value;
+                          setValue('tags', next);
+                        }}
+                        placeholder={`Tag ${i + 1}`}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setValue('tags', tags.filter((_, j) => j !== i))}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setValue('tags', [...tags, ''])}
+                  >
+                    Add tag
+                  </Button>
+                </div>
+              </FormField>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <FormField
+                  label="Stat Value"
+                  htmlFor="stat_value"
+                  error={errors.stat_value?.message}
+                  description="Shown on Large + Wide cards"
+                >
+                  <Input
+                    id="stat_value"
+                    {...register('stat_value')}
+                    error={!!errors.stat_value}
+                    placeholder="e.g., 42+ or 35%"
+                  />
+                </FormField>
+                <FormField
+                  label="Stat Label"
+                  htmlFor="stat_label"
+                  error={errors.stat_label?.message}
+                  description="Shown beneath the value"
+                >
+                  <Input
+                    id="stat_label"
+                    {...register('stat_label')}
+                    error={!!errors.stat_label}
+                    placeholder="e.g., projects, avg. revenue lift"
+                  />
+                </FormField>
+              </div>
+
+              <FormField label="Accent Color" error={errors.accent_color?.message}>
+                <div className="flex flex-wrap gap-3">
+                  {ACCENT_SWATCHES.map((s) => (
+                    <button
+                      key={s.value}
+                      type="button"
+                      onClick={() => setValue('accent_color', s.value)}
+                      className={`flex items-center gap-2 rounded-md border border-slate-700 px-3 py-2 text-sm text-slate-200 transition ${
+                        accentColor === s.value ? 'ring-2 ring-offset-2 ring-offset-slate-900 ring-white' : ''
+                      }`}
+                    >
+                      <span className={`h-4 w-4 rounded-full ${s.bg}`} />
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </FormField>
+
+              <FormField
+                label="Graphic Variant"
+                htmlFor="graphic_variant"
+                error={errors.graphic_variant?.message}
+                description={`Currently: ${graphicVariant}`}
+              >
+                <Select id="graphic_variant" {...register('graphic_variant')} error={!!errors.graphic_variant}>
+                  <option value="none">None</option>
+                  <option value="orbital">Orbital dots</option>
+                  <option value="code-window">Code window</option>
+                  <option value="bar-chart">Bar chart</option>
+                </Select>
               </FormField>
             </CardContent>
           </Card>

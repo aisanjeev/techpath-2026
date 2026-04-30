@@ -17,74 +17,55 @@ const iconPaths: Record<string, string> = {
   shield: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
   transform: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
 };
+
+const iconPath = iconPaths[icon] ?? iconPaths.code;
 ---
 
 <a
   href={`/services/${slug}`}
-  class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-8 transition-all duration-300 hover:border-primary-500/50 hover:bg-slate-900"
+  class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/60 p-7 transition-all duration-300 hover:border-slate-700 hover:bg-slate-900"
 >
-  <!-- Gradient overlay on hover -->
-  <div
-    class="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-  >
-  </div>
+  <!-- Hover glow -->
+  <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
 
-  <div class="relative z-10">
+  <div class="relative z-10 flex flex-col flex-1">
     <!-- Icon -->
-    <div
-      class="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500/20 to-secondary-500/20 transition-transform duration-300 group-hover:scale-110"
-    >
-      <svg
-        class="h-7 w-7 text-primary-400"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="1.5"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" d={iconPaths[icon] || iconPaths.code}
-        ></path>
+    <div class="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-slate-800 border border-slate-700/60 transition-transform duration-300 group-hover:scale-105">
+      <svg class="h-6 w-6 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d={iconPath} />
       </svg>
     </div>
 
     <!-- Title -->
-    <h3 class="mb-3 font-heading text-xl font-bold text-white transition-colors group-hover:text-primary-400">
+    <h3 class="mb-3 font-heading text-[19px] font-bold leading-snug text-white">
       {title}
     </h3>
 
     <!-- Description -->
-    <p class="mb-4 text-slate-400">{description}</p>
-
-    <span class="mb-4 inline-block rounded-full border border-slate-700 bg-slate-800/50 px-3 py-1 text-xs font-medium text-slate-300">
-      Contact Us
-    </span>
+    <p class="mb-5 text-[15px] leading-[1.65] text-slate-400 line-clamp-3">
+      {description}
+    </p>
 
     <!-- Features -->
-    <ul class="mb-6 space-y-2">
-      {
-        features.map((feature) => (
+    {features.length > 0 && (
+      <ul class="mb-6 space-y-2">
+        {features.slice(0, 5).map((feature) => (
           <li class="flex items-center gap-2 text-sm text-slate-300">
-            <svg class="h-4 w-4 text-accent-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            <svg class="h-3.5 w-3.5 flex-shrink-0 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
             </svg>
             {feature}
           </li>
-        ))
-      }
-    </ul>
+        ))}
+      </ul>
+    )}
 
-    <!-- Learn More Link -->
-    <div class="mt-auto flex items-center gap-2 text-sm font-medium text-primary-400">
-      Learn More
-      <svg
-        class="h-4 w-4 transition-transform group-hover:translate-x-1"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"
-        ></path>
+    <!-- CTA -->
+    <div class="mt-auto flex items-center gap-2 text-sm font-semibold text-primary-400">
+      Learn more
+      <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
       </svg>
     </div>
   </div>
 </a>
-

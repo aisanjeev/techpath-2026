@@ -24,9 +24,11 @@ import {
   Heading3,
   Minus,
   Code2,
+  FileCode,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Modal } from '@/components/ui/Modal';
 
 const lowlight = createLowlight(common);
 
@@ -86,6 +88,9 @@ export function RichTextEditor({
     }
   }, [content, editor]);
 
+  const [pasteHtmlOpen, setPasteHtmlOpen] = useState(false);
+  const [pasteHtmlInput, setPasteHtmlInput] = useState('');
+
   const setLink = useCallback(() => {
     if (!editor) return;
     const previousUrl = editor.getAttributes('link').href;
@@ -105,6 +110,13 @@ export function RichTextEditor({
       editor.chain().focus().setImage({ src: url }).run();
     }
   }, [editor]);
+
+  const applyPastedHtml = useCallback(() => {
+    if (!editor) return;
+    editor.commands.setContent(pasteHtmlInput);
+    setPasteHtmlInput('');
+    setPasteHtmlOpen(false);
+  }, [editor, pasteHtmlInput]);
 
   if (!editor) {
     return null;
@@ -239,6 +251,15 @@ export function RichTextEditor({
         >
           <Redo className="h-4 w-4" />
         </ToolbarButton>
+
+        <ToolbarDivider />
+
+        <ToolbarButton
+          onClick={() => setPasteHtmlOpen(true)}
+          title="Paste HTML"
+        >
+          <FileCode className="h-4 w-4" />
+        </ToolbarButton>
       </div>
 
       {/* Editor Content */}
@@ -248,6 +269,44 @@ export function RichTextEditor({
       <div className="border-t border-gray-200 bg-gray-50 px-4 py-2 text-xs text-gray-500">
         {editor.storage.characterCount?.characters?.() || 0} characters
       </div>
+
+      {/* Paste HTML Modal */}
+      <Modal
+        isOpen={pasteHtmlOpen}
+        onClose={() => { setPasteHtmlOpen(false); setPasteHtmlInput(''); }}
+        title="Paste HTML"
+        size="lg"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+            Applying HTML will <strong>replace</strong> all current editor content.
+          </p>
+          <textarea
+            value={pasteHtmlInput}
+            onChange={(e) => setPasteHtmlInput(e.target.value)}
+            placeholder="<p>Paste your HTML here...</p>"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            style={{ minHeight: '200px' }}
+            spellCheck={false}
+          />
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => { setPasteHtmlOpen(false); setPasteHtmlInput(''); }}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={applyPastedHtml}
+              className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 transition-colors"
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -283,4 +342,3 @@ function ToolbarButton({ onClick, active, disabled, title, children }: ToolbarBu
 function ToolbarDivider() {
   return <div className="mx-1 h-6 w-px bg-gray-300" />;
 }
-

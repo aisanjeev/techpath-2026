@@ -67,6 +67,14 @@ export interface Service {
   og_image?: string;
   canonical_url?: string;
   no_index?: boolean;
+  // Bento layout
+  layout_size: 'large' | 'small' | 'wide';
+  badge_label?: string | null;
+  tags?: string[] | null;
+  stat_label?: string | null;
+  stat_value?: string | null;
+  accent_color: 'purple' | 'cyan' | 'green' | 'amber' | 'blue';
+  graphic_variant: 'orbital' | 'code-window' | 'bar-chart' | 'none';
   created_at: string;
   updated_at: string;
 }
@@ -92,6 +100,14 @@ export interface ServiceCreate {
   og_image?: string;
   canonical_url?: string;
   no_index?: boolean;
+  // Bento layout
+  layout_size?: 'large' | 'small' | 'wide';
+  badge_label?: string | null;
+  tags?: string[] | null;
+  stat_label?: string | null;
+  stat_value?: string | null;
+  accent_color?: 'purple' | 'cyan' | 'green' | 'amber' | 'blue';
+  graphic_variant?: 'orbital' | 'code-window' | 'bar-chart' | 'none';
 }
 
 export interface ServiceUpdate extends Partial<ServiceCreate> {}

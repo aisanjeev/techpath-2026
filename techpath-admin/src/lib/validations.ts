@@ -36,7 +36,14 @@ export const serviceSchema = z.object({
   faqs: z.array(serviceFAQItemSchema).optional(),
   price: z.string().optional().or(z.literal('')),
   cta_text: z.string().optional().or(z.literal('')),
-  cta_url: z.string().url('Invalid URL').optional().or(z.literal('')),
+  cta_url: z
+    .string()
+    .refine(
+      (val) => val === '' || val.startsWith('/') || /^https?:\/\/.+/.test(val),
+      { message: 'Must be a relative path (e.g. /contact) or an absolute URL' }
+    )
+    .optional()
+    .or(z.literal('')),
   featured: z.boolean(),
   display_order: z.number().int().min(0),
   is_active: z.boolean(),
@@ -45,6 +52,14 @@ export const serviceSchema = z.object({
   og_image: z.string().url('Invalid URL').optional().or(z.literal('')),
   canonical_url: z.string().url('Invalid URL').optional().or(z.literal('')),
   no_index: z.boolean(),
+  // Bento layout
+  layout_size: z.enum(['large', 'small', 'wide']),
+  badge_label: z.string().max(50).optional().or(z.literal('')),
+  tags: z.array(z.string()).optional(),
+  stat_label: z.string().max(100).optional().or(z.literal('')),
+  stat_value: z.string().max(50).optional().or(z.literal('')),
+  accent_color: z.enum(['purple', 'cyan', 'green', 'amber', 'blue']),
+  graphic_variant: z.enum(['orbital', 'code-window', 'bar-chart', 'none']),
 });
 
 export type ServiceFormData = z.infer<typeof serviceSchema>;

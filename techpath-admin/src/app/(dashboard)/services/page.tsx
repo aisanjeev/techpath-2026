@@ -98,6 +98,23 @@ export default function ServicesPage() {
       render: (item) => <FeaturedBadge featured={item.featured} />,
     },
     {
+      key: 'layout_size',
+      header: 'Layout',
+      render: (item) => {
+        const cls =
+          item.layout_size === 'large'
+            ? 'bg-indigo-100 text-indigo-700'
+            : item.layout_size === 'wide'
+            ? 'bg-amber-100 text-amber-700'
+            : 'bg-slate-100 text-slate-700';
+        return (
+          <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium capitalize ${cls}`}>
+            {item.layout_size}
+          </span>
+        );
+      },
+    },
+    {
       key: 'display_order',
       header: 'Order',
       sortable: true,

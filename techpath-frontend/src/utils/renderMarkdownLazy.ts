@@ -14,7 +14,17 @@ function addLazyToImages(html: string): string {
   );
 }
 
+function wrapTables(html: string): string {
+  return html.replace(
+    /<table>/gi,
+    '<div class="table-wrapper"><table>'
+  ).replace(
+    /<\/table>/gi,
+    '</table></div>'
+  );
+}
+
 export async function renderMarkdownWithLazyImages(markdown: string): Promise<string> {
   const html = await marked.parse(markdown);
-  return addLazyToImages(html);
+  return wrapTables(addLazyToImages(html));
 }

@@ -99,13 +99,29 @@ const hero = heroProp ?? {
 
       <!-- Trust Badges -->
       <div class="mt-16">
-        <p class="mb-6 text-sm text-slate-500">Trusted by leading companies worldwide</p>
-        <div class="flex flex-wrap items-center justify-center gap-8 opacity-50 grayscale">
-          <div class="h-8 w-24 rounded bg-slate-700"></div>
-          <div class="h-8 w-28 rounded bg-slate-700"></div>
-          <div class="h-8 w-20 rounded bg-slate-700"></div>
-          <div class="h-8 w-32 rounded bg-slate-700"></div>
-          <div class="h-8 w-24 rounded bg-slate-700"></div>
+        <p class="mb-5 text-xs font-medium uppercase tracking-widest text-slate-500">
+          Trusted by leading companies worldwide
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+          {[
+            { src: '/images/trusted/himalayan-tripsters.png', alt: 'Himalayan Tripsters' },
+            { src: '/images/trusted/talwalkar-square.png', alt: 'Talwalkar Square' },
+            { src: '/images/trusted/digital-assassin.png', alt: 'Digital Assassin' },
+            { src: '/images/trusted/nrem.png', alt: 'NREM' },
+            { src: '/images/trusted/conwerz-ai.png', alt: 'Conwerz AI' },
+            { src: '/images/trusted/global-events-travels.png', alt: 'Global Events Travels' },
+            { src: '/images/trusted/octavia-hospital.png', alt: 'Octavia Hospital' },
+          ].map(({ src, alt }) => (
+            <div class="flex items-center justify-center rounded-xl bg-white px-4 py-2.5 opacity-80 ring-1 ring-slate-200 shadow-sm transition-all duration-200 hover:opacity-100 hover:-translate-y-0.5 hover:shadow-md">
+              <img
+                src={src}
+                alt={alt}
+                loading="eager"
+                decoding="async"
+                class="h-auto max-h-8 w-auto max-w-[120px] object-contain"
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>

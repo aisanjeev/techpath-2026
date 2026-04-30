@@ -1,16 +1,18 @@
 ---
 import MainLayout from '@layouts/MainLayout.astro';
 import HeroSection from '@components/sections/HeroSection.astro';
-import FeaturesGrid from '@components/sections/FeaturesGrid.astro';
-import ServiceShowcase from '@components/sections/ServiceShowcase.astro';
+import WhyTechPath from '@components/sections/WhyTechPath.astro';
+import ServicesBento from '@components/sections/ServicesBento.astro';
 import CaseStudyShowcase from '@components/sections/CaseStudyShowcase.astro';
 import Testimonials from '@components/sections/Testimonials.astro';
 import StatCounter from '@components/sections/StatCounter.astro';
 import FAQSection from '@components/sections/FAQSection.astro';
-import CTA from '@components/shared/CTA.astro';
+import CTASection from '@components/sections/CTASection.astro';
+import TrainingShowcase from '@components/sections/TrainingShowcase.astro';
 import { fetchHomePageContent } from '@services/pageContentService';
 import { fetchCaseStudies, normalizeCaseStudy } from '@services/caseStudyService';
 import { fetchServices } from '@services/serviceService';
+import { fetchCourses } from '@services/courseService';
 
 const content = await fetchHomePageContent();
 const caseStudiesSection = content.case_studies_section ?? {
@@ -21,20 +23,19 @@ const caseStudiesSection = content.case_studies_section ?? {
   view_all_href: '/case-studies',
 };
 
-// Fetch dynamic services from API
+// Fetch dynamic services from API for the bento section
 const apiServices = await fetchServices();
-const dynamicServices = apiServices
+const bentoServices = apiServices
   .filter((s) => s.featured && s.is_active)
-  .slice(0, 4)
-  .map((s) => ({
-    title: s.title,
-    description: s.short_description || s.description.replace(/<[^>]+>/g, '').slice(0, 150),
-    icon: s.icon || 'code',
-    href: `/services/${s.slug}`,
-  }));
+  .sort((a, b) => a.display_order - b.display_order)
+  .slice(0, 4);
 
-// Use dynamic services if available, fallback to content.services
-const services = dynamicServices.length > 0 ? dynamicServices : content.services;
+// Fetch featured courses for the Training Showcase section
+let featuredCourses: any[] = [];
+try {
+  featuredCourses = await fetchCourses({ featured: true, limit: 6 });
+  if (featuredCourses.length === 0) featuredCourses = await fetchCourses({ limit: 6 });
+} catch {}
 
 const apiCaseStudies = await fetchCaseStudies({
   limit: caseStudiesSection.limit ?? 6,
@@ -54,7 +55,13 @@ const caseStudies = apiCaseStudies.map(normalizeCaseStudy);
 
   <StatCounter stats={content.stats} />
 
-  <ServiceShowcase services={services} />
+  <ServicesBento services={bentoServices} />
+
+  <TrainingShowcase courses={featuredCourses} />
+
+  <WhyTechPath features={content.features} />
+
+  <Testimonials testimonials={content.testimonials} />
 
   <CaseStudyShowcase
     caseStudies={caseStudies}
@@ -64,17 +71,8 @@ const caseStudies = apiCaseStudies.map(normalizeCaseStudy);
     viewAllHref={caseStudiesSection.view_all_href}
   />
 
-  <FeaturesGrid features={content.features} />
-
-  <Testimonials testimonials={content.testimonials} />
-
   <FAQSection faqs={content.faqs} />
 
-  <CTA
-    title={content.cta.title}
-    description={content.cta.description}
-    primaryButton={{ label: content.cta.primary_label, href: content.cta.primary_href }}
-    secondaryButton={{ label: content.cta.secondary_label, href: content.cta.secondary_href }}
-  />
+  <CTASection cta={content.cta} />
 </MainLayout>
 

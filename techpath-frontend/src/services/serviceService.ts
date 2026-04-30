@@ -40,6 +40,14 @@ export interface ServiceItem {
   og_image?: string | null;
   canonical_url?: string | null;
   no_index?: boolean;
+  // Bento layout
+  layout_size?: 'large' | 'small' | 'wide';
+  badge_label?: string | null;
+  tags?: string[] | null;
+  stat_label?: string | null;
+  stat_value?: string | null;
+  accent_color?: 'purple' | 'cyan' | 'green' | 'amber' | 'blue';
+  graphic_variant?: 'orbital' | 'code-window' | 'bar-chart' | 'none';
   created_at: string;
   updated_at: string;
 }

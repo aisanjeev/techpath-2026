@@ -37,6 +37,13 @@ export default function CreateServicePage() {
         og_image: data.og_image || undefined,
         canonical_url: data.canonical_url || undefined,
         no_index: data.no_index,
+        layout_size: data.layout_size,
+        badge_label: data.badge_label || undefined,
+        tags: (data.tags || []).map((t) => t.trim()).filter(Boolean),
+        stat_label: data.stat_label || undefined,
+        stat_value: data.stat_value || undefined,
+        accent_color: data.accent_color,
+        graphic_variant: data.graphic_variant,
       });
       toast.success('Service created successfully');
       router.push('/services');

@@ -17,11 +17,11 @@ const [content, apiServices] = await Promise.all([
 ]);
 
 const iconKeys = ['brain', 'cloud', 'code', 'chart', 'shield', 'transform'];
-const services = apiServices.map((s) => ({
+const services = apiServices.map((s, i) => ({
   title: s.title,
   slug: s.slug,
-  description: s.short_description || s.description.replace(/<[^>]+>/g, '').slice(0, 300) || s.description,
-  icon: s.icon && iconKeys.includes(s.icon) ? s.icon : 'code',
+  description: s.short_description || s.description.replace(/<[^>]+>/g, '').slice(0, 200),
+  icon: s.icon && iconKeys.includes(s.icon) ? s.icon : iconKeys[i % iconKeys.length],
   features: s.features ?? [],
 }));
 ---

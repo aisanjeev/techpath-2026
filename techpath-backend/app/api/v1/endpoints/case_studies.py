@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError, ConflictError
+from app.services.storage_service import storage_service
 from app.crud.case_study import case_study_crud, case_study_tag_crud
 from app.db.session import get_db
 from app.schemas.case_study import (
@@ -70,7 +71,13 @@ async def list_case_studies(
             order_desc=True,
         )
 
-    return [CaseStudyListResponse.model_validate(cs) for cs in case_studies]
+    result = []
+    for cs in case_studies:
+        r = CaseStudyListResponse.model_validate(cs)
+        if r.featured_image:
+            r.featured_image = await storage_service.resolve_url(r.featured_image)
+        result.append(r)
+    return result
 
 
 @router.get("/{slug}", response_model=CaseStudyResponse)
@@ -88,7 +95,10 @@ async def get_case_study(
     if (current_user is None or current_user.role != "admin") and case_study.status != "published":
         raise NotFoundError("Case study")
 
-    return CaseStudyResponse.model_validate(case_study)
+    response = CaseStudyResponse.model_validate(case_study)
+    if response.featured_image:
+        response.featured_image = await storage_service.resolve_url(response.featured_image)
+    return response
 
 
 @router.post("/", response_model=CaseStudyResponse, status_code=status.HTTP_201_CREATED)

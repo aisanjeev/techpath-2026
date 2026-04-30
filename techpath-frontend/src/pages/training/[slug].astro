@@ -156,7 +156,7 @@ const courseSchema = {
               </p>
             )}
             {descriptionHtml && (
-              <div class="max-w-3xl markdown-content prose prose-invert prose-slate prose-p:leading-relaxed prose-p:text-slate-300 prose-p:mb-4 prose-headings:text-white prose-li:text-slate-300">
+              <div class="max-w-3xl markdown-content prose prose-lg prose-invert prose-slate prose-p:leading-relaxed prose-p:text-slate-300 prose-p:mb-4 prose-headings:text-white prose-li:text-slate-300">
                 <Fragment set:html={descriptionHtml} />
               </div>
             )}
@@ -181,7 +181,7 @@ const courseSchema = {
 
           <!-- Skills -->
           <div class="mb-8">
-            <h2 class="mb-4 font-heading text-xl font-bold text-white">Skills You'll Learn</h2>
+            <h2 class="mb-4 font-heading text-2xl font-bold text-white">Skills You'll Learn</h2>
             {course.skills.length > 0 ? (
               <div class="flex flex-wrap gap-2">
                 {course.skills.map((skill) => (
@@ -198,7 +198,7 @@ const courseSchema = {
           <!-- Curriculum -->
           {course.curriculum && course.curriculum.length > 0 && (
             <div class="mb-8">
-              <h2 class="mb-4 font-heading text-xl font-bold text-white">Course Curriculum</h2>
+              <h2 class="mb-4 font-heading text-2xl font-bold text-white">Course Curriculum</h2>
               <div class="space-y-4">
                 {course.curriculum.map((module) => (
                   <div class="rounded-xl border border-slate-700/50 bg-slate-800/30 p-4">
@@ -207,7 +207,7 @@ const courseSchema = {
                       {module.duration && (
                         <span class="rounded bg-slate-700/50 px-2 py-0.5 text-xs text-slate-400">{module.duration}</span>
                       )}
-                      <span class="w-full text-base font-medium text-white sm:w-auto sm:flex-1">{module.title}</span>
+                      <span class="w-full text-lg font-medium text-white sm:w-auto sm:flex-1">{module.title}</span>
                     </div>
                     {module.topics && module.topics.length > 0 && (
                       <ul class="grid gap-1.5 sm:grid-cols-2">
@@ -230,7 +230,7 @@ const courseSchema = {
           <!-- Projects (same UI as Course Curriculum) -->
           {course.projects && course.projects.length > 0 && (
             <div class="mb-8">
-              <h2 class="mb-4 font-heading text-xl font-bold text-white">Projects</h2>
+              <h2 class="mb-4 font-heading text-2xl font-bold text-white">Projects</h2>
               <div class="space-y-4">
                 {course.projects.map((project: { title: string; description?: string }, i: number) => (
                   <div class="rounded-xl border border-slate-700/50 bg-slate-800/30 p-4">
@@ -250,7 +250,7 @@ const courseSchema = {
           <!-- Instructor -->
           {course.instructor && (
             <div class="mb-8">
-              <h2 class="mb-4 font-heading text-xl font-bold text-white">Your Instructor</h2>
+              <h2 class="mb-4 font-heading text-2xl font-bold text-white">Your Instructor</h2>
               <div class="flex items-center gap-4 rounded-xl border border-slate-700/50 bg-slate-800/30 p-4">
                 <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 text-xl font-bold text-white">
                   {course.instructor.name.split(' ').map(n => n[0]).join('')}
@@ -266,7 +266,7 @@ const courseSchema = {
 
           <!-- FAQ -->
           <div>
-            <h2 class="mb-4 font-heading text-xl font-bold text-white">Frequently Asked Questions</h2>
+            <h2 class="mb-4 font-heading text-2xl font-bold text-white">Frequently Asked Questions</h2>
             <FAQSection faqs={faqs} />
           </div>
         </div>

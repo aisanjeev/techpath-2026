@@ -48,6 +48,8 @@ class CRUDService(CRUDBase[Service, ServiceCreate, ServiceUpdate]):
             obj_data["pricing_plans"] = json.dumps(obj_data["pricing_plans"])
         if "faqs" in obj_data and obj_data["faqs"] is not None:
             obj_data["faqs"] = json.dumps(obj_data["faqs"])
+        if "tags" in obj_data and obj_data["tags"] is not None:
+            obj_data["tags"] = json.dumps(obj_data["tags"])
 
         db_obj = Service(**obj_data)
         db.add(db_obj)
@@ -67,6 +69,8 @@ class CRUDService(CRUDBase[Service, ServiceCreate, ServiceUpdate]):
             update_data["pricing_plans"] = json.dumps(update_data["pricing_plans"])
         if "faqs" in update_data and update_data["faqs"] is not None:
             update_data["faqs"] = json.dumps(update_data["faqs"])
+        if "tags" in update_data and update_data["tags"] is not None:
+            update_data["tags"] = json.dumps(update_data["tags"])
 
         for field, value in update_data.items():
             setattr(db_obj, field, value)

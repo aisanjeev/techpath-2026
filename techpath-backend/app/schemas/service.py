@@ -1,8 +1,12 @@
 """Service-related Pydantic schemas."""
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
+
+LayoutSize = Literal["large", "small", "wide"]
+AccentColor = Literal["purple", "cyan", "green", "amber", "blue"]
+GraphicVariant = Literal["orbital", "code-window", "bar-chart", "none"]
 
 
 class ServicePricingPlanItem(BaseModel):
@@ -55,6 +59,15 @@ class ServiceCreate(ServiceBase):
     canonical_url: Optional[str] = Field(None, max_length=500)
     no_index: bool = False
 
+    # Bento layout
+    layout_size: LayoutSize = "small"
+    badge_label: Optional[str] = Field(None, max_length=50)
+    tags: Optional[List[str]] = None
+    stat_label: Optional[str] = Field(None, max_length=100)
+    stat_value: Optional[str] = Field(None, max_length=50)
+    accent_color: AccentColor = "blue"
+    graphic_variant: GraphicVariant = "none"
+
 
 class ServiceUpdate(BaseModel):
     """Schema for updating a service."""
@@ -82,6 +95,15 @@ class ServiceUpdate(BaseModel):
     canonical_url: Optional[str] = Field(None, max_length=500)
     no_index: Optional[bool] = None
 
+    # Bento layout
+    layout_size: Optional[LayoutSize] = None
+    badge_label: Optional[str] = Field(None, max_length=50)
+    tags: Optional[List[str]] = None
+    stat_label: Optional[str] = Field(None, max_length=100)
+    stat_value: Optional[str] = Field(None, max_length=50)
+    accent_color: Optional[AccentColor] = None
+    graphic_variant: Optional[GraphicVariant] = None
+
 
 class ServiceResponse(ServiceBase):
     """Schema for service response."""
@@ -107,6 +129,15 @@ class ServiceResponse(ServiceBase):
     og_image: Optional[str] = None
     canonical_url: Optional[str] = None
     no_index: bool = False
+
+    # Bento layout
+    layout_size: LayoutSize = "small"
+    badge_label: Optional[str] = None
+    tags: Optional[List[str]] = None
+    stat_label: Optional[str] = None
+    stat_value: Optional[str] = None
+    accent_color: AccentColor = "blue"
+    graphic_variant: GraphicVariant = "none"
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -140,6 +171,16 @@ class ServiceResponse(ServiceBase):
                 "og_image": obj.og_image if hasattr(obj, "og_image") else None,
                 "canonical_url": obj.canonical_url if hasattr(obj, "canonical_url") else None,
                 "no_index": obj.no_index if hasattr(obj, "no_index") else False,
+                "layout_size": getattr(obj, "layout_size", "small") or "small",
+                "badge_label": getattr(obj, "badge_label", None),
+                "tags": (
+                    json.loads(obj.tags) if isinstance(getattr(obj, "tags", None), str) and obj.tags
+                    else getattr(obj, "tags", None)
+                ),
+                "stat_label": getattr(obj, "stat_label", None),
+                "stat_value": getattr(obj, "stat_value", None),
+                "accent_color": getattr(obj, "accent_color", "blue") or "blue",
+                "graphic_variant": getattr(obj, "graphic_variant", "none") or "none",
             }
             if hasattr(obj, "pricing_plans"):
                 obj_dict["pricing_plans"] = (
