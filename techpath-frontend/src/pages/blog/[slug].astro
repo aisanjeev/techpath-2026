@@ -8,6 +8,7 @@ import ArticleLayout from '@layouts/ArticleLayout.astro';
 import { getCollection } from 'astro:content';
 import { fetchBlogPostBySlug, fetchBlogPosts } from '@services/blogService';
 import { calculateReadingTime } from '@utils/contentHelpers';
+import { resolveBlogImage } from '@utils/blogImages';
 import { generateArticleSchema } from '@utils/seo';
 import { marked } from 'marked';
 
@@ -43,7 +44,7 @@ if (apiPost) {
   seoTitle = apiPost.meta_title || undefined;
   seoDescription = apiPost.meta_description || undefined;
   pubDate = new Date(apiPost.published_at || apiPost.created_at);
-  image = apiPost.featured_image ?? undefined;
+  image = resolveBlogImage(apiPost.featured_image);
   tags = apiPost.tags.map((t) => t.name);
   readingTime = apiPost.reading_time || 5;
   category = {
@@ -60,7 +61,7 @@ if (apiPost) {
       return bMatch - aMatch;
     })
     .slice(0, 3)
-    .map((p) => ({ slug: p.slug, title: p.title, description: p.excerpt || '', image: p.featured_image ?? undefined }));
+    .map((p) => ({ slug: p.slug, title: p.title, description: p.excerpt || '', image: resolveBlogImage(p.featured_image) }));
 
   breadcrumbItems = [
     { label: 'Home', href: '/' },
@@ -88,7 +89,7 @@ if (apiPost) {
   description = post.data.description;
   author = post.data.author;
   pubDate = post.data.pubDate;
-  image = post.data.image;
+  image = resolveBlogImage(post.data.image);
   tags = post.data.tags || [];
   readingTime = post.data.readingTime || calculateReadingTime(post.body);
 
@@ -96,7 +97,7 @@ if (apiPost) {
   relatedPosts = allPosts
     .filter((p) => p.data.tags?.some((t) => post.data.tags?.includes(t)))
     .slice(0, 3)
-    .map((p) => ({ slug: p.slug, title: p.data.title, description: p.data.description, image: p.data.image }));
+    .map((p) => ({ slug: p.slug, title: p.data.title, description: p.data.description, image: resolveBlogImage(p.data.image) }));
 
   breadcrumbItems = [
     { label: 'Home', href: '/' },

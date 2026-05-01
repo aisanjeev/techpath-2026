@@ -1,4 +1,13 @@
 ---
+import { Picture } from 'astro:assets';
+import himalayan from '@assets/images/trusted/himalayan-tripsters.png';
+import talwalkar from '@assets/images/trusted/talwalkar-square.png';
+import digitalAssassin from '@assets/images/trusted/digital-assassin.png';
+import nrem from '@assets/images/trusted/nrem.png';
+import conwerz from '@assets/images/trusted/conwerz-ai.png';
+import globalEvents from '@assets/images/trusted/global-events-travels.png';
+import octavia from '@assets/images/trusted/octavia-hospital.png';
+
 interface HomeHero {
   badge_text: string;
   headline: string;
@@ -104,22 +113,24 @@ const hero = heroProp ?? {
         </p>
         <div class="flex flex-wrap items-center justify-center gap-3 md:gap-4">
           {[
-            { src: '/images/trusted/himalayan-tripsters.png', alt: 'Himalayan Tripsters' },
-            { src: '/images/trusted/talwalkar-square.png', alt: 'Talwalkar Square' },
-            { src: '/images/trusted/digital-assassin.png', alt: 'Digital Assassin' },
-            { src: '/images/trusted/nrem.png', alt: 'NREM' },
-            { src: '/images/trusted/conwerz-ai.png', alt: 'Conwerz AI' },
-            { src: '/images/trusted/global-events-travels.png', alt: 'Global Events Travels' },
-            { src: '/images/trusted/octavia-hospital.png', alt: 'Octavia Hospital' },
+            { src: himalayan, alt: 'Himalayan Tripsters' },
+            { src: talwalkar, alt: 'Talwalkar Square' },
+            { src: digitalAssassin, alt: 'Digital Assassin' },
+            { src: nrem, alt: 'NREM' },
+            { src: conwerz, alt: 'Conwerz AI' },
+            { src: globalEvents, alt: 'Global Events Travels' },
+            { src: octavia, alt: 'Octavia Hospital' },
           ].map(({ src, alt }, idx) => (
             <div class="flex items-center justify-center rounded-xl bg-white px-4 py-2.5 opacity-80 ring-1 ring-slate-200 shadow-sm transition-all duration-200 hover:opacity-100 hover:-translate-y-0.5 hover:shadow-md">
-              <img
+              <Picture
                 src={src}
                 alt={alt}
-                width="120"
-                height="32"
+                widths={[120, 240]}
+                sizes="120px"
+                formats={['avif', 'webp']}
+                fallbackFormat="png"
                 loading={idx < 3 ? 'eager' : 'lazy'}
-                fetchpriority={idx < 3 ? 'high' : 'auto'}
+                {...(idx < 3 ? { fetchpriority: 'high' } : {})}
                 decoding="async"
                 class="h-auto max-h-8 w-auto max-w-[120px] object-contain"
               />

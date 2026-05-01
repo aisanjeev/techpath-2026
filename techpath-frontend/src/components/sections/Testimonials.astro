@@ -1,4 +1,6 @@
 ---
+import { resolveAssetImage } from '@utils/blogImages';
+
 interface Testimonial {
   quote: string;
   author: string;
@@ -60,10 +62,12 @@ const {
                   {t.logo ? (
                     <div class="flex-shrink-0 rounded-lg bg-white px-3 py-1.5 ring-1 ring-slate-200">
                       <img
-                        src={t.logo}
+                        src={resolveAssetImage(t.logo)}
                         alt={t.company}
                         loading="lazy"
                         decoding="async"
+                        width="80"
+                        height="24"
                         class="h-6 w-auto max-w-[80px] object-contain"
                       />
                     </div>

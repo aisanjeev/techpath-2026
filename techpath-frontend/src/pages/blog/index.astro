@@ -4,6 +4,7 @@ import Breadcrumb from '@components/shared/Breadcrumb.astro';
 import Card from '@components/ui/Card.astro';
 import { getCollection } from 'astro:content';
 import { fetchBlogPosts, normalizeApiPost } from '@services/blogService';
+import { resolveBlogImage } from '@utils/blogImages';
 
 // SSR for this page - fetches from API at request time
 // Set to true for build-time generation, false for runtime SSR
@@ -70,7 +71,7 @@ const recentPosts = sortedPosts.slice(1, 7);
               <div class="aspect-video w-full md:aspect-auto md:w-1/2">
                 {featuredPost.data.image ? (
                   <img
-                    src={featuredPost.data.image}
+                    src={resolveBlogImage(featuredPost.data.image)}
                     alt={featuredPost.data.title}
                     class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
@@ -115,7 +116,7 @@ const recentPosts = sortedPosts.slice(1, 7);
               title={post.data.title}
               description={post.data.description}
               href={`/blog/${post.slug}`}
-              image={post.data.image ?? undefined}
+              image={resolveBlogImage(post.data.image)}
               meta={`${post.data.author} • ${new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',
                 month: 'short',

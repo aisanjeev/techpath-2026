@@ -16,12 +16,24 @@ from app.schemas.content import (
     AboutPageContent,
     AboutTeamMember,
     AboutValueItem,
+    BatchTiming,
+    ContactBadge,
+    ContactCtaBlock,
+    ContactCtaItem,
     ContactHeroContent,
     ContactMethodItem,
     ContactPageContent,
+    ContactSecondaryAction,
+    ContactSocialProof,
+    ContactSocialProofSection,
+    ContactStatItem,
+    ContactTab,
+    ContactTabCta,
     CtaButton,
     CtaContent,
+    DeliveryMode,
     FaqItem,
+    HeadOfSolutions,
     HeroContent,
     HomeCaseStudiesSection,
     HomeCtaContent,
@@ -31,6 +43,7 @@ from app.schemas.content import (
     HomeServiceItem,
     HomeStatItem,
     HomeTestimonialItem,
+    OfficeHours,
     OfferBannerContent,
     PageSeoContent,
     PainPointItem,
@@ -48,6 +61,8 @@ from app.schemas.content import (
     TrainingLandingContent,
     UspItem,
     UspsContent,
+    WhatToExpect,
+    WhatToExpectStep,
 )
 
 router = APIRouter()
@@ -339,22 +354,164 @@ def get_builtin_services_content() -> dict[str, Any]:
 
 
 def get_builtin_contact_content() -> dict[str, Any]:
-    """Return default contact page content."""
+    """Return default contact page content for Techpath Mughalsarai."""
     content = ContactPageContent(
         seo=PageSeoContent(
-            title="Contact Us",
-            description="Get in touch with TechPath. We'd love to discuss your project and how we can help transform your business with AI-powered solutions.",
+            title="Contact Techpath | IT Training & Professional IT Services — Mughalsarai, Chandauli",
+            description="Contact Techpath — IT training courses in Mughalsarai + enterprise AI, web, and cloud services. Call, WhatsApp, or visit Circus Road. Free demo class & free strategy call.",
+            image="/images/contact-featured.jpg",
+            canonical_url="https://techpath.biz/contact/",
+            no_index=False,
         ),
         hero=ContactHeroContent(
-            title="Let's Talk",
-            title_highlight="Talk",
-            subheadline="Have a project in mind? We'd love to hear about it. Get in touch and let's create something amazing together.",
+            title="Two Ways Techpath Can Help You",
+            title_highlight="Help You",
+            subheadline="Looking to start an IT career? Or build enterprise technology? Either way — reach out. Free career counselling for students. Free strategy call for businesses.",
+            badges=[
+                ContactBadge(label="📍 Circus Road, Mughalsarai", href="https://share.google/orP0Vj2FvrJEvLSSW"),
+                ContactBadge(label="🎓 14 IT Courses", href="https://techpath.biz/training/"),
+                ContactBadge(label="💼 7 Professional Services", href="https://techpath.biz/services/"),
+                ContactBadge(label="4.9 ⭐ on Clutch", href="https://clutch.co"),
+            ],
         ),
-        contact_methods=[
-            ContactMethodItem(title="Email", description="Send us an email anytime", value="hello@techpath.biz", href="mailto:hello@techpath.biz", icon="email"),
-            ContactMethodItem(title="Phone", description="Mon-Fri from 9am to 6pm", value="+1 (555) 123-4567", href="tel:+15551234567", icon="phone"),
-            ContactMethodItem(title="Office", description="Visit our headquarters", value="San Francisco, CA", href="https://maps.google.com", icon="location"),
+        contact_tabs=[
+            ContactTab(
+                id="academy",
+                label="🎓 I'm a Student / Parent",
+                headline="Talk to Our Academic Counsellor",
+                subtext="Free career guidance — in Hindi or English. No pressure, no obligation.",
+                cta_primary=ContactTabCta(label="📞 Call Now: +91 8299708052", href="tel:+918299708052"),
+                cta_secondary=ContactTabCta(label="💬 WhatsApp Us", href="https://wa.me/918299708052?text=Hi%2C%20I%20want%20free%20career%20counselling%20at%20Techpath%20Mughalsarai."),
+                urgency="🔥 Free Demo Class — No Fees, No Obligation (Offline + Online)",
+            ),
+            ContactTab(
+                id="services",
+                label="💼 I Need IT Services",
+                headline="Book a Free Strategy Call",
+                subtext="Talk directly to Sanjeev Kumar, Head of Solutions (14 years experience). Written scope + estimate in 48 hours.",
+                cta_primary=ContactTabCta(label="📞 Book Strategy Call", href="tel:+918299708052"),
+                cta_secondary=ContactTabCta(label="✉️ Email info@techpath.biz", href="mailto:info@techpath.biz"),
+                urgency="3 strategy slots open this week — NDA on request, no pitch deck, no obligation",
+            ),
         ],
+        contact_methods=[
+            ContactMethodItem(
+                title="Call or WhatsApp",
+                description="Mon–Sat, 9 AM to 7 PM. WhatsApp support available on Sundays for enrolled students.",
+                value="+91 8299708052",
+                href="tel:+918299708052",
+                icon="phone",
+                secondary_action=ContactSecondaryAction(
+                    label="💬 Open WhatsApp",
+                    href="https://wa.me/918299708052?text=Hi%2C%20I%20want%20to%20know%20more%20about%20Techpath.",
+                ),
+            ),
+            ContactMethodItem(
+                title="Email Us",
+                description="We reply within 48 business hours.",
+                value="info@techpath.biz",
+                href="mailto:info@techpath.biz",
+                icon="email",
+                note="For privacy or legal queries: privacy@techpath.biz | legal@techpath.biz",
+            ),
+            ContactMethodItem(
+                title="Visit Our Centre",
+                description="Walk in Mon–Sat, 9 AM–7 PM. No appointment needed. Walking distance from DDU Junction.",
+                value="Circus Road, Mughalsarai, Chandauli, Uttar Pradesh 232101",
+                href="https://share.google/orP0Vj2FvrJEvLSSW",
+                icon="location",
+                map_label="Get Directions on Google Maps",
+                landmark="Near DDU Junction (Pandit Deen Dayal Upadhyaya Nagar Railway Station)",
+            ),
+        ],
+        office_hours=OfficeHours(
+            weekdays="Monday to Saturday — 9:00 AM to 7:00 PM",
+            sunday="WhatsApp support for enrolled students only",
+            note="Walk-ins welcome. Free career counselling available on the spot — no prior appointment needed.",
+        ),
+        batch_timings=[
+            BatchTiming(label="Morning Batch", time="9:00 AM – 11:00 AM", days="Mon–Sat"),
+            BatchTiming(label="Afternoon Batch", time="1:00 PM – 3:00 PM", days="Mon–Sat"),
+            BatchTiming(label="Evening Batch", time="5:00 PM – 7:00 PM", days="Mon–Sat"),
+            BatchTiming(label="Weekend Doubt Sessions", time="Saturday & Sunday", days="Enrolled students"),
+        ],
+        delivery_modes=[
+            DeliveryMode(
+                id="offline",
+                label="Offline — Mughalsarai Centre",
+                description="Attend in person at Circus Road, Mughalsarai — walking distance from DDU Junction, Chandauli. Small batches of max 25 students. Lab access, face-to-face doubt clearing.",
+                icon="building",
+            ),
+            DeliveryMode(
+                id="online",
+                label="Live Online — From Anywhere in India",
+                description="Join from Varanasi, Ghazipur, Ballia, Bihar, or anywhere in India via Google Meet or Zoom. Same instructor, same curriculum, same certificate. Not pre-recorded — fully live and interactive.",
+                icon="globe",
+            ),
+        ],
+        what_to_expect=WhatToExpect(
+            academy=[
+                WhatToExpectStep(step=1, label="WhatsApp or call us", detail="Tell us your background and the course you're interested in."),
+                WhatToExpectStep(step=2, label="Free demo class", detail="Attend one free class — offline or online. Zero fees, zero obligation."),
+                WhatToExpectStep(step=3, label="Enrol & pick your batch", detail="Choose morning, afternoon, or evening batch. EMI available."),
+                WhatToExpectStep(step=4, label="Start building your career", detail="Real projects, live instructor, placement support from day one."),
+            ],
+            services=[
+                WhatToExpectStep(step=1, label="Email or call us", detail="We respond within 4 hours on business days."),
+                WhatToExpectStep(step=2, label="30-min strategy call", detail="Talk to Sanjeev Kumar directly — senior engineer, not a sales rep."),
+                WhatToExpectStep(step=3, label="Written scope + estimate", detail="Delivered within 48 hours. NDA available on request."),
+                WhatToExpectStep(step=4, label="Discovery → Build → Ship", detail="2-week sprints. First demo in 14 days. On-time, every time."),
+            ],
+        ),
+        faq=[
+            FaqItem(question="Where is Techpath located?", answer="Techpath is located on Circus Road, Mughalsarai, Chandauli, Uttar Pradesh 232101 — walking distance from DDU Junction (Pandit Deen Dayal Upadhyaya Nagar railway station). We are open Monday to Saturday, 9 AM to 7 PM. Walk-ins are welcome — no appointment needed."),
+            FaqItem(question="Can I join a Techpath course if I am not in Mughalsarai?", answer="Yes. All 14 Techpath courses are available as live online batches via Google Meet or Zoom — same instructor, same curriculum, same timings, same certificate. Students from Varanasi, Ghazipur, Ballia, Mirzapur, and Bihar join online regularly. Fees are identical for both modes."),
+            FaqItem(question="Is there a free demo class before I enrol?", answer="Yes — Techpath offers a free demo class for every course, both offline and online. No fees, no obligation, no pressure. Call or WhatsApp +91 8299708052 to book your free demo class today."),
+            FaqItem(question="What are Techpath's batch timings?", answer="Techpath runs three daily batches Monday to Saturday: Morning (9–11 AM), Afternoon (1–3 PM), and Evening (5–7 PM). Weekend doubt sessions are available for all enrolled students. You can switch batches if your schedule changes."),
+            FaqItem(question="Does Techpath offer IT services for businesses or only training?", answer="Techpath operates two arms. Techpath Academy offers 14 IT training courses for students and professionals. Techpath Professional Services offers enterprise-grade AI/ML, cloud infrastructure, web development, data analytics, DevOps, mobile apps, and cybersecurity services for businesses. Call +91 8299708052 or email info@techpath.biz for a free strategy call."),
+            FaqItem(question="Techpath mein admission kaise lein Mughalsarai mein?", answer="Techpath Mughalsarai mein admission ke liye aap seedha Circus Road centre par aa sakte hain ya WhatsApp kar sakte hain — +91 8299708052 par. Pehle ek free demo class attend karein, phir apna batch choose karein (morning, afternoon, ya evening). EMI bhi available hai sabhi courses ke liye."),
+            FaqItem(question="How quickly does Techpath respond to business enquiries?", answer="For professional services enquiries, Techpath responds within 4 hours on business days. Email info@techpath.biz or call +91 8299708052. A written project scope and estimate is delivered within 48 hours of your strategy call."),
+        ],
+        social_proof=ContactSocialProof(
+            academy=ContactSocialProofSection(
+                stats=[
+                    ContactStatItem(value="50,000+", label="Students Trained"),
+                    ContactStatItem(value="94%", label="Placement Rate"),
+                    ContactStatItem(value="25", label="Max Batch Size"),
+                    ContactStatItem(value="14", label="Courses Available"),
+                ],
+            ),
+            services=ContactSocialProofSection(
+                stats=[
+                    ContactStatItem(value="150+", label="Projects Delivered"),
+                    ContactStatItem(value="98%", label="Client Satisfaction"),
+                    ContactStatItem(value="50+", label="Enterprise Clients"),
+                    ContactStatItem(value="4.9", label="Clutch Rating"),
+                ],
+                head_of_solutions=HeadOfSolutions(
+                    name="Sanjeev Kumar",
+                    role="Head of Solutions · 14yr experience",
+                    quote="You'll talk to me, not a sales rep. I'll tell you straight if we can help.",
+                    image="/team/sanjeev-ceo-techpath.png",
+                ),
+            ),
+        ),
+        cta_block=ContactCtaBlock(
+            academy=ContactCtaItem(
+                headline="Not Sure Which Course Is Right for You?",
+                subtext="Our academic counsellor will guide you — free, in Hindi or English, no obligation.",
+                primary=ContactTabCta(label="📞 Call Now: +91 8299708052", href="tel:+918299708052"),
+                secondary=ContactTabCta(label="💬 WhatsApp Us", href="https://wa.me/918299708052?text=Hi%2C%20I%20want%20free%20career%20counselling%20at%20Techpath%20Mughalsarai."),
+                urgency="🔥 Free Demo Class — No Fees, No Obligation (Offline + Online)",
+            ),
+            services=ContactCtaItem(
+                headline="Let's Scope Your Project in 30 Minutes",
+                subtext="Free strategy call. No pitch deck, no obligation — just a senior engineer reviewing your problem.",
+                primary=ContactTabCta(label="📞 Book a Call: +91 8299708052", href="tel:+918299708052"),
+                secondary=ContactTabCta(label="✉️ Email info@techpath.biz", href="mailto:info@techpath.biz"),
+                urgency="3 strategy slots open this week — reply within 4 hours guaranteed",
+            ),
+        ),
     )
     return content.model_dump()
 

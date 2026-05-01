@@ -1,5 +1,7 @@
 ---
 // Rich split-panel CTA — left: form, right: consultant + process steps
+import { Image } from 'astro:assets';
+import sanjeevPhoto from '@assets/images/team/sanjeev-ceo-techpath.png';
 import { fetchCompanyInfo } from '@services/settingsService';
 
 interface Props {
@@ -109,13 +111,14 @@ const company = await fetchCompanyInfo();
           <div class="rounded-2xl border border-slate-700/60 bg-slate-800/50 p-5">
             <div class="flex items-center gap-4">
               <div class="relative flex-shrink-0">
-                <img
-                  src="/team/sanjeev-ceo-techpath.png"
+                <Image
+                  src={sanjeevPhoto}
                   alt="Sanjeev Kumar"
+                  width={112}
+                  height={112}
                   loading="lazy"
                   decoding="async"
-                  width="56"
-                  height="56"
+                  format="webp"
                   class="h-14 w-14 rounded-full object-cover"
                 />
                 <span class="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-slate-800 bg-emerald-400"></span>

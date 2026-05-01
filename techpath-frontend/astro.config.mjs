@@ -6,6 +6,7 @@ import robotsTxt from 'astro-robots-txt';
 import compress from 'astro-compress';
 import node from '@astrojs/node';
 import { loadEnv } from 'vite';
+import { fileURLToPath } from 'node:url';
 
 const env = loadEnv(process.env.NODE_ENV, process.cwd(), '');
 
@@ -45,6 +46,11 @@ export default defineConfig({
   vite: {
     define: {
       __API_BASE_URL__: JSON.stringify(env.VITE_API_BASE_URL || 'http://localhost:8000'),
+    },
+    resolve: {
+      alias: {
+        '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
+      },
     },
     build: {
       // Enable CSS code splitting for better caching
