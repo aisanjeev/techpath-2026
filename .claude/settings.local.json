@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(dir /b /s \"D:\\\\project\\\\techpath\\\\techpath-2026\\\\techpath-frontend\\\\src\\\\pages\")",
+      "Bash(findstr /i \"training\")",
+      "PowerShell(node --version)"
     ]
   }
 }

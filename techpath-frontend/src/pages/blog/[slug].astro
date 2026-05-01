@@ -138,7 +138,7 @@ const articleSchema = generateArticleSchema({
   showShareButtons={true}
   type="blog"
 >
-  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(articleSchema)} slot="head" />
   {renderMode === 'api'
     ? <Fragment set:html={htmlContent} />
     : CollectionContent && <CollectionContent />

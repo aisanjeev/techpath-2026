@@ -218,13 +218,29 @@ class AboutTeamMember(BaseModel):
     image: str = ""
 
 
+class AboutArmItem(BaseModel):
+    title: str = ""
+    subtitle: str = ""
+    description: str = ""
+    href: str = ""
+    cta_label: str = ""
+    stats: List[HomeStatItem] = Field(default_factory=list)
+
+
+class AboutTrustedByItem(BaseModel):
+    name: str = ""
+    logo: str = ""
+
+
 class AboutPageContent(BaseModel):
     seo: PageSeoContent = Field(default_factory=PageSeoContent)
     hero: AboutHeroContent = Field(default_factory=AboutHeroContent)
     mission_title: str = "Our Mission"
     mission_text: str = "To democratize access to cutting-edge technology solutions, enabling businesses of all sizes to compete and thrive in the digital age. We believe that the right technology, implemented thoughtfully, can transform industries and improve lives."
     stats: List[HomeStatItem] = Field(default_factory=list)
+    arms: List[AboutArmItem] = Field(default_factory=list)
     values: List[AboutValueItem] = Field(default_factory=list)
+    trusted_by: List[AboutTrustedByItem] = Field(default_factory=list)
     team: List[AboutTeamMember] = Field(default_factory=list)
     cta_title: str = "Ready to Build Something Great?"
     cta_description: str = "Let's discuss how we can help you achieve your technology goals."
@@ -246,6 +262,7 @@ class ServicesHeroContent(BaseModel):
 class ServicesLandingContent(BaseModel):
     seo: PageSeoContent = Field(default_factory=PageSeoContent)
     hero: ServicesHeroContent = Field(default_factory=ServicesHeroContent)
+    trust_bar: List[HomeStatItem] = Field(default_factory=list)
     cta_title: str = "Need a Custom Solution?"
     cta_description: str = "Let's discuss your unique requirements and build something amazing together."
     cta_primary_label: str = "Contact Us"

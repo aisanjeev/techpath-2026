@@ -52,7 +52,7 @@ const webPageSchema = {
   image={ogImage}
   canonicalUrl={canonicalUrl}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(webPageSchema)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(webPageSchema)} slot="head" />
 
   <!-- Hero header -->
   <section class="relative overflow-hidden py-16 lg:py-24">

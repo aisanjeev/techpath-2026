@@ -48,7 +48,7 @@ const localBusinessSchema = {
   noIndex={content.seo?.no_index ?? false}
 >
   <!-- LocalBusiness JSON-LD in head slot -->
-  <script slot="head" type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
+  <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
 
   <!-- ─── Hero ─────────────────────────────────────────────────────────── -->
   <section class="pt-12 pb-0 lg:pt-16">
@@ -169,7 +169,7 @@ const localBusinessSchema = {
                     width="56"
                     height="56"
                     class="h-14 w-14 flex-shrink-0 rounded-full object-cover ring-2 ring-secondary-500/40"
-                    onerror="this.src='/images/avatar-placeholder.jpg'"
+                    onerror="this.setAttribute('src','/images/avatar-placeholder.jpg')"
                   />
                   <div>
                     <div class="font-semibold text-white">{content.social_proof.services.head_of_solutions.name}</div>
@@ -436,7 +436,7 @@ const localBusinessSchema = {
         Everything you need to know before reaching out
       </p>
       <div class="mx-auto max-w-3xl space-y-3">
-        {content.faq.map((item, i) => (
+        {content.faq.map((item) => (
           <details class="faq-item group rounded-xl border border-slate-800 bg-slate-900/50 transition-all open:border-primary-500/30 open:bg-slate-900">
             <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 text-sm font-semibold text-white">
               <span>{item.question}</span>

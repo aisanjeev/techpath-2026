@@ -38,7 +38,7 @@ const services = apiServices.map((s, i) => ({
       <Breadcrumb items={breadcrumbItems} />
 
       <!-- Header -->
-      <div class="mx-auto mb-16 max-w-3xl text-center">
+      <div class="mx-auto mb-10 max-w-3xl text-center">
         <h1 class="mb-6 font-heading text-4xl font-bold text-white md:text-5xl lg:text-6xl">
           {content.hero.title.split(content.hero.title_highlight)[0]}
           <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
@@ -50,6 +50,20 @@ const services = apiServices.map((s, i) => ({
           {content.hero.subheadline}
         </p>
       </div>
+
+      <!-- Trust Bar -->
+      {content.trust_bar && content.trust_bar.length > 0 && (
+        <div class="mx-auto mb-16 max-w-4xl">
+          <div class="flex flex-wrap items-center justify-center divide-slate-700 rounded-2xl border border-slate-800 bg-slate-900/50 px-2 py-1 sm:divide-x">
+            {content.trust_bar.map((stat) => (
+              <div class="flex flex-col items-center px-6 py-4 text-center">
+                <span class="font-heading text-2xl font-bold text-primary-400">{stat.value}</span>
+                <span class="mt-0.5 text-xs text-slate-400">{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <!-- Services Grid -->
       <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">

@@ -66,7 +66,7 @@ const pricingPlans = service.pricing_plans ?? [];
   canonicalUrl={service.canonical_url || undefined}
   noIndex={service.no_index || false}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(serviceSchema)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(serviceSchema)} slot="head" />
   <article class="service-page py-12 lg:py-20">
     <div class="container mx-auto px-4">
       <Breadcrumb items={breadcrumbItems} />
