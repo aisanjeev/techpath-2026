@@ -67,28 +67,55 @@ const robotsContent = getRobotsContent(noIndex);
     <meta property="twitter:description" content={description} />
     <meta property="twitter:image" content={fullImageUrl} />
 
-    <!-- Google Tag Manager -->
+    <!-- Resource hints for analytics origins -->
+    {(gtmId || googleAnalyticsId) && (
+      <>
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+      </>
+    )}
+
+    <!-- Google Tag Manager (deferred until idle to keep main thread free for LCP) -->
     {gtmId && (
       <script is:inline define:vars={{ gtmId }}>
-        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        (function(w,d,s,l,i){
+          function loadGTM(){
+            w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
+            var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
+            j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+            f.parentNode.insertBefore(j,f);
+          }
+          if ('requestIdleCallback' in w) {
+            w.requestIdleCallback(loadGTM, { timeout: 4000 });
+          } else {
+            w.addEventListener('load', function(){ setTimeout(loadGTM, 1500); });
+          }
         })(window,document,'script','dataLayer',gtmId);
       </script>
     )}
 
-    <!-- Google Analytics -->
+    <!-- Google Analytics (deferred until idle) -->
     {googleAnalyticsId && (
-      <>
-        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}></script>
-        <script is:inline define:vars={{ googleAnalyticsId }}>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', googleAnalyticsId);
-        </script>
-      </>
+      <script is:inline define:vars={{ googleAnalyticsId }}>
+        (function(w,d,id){
+          function loadGA(){
+            var s=d.createElement('script');
+            s.async=true;
+            s.src='https://www.googletagmanager.com/gtag/js?id='+id;
+            d.head.appendChild(s);
+            w.dataLayer = w.dataLayer || [];
+            function gtag(){w.dataLayer.push(arguments);}
+            w.gtag = gtag;
+            gtag('js', new Date());
+            gtag('config', id);
+          }
+          if ('requestIdleCallback' in w) {
+            w.requestIdleCallback(loadGA, { timeout: 4000 });
+          } else {
+            w.addEventListener('load', function(){ setTimeout(loadGA, 1500); });
+          }
+        })(window,document,googleAnalyticsId);
+      </script>
     )}
 
     <!-- Favicon -->
@@ -96,13 +123,26 @@ const robotsContent = getRobotsContent(noIndex);
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.png" />
 
-    <!-- Fonts -->
+    <!-- Fonts (subset weights, non-blocking load with display=swap) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@100..900&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
 
     <!-- Schema.org JSON-LD -->
     <script is:inline type="application/ld+json" set:html={JSON.stringify({

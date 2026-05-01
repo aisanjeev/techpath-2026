@@ -32,9 +32,9 @@ const hero = heroProp ?? {
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary-500/20 via-slate-950 to-slate-950"></div>
   <div class="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-10"></div>
   
-  <!-- Floating elements -->
-  <div class="absolute left-1/4 top-1/4 h-64 w-64 animate-float rounded-full bg-primary-500/10 blur-3xl"></div>
-  <div class="absolute right-1/4 bottom-1/4 h-96 w-96 animate-float rounded-full bg-secondary-500/10 blur-3xl" style="animation-delay: -3s;"></div>
+  <!-- Floating elements (animation skipped on small screens / reduced-motion to save TBT) -->
+  <div class="absolute left-1/4 top-1/4 h-64 w-64 rounded-full bg-primary-500/10 blur-3xl motion-safe:md:animate-float"></div>
+  <div class="absolute right-1/4 bottom-1/4 h-96 w-96 rounded-full bg-secondary-500/10 blur-3xl motion-safe:md:animate-float" style="animation-delay: -3s;"></div>
 
   <div class="container relative z-10 mx-auto px-4">
     <div class="mx-auto max-w-4xl text-center">
@@ -111,12 +111,15 @@ const hero = heroProp ?? {
             { src: '/images/trusted/conwerz-ai.png', alt: 'Conwerz AI' },
             { src: '/images/trusted/global-events-travels.png', alt: 'Global Events Travels' },
             { src: '/images/trusted/octavia-hospital.png', alt: 'Octavia Hospital' },
-          ].map(({ src, alt }) => (
+          ].map(({ src, alt }, idx) => (
             <div class="flex items-center justify-center rounded-xl bg-white px-4 py-2.5 opacity-80 ring-1 ring-slate-200 shadow-sm transition-all duration-200 hover:opacity-100 hover:-translate-y-0.5 hover:shadow-md">
               <img
                 src={src}
                 alt={alt}
-                loading="eager"
+                width="120"
+                height="32"
+                loading={idx < 3 ? 'eager' : 'lazy'}
+                fetchpriority={idx < 3 ? 'high' : 'auto'}
                 decoding="async"
                 class="h-auto max-h-8 w-auto max-w-[120px] object-contain"
               />

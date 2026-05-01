@@ -267,8 +267,17 @@ const {
       el.addEventListener('click', onReject);
     });
 
-    if (getStoredConsent() === null) {
-      showBanner();
+    function init(): void {
+      if (getStoredConsent() === null) {
+        showBanner();
+      }
+    }
+
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => void };
+    if (typeof w.requestIdleCallback === 'function') {
+      w.requestIdleCallback(init, { timeout: 2000 });
+    } else {
+      w.addEventListener('load', () => setTimeout(init, 800));
     }
   })();
 </script>
