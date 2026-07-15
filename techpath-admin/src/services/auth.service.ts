@@ -1,12 +1,12 @@
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import type { User as FirebaseUser } from 'firebase/auth';
-import { firebaseAuth } from '@/lib/firebase';
+import { getFirebaseAuth } from '@/lib/firebase';
 import { apiClient, handleApiError } from '@/lib/api-client';
 import type { User } from '@/types/api';
 
 export const authService = {
   async login(email: string, password: string): Promise<FirebaseUser> {
-    const credential = await signInWithEmailAndPassword(firebaseAuth, email, password);
+    const credential = await signInWithEmailAndPassword(getFirebaseAuth(), email, password);
     return credential.user;
   },
 
@@ -25,7 +25,7 @@ export const authService = {
     } catch {
       // Ignore backend logout errors — Firebase signOut is the source of truth
     } finally {
-      await signOut(firebaseAuth);
+      await signOut(getFirebaseAuth());
     }
   },
 };
