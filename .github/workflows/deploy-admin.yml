@@ -6,7 +6,7 @@
 # DEPLOYMENT STRATEGY:
 # --------------------
 # - Push to `develop` branch → STAGING  (port 3083, staging.admin.techpath.biz)
-# - Push to `main`    branch → PRODUCTION (port 3082, admin.techpath.biz)
+# - Push to `main`    branch → PRODUCTION (port 3015, admin.techpath.biz)
 #
 # NOTE: Ports and deploy paths are placeholders — adjust once VPS routing
 # (nginx/Caddy) is finalized. Keep SERVICE_NAME/DEPLOY_PATH/APP_PORT in sync.
@@ -187,7 +187,7 @@ jobs:
     env:
       DEPLOY_PATH: /home/techpath-admin/htdocs/admin.techpath.biz
       SERVICE_NAME: techpath-admin
-      APP_PORT: 3082
+      APP_PORT: 3015
 
     steps:
       - name: Checkout code

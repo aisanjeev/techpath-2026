@@ -6,7 +6,7 @@
 # DEPLOYMENT STRATEGY:
 # --------------------
 # - Push to `develop` branch → STAGING  (port 3093, staging.techpath.biz)
-# - Push to `main`    branch → PRODUCTION (port 3092, www.techpath.biz)
+# - Push to `main`    branch → PRODUCTION (port 3013, techpath.biz)
 #
 # NOTE: Ports and deploy paths are placeholders — adjust once VPS routing
 # (nginx/Caddy) is finalized. Keep SERVICE_NAME/DEPLOY_PATH/APP_PORT in sync.
@@ -27,7 +27,7 @@
 # ------------------
 # - Node.js 20+ and npm installed
 # - mkdir -p /home/techpath-www-staging/htdocs/staging.techpath.biz
-# - mkdir -p /home/techpath-www/htdocs/www.techpath.biz
+# - mkdir -p /home/techpath/htdocs/techpath.biz
 # - Reverse proxy routes the public domain to 127.0.0.1:<APP_PORT>
 # =============================================================================
 
@@ -182,12 +182,12 @@ jobs:
 
     environment:
       name: production
-      url: https://www.techpath.biz
+      url: https://techpath.biz
 
     env:
-      DEPLOY_PATH: /home/techpath-www/htdocs/www.techpath.biz
-      SERVICE_NAME: techpath-www
-      APP_PORT: 3092
+      DEPLOY_PATH: /home/techpath/htdocs/techpath.biz
+      SERVICE_NAME: techpath
+      APP_PORT: 3013
 
     steps:
       - name: Checkout code
@@ -286,7 +286,7 @@ jobs:
 
             echo "=========================================="
             echo "✨ PRODUCTION deployment complete!"
-            echo "   URL: https://www.techpath.biz"
+            echo "   URL: https://techpath.biz"
             echo "=========================================="
 
       - name: Deployment failed notification
