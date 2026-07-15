@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = Field(default="http://localhost:4321")
     ALLOWED_HOSTS: List[str] = Field(default=["localhost", "127.0.0.1"])
     CORS_ORIGINS: List[str] = Field(
-        default=["*"]  # Allow all origins for development
+        default=["http://localhost:4321", "http://localhost:3000"]
     )
 
     @field_validator("ALLOWED_HOSTS", "CORS_ORIGINS", mode="before")
@@ -65,7 +65,7 @@ class Settings(BaseSettings):
     # -----------------
     # Authentication
     # -----------------
-    SECRET_KEY: str = Field(default="dev-secret-key-change-in-production")
+    SECRET_KEY: str
     ALGORITHM: str = Field(default="HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60)
 
@@ -108,6 +108,17 @@ class Settings(BaseSettings):
     SMTP_USER: str = Field(default="")
     SMTP_PASSWORD: str = Field(default="")
     FROM_EMAIL: str = Field(default="noreply@techpath.biz")
+    ADMIN_EMAIL: str = Field(default="sanjeev@techpath.biz")
+
+    # -----------------
+    # Firebase
+    # -----------------
+    FIREBASE_PROJECT_ID: str = Field(default="techpath-main")
+    # Optional: path to a Firebase service-account JSON key file.
+    # Download from Firebase Console → Project Settings → Service Accounts
+    # → Generate New Private Key.  Leave blank to rely on Application Default
+    # Credentials (ADC) or the project-ID-only mode (verify_id_token only).
+    FIREBASE_SERVICE_ACCOUNT_PATH: str = Field(default="")
 
     @property
     def has_smtp_config(self) -> bool:

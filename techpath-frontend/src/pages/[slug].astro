@@ -1,0 +1,104 @@
+---
+import MainLayout from '@layouts/MainLayout.astro';
+import { fetchPageBySlug } from '@services/pagesService';
+import { marked } from 'marked';
+import '@styles/markdown.css';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/404');
+}
+
+const page = await fetchPageBySlug(slug);
+
+if (!page) {
+  return new Response(null, { status: 404 });
+}
+
+const seoTitle = page.meta_title || page.title;
+const seoDescription = page.meta_description || page.excerpt || '';
+const ogImage = page.featured_image || undefined;
+
+const siteUrl = import.meta.env.SITE_URL || 'https://techpath.biz';
+const canonicalUrl = `${siteUrl.replace(/\/$/, '')}/${slug}`;
+
+let htmlContent = page.content;
+if (
+  page.content_type === 'markdown' ||
+  page.content.startsWith('#') ||
+  page.content.includes('\n```')
+) {
+  htmlContent = String(await marked(page.content));
+}
+
+const webPageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: page.title,
+  description: seoDescription,
+  url: canonicalUrl,
+  ...(ogImage ? { image: ogImage } : {}),
+  datePublished: page.published_at || page.created_at,
+  dateModified: page.updated_at,
+};
+---
+
+<MainLayout
+  title={seoTitle}
+  description={seoDescription}
+  image={ogImage}
+  canonicalUrl={canonicalUrl}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(webPageSchema)} slot="head" />
+
+  <!-- Hero header -->
+  <section class="relative overflow-hidden py-16 lg:py-24">
+    <!-- Background glow blobs -->
+    <div class="pointer-events-none absolute -top-40 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-primary-500/10 blur-3xl"></div>
+    <div class="pointer-events-none absolute -bottom-20 right-0 h-64 w-64 rounded-full bg-secondary-500/10 blur-3xl"></div>
+
+    <div class="container mx-auto px-4">
+      <div class="mx-auto max-w-4xl text-center">
+        <h1 class="mb-6 font-heading text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+          <span class="bg-gradient-to-r from-primary-400 to-secondary-400 bg-clip-text text-transparent">
+            {page.title}
+          </span>
+        </h1>
+
+        {page.excerpt && (
+          <p class="mx-auto max-w-2xl text-lg leading-relaxed text-slate-400 md:text-xl">
+            {page.excerpt}
+          </p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured image banner -->
+  {page.featured_image && (
+    <div class="container mx-auto mb-12 px-4">
+      <div class="mx-auto max-w-5xl overflow-hidden rounded-2xl border border-slate-800">
+        <img
+          src={page.featured_image}
+          alt={page.title}
+          class="h-auto w-full object-cover"
+          loading="eager"
+        />
+      </div>
+    </div>
+  )}
+
+  <!-- Content -->
+  <section class="pb-20 lg:pb-28">
+    <div class="container mx-auto px-4">
+      <div class="mx-auto max-w-4xl">
+        <div class="markdown-content prose prose-invert prose-lg max-w-none prose-headings:font-heading prose-headings:text-white prose-p:text-slate-300 prose-p:leading-relaxed prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-white prose-li:text-slate-300 prose-blockquote:border-primary-500 prose-blockquote:text-slate-400 prose-code:text-primary-300">
+          <Fragment set:html={htmlContent} />
+        </div>
+      </div>
+    </div>
+  </section>
+</MainLayout>

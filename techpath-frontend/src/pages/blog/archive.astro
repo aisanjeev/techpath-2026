@@ -7,6 +7,7 @@ import MainLayout from '@layouts/MainLayout.astro';
 import Breadcrumb from '@components/shared/Breadcrumb.astro';
 import Card from '@components/ui/Card.astro';
 import { fetchBlogPostsPaginated, normalizeApiPost } from '@services/blogService';
+import { resolveBlogImage } from '@utils/blogImages';
 
 export const prerender = false;
 
@@ -57,8 +58,8 @@ const nextHref = `/blog/archive?page=${currentPage + 1}`;
             <Card
               title={post.data.title}
               description={post.data.description}
-              href={post.source === 'api' ? `/blog/api/${post.slug}` : `/blog/${post.slug}`}
-              image={post.data.image ?? undefined}
+              href={`/blog/${post.slug}`}
+              image={resolveBlogImage(post.data.image)}
               meta={`${post.data.author} • ${new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',
                 month: 'short',

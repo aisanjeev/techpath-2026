@@ -9,32 +9,54 @@ import TrainingHero from './_components/TrainingHero.astro';
 import PainPointsSection from './_components/PainPointsSection.astro';
 import USPSection from './_components/USPSection.astro';
 import CourseGrid from './_components/CourseGrid.astro';
-import TransformationStories from './_components/TransformationStories.astro';
+import GoogleReviews from './_components/GoogleReviews.astro';
 import OfferBanner from './_components/OfferBanner.astro';
 import TrainingEnquiryForm from './_components/TrainingEnquiryForm.astro';
 import FAQSection from '@components/sections/FAQSection.astro';
 import CTA from '@components/shared/CTA.astro';
 import { fetchCourses, normalizeApiCourse } from '@services/courseService';
 import { fetchTrainingPageContent, getDefaultTrainingContent } from '@services/trainingContentService';
+import { fetchGoogleReviews, googleMapsReviewUrl } from '@utils/googleReviews';
 
 export const prerender = false;
 
 let courses: any[] = [];
 let fetchError = false;
 
-try {
-  const response = await fetchCourses({ limit: 50 });
-  courses = response.map(normalizeApiCourse);
-} catch (error) {
-  console.error('Error fetching courses from API:', error);
+// Fetch courses, page content, and Google reviews concurrently
+const [coursesResult, contentFromApi, googlePlaceData] = await Promise.allSettled([
+  fetchCourses({ limit: 50 }),
+  fetchTrainingPageContent(),
+  fetchGoogleReviews(),
+]);
+
+if (coursesResult.status === 'fulfilled') {
+  courses = coursesResult.value.map(normalizeApiCourse);
+} else {
+  console.error('Error fetching courses from API:', coursesResult.reason);
   fetchError = true;
 }
 
-// Training page content from API; fallback when API unavailable
-const contentFromApi = await fetchTrainingPageContent();
-const content = contentFromApi ?? getDefaultTrainingContent();
+const content =
+  (contentFromApi.status === 'fulfilled' ? contentFromApi.value : null) ??
+  getDefaultTrainingContent();
 
-// Schema.org JSON-LD for SEO (uses content.schema_defaults + courses)
+const placeData =
+  googlePlaceData.status === 'fulfilled' ? googlePlaceData.value : null;
+
+const mapsUrl = googleMapsReviewUrl(import.meta.env.GOOGLE_REVIEWS_PLACE_ID);
+
+// Schema.org JSON-LD for SEO
+// Prefer live Google data for aggregateRating; fall back to schema_defaults;
+// omit the block entirely when neither source has valid numbers.
+const liveRating = placeData?.rating;
+const liveCount = placeData?.user_ratings_total;
+const fallbackRating = content.schema_defaults.rating_value;
+const fallbackCount = content.schema_defaults.review_count;
+
+const ratingValue = liveRating ?? (fallbackRating ? Number(fallbackRating) : null);
+const reviewCount = liveCount ?? (fallbackCount ? Number(fallbackCount) : null);
+
 const schemaOrg = {
   "@context": "https://schema.org",
   "@type": "EducationalOrganization",
@@ -42,12 +64,16 @@ const schemaOrg = {
   "description": content.schema_defaults.description,
   "url": "https://techpath.biz/training",
   "logo": "https://techpath.biz/images/techpath-logo.webp",
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": content.schema_defaults.rating_value,
-    "reviewCount": content.schema_defaults.review_count,
-    "bestRating": "5"
-  },
+  ...(ratingValue && reviewCount
+    ? {
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": ratingValue,
+          "reviewCount": reviewCount,
+          "bestRating": "5",
+        },
+      }
+    : {}),
   ...(courses.length > 0 && {
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
@@ -133,8 +159,13 @@ const schemaOrg = {
         <CourseGrid courses={courses} />
       )}
 
-      <!-- Section 5: Transformation Stories -->
-      <TransformationStories stories={content.stories} />
+      <!-- Section 5: Google Reviews (live from Google Places API) -->
+      <GoogleReviews
+        placeData={placeData}
+        sectionTitle={content.stories.section_title}
+        sectionSubtext={content.stories.section_subtext}
+        mapsUrl={mapsUrl}
+      />
 
       <!-- Section 6: Offer + Urgency -->
       <OfferBanner offerBanner={content.offer_banner} />

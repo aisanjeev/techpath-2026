@@ -1,0 +1,12 @@
+---
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+---
+<span class="inline-flex items-center gap-1.5 rounded-full border border-teal-500/40 bg-teal-500/[0.06] px-3 py-1 text-xs font-medium text-teal-200 transition-colors hover:bg-teal-500/15 hover:text-teal-100">
+  <svg class="h-3.5 w-3.5 stroke-teal-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+  </svg>
+  {text}
+</span>

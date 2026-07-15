@@ -4,6 +4,27 @@
 
 import { SITE } from './constants';
 
+/**
+ * Returns true only on production — all other envs (staging, dev) are non-indexable.
+ * Controlled by PUBLIC_SITE_ENV env var:
+ *   production  → index, follow
+ *   staging     → noindex, nofollow  (default for .env.local)
+ *   development → noindex, nofollow
+ */
+export function isSiteIndexable(): boolean {
+  return import.meta.env.PUBLIC_SITE_ENV === 'production';
+}
+
+/**
+ * Resolve the robots directive for a page.
+ * - Non-production envs: always noindex/nofollow regardless of page-level setting
+ * - Production: respects the per-page noIndex flag (default: index/follow)
+ */
+export function getRobotsContent(noIndex = false): string {
+  if (!isSiteIndexable()) return 'noindex, nofollow';
+  return noIndex ? 'noindex, nofollow' : 'index, follow';
+}
+
 export interface SEOProps {
   title: string;
   description?: string;

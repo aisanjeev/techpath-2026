@@ -75,12 +75,12 @@ export const uploadsService = {
     
     // For local storage paths (e.g., /uploads/images/file.jpg)
     if (pathOrUrl.startsWith('/uploads/')) {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
       return `${apiBase}${pathOrUrl}`;
     }
     
     // For relative paths without /uploads prefix
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
     return `${apiBase}/uploads/${pathOrUrl}`;
   },
 };

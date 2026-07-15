@@ -10,6 +10,7 @@ from app.models.course import Course, CourseCategory, CourseEnrollment, Skill, c
 from app.models.secret import SecretMetadata
 from app.models.app_setting import AppSetting
 from app.models.pilot_signup import PilotSignup
+from app.models.page import Page
 
 __all__ = [
     "Base",
@@ -34,5 +35,6 @@ __all__ = [
     "SecretMetadata",
     "AppSetting",
     "PilotSignup",
+    "Page",
 ]
 

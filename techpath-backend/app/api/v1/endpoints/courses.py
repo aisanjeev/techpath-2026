@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError, ConflictError, ValidationError
+from app.services.storage_service import storage_service
 from app.crud.course import (
     course_crud,
     course_category_crud,
@@ -235,8 +236,14 @@ async def list_courses(
 
     page = (skip // limit) + 1
     pages = (total + limit - 1) // limit
+    course_responses = []
+    for c in courses:
+        r = CourseListResponse.model_validate(c)
+        if r.featured_image:
+            r.featured_image = await storage_service.resolve_url(r.featured_image)
+        course_responses.append(r)
     return PaginatedResponse(
-        data=[CourseListResponse.model_validate(c) for c in courses],
+        data=course_responses,
         pagination=PaginationMeta(total=total, page=page, per_page=limit, pages=pages)
     )
 
@@ -256,7 +263,12 @@ async def get_course(
     if (current_user is None or current_user.role != "admin") and course.status != "published":
         raise NotFoundError("Course")
 
-    return CourseResponse.model_validate(course)
+    response = CourseResponse.model_validate(course)
+    if response.featured_image:
+        response.featured_image = await storage_service.resolve_url(response.featured_image)
+    if response.instructor_image:
+        response.instructor_image = await storage_service.resolve_url(response.instructor_image)
+    return response
 
 
 @router.post("/", response_model=CourseResponse, status_code=status.HTTP_201_CREATED)

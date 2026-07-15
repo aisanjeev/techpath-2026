@@ -3,7 +3,7 @@ title: "Getting Started with AI: A Practical Guide for Enterprises"
 description: "Learn how to implement AI solutions in your enterprise, from identifying use cases to deployment and monitoring."
 pubDate: 2024-12-10
 author: "Dr. Sarah Kim"
-image: "/images/blog/ai-guide.webp"
+image: "ai-guide.webp"
 tags: ["AI", "Machine Learning", "Enterprise", "Guide"]
 readingTime: 12
 ---

@@ -3,9 +3,16 @@
 
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string;
+  readonly PUBLIC_API_URL: string;
   readonly SITE_URL: string;
+  /** "production" | "staging" | "development" — controls robots indexing */
+  readonly PUBLIC_SITE_ENV: string;
   readonly VITE_GA_TRACKING_ID?: string;
   readonly VITE_SENTRY_DSN?: string;
+  /** Google Places API key — server-side only, no PUBLIC_ prefix */
+  readonly GOOGLE_MAPS_API_KEY?: string;
+  /** Google Place ID for Techpath Academy's Google Business Profile */
+  readonly GOOGLE_REVIEWS_PLACE_ID?: string;
 }
 
 interface ImportMeta {

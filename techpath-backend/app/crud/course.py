@@ -211,6 +211,8 @@ class CRUDCourse(CRUDBase[Course, CourseCreate, CourseUpdate]):
 
         # Add skills if provided
         if obj_in.skill_ids:
+            # Eagerly load the collection before appending to avoid lazy-load in async context
+            await db.refresh(db_obj, attribute_names=["skills"])
             for skill_id in obj_in.skill_ids:
                 result = await db.execute(select(Skill).where(Skill.id == skill_id))
                 skill = result.scalar_one_or_none()
@@ -232,6 +234,8 @@ class CRUDCourse(CRUDBase[Course, CourseCreate, CourseUpdate]):
 
         # Update skills if provided
         if obj_in.skill_ids is not None:
+            # Eagerly load the collection before clearing to avoid lazy-load in async context
+            await db.refresh(db_obj, attribute_names=["skills"])
             db_obj.skills.clear()
             for skill_id in obj_in.skill_ids:
                 result = await db.execute(select(Skill).where(Skill.id == skill_id))

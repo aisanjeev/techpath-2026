@@ -16,9 +16,10 @@ export interface PaginatedResponse<T> {
 export interface User {
   id: number;
   email: string;
-  full_name: string;
+  name: string;
+  role: string;
   is_active: boolean;
-  is_superuser: boolean;
+  avatar_url?: string;
   created_at: string;
   updated_at?: string;
 }
@@ -29,6 +30,21 @@ export interface LoginResponse {
 }
 
 // Service Types
+export interface ServicePricingPlanItem {
+  name: string;
+  description: string;
+  price: string;
+  period: string;
+  features: string[];
+  cta: string;
+  highlighted?: boolean;
+}
+
+export interface ServiceFAQItem {
+  question: string;
+  answer: string;
+}
+
 export interface Service {
   id: number;
   title: string;
@@ -38,12 +54,27 @@ export interface Service {
   icon?: string;
   image_url?: string;
   features?: string[];
+  pricing_plans?: ServicePricingPlanItem[];
+  faqs?: ServiceFAQItem[];
   price?: string;
   cta_text: string;
   cta_url?: string;
   featured: boolean;
   display_order: number;
   is_active: boolean;
+  meta_title?: string;
+  meta_description?: string;
+  og_image?: string;
+  canonical_url?: string;
+  no_index?: boolean;
+  // Bento layout
+  layout_size: 'large' | 'small' | 'wide';
+  badge_label?: string | null;
+  tags?: string[] | null;
+  stat_label?: string | null;
+  stat_value?: string | null;
+  accent_color: 'purple' | 'cyan' | 'green' | 'amber' | 'blue';
+  graphic_variant: 'orbital' | 'code-window' | 'bar-chart' | 'none';
   created_at: string;
   updated_at: string;
 }
@@ -56,12 +87,27 @@ export interface ServiceCreate {
   icon?: string;
   image_url?: string;
   features?: string[];
+  pricing_plans?: ServicePricingPlanItem[];
+  faqs?: ServiceFAQItem[];
   price?: string;
   cta_text?: string;
   cta_url?: string;
   featured?: boolean;
   display_order?: number;
   is_active?: boolean;
+  meta_title?: string;
+  meta_description?: string;
+  og_image?: string;
+  canonical_url?: string;
+  no_index?: boolean;
+  // Bento layout
+  layout_size?: 'large' | 'small' | 'wide';
+  badge_label?: string | null;
+  tags?: string[] | null;
+  stat_label?: string | null;
+  stat_value?: string | null;
+  accent_color?: 'purple' | 'cyan' | 'green' | 'amber' | 'blue';
+  graphic_variant?: 'orbital' | 'code-window' | 'bar-chart' | 'none';
 }
 
 export interface ServiceUpdate extends Partial<ServiceCreate> {}
@@ -119,6 +165,51 @@ export interface BlogPostCreate {
 }
 
 export interface BlogPostUpdate extends Partial<BlogPostCreate> {}
+
+// Page Types (standalone CMS pages served at domain.com/{slug})
+export interface Page {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  content_type: 'html' | 'markdown';
+  excerpt?: string;
+  featured_image?: string;
+  status: 'draft' | 'published' | 'archived';
+  meta_title?: string;
+  meta_description?: string;
+  published_at?: string;
+  author_id?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PageListItem {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  featured_image?: string;
+  status: 'draft' | 'published' | 'archived';
+  published_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PageCreate {
+  title: string;
+  slug: string;
+  content: string;
+  content_type?: 'html' | 'markdown';
+  excerpt?: string;
+  featured_image?: string;
+  status?: 'draft' | 'published' | 'archived';
+  meta_title?: string;
+  meta_description?: string;
+  published_at?: string;
+}
+
+export interface PageUpdate extends Partial<PageCreate> {}
 
 // Case Study Types
 export interface CaseStudyTag {

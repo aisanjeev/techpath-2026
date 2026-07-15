@@ -1,0 +1,129 @@
+---
+import OutcomePill from './OutcomePill.astro';
+import CaseStudyCard from './CaseStudyCard.astro';
+
+interface PainPoint {
+  title: string;
+  description: string;
+  statistic: string;
+  impact: string;
+}
+interface Solution {
+  title: string;
+  description: string;
+  benefit: string;
+  icon?: string;
+}
+interface Industry {
+  id: string;
+  name: string;
+  keyChallenge: string;
+  painPoints: PainPoint[];
+  solutions: Solution[];
+  outcomes: string[];
+  caseStudy: {
+    company: string;
+    challenge: string;
+    solution: string;
+    results: { value: string; label: string }[];
+    testimonial: { text: string; author: string; title: string };
+  };
+}
+
+interface Props {
+  industry: Industry;
+  index: number;
+}
+
+const { industry, index } = Astro.props;
+const layoutB = index % 2 === 1;
+
+const industryIconPaths: Record<string, string> = {
+  healthcare:
+    'M19 14h-5v5h-4v-5H5v-4h5V5h4v5h5v4z',
+  finance:
+    'M3 21h18M5 21V10l7-5 7 5v11M9 21v-7h6v7',
+  retail:
+    'M6 2L3 6v2a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0V6l-3-4H6zM5 11v9h14v-9',
+  manufacturing:
+    'M2 20h20M4 20V8l5 4V8l5 4V4l5 4v12',
+  technology:
+    'M4 6h16v10H4zM2 20h20M9 16h6',
+  education:
+    'M12 3L1 9l11 6 9-4.91V17h2V9M5 13.18v4L12 21l7-3.82v-4L12 17z',
+};
+const iconPath = industryIconPaths[industry.id] ?? industryIconPaths.technology;
+---
+<section id={industry.id} class="industry-section scroll-mt-24" style={`animation-delay: ${index * 80}ms`}>
+  <!-- Industry header -->
+  <header class="flex items-center gap-4 border-b border-white/5 pb-6">
+    <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-teal-500/10 ring-1 ring-teal-500/20">
+      <svg class="h-6 w-6 stroke-teal-400" fill="none" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d={iconPath} />
+      </svg>
+    </div>
+    <div>
+      <h2 class="font-heading text-2xl font-bold text-white md:text-3xl">{industry.name}</h2>
+      <p class="mt-1 text-sm text-slate-400">{industry.keyChallenge}</p>
+    </div>
+  </header>
+
+  <!-- Body grid -->
+  <div class={`mt-10 grid gap-10 lg:grid-cols-5 ${layoutB ? '' : ''}`}>
+    <!-- Solutions block (dominant) -->
+    <div class={layoutB ? 'lg:col-span-3 lg:order-2' : 'lg:col-span-3'}>
+      <h3 class="text-xs font-semibold uppercase tracking-[0.2em] text-teal-400">Our Solutions</h3>
+      <p class="mt-1 font-heading text-xl font-semibold text-white">How we move you forward</p>
+      <ul class="mt-6 space-y-6">
+        {industry.solutions.map((s) => (
+          <li class="flex items-start gap-4">
+            <div class="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-teal-500/10 ring-1 ring-teal-500/20">
+              <svg class="h-4 w-4 stroke-teal-400" fill="none" viewBox="0 0 24 24" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h4 class="text-base font-semibold text-white">{s.title}</h4>
+              <p class="mt-1 text-sm leading-relaxed text-slate-400">{s.description}</p>
+              <span class="mt-2 inline-block text-xs font-medium text-teal-300">{s.benefit}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- Challenges + Outcomes sidebar (supporting) -->
+    <aside class={layoutB ? 'lg:col-span-2 lg:order-1 space-y-6' : 'lg:col-span-2 space-y-6'}>
+      <div class="rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+        <h3 class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">What's blocking you</h3>
+        <ul class="mt-4 space-y-4">
+          {industry.painPoints.map((p) => (
+            <li>
+              <p class="text-sm font-medium text-slate-200">{p.title}</p>
+              <p class="mt-1 text-xs leading-relaxed text-slate-400">{p.description}</p>
+              <p class="mt-1 text-xs text-slate-500">{p.statistic}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Expected outcomes</h3>
+        <div class="mt-3 flex flex-wrap gap-2">
+          {industry.outcomes.map((o) => (
+            <OutcomePill text={o} />
+          ))}
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Case study -->
+  <CaseStudyCard
+    company={industry.caseStudy.company}
+    challenge={industry.caseStudy.challenge}
+    solution={industry.caseStudy.solution}
+    results={industry.caseStudy.results}
+    testimonial={industry.caseStudy.testimonial}
+  />
+</section>

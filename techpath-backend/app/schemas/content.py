@@ -163,6 +163,7 @@ class HomeTestimonialItem(BaseModel):
     role: str = ""
     company: str = ""
     avatar: str = ""
+    logo: str = ""
 
 
 class HomeCtaContent(BaseModel):
@@ -186,11 +187,10 @@ class HomeLandingContent(BaseModel):
     seo: PageSeoContent = Field(default_factory=PageSeoContent)
     hero: HomeHeroContent = Field(default_factory=HomeHeroContent)
     stats: List[HomeStatItem] = Field(default_factory=list)
-    services: List[HomeServiceItem] = Field(default_factory=list)
+    features: List[HomeFeatureItem] = Field(default_factory=list)
     case_studies_section: HomeCaseStudiesSection = Field(
         default_factory=HomeCaseStudiesSection
     )
-    features: List[HomeFeatureItem] = Field(default_factory=list)
     testimonials: List[HomeTestimonialItem] = Field(default_factory=list)
     faqs: List[FaqItem] = Field(default_factory=list)
     cta: HomeCtaContent = Field(default_factory=HomeCtaContent)
@@ -218,13 +218,29 @@ class AboutTeamMember(BaseModel):
     image: str = ""
 
 
+class AboutArmItem(BaseModel):
+    title: str = ""
+    subtitle: str = ""
+    description: str = ""
+    href: str = ""
+    cta_label: str = ""
+    stats: List[HomeStatItem] = Field(default_factory=list)
+
+
+class AboutTrustedByItem(BaseModel):
+    name: str = ""
+    logo: str = ""
+
+
 class AboutPageContent(BaseModel):
     seo: PageSeoContent = Field(default_factory=PageSeoContent)
     hero: AboutHeroContent = Field(default_factory=AboutHeroContent)
     mission_title: str = "Our Mission"
     mission_text: str = "To democratize access to cutting-edge technology solutions, enabling businesses of all sizes to compete and thrive in the digital age. We believe that the right technology, implemented thoughtfully, can transform industries and improve lives."
     stats: List[HomeStatItem] = Field(default_factory=list)
+    arms: List[AboutArmItem] = Field(default_factory=list)
     values: List[AboutValueItem] = Field(default_factory=list)
+    trusted_by: List[AboutTrustedByItem] = Field(default_factory=list)
     team: List[AboutTeamMember] = Field(default_factory=list)
     cta_title: str = "Ready to Build Something Great?"
     cta_description: str = "Let's discuss how we can help you achieve your technology goals."
@@ -246,6 +262,7 @@ class ServicesHeroContent(BaseModel):
 class ServicesLandingContent(BaseModel):
     seo: PageSeoContent = Field(default_factory=PageSeoContent)
     hero: ServicesHeroContent = Field(default_factory=ServicesHeroContent)
+    trust_bar: List[HomeStatItem] = Field(default_factory=list)
     cta_title: str = "Need a Custom Solution?"
     cta_description: str = "Let's discuss your unique requirements and build something amazing together."
     cta_primary_label: str = "Contact Us"
@@ -257,10 +274,36 @@ class ServicesLandingContent(BaseModel):
 # --- Contact page ---
 
 
+class ContactBadge(BaseModel):
+    label: str = ""
+    href: str = ""
+
+
 class ContactHeroContent(BaseModel):
-    title: str = "Let's Talk"
-    title_highlight: str = "Talk"
-    subheadline: str = "Have a project in mind? We'd love to hear about it. Get in touch and let's create something amazing together."
+    title: str = "Two Ways Techpath Can Help You"
+    title_highlight: str = "Help You"
+    subheadline: str = "Looking to start an IT career? Or build enterprise technology? Either way — reach out."
+    badges: List[ContactBadge] = Field(default_factory=list)
+
+
+class ContactTabCta(BaseModel):
+    label: str = ""
+    href: str = ""
+
+
+class ContactTab(BaseModel):
+    id: str = ""
+    label: str = ""
+    headline: str = ""
+    subtext: str = ""
+    cta_primary: ContactTabCta = Field(default_factory=ContactTabCta)
+    cta_secondary: ContactTabCta = Field(default_factory=ContactTabCta)
+    urgency: str = ""
+
+
+class ContactSecondaryAction(BaseModel):
+    label: str = ""
+    href: str = ""
 
 
 class ContactMethodItem(BaseModel):
@@ -269,12 +312,89 @@ class ContactMethodItem(BaseModel):
     value: str = ""
     href: str = ""
     icon: str = ""
+    secondary_action: Optional[ContactSecondaryAction] = None
+    note: Optional[str] = None
+    map_label: Optional[str] = None
+    landmark: Optional[str] = None
+
+
+class OfficeHours(BaseModel):
+    weekdays: str = ""
+    sunday: str = ""
+    note: str = ""
+
+
+class BatchTiming(BaseModel):
+    label: str = ""
+    time: str = ""
+    days: str = ""
+
+
+class DeliveryMode(BaseModel):
+    id: str = ""
+    label: str = ""
+    description: str = ""
+    icon: str = ""
+
+
+class WhatToExpectStep(BaseModel):
+    step: int = 1
+    label: str = ""
+    detail: str = ""
+
+
+class WhatToExpect(BaseModel):
+    academy: List[WhatToExpectStep] = Field(default_factory=list)
+    services: List[WhatToExpectStep] = Field(default_factory=list)
+
+
+class ContactStatItem(BaseModel):
+    value: str = ""
+    label: str = ""
+
+
+class HeadOfSolutions(BaseModel):
+    name: str = ""
+    role: str = ""
+    quote: str = ""
+    image: str = ""
+
+
+class ContactSocialProofSection(BaseModel):
+    stats: List[ContactStatItem] = Field(default_factory=list)
+    head_of_solutions: Optional[HeadOfSolutions] = None
+
+
+class ContactSocialProof(BaseModel):
+    academy: ContactSocialProofSection = Field(default_factory=ContactSocialProofSection)
+    services: ContactSocialProofSection = Field(default_factory=ContactSocialProofSection)
+
+
+class ContactCtaItem(BaseModel):
+    headline: str = ""
+    subtext: str = ""
+    primary: ContactTabCta = Field(default_factory=ContactTabCta)
+    secondary: ContactTabCta = Field(default_factory=ContactTabCta)
+    urgency: str = ""
+
+
+class ContactCtaBlock(BaseModel):
+    academy: ContactCtaItem = Field(default_factory=ContactCtaItem)
+    services: ContactCtaItem = Field(default_factory=ContactCtaItem)
 
 
 class ContactPageContent(BaseModel):
     seo: PageSeoContent = Field(default_factory=PageSeoContent)
     hero: ContactHeroContent = Field(default_factory=ContactHeroContent)
+    contact_tabs: List[ContactTab] = Field(default_factory=list)
     contact_methods: List[ContactMethodItem] = Field(default_factory=list)
+    office_hours: OfficeHours = Field(default_factory=OfficeHours)
+    batch_timings: List[BatchTiming] = Field(default_factory=list)
+    delivery_modes: List[DeliveryMode] = Field(default_factory=list)
+    what_to_expect: WhatToExpect = Field(default_factory=WhatToExpect)
+    faq: List[FaqItem] = Field(default_factory=list)
+    social_proof: ContactSocialProof = Field(default_factory=ContactSocialProof)
+    cta_block: ContactCtaBlock = Field(default_factory=ContactCtaBlock)
 
 
 # --- Pricing page ---

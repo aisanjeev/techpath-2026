@@ -1,0 +1,240 @@
+---
+interface Feature {
+  title: string;
+  description: string;
+  icon?: string;
+}
+interface Props {
+  features?: Feature[];
+}
+const { features = [] } = Astro.props;
+const f = (i: number) => features[i] ?? { title: '', description: '' };
+---
+
+<section class="py-20 lg:py-28">
+  <div class="container mx-auto px-4">
+
+    <!-- Section Header -->
+    <div class="mb-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <span class="inline-block rounded-full border border-emerald-500/40 px-4 py-1 text-xs font-semibold tracking-[0.2em] text-emerald-400">
+          WHY TECHPATH
+        </span>
+        <h2 class="mt-4 font-heading text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl">
+          Built on proof,<br />not promises.
+        </h2>
+      </div>
+      <div class="flex-shrink-0 sm:text-right">
+        <div class="font-heading text-5xl font-bold leading-none text-emerald-400">
+          98<span class="text-3xl">%</span>
+        </div>
+        <div class="mt-1 text-xs uppercase tracking-widest text-slate-400">retention rate</div>
+      </div>
+    </div>
+
+    <!-- 2×2 Bento Grid -->
+    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+      <!-- 01 / SECURITY -->
+      <div class="flex flex-col gap-5 rounded-2xl border border-slate-700/60 bg-slate-800/60 p-6 md:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <span class="rounded-full border border-slate-600/80 px-3 py-1 text-xs font-medium text-slate-300">
+            01 / SECURITY
+          </span>
+          <span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+            All audits passed
+          </span>
+        </div>
+
+        <div>
+          <h3 class="font-heading text-xl font-bold text-white md:text-2xl">{f(0).title || 'Enterprise-grade security'}</h3>
+          <p class="mt-2 text-sm text-slate-400">
+            {f(0).description || 'SOC 2 Type II compliant. End-to-end encryption. Zero breaches in 6 years.'}
+          </p>
+        </div>
+
+        <!-- Compliance badge grid -->
+        <div class="grid grid-cols-4 gap-2">
+          {[
+            ['SOC 2', 'Type II'],
+            ['ISO', '27001'],
+            ['GDPR', 'Ready'],
+            ['HIPAA', 'Compliant'],
+          ].map(([label, sub]) => (
+            <div class="rounded-xl border border-slate-600/50 bg-slate-700/40 px-2 py-3 text-center">
+              <div class="text-xs font-semibold text-blue-300">{label}</div>
+              <div class="mt-0.5 text-[10px] text-slate-400">{sub}</div>
+            </div>
+          ))}
+        </div>
+
+        <!-- Stats -->
+        <div class="mt-auto flex items-center gap-6 border-t border-slate-700/50 pt-4">
+          <div>
+            <span class="text-xl font-bold text-white">256</span><span class="text-sm text-slate-400">-bit</span>
+            <div class="mt-0.5 text-xs text-slate-500">AES encryption</div>
+          </div>
+          <div>
+            <span class="text-xl font-bold text-white">0</span>
+            <div class="mt-0.5 text-xs text-slate-500">breaches since 2019</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 / PEOPLE -->
+      <div class="flex flex-col gap-5 rounded-2xl border border-purple-800/30 bg-purple-950/20 p-6 md:p-8">
+        <span class="self-start rounded-full border border-purple-700/50 px-3 py-1 text-xs font-medium text-purple-300">
+          02 / PEOPLE
+        </span>
+
+        <div>
+          <h3 class="font-heading text-xl font-bold text-white md:text-2xl">{f(1).title || 'Senior-only team'}</h3>
+          <p class="mt-2 text-sm text-slate-400">{f(1).description || 'Average 10+ years. No outsourcing.'}</p>
+        </div>
+
+        <!-- Avatar stack -->
+        <div class="flex -space-x-2">
+          {[
+            { initials: 'RK', bg: 'bg-blue-500' },
+            { initials: 'PA', bg: 'bg-emerald-500' },
+            { initials: 'SM', bg: 'bg-amber-500' },
+            { initials: 'DK', bg: 'bg-purple-500' },
+          ].map(({ initials, bg }) => (
+            <div class={`flex h-9 w-9 items-center justify-center rounded-full border-2 border-slate-900 ${bg} text-xs font-bold text-white`}>
+              {initials}
+            </div>
+          ))}
+          <div class="flex h-9 w-9 items-center justify-center rounded-full border-2 border-slate-900 bg-slate-700 text-xs font-medium text-slate-300">
+            +46
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="mt-auto grid grid-cols-2 gap-4 border-t border-purple-800/30 pt-4">
+          <div>
+            <div class="font-heading text-3xl font-bold text-white">
+              12<span class="text-lg font-medium text-slate-400">yr</span>
+            </div>
+            <div class="mt-0.5 text-xs text-slate-500">avg. experience</div>
+          </div>
+          <div>
+            <div class="font-heading text-3xl font-bold text-white">
+              50<span class="text-lg font-medium text-slate-400">+</span>
+            </div>
+            <div class="mt-0.5 text-xs text-slate-500">engineers on staff</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 / SCALE -->
+      <div class="flex flex-col gap-5 rounded-2xl border border-emerald-800/30 bg-emerald-950/30 p-6 md:p-8">
+        <span class="self-start rounded-full border border-emerald-700/50 px-3 py-1 text-xs font-medium text-emerald-300">
+          03 / SCALE
+        </span>
+
+        <div>
+          <h3 class="font-heading text-xl font-bold text-white md:text-2xl">{f(2).title || 'Scales 100× without rewrites'}</h3>
+          <p class="mt-2 text-sm text-slate-400">{f(2).description || 'Same architecture, startup to enterprise.'}</p>
+        </div>
+
+        <!-- Growth bar chart -->
+        <div class="flex items-end gap-2 px-1" style="height: 96px;">
+          {[
+            { label: '10', pct: '14%', op: '0.25' },
+            { label: '1K', pct: '28%', op: '0.40' },
+            { label: '10K', pct: '48%', op: '0.60' },
+            { label: '100K', pct: '72%', op: '0.80' },
+            { label: '1M+', pct: '100%', op: '1' },
+          ].map(({ label, pct, op }) => (
+            <div class="flex flex-1 flex-col items-center gap-1.5" style="height: 100%;">
+              <div
+                class="w-full rounded-t-md bg-emerald-400"
+                style={`height: ${pct}; opacity: ${op}; align-self: flex-end;`}
+              ></div>
+              <span class="text-[9px] text-slate-500">{label}</span>
+            </div>
+          ))}
+          <div class="flex flex-col justify-center pb-5 pl-2">
+            <span class="text-[10px] leading-snug text-slate-500">users →</span>
+            <span class="text-[10px] leading-snug text-slate-500">no migration</span>
+          </div>
+        </div>
+
+        <!-- Bottom stats -->
+        <div class="mt-auto flex items-center justify-between border-t border-emerald-800/30 pt-4">
+          <span class="text-sm text-slate-300">Auto-scaling</span>
+          <span class="text-sm font-semibold text-emerald-400">99.99% uptime</span>
+        </div>
+      </div>
+
+      <!-- 04 / VELOCITY -->
+      <div class="flex flex-col gap-5 rounded-2xl border border-amber-800/30 bg-amber-950/20 p-6 md:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <span class="rounded-full border border-amber-700/50 px-3 py-1 text-xs font-medium text-amber-300">
+            04 / VELOCITY
+          </span>
+          <span class="rounded-md border border-amber-700/40 bg-amber-900/30 px-2 py-0.5 text-xs text-amber-400">
+            2-week sprints
+          </span>
+        </div>
+
+        <div>
+          <h3 class="font-heading text-xl font-bold text-white md:text-2xl">{f(3).title || 'Ship every two weeks'}</h3>
+          <p class="mt-2 text-sm text-slate-400">{f(3).description || 'Continuous delivery, not waterfall surprises.'}</p>
+        </div>
+
+        <!-- Sprint timeline -->
+        <div class="relative">
+          <!-- connecting line -->
+          <div class="absolute left-3 right-3 top-3 h-px bg-slate-600/50"></div>
+          <div class="relative flex items-start justify-between">
+            {[
+              { label: 'Discovery', week: 'Wk 1', done: true, active: false },
+              { label: 'Design', week: 'Wk 2', done: true, active: false },
+              { label: 'Build', week: 'Now', done: false, active: true },
+              { label: 'Test', week: 'Wk 4', done: false, active: false },
+              { label: 'Ship', week: 'Wk 5', done: false, active: false },
+            ].map(({ label, week, done, active }) => (
+              <div class="relative flex flex-col items-center gap-2">
+                <div class={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full border-2 ${
+                  active
+                    ? 'border-amber-400 bg-amber-400'
+                    : done
+                    ? 'border-emerald-500 bg-emerald-500'
+                    : 'border-slate-600 bg-slate-800'
+                }`}>
+                  {active && <div class="h-2 w-2 rounded-full bg-slate-900"></div>}
+                  {done && (
+                    <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                <div class="text-center">
+                  <div class={`text-[10px] font-medium ${active ? 'text-amber-300' : 'text-slate-300'}`}>{label}</div>
+                  <div class={`text-[9px] ${active ? 'text-amber-400 font-bold' : 'text-slate-500'}`}>{week}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="mt-auto grid grid-cols-3 gap-2 border-t border-amber-800/30 pt-4">
+          {[
+            ['2.4×', 'faster delivery'],
+            ['14d', 'first demo'],
+            ['100%', 'on-time ship'],
+          ].map(([val, label]) => (
+            <div class="text-center">
+              <div class="font-heading text-xl font-bold text-white">{val}</div>
+              <div class="mt-0.5 text-[10px] text-slate-500">{label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

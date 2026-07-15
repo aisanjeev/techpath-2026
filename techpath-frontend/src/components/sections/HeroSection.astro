@@ -1,4 +1,13 @@
 ---
+import { Picture } from 'astro:assets';
+import himalayan from '@assets/images/trusted/himalayan-tripsters.png';
+import talwalkar from '@assets/images/trusted/talwalkar-square.png';
+import digitalAssassin from '@assets/images/trusted/digital-assassin.png';
+import nrem from '@assets/images/trusted/nrem.png';
+import conwerz from '@assets/images/trusted/conwerz-ai.png';
+import globalEvents from '@assets/images/trusted/global-events-travels.png';
+import octavia from '@assets/images/trusted/octavia-hospital.png';
+
 interface HomeHero {
   badge_text: string;
   headline: string;
@@ -32,9 +41,9 @@ const hero = heroProp ?? {
   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary-500/20 via-slate-950 to-slate-950"></div>
   <div class="absolute inset-0 bg-[url('/images/grid.svg')] bg-center opacity-10"></div>
   
-  <!-- Floating elements -->
-  <div class="absolute left-1/4 top-1/4 h-64 w-64 animate-float rounded-full bg-primary-500/10 blur-3xl"></div>
-  <div class="absolute right-1/4 bottom-1/4 h-96 w-96 animate-float rounded-full bg-secondary-500/10 blur-3xl" style="animation-delay: -3s;"></div>
+  <!-- Floating elements (animation skipped on small screens / reduced-motion to save TBT) -->
+  <div class="absolute left-1/4 top-1/4 h-64 w-64 rounded-full bg-primary-500/10 blur-3xl motion-safe:md:animate-float"></div>
+  <div class="absolute right-1/4 bottom-1/4 h-96 w-96 rounded-full bg-secondary-500/10 blur-3xl motion-safe:md:animate-float" style="animation-delay: -3s;"></div>
 
   <div class="container relative z-10 mx-auto px-4">
     <div class="mx-auto max-w-4xl text-center">
@@ -99,13 +108,34 @@ const hero = heroProp ?? {
 
       <!-- Trust Badges -->
       <div class="mt-16">
-        <p class="mb-6 text-sm text-slate-500">Trusted by leading companies worldwide</p>
-        <div class="flex flex-wrap items-center justify-center gap-8 opacity-50 grayscale">
-          <div class="h-8 w-24 rounded bg-slate-700"></div>
-          <div class="h-8 w-28 rounded bg-slate-700"></div>
-          <div class="h-8 w-20 rounded bg-slate-700"></div>
-          <div class="h-8 w-32 rounded bg-slate-700"></div>
-          <div class="h-8 w-24 rounded bg-slate-700"></div>
+        <p class="mb-5 text-xs font-medium uppercase tracking-widest text-slate-500">
+          Trusted by leading companies worldwide
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+          {[
+            { src: himalayan, alt: 'Himalayan Tripsters' },
+            { src: talwalkar, alt: 'Talwalkar Square' },
+            { src: digitalAssassin, alt: 'Digital Assassin' },
+            { src: nrem, alt: 'NREM' },
+            { src: conwerz, alt: 'Conwerz AI' },
+            { src: globalEvents, alt: 'Global Events Travels' },
+            { src: octavia, alt: 'Octavia Hospital' },
+          ].map(({ src, alt }, idx) => (
+            <div class="flex items-center justify-center rounded-xl bg-white px-4 py-2.5 opacity-80 ring-1 ring-slate-200 shadow-sm transition-all duration-200 hover:opacity-100 hover:-translate-y-0.5 hover:shadow-md">
+              <Picture
+                src={src}
+                alt={alt}
+                widths={[120, 240]}
+                sizes="120px"
+                formats={['avif', 'webp']}
+                fallbackFormat="png"
+                loading={idx < 3 ? 'eager' : 'lazy'}
+                {...(idx < 3 ? { fetchpriority: 'high' } : {})}
+                decoding="async"
+                class="h-auto max-h-8 w-auto max-w-[120px] object-contain"
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>

@@ -1,0 +1,27 @@
+---
+interface Props {
+  value: string;
+  label: string;
+  iconKey: 'time' | 'shield' | 'box' | 'pulse' | 'coin' | 'spark';
+}
+const { value, label, iconKey } = Astro.props;
+
+const iconPaths: Record<Props['iconKey'], string> = {
+  time: 'M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z',
+  shield: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+  box: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
+  pulse: 'M3 12h4l3-9 4 18 3-9h4',
+  coin: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 12v-2m9-4a9 9 0 11-18 0 9 9 0 0118 0z',
+  spark: 'M13 10V3L4 14h7v7l9-11h-7z',
+};
+const path = iconPaths[iconKey];
+---
+<div class="group flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-1">
+  <div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/10 ring-1 ring-teal-500/20">
+    <svg class="h-5 w-5 stroke-teal-400" fill="none" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d={path} />
+    </svg>
+  </div>
+  <div class="text-3xl font-bold tabular-nums text-white md:text-4xl">{value}</div>
+  <div class="mt-1 text-sm text-slate-400">{label}</div>
+</div>

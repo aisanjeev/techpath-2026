@@ -1,0 +1,295 @@
+---
+import type { ServiceItem } from '@services/serviceService';
+
+interface Props {
+  services: ServiceItem[];
+  title?: string;
+  subtitle?: string;
+  eyebrow?: string;
+}
+
+const {
+  services,
+  title = 'Our services',
+  subtitle = 'Comprehensive technology solutions to accelerate your transformation',
+  eyebrow = 'WHAT WE DO',
+} = Astro.props;
+
+type AccentName = 'purple' | 'cyan' | 'green' | 'amber' | 'blue';
+type LayoutSize = 'large' | 'small' | 'wide';
+type GraphicVariant = 'orbital' | 'code-window' | 'bar-chart' | 'none';
+
+const SPANS: Record<LayoutSize, string> = {
+  large: 'md:col-span-2 md:row-span-2',
+  wide: 'md:col-span-3 md:row-span-1',
+  small: 'md:col-span-1 md:row-span-1',
+};
+
+const ACCENTS: Record<AccentName, { bg: string; border: string; text: string; icon: string; glow: string }> = {
+  purple: {
+    bg: 'bg-purple-500/[0.06]',
+    border: 'border-purple-500/30',
+    text: 'text-purple-400',
+    icon: 'bg-purple-500/20',
+    glow: 'from-purple-500/10 to-transparent',
+  },
+  cyan: {
+    bg: 'bg-cyan-500/[0.06]',
+    border: 'border-cyan-500/30',
+    text: 'text-cyan-400',
+    icon: 'bg-cyan-500/20',
+    glow: 'from-cyan-500/10 to-transparent',
+  },
+  green: {
+    bg: 'bg-green-500/[0.06]',
+    border: 'border-green-500/30',
+    text: 'text-green-400',
+    icon: 'bg-green-500/20',
+    glow: 'from-green-500/10 to-transparent',
+  },
+  amber: {
+    bg: 'bg-amber-500/[0.06]',
+    border: 'border-amber-500/30',
+    text: 'text-amber-400',
+    icon: 'bg-amber-500/20',
+    glow: 'from-amber-500/10 to-transparent',
+  },
+  blue: {
+    bg: 'bg-blue-500/[0.06]',
+    border: 'border-blue-500/30',
+    text: 'text-blue-400',
+    icon: 'bg-blue-500/20',
+    glow: 'from-blue-500/10 to-transparent',
+  },
+};
+
+const iconPaths: Record<string, string> = {
+  brain: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
+  cloud: 'M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z',
+  code: 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
+  chart: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+  shield: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+  transform: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
+};
+
+function getIconKey(icon?: string | null): string {
+  if (!icon) return 'code';
+  const key = icon.toLowerCase();
+  return iconPaths[key] ? key : 'code';
+}
+
+function getDescription(s: ServiceItem): string {
+  if (s.short_description) return s.short_description;
+  return s.description.replace(/<[^>]+>/g, '').slice(0, 180);
+}
+
+function getAccent(s: ServiceItem) {
+  return ACCENTS[(s.accent_color || 'blue') as AccentName];
+}
+
+function getLayout(s: ServiceItem): LayoutSize {
+  return (s.layout_size || 'small') as LayoutSize;
+}
+
+function getGraphic(s: ServiceItem): GraphicVariant {
+  return (s.graphic_variant || 'none') as GraphicVariant;
+}
+---
+
+<section class="py-20 lg:py-28">
+  <div class="container mx-auto px-4">
+    <!-- Section Header -->
+    <div class="mx-auto mb-14 max-w-3xl text-center">
+      <span class="inline-block rounded-full border border-emerald-500/40 px-4 py-1 text-xs font-semibold tracking-[0.2em] text-emerald-400">
+        {eyebrow}
+      </span>
+      <h2 class="mt-5 font-heading text-4xl font-bold text-white md:text-5xl">
+        {title}
+      </h2>
+      <p class="mt-4 text-lg text-slate-400">{subtitle}</p>
+    </div>
+
+    <!-- Bento Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 md:auto-rows-[minmax(240px,auto)] gap-5">
+      {
+        services.map((service) => {
+          const accent = getAccent(service);
+          const layout = getLayout(service);
+          const graphic = getGraphic(service);
+          const span = SPANS[layout];
+          const iconKey = getIconKey(service.icon);
+          const showTags = layout === 'large' && service.tags && service.tags.length > 0;
+          const showStat = (layout === 'large' || layout === 'wide') && service.stat_value;
+
+          /* ── SMALL card: horizontal row — icon left, text right ── */
+          if (layout === 'small') {
+            return (
+              <a
+                href={`/services/${service.slug}`}
+                class={`group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/50 px-5 py-4 flex flex-col justify-center transition-all duration-300 hover:border-slate-600/80 ${span}`}
+              >
+                {/* Glow */}
+                <div class={`pointer-events-none absolute -top-20 -right-20 h-52 w-52 rounded-full bg-gradient-to-br ${accent.glow} blur-2xl opacity-30`} />
+
+                {/* Horizontal content row */}
+                <div class="relative z-10 flex items-start gap-4">
+                  {/* Icon tile — fixed width, left column */}
+                  <div class={`flex-shrink-0 inline-flex h-12 w-12 items-center justify-center rounded-xl ${accent.icon}`}>
+                    <svg class={`h-6 w-6 ${accent.text}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d={iconPaths[iconKey]} />
+                    </svg>
+                  </div>
+
+                  {/* Text column — right side */}
+                  <div class="flex min-w-0 flex-1 flex-col">
+                    <h3 class="font-heading text-[18px] font-semibold leading-snug text-white">
+                      {service.title}
+                    </h3>
+                    <p class="mt-2 text-[15px] leading-[1.6] text-slate-400 line-clamp-3">
+                      {getDescription(service)}
+                    </p>
+                    <span class={`mt-3 inline-flex items-center gap-1 text-sm font-medium ${accent.text}`}>
+                      Learn more
+                      <svg class="h-4 w-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </a>
+            );
+          }
+
+          /* ── LARGE / WIDE cards: vertical layout ── */
+          return (
+            <a
+              href={`/services/${service.slug}`}
+              class={`group relative overflow-hidden rounded-2xl border ${accent.border} ${accent.bg} p-6 flex flex-col transition-all duration-300 hover:bg-opacity-100 ${span} ${
+                layout === 'wide' ? 'md:pr-[42%]' : 'md:pr-[40%]'
+              }`}
+            >
+              {/* Subtle radial glow */}
+              <div class={`pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-gradient-to-br ${accent.glow} blur-2xl opacity-60`} />
+
+              {/* Header: icon + badge */}
+              <header class="relative z-10 flex items-start justify-between gap-3">
+                <div class={`flex h-11 w-11 items-center justify-center rounded-xl ${accent.icon}`}>
+                  <svg class={`h-6 w-6 ${accent.text}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d={iconPaths[iconKey]} />
+                  </svg>
+                </div>
+                {service.badge_label && (
+                  <span class={`rounded-md border ${accent.border} px-2 py-0.5 text-[10px] font-bold tracking-[0.15em] ${accent.text}`}>
+                    {service.badge_label}
+                  </span>
+                )}
+              </header>
+
+              {/* Title + description */}
+              <div class="relative z-10 mt-4">
+                <h3 class={`font-heading font-semibold leading-tight text-white ${
+                  layout === 'large' ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'
+                }`}>
+                  {service.title}
+                </h3>
+                <p class={`mt-2 text-[15px] leading-[1.6] text-slate-300/90 ${
+                  layout === 'large' ? 'line-clamp-3' : 'line-clamp-2'
+                }`}>
+                  {getDescription(service)}
+                </p>
+              </div>
+
+              {/* Tags (Large only) */}
+              {showTags && (
+                <ul class="relative z-10 mt-4 flex flex-wrap gap-2">
+                  {service.tags!.slice(0, 3).map((tag) => (
+                    <li class={`rounded-full border ${accent.border} px-3 py-1 text-xs ${accent.text}`}>{tag}</li>
+                  ))}
+                  {service.tags!.length > 3 && (
+                    <li class={`rounded-full border ${accent.border} px-3 py-1 text-xs ${accent.text}`}>
+                      +{service.tags!.length - 3} more
+                    </li>
+                  )}
+                </ul>
+              )}
+
+              {/* Footer row: stat (left) + CTA (right) */}
+              <div class="relative z-10 mt-auto flex items-baseline justify-between gap-4 pt-4">
+                {showStat ? (
+                  <div class="flex items-baseline gap-2">
+                    <div class={`font-bold leading-none ${accent.text} ${layout === 'wide' ? 'text-3xl' : 'text-2xl'}`}>
+                      {service.stat_value}
+                    </div>
+                    {service.stat_label && (
+                      <div class="text-[11px] font-medium uppercase tracking-[0.15em] text-slate-400">
+                        {service.stat_label}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <span />
+                )}
+                <span class={`inline-flex items-center gap-1.5 text-sm font-medium ${accent.text}`}>
+                  {layout === 'wide' ? 'Explore service' : 'Explore'}
+                  <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </span>
+              </div>
+
+              {/* Decorative graphic */}
+              {graphic !== 'none' && (
+                <div
+                  class={`pointer-events-none absolute ${accent.text} ${
+                    graphic === 'orbital'
+                      ? 'top-1/2 right-0 -translate-y-1/2 translate-x-16 opacity-50'
+                      : 'bottom-0 right-0 opacity-50'
+                  }`}
+                >
+                  {graphic === 'orbital' && (
+                    <svg width="320" height="320" viewBox="0 0 320 320" fill="none">
+                      <circle cx="160" cy="160" r="60" stroke="currentColor" stroke-width="0.7" opacity="0.7" />
+                      <circle cx="160" cy="160" r="95" stroke="currentColor" stroke-width="0.7" opacity="0.7" />
+                      <circle cx="160" cy="160" r="130" stroke="currentColor" stroke-width="0.6" opacity="0.5" />
+                      <circle cx="160" cy="160" r="155" stroke="currentColor" stroke-width="0.5" opacity="0.35" />
+                      <circle cx="220" cy="160" r="3" fill="currentColor" />
+                      <circle cx="160" cy="65" r="2.5" fill="currentColor" />
+                      <circle cx="65" cy="160" r="2.5" fill="currentColor" />
+                      <circle cx="255" cy="200" r="2" fill="currentColor" opacity="0.8" />
+                      <circle cx="115" cy="255" r="2" fill="currentColor" opacity="0.8" />
+                    </svg>
+                  )}
+                  {graphic === 'bar-chart' && (
+                    <svg width="320" height="180" viewBox="0 0 320 180" fill="none">
+                      <rect x="20" y="120" width="32" height="60" rx="3" fill="currentColor" opacity="0.45" />
+                      <rect x="62" y="100" width="32" height="80" rx="3" fill="currentColor" opacity="0.55" />
+                      <rect x="104" y="75" width="32" height="105" rx="3" fill="currentColor" opacity="0.65" />
+                      <rect x="146" y="55" width="32" height="125" rx="3" fill="currentColor" opacity="0.75" />
+                      <rect x="188" y="30" width="32" height="150" rx="3" fill="currentColor" opacity="0.9" />
+                      <rect x="230" y="10" width="32" height="170" rx="3" fill="currentColor" />
+                      <rect x="272" y="50" width="32" height="130" rx="3" fill="currentColor" opacity="0.7" />
+                      <path d="M20 115 L78 95 L120 70 L162 50 L204 25 L246 5 L288 45" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.85" />
+                    </svg>
+                  )}
+                </div>
+              )}
+            </a>
+          );
+        })
+      }
+    </div>
+
+    <!-- View All -->
+    <div class="mt-12 text-center">
+      <a
+        href="/services"
+        class="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 px-6 py-2.5 text-sm font-medium text-emerald-400 transition-colors hover:bg-emerald-500/10"
+      >
+        View all services
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>

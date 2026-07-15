@@ -1,29 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/auth.store';
+import { onAuthStateChanged } from 'firebase/auth';
+import { firebaseAuth } from '@/lib/firebase';
 import { PageLoader } from '@/components/ui/Spinner';
 
 export default function HomePage() {
   const router = useRouter();
-  const { token } = useAuthStore();
-  const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
-    const unsub = useAuthStore.persist?.onFinishHydration?.(() => setHasHydrated(true));
-    if (useAuthStore.persist?.hasHydrated?.()) setHasHydrated(true);
-    return () => unsub?.();
-  }, []);
-
-  useEffect(() => {
-    if (!hasHydrated) return;
-    if (token) {
-      router.push('/dashboard');
-    } else {
-      router.push('/login');
-    }
-  }, [hasHydrated, token, router]);
+    const unsub = onAuthStateChanged(firebaseAuth, (user) => {
+      router.push(user ? '/dashboard' : '/login');
+    });
+    return () => unsub();
+  }, [router]);
 
   return <PageLoader />;
 }

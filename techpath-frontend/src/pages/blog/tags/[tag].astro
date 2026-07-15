@@ -7,6 +7,7 @@ import MainLayout from '@layouts/MainLayout.astro';
 import Breadcrumb from '@components/shared/Breadcrumb.astro';
 import Card from '@components/ui/Card.astro';
 import { fetchBlogPosts, normalizeApiPost } from '@services/blogService';
+import { resolveBlogImage } from '@utils/blogImages';
 
 // SSR - fetch from API at request time
 export const prerender = false;
@@ -71,8 +72,8 @@ const normalizedPosts = posts.map(normalizeApiPost);
             <Card
               title={post.data.title}
               description={post.data.description}
-              href={post.source === 'api' ? `/blog/api/${post.slug}` : `/blog/${post.slug}`}
-              image={post.data.image ?? undefined}
+              href={`/blog/${post.slug}`}
+              image={resolveBlogImage(post.data.image)}
               tags={post.data.tags}
             />
           ))}

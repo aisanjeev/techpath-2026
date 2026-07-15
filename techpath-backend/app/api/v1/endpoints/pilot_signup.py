@@ -15,13 +15,11 @@ from app.schemas.pilot_signup import (
 )
 from app.schemas.common import MessageResponse
 from app.api.v1.dependencies import get_current_admin_user
+from app.core.config import settings
 from app.services.email_service import email_service
 from app.models.user import User
 
 router = APIRouter()
-
-# Hardcoded admin email for pilot signup notifications
-PILOT_SIGNUP_ADMIN_EMAIL = "sanjeev@techpath.biz"
 
 
 # ----- Public Endpoint -----
@@ -50,11 +48,11 @@ async def submit_pilot_signup(
         user_agent=user_agent,
     )
 
-    # Send notification email in background to hardcoded admin email
+    # Send notification email in background
     if email_service.is_configured:
         background_tasks.add_task(
             email_service.send_pilot_signup_notification,
-            PILOT_SIGNUP_ADMIN_EMAIL,
+            settings.ADMIN_EMAIL,
             signup_in.name,
             signup_in.email,
             signup_in.phone,

@@ -1,10 +1,13 @@
 ---
+import { resolveAssetImage } from '@utils/blogImages';
+
 interface Testimonial {
   quote: string;
   author: string;
   role: string;
   company: string;
   avatar?: string;
+  logo?: string;
 }
 
 interface Props {
@@ -16,79 +19,151 @@ interface Props {
 const {
   testimonials,
   title = 'What Our Clients Say',
-  subtitle = 'Hear from the businesses we\'ve helped transform.',
+  subtitle = "Hear from the businesses we've helped transform.",
 } = Astro.props;
 ---
 
 <section class="py-20 lg:py-28">
   <div class="container mx-auto px-4">
+
     <!-- Section Header -->
-    <div class="mx-auto mb-16 max-w-3xl text-center">
+    <div class="mx-auto mb-12 max-w-3xl text-center">
       <h2 class="mb-4 font-heading text-3xl font-bold text-white md:text-4xl lg:text-5xl">
         {title}
       </h2>
-      <p class="text-lg text-slate-400">
-        {subtitle}
-      </p>
+      <p class="text-lg text-slate-400">{subtitle}</p>
     </div>
 
-    <!-- Testimonials Grid -->
-    <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-      {
-        testimonials.map((testimonial, index) => (
-          <div
-            class="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/50 p-8"
-            style={`animation-delay: ${index * 100}ms`}
-          >
-            {/* Quote Icon */}
-            <svg
-              class="mb-6 h-10 w-10 text-primary-500/30"
-              fill="currentColor"
-              viewBox="0 0 32 32"
-            >
-              <path d="M10 8c-3.3 0-6 2.7-6 6v10h10V14H6c0-2.2 1.8-4 4-4V8zm14 0c-3.3 0-6 2.7-6 6v10h10V14h-8c0-2.2 1.8-4 4-4V8z" />
-            </svg>
+    <!-- Slider wrapper -->
+    <div class="relative">
 
-            {/* Quote */}
-            <blockquote class="mb-6 flex-1 text-lg text-slate-300">
-              "{testimonial.quote}"
-            </blockquote>
+      <!-- Track -->
+      <div id="testimonial-track" class="overflow-hidden">
+        <div id="testimonial-slides" class="flex transition-transform duration-500 ease-in-out">
+          {testimonials.map((t) => (
+            <div class="w-full flex-shrink-0 px-2 md:w-1/2 lg:w-1/3">
+              <div class="flex h-full flex-col rounded-2xl border border-slate-800 bg-slate-900/50 p-8">
+                <!-- Quote icon -->
+                <svg class="mb-6 h-8 w-8 text-primary-500/30" fill="currentColor" viewBox="0 0 32 32">
+                  <path d="M10 8c-3.3 0-6 2.7-6 6v10h10V14H6c0-2.2 1.8-4 4-4V8zm14 0c-3.3 0-6 2.7-6 6v10h10V14h-8c0-2.2 1.8-4 4-4V8z" />
+                </svg>
 
-            {/* Author */}
-            <div class="flex items-center gap-4">
-              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary-500/20 to-secondary-500/20">
-                <span class="text-lg font-bold text-primary-400">
-                  {testimonial.author.charAt(0)}
-                </span>
-              </div>
-              <div>
-                <div class="font-semibold text-white">{testimonial.author}</div>
-                <div class="text-sm text-slate-400">
-                  {testimonial.role}, {testimonial.company}
+                <!-- Quote -->
+                <blockquote class="mb-6 flex-1 text-lg leading-relaxed text-slate-300">
+                  "{t.quote}"
+                </blockquote>
+
+                <!-- Author -->
+                <div class="flex items-center justify-between gap-4">
+                  <div>
+                    <div class="font-semibold text-white">{t.author}</div>
+                    <div class="text-sm text-slate-400">{t.role}, {t.company}</div>
+                  </div>
+                  {t.logo ? (
+                    <div class="flex-shrink-0 rounded-lg bg-white px-3 py-1.5 ring-1 ring-slate-200">
+                      <img
+                        src={resolveAssetImage(t.logo)}
+                        alt={t.company}
+                        loading="lazy"
+                        decoding="async"
+                        width="80"
+                        height="24"
+                        class="h-6 w-auto max-w-[80px] object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-500/20 to-secondary-500/20">
+                      <span class="text-base font-bold text-primary-400">{t.author.charAt(0)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          </div>
-        ))
-      }
+          ))}
+        </div>
+      </div>
+
+      <!-- Prev button -->
+      <button
+        id="testimonial-prev"
+        aria-label="Previous testimonial"
+        class="absolute -left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-white shadow-lg transition hover:border-primary-500 hover:bg-slate-700 disabled:opacity-30 md:-left-5"
+      >
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <!-- Next button -->
+      <button
+        id="testimonial-next"
+        aria-label="Next testimonial"
+        class="absolute -right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-white shadow-lg transition hover:border-primary-500 hover:bg-slate-700 disabled:opacity-30 md:-right-5"
+      >
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
     </div>
 
-    <!-- View All Link -->
-    <div class="mt-12 text-center">
-      <a
-        href="/testimonials"
-        class="inline-flex items-center gap-2 text-primary-400 transition-colors hover:text-primary-300"
-      >
-        Read more testimonials
-        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-        </svg>
-      </a>
+    <!-- Dots -->
+    <div id="testimonial-dots" class="mt-8 flex items-center justify-center gap-2">
+      {testimonials.map((_, i) => (
+        <button
+          data-dot={i}
+          aria-label={`Go to slide ${i + 1}`}
+          class="h-2 w-2 rounded-full bg-slate-600 transition-all duration-300"
+        />
+      ))}
     </div>
+
   </div>
 </section>
 
+<script is:inline>
+(function () {
+  const slides = document.getElementById('testimonial-slides');
+  const dots = document.querySelectorAll('[data-dot]');
+  const prevBtn = document.getElementById('testimonial-prev');
+  const nextBtn = document.getElementById('testimonial-next');
+  if (!slides) return;
+
+  const total = slides.children.length;
+  let current = 0;
+
+  function getVisible() {
+    const w = window.innerWidth;
+    if (w >= 1024) return 3;
+    if (w >= 768) return 2;
+    return 1;
+  }
+
+  function maxIndex() {
+    return Math.max(0, total - getVisible());
+  }
+
+  function go(index) {
+    current = Math.max(0, Math.min(index, maxIndex()));
+    const pct = (100 / getVisible()) * current;
+    slides.style.transform = `translateX(-${pct}%)`;
+
+    dots.forEach((d, i) => {
+      const active = i === current;
+      d.classList.toggle('bg-primary-500', active);
+      d.classList.toggle('w-5', active);
+      d.classList.toggle('bg-slate-600', !active);
+      d.classList.toggle('w-2', !active);
+    });
+
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current >= maxIndex();
+  }
+
+  prevBtn.addEventListener('click', () => go(current - 1));
+  nextBtn.addEventListener('click', () => go(current + 1));
+  dots.forEach((d) => d.addEventListener('click', () => go(Number(d.dataset.dot))));
+  window.addEventListener('resize', () => go(current));
+
+  go(0);
+})();
+</script>

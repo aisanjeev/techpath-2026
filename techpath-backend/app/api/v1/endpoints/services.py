@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError, ConflictError
+from app.services.storage_service import storage_service
 from app.crud.service import service_crud
 from app.db.session import get_db
 from app.schemas.service import ServiceCreate, ServiceUpdate, ServiceResponse
@@ -48,7 +49,13 @@ async def list_services(
             order_by="display_order",
         )
 
-    return [ServiceResponse.model_validate(s) for s in services]
+    result = []
+    for s in services:
+        r = ServiceResponse.model_validate(s)
+        if r.image_url:
+            r.image_url = await storage_service.resolve_url(r.image_url)
+        result.append(r)
+    return result
 
 
 @router.get("/{slug}", response_model=ServiceResponse)
@@ -60,7 +67,10 @@ async def get_service(
     service = await service_crud.get_by_slug(db, slug=slug)
     if not service:
         raise NotFoundError("Service")
-    return ServiceResponse.model_validate(service)
+    response = ServiceResponse.model_validate(service)
+    if response.image_url:
+        response.image_url = await storage_service.resolve_url(response.image_url)
+    return response
 
 
 @router.post("/", response_model=ServiceResponse, status_code=status.HTTP_201_CREATED)

@@ -48,6 +48,7 @@ export interface HomeLandingContent {
     role: string;
     company: string;
     avatar: string;
+    logo?: string;
   }>;
   faqs: Array<{ question: string; answer: string }>;
   cta: {
@@ -63,20 +64,22 @@ export interface HomeLandingContent {
 function getDefaultHomeContent(): HomeLandingContent {
   return {
     seo: {
-      title: 'AI-Powered IT Solutions',
+      title: 'Techpath — IT Training in Mughalsarai + Enterprise AI & IT Services India',
       description:
-        'TechPath delivers enterprise-grade AI solutions, cloud infrastructure, and custom software development for modern businesses.',
+        'Techpath: 14 IT courses in Mughalsarai (offline + live online) and enterprise AI, cloud, web, and DevOps services. 50,000+ students trained. 150+ projects delivered.',
+      image: '/images/homepage-featured.jpg',
+      canonical_url: 'https://techpath.biz/',
     },
     hero: {
-      badge_text: 'Now offering GenAI Solutions',
+      badge_text: 'Training + Enterprise IT Services — Now with GenAI',
       headline: 'AI-Powered IT Solutions for',
       headline_highlight: 'Modern Enterprises',
       subheadline:
-        'Transform your business with cutting-edge AI, cloud infrastructure, and custom software solutions.',
+        'Techpath delivers enterprise AI, cloud, and software solutions for businesses — and hands-on IT training courses for students in Mughalsarai and online across India. Two ways we can help. One team you can trust.',
       primary_cta_label: 'Start Your Project',
       primary_cta_href: '/contact',
-      secondary_cta_label: 'Watch Demo',
-      secondary_cta_href: '/case-studies',
+      secondary_cta_label: 'Explore Courses',
+      secondary_cta_href: '/training',
     },
     stats: [
       { value: '150+', label: 'Projects Delivered' },
@@ -98,28 +101,34 @@ function getDefaultHomeContent(): HomeLandingContent {
       view_all_href: '/case-studies',
     },
     features: [
-      { title: 'Enterprise-Grade Security', description: 'SOC 2 compliant infrastructure with end-to-end encryption.', icon: 'shield' },
-      { title: 'Scalable Architecture', description: 'Built to grow with your business from startup to enterprise.', icon: 'scale' },
-      { title: 'Expert Team', description: 'Senior engineers with 10+ years of industry experience.', icon: 'users' },
-      { title: 'Agile Delivery', description: 'Rapid iteration with continuous integration and deployment.', icon: 'rocket' },
+      { title: 'Enterprise-grade security', description: 'SOC 2 Type II compliant. End-to-end encryption. Zero breaches in 6 years.', icon: 'shield' },
+      { title: 'Senior-only team', description: 'Average 10+ years experience. No outsourcing, no juniors on client projects.', icon: 'users' },
+      { title: 'Scales 100× without rewrites', description: 'Same architecture from startup to enterprise. Auto-scaling, 99.99% uptime.', icon: 'scale' },
+      { title: 'Ship every two weeks', description: 'Continuous delivery, not waterfall surprises. 2-week sprints, demos every cycle.', icon: 'rocket' },
     ],
     testimonials: [
-      { quote: 'TechPath transformed our legacy systems into a modern, AI-powered platform. The results exceeded our expectations.', author: 'Sarah Chen', role: 'CTO', company: 'FinanceFlow Inc.', avatar: '/images/testimonials/sarah.jpg' },
-      { quote: 'Their expertise in cloud migration saved us 40% on infrastructure costs while improving performance.', author: 'Michael Roberts', role: 'VP Engineering', company: 'RetailMax', avatar: '/images/testimonials/michael.jpg' },
-      { quote: 'The team delivered our AI chatbot ahead of schedule. Customer satisfaction improved by 35%.', author: 'Emily Watson', role: 'Director of Operations', company: 'HealthTech Solutions', avatar: '/images/testimonials/emily.jpg' },
+      { quote: 'TechPath built our entire booking platform from scratch. Traveller sign-ups jumped 3× within 60 days of launch.', author: 'Ghanshyam', role: 'Founder & CEO', company: 'Himalayan Tripsters', avatar: '', logo: '/images/trusted/himalayan-tripsters.png' },
+      { quote: 'Our patient management system went live in 8 weeks. Staff productivity improved and patient wait times dropped by 40%.', author: 'Dr. Priya Sharma', role: 'Director of Operations', company: 'Octavia Hospital', avatar: '', logo: '/images/trusted/octavia-hospital.png' },
+      { quote: "The AI-powered SEO dashboard TechPath delivered gives us insights our competitors simply don't have. Game-changing work.", author: 'Rob Lowson', role: 'Head of Growth', company: 'Digital Assassin', avatar: '', logo: '/images/trusted/digital-assassin.png' },
+      { quote: 'TechPath modernised our entire member management system. Renewals are now automated and our team saves 20+ hours a week.', author: 'Sandeep Talwalkar', role: 'Managing Director', company: 'Talwalkar Square', avatar: '', logo: '/images/trusted/talwalkar-square.png' },
+      { quote: 'From discovery to deployment in under 10 weeks. The team understood our domain deeply and delivered a rock-solid platform.', author: 'Saurabh Maurya', role: 'Founder', company: 'NREM', avatar: '', logo: '/images/trusted/nrem.png' },
+      { quote: 'Our AI assistant now handles 70% of customer queries autonomously. TechPath\'s integration work was seamless and well-documented.', author: 'Sanjeev Kumar', role: 'Product Lead', company: 'Conwerz AI', avatar: '', logo: '/images/trusted/conwerz-ai.png' },
+      { quote: 'TechPath built our event and travel booking portal end-to-end. Booking volume doubled in the first quarter post-launch.', author: 'Sravan Mishra', role: 'CEO', company: 'Global Events Travels', avatar: '', logo: '/images/trusted/global-events-travels.png' },
     ],
     faqs: [
-      { question: 'What industries do you specialize in?', answer: 'We work across multiple industries including healthcare, finance, retail, and technology. Our solutions are tailored to meet specific industry requirements and compliance standards.' },
-      { question: 'How long does a typical project take?', answer: 'Project timelines vary based on scope and complexity. A typical MVP takes 8-12 weeks, while enterprise solutions may take 4-6 months. We provide detailed timelines during our initial consultation.' },
-      { question: 'Do you offer ongoing support and maintenance?', answer: 'Yes, we offer 24/7 support packages including monitoring, updates, security patches, and performance optimization. Our team ensures your systems run smoothly post-launch.' },
-      { question: 'What is your development methodology?', answer: 'We follow Agile methodology with 2-week sprints, regular demos, and continuous feedback loops. This ensures transparency and allows for quick adjustments based on your needs.' },
+      { question: 'What industries does Techpath specialise in?', answer: "Techpath Professional Services works across healthcare, finance, retail, travel, and technology. We've delivered systems for Octavia Hospital, Himalayan Tripsters, Talwalkar Square, and more. Solutions are tailored to industry-specific requirements and compliance standards including ISO 27001 and DPDPA." },
+      { question: 'How long does a typical project take?', answer: 'A typical MVP takes 8–12 weeks. Enterprise solutions take 4–6 months. Every engagement starts with a free 30-minute strategy call and a written scope delivered within 48 hours — so you know exactly what you\'re getting before work begins.' },
+      { question: 'Do you offer ongoing support after the project is delivered?', answer: 'Yes. Techpath offers 24/7 post-launch support packages covering monitoring, security patches, performance optimisation, and updates. Our team stays with you after go-live — not just until delivery.' },
+      { question: "What is Techpath's development methodology?", answer: 'We follow Agile with 2-week sprints and a demo at the end of every sprint. You see working software every 14 days — not a progress report. This keeps projects on track and lets you course-correct in real time.' },
+      { question: 'Does Techpath offer IT training courses as well as services?', answer: 'Yes. Techpath Academy offers 14 IT training courses — from Python and Full-Stack Web Development to Data Science, Gen AI, DevOps, IoT, and Digital Marketing — available offline in Mughalsarai and live online across India. Courses start from ₹6,000 with EMI options available.' },
+      { question: 'Can students from outside Mughalsarai join Techpath courses?', answer: 'Yes. All 14 courses are available as live online batches via Google Meet or Zoom — same instructor, same curriculum, same certificate as offline students. Students from Varanasi, Ghazipur, Ballia, Bihar, and across India join online. Call or WhatsApp +91 8299708052 to enrol.' },
     ],
     cta: {
-      title: 'Ready to Transform Your Business?',
-      description: "Let's discuss how our AI-powered solutions can drive your digital transformation.",
-      primary_label: 'Get Started',
+      title: "Let's scope your project in 30 minutes.",
+      description: 'Free strategy call. No pitch deck, no obligation — just a senior engineer reviewing your problem and telling you what\'s actually buildable.',
+      primary_label: 'Book a Free Strategy Call',
       primary_href: '/contact',
-      secondary_label: 'View Case Studies',
+      secondary_label: 'See case studies',
       secondary_href: '/case-studies',
     },
   };
@@ -140,13 +149,24 @@ export async function fetchHomePageContent(): Promise<HomeLandingContent> {
 
 // --- About page ---
 
+export interface AboutArmItem {
+  title: string;
+  subtitle: string;
+  description: string;
+  href: string;
+  cta_label: string;
+  stats: Array<{ value: string; label: string }>;
+}
+
 export interface AboutPageContent {
   seo?: PageSeoContent;
   hero: { title: string; title_highlight: string; subheadline: string };
   mission_title: string;
   mission_text: string;
   stats: Array<{ value: string; label: string }>;
+  arms?: AboutArmItem[];
   values: Array<{ title: string; description: string; icon: string }>;
+  trusted_by?: Array<{ name: string; logo: string }>;
   team: Array<{ name: string; role: string; bio: string; image: string }>;
   cta_title: string;
   cta_description: string;
@@ -159,40 +179,83 @@ export interface AboutPageContent {
 function getDefaultAboutContent(): AboutPageContent {
   return {
     seo: {
-      title: 'About Us',
+      title: 'About Techpath | IT Training + Professional IT Services — Mughalsarai, Chandauli',
       description:
-        "Learn about TechPath's mission to deliver innovative AI and IT solutions. Meet our team of experts dedicated to your success.",
+        'Techpath Research and Development Pvt Ltd — IT training institute and enterprise IT services company in Mughalsarai, Chandauli, UP. 50,000+ students trained. 150+ projects delivered.',
+      image: '/images/about-featured.jpg',
+      canonical_url: 'https://techpath.biz/about/',
     },
     hero: {
-      title: 'Building the Future of Technology',
-      title_highlight: 'Future',
+      title: 'We Build Tech. We Build the People Who Do.',
+      title_highlight: 'People Who Do',
       subheadline:
-        "We're a team of passionate technologists dedicated to helping businesses harness the power of AI, cloud computing, and modern software development.",
+        'Techpath Research and Development Pvt Ltd is two things at once — an IT training institute turning students into job-ready professionals in Mughalsarai, and a professional IT services company delivering AI, cloud, and software solutions for enterprises across India and globally.',
     },
     mission_title: 'Our Mission',
     mission_text:
-      'To democratize access to cutting-edge technology solutions, enabling businesses of all sizes to compete and thrive in the digital age. We believe that the right technology, implemented thoughtfully, can transform industries and improve lives.',
+      'To make world-class technology education and enterprise IT solutions accessible from eastern Uttar Pradesh — and beyond. We believe that where you are from should never limit what you can build. From Circus Road, Mughalsarai, we train the next generation of Indian tech professionals and deliver production-grade AI, cloud, and software solutions to businesses that demand results.',
     stats: [
-      { value: '10+', label: 'Years Experience' },
-      { value: '150+', label: 'Projects Completed' },
-      { value: '50+', label: 'Team Members' },
-      { value: '25+', label: 'Countries Served' },
+      { value: '50,000+', label: 'Students Trained' },
+      { value: '150+', label: 'Projects Delivered' },
+      { value: '94%', label: 'Placement Rate' },
+      { value: '98%', label: 'Client Satisfaction' },
+    ],
+    arms: [
+      {
+        title: 'Techpath Academy',
+        subtitle: 'IT Training Institute',
+        description:
+          'Offline classes at Circus Road, Mughalsarai and live online batches for students across India. 14 courses from Computer Fundamentals to Python Full Stack with Gen AI. Small batches of max 25 students. Bilingual instruction in Hindi and English. 94% placement rate within 90 days of course completion.',
+        href: '/training/',
+        cta_label: 'Explore All Courses',
+        stats: [
+          { value: '50,000+', label: 'Students Trained' },
+          { value: '14', label: 'Courses' },
+          { value: '94%', label: 'Placement Rate' },
+          { value: '₹6,000', label: 'Starting Price' },
+        ],
+      },
+      {
+        title: 'Techpath Professional Services',
+        subtitle: 'Enterprise IT Services',
+        description:
+          'AI/ML, cloud infrastructure, custom web development, data analytics, DevOps, mobile apps, and cybersecurity for Indian enterprises and global clients. Senior-only team averaging 10+ years experience. 2-week sprint delivery. SOC 2 Type II compliant. 4.9 on Clutch.',
+        href: '/services/',
+        cta_label: 'Explore All Services',
+        stats: [
+          { value: '150+', label: 'Projects Delivered' },
+          { value: '50+', label: 'Enterprise Clients' },
+          { value: '98%', label: 'Client Satisfaction' },
+          { value: '4.9 ★', label: 'Clutch Rating' },
+        ],
+      },
     ],
     values: [
-      { title: 'Innovation First', description: 'We embrace emerging technologies and creative solutions to solve complex problems.', icon: 'lightbulb' },
-      { title: 'Client Success', description: 'Your success is our success. We measure ourselves by the impact we create for you.', icon: 'trophy' },
-      { title: 'Transparency', description: 'Open communication and honest assessments are the foundation of our partnerships.', icon: 'eye' },
-      { title: 'Excellence', description: 'We hold ourselves to the highest standards in code quality and delivery.', icon: 'star' },
+      { title: 'Proof Over Promise', description: '98% client satisfaction. 94% student placement rate. 4.9 on Clutch. Zero security breaches since 2019. We let results speak.', icon: 'trophy' },
+      { title: 'Accessible Excellence', description: 'World-class IT training from ₹6,000. Enterprise-grade software built from Mughalsarai. Geography is not a barrier here.', icon: 'globe' },
+      { title: 'Senior-Only Delivery', description: 'No outsourcing. No juniors on client projects. Average 10+ years of experience across our engineering team.', icon: 'star' },
+      { title: 'Radical Transparency', description: "Fixed-scope estimates. 2-week sprint demos. Honest assessments — we tell you straight if something isn't buildable.", icon: 'eye' },
+    ],
+    trusted_by: [
+      { name: 'Himalayan Tripsters', logo: '/images/trusted/himalayan-tripsters.png' },
+      { name: 'Octavia Hospital', logo: '/images/trusted/octavia-hospital.png' },
+      { name: 'Digital Assassin', logo: '/images/trusted/digital-assassin.png' },
+      { name: 'Talwalkar Square', logo: '/images/trusted/talwalkar-square.png' },
+      { name: 'NREM', logo: '/images/trusted/nrem.png' },
+      { name: 'Conwerz AI', logo: '/images/trusted/conwerz-ai.png' },
+      { name: 'Global Events Travels', logo: '/images/trusted/global-events-travels.png' },
     ],
     team: [
-      { name: 'Alex Thompson', role: 'CEO & Founder', bio: '15+ years in tech leadership. Former VP Engineering at Fortune 500.', image: '/images/team/alex.jpg' },
-      { name: 'Dr. Sarah Kim', role: 'Chief AI Officer', bio: 'PhD in Machine Learning. Published researcher with 50+ papers.', image: '/images/team/sarah.jpg' },
-      { name: 'Marcus Chen', role: 'CTO', bio: 'Cloud architecture expert. AWS & Azure certified solutions architect.', image: '/images/team/marcus.jpg' },
-      { name: 'Jessica Patel', role: 'VP of Engineering', bio: '12 years in full-stack development. Former tech lead at FAANG.', image: '/images/team/jessica.jpg' },
+      {
+        name: 'Sanjeev Kumar',
+        role: 'Head of Solutions',
+        bio: '14 years of experience in IT solutions and software delivery. Leads all client strategy, project scoping, and solution architecture at Techpath Professional Services.',
+        image: '/team/sanjeev-ceo-techpath.png',
+      },
     ],
-    cta_title: 'Ready to Build Something Great?',
-    cta_description: "Let's discuss how we can help you achieve your technology goals.",
-    cta_primary_label: 'Get in Touch',
+    cta_title: 'Ready to Start — as a Student or as a Business?',
+    cta_description: 'Free career counselling for students. Free 30-minute strategy call for businesses. Talk to us — in Hindi or English, no obligation.',
+    cta_primary_label: 'Contact Us',
     cta_primary_href: '/contact',
     cta_secondary_label: 'View Our Work',
     cta_secondary_href: '/case-studies',
@@ -217,6 +280,7 @@ export async function fetchAboutPageContent(): Promise<AboutPageContent> {
 export interface ServicesLandingContent {
   seo?: PageSeoContent;
   hero: { title: string; title_highlight: string; subheadline: string };
+  trust_bar?: Array<{ value: string; label: string }>;
   cta_title: string;
   cta_description: string;
   cta_primary_label: string;
@@ -228,19 +292,29 @@ export interface ServicesLandingContent {
 function getDefaultServicesContent(): ServicesLandingContent {
   return {
     seo: {
-      title: 'Our Services',
+      title: 'IT Services | AI, Cloud, Web Development & More — Techpath Research and Development',
       description:
-        "Explore TechPath's comprehensive IT services including AI solutions, cloud infrastructure, web development, and data analytics.",
+        'Techpath delivers AI/ML, cloud infrastructure, custom web development, data analytics, DevOps, mobile apps, and cybersecurity for Indian enterprises and global clients.',
+      image: '/images/services-featured.jpg',
+      canonical_url: 'https://techpath.biz/services/',
     },
     hero: {
       title: 'Our Services',
       title_highlight: 'Services',
       subheadline:
-        'From AI-powered solutions to cloud infrastructure, we provide end-to-end technology services that drive business growth and innovation.',
+        'AI, cloud, web, data, DevOps, mobile, and cybersecurity — end-to-end technology services for Indian enterprises and global teams. Senior-only engineers. 2-week sprints. 150+ projects delivered.',
     },
+    trust_bar: [
+      { value: '150+', label: 'Projects Delivered' },
+      { value: '98%', label: 'Client Satisfaction' },
+      { value: '50+', label: 'Enterprise Clients' },
+      { value: '4.9 ★', label: 'Clutch Rating' },
+      { value: '0', label: 'Breaches Since 2019' },
+    ],
     cta_title: 'Need a Custom Solution?',
-    cta_description: "Let's discuss your unique requirements and build something amazing together.",
-    cta_primary_label: 'Contact Us',
+    cta_description:
+      'Talk to Sanjeev Kumar, our Head of Solutions — 14 years experience, no sales rep, no pitch deck. Free 30-minute strategy call. Written scope and estimate within 48 hours.',
+    cta_primary_label: 'Book a Free Strategy Call',
     cta_primary_href: '/contact',
     cta_secondary_label: 'View Pricing',
     cta_secondary_href: '/pricing',
@@ -262,36 +336,177 @@ export async function fetchServicesPageContent(): Promise<ServicesLandingContent
 
 // --- Contact page ---
 
+export interface ContactBadge { label: string; href: string; }
+export interface ContactTabCta { label: string; href: string; }
+export interface ContactTab {
+  id: string;
+  label: string;
+  headline: string;
+  subtext: string;
+  cta_primary: ContactTabCta;
+  cta_secondary: ContactTabCta;
+  urgency: string;
+}
+export interface ContactMethodItem {
+  title: string;
+  description: string;
+  value: string;
+  href: string;
+  icon: string;
+  secondary_action?: { label: string; href: string };
+  note?: string;
+  map_label?: string;
+  landmark?: string;
+}
+export interface OfficeHours { weekdays: string; sunday: string; note: string; }
+export interface BatchTiming { label: string; time: string; days: string; }
+export interface DeliveryMode { id: string; label: string; description: string; icon: string; }
+export interface WhatToExpectStep { step: number; label: string; detail: string; }
+export interface ContactStatItem { value: string; label: string; }
+export interface HeadOfSolutions { name: string; role: string; quote: string; image: string; }
+export interface ContactSocialProofSection {
+  stats: ContactStatItem[];
+  head_of_solutions?: HeadOfSolutions;
+}
+export interface ContactCtaItem {
+  headline: string;
+  subtext: string;
+  primary: ContactTabCta;
+  secondary: ContactTabCta;
+  urgency: string;
+}
+
 export interface ContactPageContent {
   seo?: PageSeoContent;
-  hero: { title: string; title_highlight: string; subheadline: string };
-  contact_methods: Array<{
-    title: string;
-    description: string;
-    value: string;
-    href: string;
-    icon: string;
-  }>;
+  hero: { title: string; title_highlight: string; subheadline: string; badges: ContactBadge[] };
+  contact_tabs: ContactTab[];
+  contact_methods: ContactMethodItem[];
+  office_hours: OfficeHours;
+  batch_timings: BatchTiming[];
+  delivery_modes: DeliveryMode[];
+  what_to_expect: { academy: WhatToExpectStep[]; services: WhatToExpectStep[] };
+  faq: Array<{ question: string; answer: string }>;
+  social_proof: { academy: ContactSocialProofSection; services: ContactSocialProofSection };
+  cta_block: { academy: ContactCtaItem; services: ContactCtaItem };
 }
 
 function getDefaultContactContent(): ContactPageContent {
   return {
     seo: {
-      title: 'Contact Us',
-      description:
-        "Get in touch with TechPath. We'd love to discuss your project and how we can help transform your business with AI-powered solutions.",
+      title: 'Contact Techpath | IT Training & Professional IT Services — Mughalsarai, Chandauli',
+      description: 'Contact Techpath — IT training courses in Mughalsarai + enterprise AI, web, and cloud services. Call, WhatsApp, or visit Circus Road.',
+      canonical_url: 'https://techpath.biz/contact/',
     },
     hero: {
-      title: "Let's Talk",
-      title_highlight: 'Talk',
-      subheadline:
-        "Have a project in mind? We'd love to hear about it. Get in touch and let's create something amazing together.",
+      title: 'Two Ways Techpath Can Help You',
+      title_highlight: 'Help You',
+      subheadline: 'Looking to start an IT career? Or build enterprise technology? Either way — reach out. Free career counselling for students. Free strategy call for businesses.',
+      badges: [
+        { label: '📍 Circus Road, Mughalsarai', href: 'https://share.google/orP0Vj2FvrJEvLSSW' },
+        { label: '🎓 14 IT Courses', href: '/training/' },
+        { label: '💼 7 Professional Services', href: '/services/' },
+        { label: '4.9 ⭐ on Clutch', href: 'https://clutch.co' },
+      ],
     },
-    contact_methods: [
-      { title: 'Email', description: 'Send us an email anytime', value: 'hello@techpath.biz', href: 'mailto:hello@techpath.biz', icon: 'email' },
-      { title: 'Phone', description: 'Mon-Fri from 9am to 6pm', value: '+1 (555) 123-4567', href: 'tel:+15551234567', icon: 'phone' },
-      { title: 'Office', description: 'Visit our headquarters', value: 'San Francisco, CA', href: 'https://maps.google.com', icon: 'location' },
+    contact_tabs: [
+      {
+        id: 'academy',
+        label: "🎓 I'm a Student / Parent",
+        headline: 'Talk to Our Academic Counsellor',
+        subtext: 'Free career guidance — in Hindi or English. No pressure, no obligation.',
+        cta_primary: { label: '📞 Call Now: +91 8299708052', href: 'tel:+918299708052' },
+        cta_secondary: { label: '💬 WhatsApp Us', href: 'https://wa.me/918299708052?text=Hi%2C%20I%20want%20free%20career%20counselling%20at%20Techpath%20Mughalsarai.' },
+        urgency: '🔥 Free Demo Class — No Fees, No Obligation (Offline + Online)',
+      },
+      {
+        id: 'services',
+        label: '💼 I Need IT Services',
+        headline: 'Book a Free Strategy Call',
+        subtext: 'Talk directly to Sanjeev Kumar, Head of Solutions (14 years experience). Written scope + estimate in 48 hours.',
+        cta_primary: { label: '📞 Book Strategy Call', href: 'tel:+918299708052' },
+        cta_secondary: { label: '✉️ Email info@techpath.biz', href: 'mailto:info@techpath.biz' },
+        urgency: '3 strategy slots open this week — NDA on request, no pitch deck, no obligation',
+      },
     ],
+    contact_methods: [
+      { title: 'Call or WhatsApp', description: 'Mon–Sat, 9 AM to 7 PM. WhatsApp support available on Sundays for enrolled students.', value: '+91 8299708052', href: 'tel:+918299708052', icon: 'phone', secondary_action: { label: '💬 Open WhatsApp', href: 'https://wa.me/918299708052?text=Hi%2C%20I%20want%20to%20know%20more%20about%20Techpath.' } },
+      { title: 'Email Us', description: 'We reply within 48 business hours.', value: 'info@techpath.biz', href: 'mailto:info@techpath.biz', icon: 'email', note: 'For privacy or legal queries: privacy@techpath.biz | legal@techpath.biz' },
+      { title: 'Visit Our Centre', description: 'Walk in Mon–Sat, 9 AM–7 PM. No appointment needed. Walking distance from DDU Junction.', value: 'Circus Road, Mughalsarai, Chandauli, UP 232101', href: 'https://share.google/orP0Vj2FvrJEvLSSW', icon: 'location', map_label: 'Get Directions on Google Maps', landmark: 'Near DDU Junction (Pandit Deen Dayal Upadhyaya Nagar Railway Station)' },
+    ],
+    office_hours: { weekdays: 'Monday to Saturday — 9:00 AM to 7:00 PM', sunday: 'WhatsApp support for enrolled students only', note: 'Walk-ins welcome. Free career counselling available on the spot — no prior appointment needed.' },
+    batch_timings: [
+      { label: 'Morning Batch', time: '9:00 AM – 11:00 AM', days: 'Mon–Sat' },
+      { label: 'Afternoon Batch', time: '1:00 PM – 3:00 PM', days: 'Mon–Sat' },
+      { label: 'Evening Batch', time: '5:00 PM – 7:00 PM', days: 'Mon–Sat' },
+      { label: 'Weekend Doubt Sessions', time: 'Saturday & Sunday', days: 'Enrolled students' },
+    ],
+    delivery_modes: [
+      { id: 'offline', label: 'Offline — Mughalsarai Centre', description: 'Attend in person at Circus Road, Mughalsarai — walking distance from DDU Junction, Chandauli. Small batches of max 25 students. Lab access, face-to-face doubt clearing.', icon: 'building' },
+      { id: 'online', label: 'Live Online — From Anywhere in India', description: 'Join from Varanasi, Ghazipur, Ballia, Bihar, or anywhere in India via Google Meet or Zoom. Same instructor, same curriculum, same certificate. Not pre-recorded — fully live and interactive.', icon: 'globe' },
+    ],
+    what_to_expect: {
+      academy: [
+        { step: 1, label: 'WhatsApp or call us', detail: "Tell us your background and the course you're interested in." },
+        { step: 2, label: 'Free demo class', detail: 'Attend one free class — offline or online. Zero fees, zero obligation.' },
+        { step: 3, label: 'Enrol & pick your batch', detail: 'Choose morning, afternoon, or evening batch. EMI available.' },
+        { step: 4, label: 'Start building your career', detail: 'Real projects, live instructor, placement support from day one.' },
+      ],
+      services: [
+        { step: 1, label: 'Email or call us', detail: 'We respond within 4 hours on business days.' },
+        { step: 2, label: '30-min strategy call', detail: "Talk to Sanjeev Kumar directly — senior engineer, not a sales rep." },
+        { step: 3, label: 'Written scope + estimate', detail: 'Delivered within 48 hours. NDA available on request.' },
+        { step: 4, label: 'Discovery → Build → Ship', detail: '2-week sprints. First demo in 14 days. On-time, every time.' },
+      ],
+    },
+    faq: [
+      { question: 'Where is Techpath located?', answer: 'Techpath is located on Circus Road, Mughalsarai, Chandauli, Uttar Pradesh 232101 — walking distance from DDU Junction. We are open Monday to Saturday, 9 AM to 7 PM. Walk-ins are welcome — no appointment needed.' },
+      { question: 'Can I join a Techpath course if I am not in Mughalsarai?', answer: 'Yes. All 14 Techpath courses are available as live online batches via Google Meet or Zoom — same instructor, same curriculum, same timings, same certificate. Students from Varanasi, Ghazipur, Ballia, Mirzapur, and Bihar join online regularly.' },
+      { question: 'Is there a free demo class before I enrol?', answer: 'Yes — Techpath offers a free demo class for every course, both offline and online. No fees, no obligation, no pressure. Call or WhatsApp +91 8299708052 to book your free demo class today.' },
+      { question: "What are Techpath's batch timings?", answer: 'Techpath runs three daily batches Monday to Saturday: Morning (9–11 AM), Afternoon (1–3 PM), and Evening (5–7 PM). Weekend doubt sessions are available for all enrolled students.' },
+      { question: 'Does Techpath offer IT services for businesses or only training?', answer: 'Techpath operates two arms — Academy (14 IT courses) and Professional Services (AI/ML, cloud, web dev, data analytics, cybersecurity) for businesses. Call +91 8299708052 or email info@techpath.biz for a free strategy call.' },
+      { question: 'Techpath mein admission kaise lein Mughalsarai mein?', answer: 'Techpath Mughalsarai mein admission ke liye aap seedha Circus Road centre par aa sakte hain ya WhatsApp kar sakte hain — +91 8299708052 par. Pehle ek free demo class attend karein, phir apna batch choose karein. EMI bhi available hai.' },
+      { question: 'How quickly does Techpath respond to business enquiries?', answer: 'For professional services enquiries, Techpath responds within 4 hours on business days. Email info@techpath.biz or call +91 8299708052. A written scope and estimate is delivered within 48 hours of your strategy call.' },
+    ],
+    social_proof: {
+      academy: {
+        stats: [
+          { value: '50,000+', label: 'Students Trained' },
+          { value: '94%', label: 'Placement Rate' },
+          { value: '25', label: 'Max Batch Size' },
+          { value: '14', label: 'Courses Available' },
+        ],
+      },
+      services: {
+        stats: [
+          { value: '150+', label: 'Projects Delivered' },
+          { value: '98%', label: 'Client Satisfaction' },
+          { value: '50+', label: 'Enterprise Clients' },
+          { value: '4.9', label: 'Clutch Rating' },
+        ],
+        head_of_solutions: {
+          name: 'Sanjeev Kumar',
+          role: 'Head of Solutions · 14yr experience',
+          quote: "You'll talk to me, not a sales rep. I'll tell you straight if we can help.",
+          image: '/team/sanjeev-ceo-techpath.png',
+        },
+      },
+    },
+    cta_block: {
+      academy: {
+        headline: 'Not Sure Which Course Is Right for You?',
+        subtext: 'Our academic counsellor will guide you — free, in Hindi or English, no obligation.',
+        primary: { label: '📞 Call Now: +91 8299708052', href: 'tel:+918299708052' },
+        secondary: { label: '💬 WhatsApp Us', href: 'https://wa.me/918299708052?text=Hi%2C%20I%20want%20free%20career%20counselling%20at%20Techpath%20Mughalsarai.' },
+        urgency: '🔥 Free Demo Class — No Fees, No Obligation (Offline + Online)',
+      },
+      services: {
+        headline: "Let's Scope Your Project in 30 Minutes",
+        subtext: 'Free strategy call. No pitch deck, no obligation — just a senior engineer reviewing your problem.',
+        primary: { label: '📞 Book a Call: +91 8299708052', href: 'tel:+918299708052' },
+        secondary: { label: '✉️ Email info@techpath.biz', href: 'mailto:info@techpath.biz' },
+        urgency: '3 strategy slots open this week — reply within 4 hours guaranteed',
+      },
+    },
   };
 }
 

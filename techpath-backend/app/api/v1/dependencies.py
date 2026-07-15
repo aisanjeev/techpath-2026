@@ -1,17 +1,16 @@
 """Shared API dependencies."""
 from typing import Optional
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import decode_access_token
+from app.core.firebase_admin import verify_firebase_token
 from app.core.exceptions import UnauthorizedError, ForbiddenError
 from app.crud.user import user_crud
 from app.db.session import get_db
 from app.models.user import User
 
-# Security scheme
 security = HTTPBearer(auto_error=False)
 
 
@@ -19,29 +18,30 @@ async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: AsyncSession = Depends(get_db),
 ) -> User:
-    """
-    Get the current authenticated user from JWT token.
+    """Verify Firebase ID token and return the corresponding DB user.
 
-    Raises:
-        UnauthorizedError: If token is missing or invalid
+    Auto-provisions a new admin user on first login.
     """
     if credentials is None:
         raise UnauthorizedError("Not authenticated")
 
     try:
-        payload = decode_access_token(credentials.credentials)
-        email: str = payload.get("sub")
-        if email is None:
-            raise UnauthorizedError("Invalid token")
-    except Exception:
-        raise UnauthorizedError("Invalid token")
+        decoded = verify_firebase_token(credentials.credentials)
+        firebase_uid: str = decoded.get("uid", "")
+        email: str = decoded.get("email", "")
+        name: str = decoded.get("name", "")
 
-    user = await user_crud.get_by_email(db, email=email)
-    if user is None:
-        raise UnauthorizedError("User not found")
+        if not firebase_uid or not email:
+            raise UnauthorizedError("Invalid token claims")
+    except (UnauthorizedError, ForbiddenError):
+        raise
+    except Exception:
+        raise UnauthorizedError("Invalid or expired token")
+
+    user = await user_crud.get_or_create_from_firebase(db, firebase_uid, email, name)
 
     if not user.is_active:
-        raise UnauthorizedError("User is inactive")
+        raise UnauthorizedError("User account is inactive")
 
     return user
 
@@ -58,12 +58,7 @@ async def get_current_active_user(
 async def get_current_admin_user(
     current_user: User = Depends(get_current_user),
 ) -> User:
-    """
-    Get current user if they are an admin.
-
-    Raises:
-        ForbiddenError: If user is not an admin
-    """
+    """Get current user, asserting they have the admin role."""
     if current_user.role != "admin":
         raise ForbiddenError("Admin access required")
     return current_user
@@ -73,25 +68,23 @@ async def get_optional_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: AsyncSession = Depends(get_db),
 ) -> Optional[User]:
-    """
-    Get the current user if authenticated, None otherwise.
-
-    Does not raise an error if not authenticated.
-    """
+    """Return the current user if authenticated, None otherwise."""
     if credentials is None:
         return None
 
     try:
-        payload = decode_access_token(credentials.credentials)
-        email: str = payload.get("sub")
-        if email is None:
+        decoded = verify_firebase_token(credentials.credentials)
+        firebase_uid: str = decoded.get("uid", "")
+        email: str = decoded.get("email", "")
+        name: str = decoded.get("name", "")
+
+        if not firebase_uid or not email:
             return None
 
-        user = await user_crud.get_by_email(db, email=email)
+        user = await user_crud.get_or_create_from_firebase(db, firebase_uid, email, name)
         if user and user.is_active:
             return user
     except Exception:
         pass
 
     return None
-

@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Switch } from '@/components/ui/Switch';
 import { FormField } from '@/components/ui/FormField';
 import { ImageUpload } from '@/components/ui/ImageUpload';
+import { Select } from '@/components/ui/Select';
 import { RichTextEditor } from '@/components/editors/RichTextEditor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { slugify } from '@/lib/utils/format';
@@ -37,12 +38,26 @@ export function ServiceForm({ initialData, onSubmit, isLoading }: ServiceFormPro
       icon: initialData?.icon || '',
       image_url: initialData?.image_url || '',
       features: initialData?.features || [],
+      pricing_plans: initialData?.pricing_plans || [],
+      faqs: initialData?.faqs || [],
       price: initialData?.price || '',
       cta_text: initialData?.cta_text || '',
       cta_url: initialData?.cta_url || '',
       featured: initialData?.featured ?? false,
       display_order: initialData?.display_order ?? 0,
       is_active: initialData?.is_active ?? true,
+      meta_title: initialData?.meta_title || '',
+      meta_description: initialData?.meta_description || '',
+      og_image: initialData?.og_image || '',
+      canonical_url: initialData?.canonical_url || '',
+      no_index: initialData?.no_index ?? false,
+      layout_size: initialData?.layout_size || 'small',
+      badge_label: initialData?.badge_label || '',
+      tags: initialData?.tags || [],
+      stat_label: initialData?.stat_label || '',
+      stat_value: initialData?.stat_value || '',
+      accent_color: initialData?.accent_color || 'blue',
+      graphic_variant: initialData?.graphic_variant || 'none',
     },
   });
 
@@ -51,6 +66,22 @@ export function ServiceForm({ initialData, onSubmit, isLoading }: ServiceFormPro
   const isActive = watch('is_active');
   const isFeatured = watch('featured');
   const imageUrl = watch('image_url');
+  const features = watch('features') || [];
+  const faqs = watch('faqs') || [];
+  const pricingPlans = watch('pricing_plans') || [];
+  const ogImage = watch('og_image');
+  const noIndex = watch('no_index');
+  const tags = watch('tags') || [];
+  const accentColor = watch('accent_color') || 'blue';
+  const graphicVariant = watch('graphic_variant') || 'none';
+
+  const ACCENT_SWATCHES: Array<{ value: 'purple' | 'cyan' | 'green' | 'amber' | 'blue'; bg: string; label: string }> = [
+    { value: 'purple', bg: 'bg-purple-500', label: 'Purple' },
+    { value: 'cyan', bg: 'bg-cyan-500', label: 'Cyan' },
+    { value: 'green', bg: 'bg-green-500', label: 'Green' },
+    { value: 'amber', bg: 'bg-amber-500', label: 'Amber' },
+    { value: 'blue', bg: 'bg-blue-500', label: 'Blue' },
+  ];
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
@@ -139,14 +170,17 @@ export function ServiceForm({ initialData, onSubmit, isLoading }: ServiceFormPro
                 label="Icon"
                 htmlFor="icon"
                 error={errors.icon?.message}
-                description="Icon name or emoji"
+                description="Icon shown on the service card"
               >
-                <Input
-                  id="icon"
-                  {...register('icon')}
-                  error={!!errors.icon}
-                  placeholder="e.g., 🤖 or icon-name"
-                />
+                <Select id="icon" {...register('icon')} error={!!errors.icon}>
+                  <option value="">Default</option>
+                  <option value="brain">Brain (AI / ML)</option>
+                  <option value="cloud">Cloud</option>
+                  <option value="code">Code (Development)</option>
+                  <option value="chart">Chart (Analytics)</option>
+                  <option value="shield">Shield (Security)</option>
+                  <option value="transform">Transform (Digital)</option>
+                </Select>
               </FormField>
 
               <FormField
@@ -162,21 +196,168 @@ export function ServiceForm({ initialData, onSubmit, isLoading }: ServiceFormPro
                   placeholder="Upload service image"
                 />
               </FormField>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Bento Layout (Homepage)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                label="Layout Size"
+                htmlFor="layout_size"
+                error={errors.layout_size?.message}
+                description="Large = 2×2, Wide = 3×1, Small = 1×1"
+              >
+                <Select id="layout_size" {...register('layout_size')} error={!!errors.layout_size}>
+                  <option value="small">Small (1×1)</option>
+                  <option value="wide">Wide (3×1)</option>
+                  <option value="large">Large (2×2)</option>
+                </Select>
+              </FormField>
 
               <FormField
-                label="Price"
-                htmlFor="price"
-                error={errors.price?.message}
+                label="Badge Label"
+                htmlFor="badge_label"
+                error={errors.badge_label?.message}
+                description="Optional pill shown in the card corner"
               >
                 <Input
-                  id="price"
-                  {...register('price')}
-                  error={!!errors.price}
-                  placeholder="e.g., Starting at $999"
+                  id="badge_label"
+                  {...register('badge_label')}
+                  error={!!errors.badge_label}
+                  placeholder="FEATURED, TRENDING, NEW…"
+                  maxLength={50}
                 />
+              </FormField>
+
+              <FormField label="Tag pills (shown on Large card)" error={errors.tags?.message}>
+                <div className="space-y-2">
+                  {tags.map((_, i) => (
+                    <div key={i} className="flex gap-2">
+                      <Input
+                        value={tags[i] ?? ''}
+                        onChange={(e) => {
+                          const next = [...tags];
+                          next[i] = e.target.value;
+                          setValue('tags', next);
+                        }}
+                        placeholder={`Tag ${i + 1}`}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setValue('tags', tags.filter((_, j) => j !== i))}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setValue('tags', [...tags, ''])}
+                  >
+                    Add tag
+                  </Button>
+                </div>
+              </FormField>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <FormField
+                  label="Stat Value"
+                  htmlFor="stat_value"
+                  error={errors.stat_value?.message}
+                  description="Shown on Large + Wide cards"
+                >
+                  <Input
+                    id="stat_value"
+                    {...register('stat_value')}
+                    error={!!errors.stat_value}
+                    placeholder="e.g., 42+ or 35%"
+                  />
+                </FormField>
+                <FormField
+                  label="Stat Label"
+                  htmlFor="stat_label"
+                  error={errors.stat_label?.message}
+                  description="Shown beneath the value"
+                >
+                  <Input
+                    id="stat_label"
+                    {...register('stat_label')}
+                    error={!!errors.stat_label}
+                    placeholder="e.g., projects, avg. revenue lift"
+                  />
+                </FormField>
+              </div>
+
+              <FormField label="Accent Color" error={errors.accent_color?.message}>
+                <div className="flex flex-wrap gap-3">
+                  {ACCENT_SWATCHES.map((s) => (
+                    <button
+                      key={s.value}
+                      type="button"
+                      onClick={() => setValue('accent_color', s.value)}
+                      className={`flex items-center gap-2 rounded-md border border-slate-700 px-3 py-2 text-sm text-slate-200 transition ${
+                        accentColor === s.value ? 'ring-2 ring-offset-2 ring-offset-slate-900 ring-white' : ''
+                      }`}
+                    >
+                      <span className={`h-4 w-4 rounded-full ${s.bg}`} />
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </FormField>
+
+              <FormField
+                label="Graphic Variant"
+                htmlFor="graphic_variant"
+                error={errors.graphic_variant?.message}
+                description={`Currently: ${graphicVariant}`}
+              >
+                <Select id="graphic_variant" {...register('graphic_variant')} error={!!errors.graphic_variant}>
+                  <option value="none">None</option>
+                  <option value="orbital">Orbital dots</option>
+                  <option value="code-window">Code window</option>
+                  <option value="bar-chart">Bar chart</option>
+                </Select>
               </FormField>
             </CardContent>
           </Card>
+
+          <FormField label="Feature bullets (on service card)" error={errors.features?.message}>
+            <div className="space-y-2">
+              {features.map((_, i) => (
+                <div key={i} className="flex gap-2">
+                  <Input
+                    value={features[i] ?? ''}
+                    onChange={(e) => {
+                      const next = [...features];
+                      next[i] = e.target.value;
+                      setValue('features', next);
+                    }}
+                    placeholder={`Feature ${i + 1}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setValue('features', features.filter((_, j) => j !== i))}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setValue('features', [...features, ''])}
+              >
+                Add feature
+              </Button>
+            </div>
+          </FormField>
 
           <Card>
             <CardHeader>
@@ -208,6 +389,189 @@ export function ServiceForm({ initialData, onSubmit, isLoading }: ServiceFormPro
                   placeholder="https://example.com/contact"
                 />
               </FormField>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Pricing Plans</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {pricingPlans.map((_, i) => (
+                <div key={i} className="space-y-2 rounded-lg border border-slate-700 bg-slate-950/50 p-4">
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <FormField label={`Plan ${i + 1} Name`} htmlFor={`plan-name-${i}`}>
+                      <Input
+                        id={`plan-name-${i}`}
+                        value={pricingPlans[i]?.name || ''}
+                        onChange={(e) => {
+                          const next = [...pricingPlans];
+                          next[i] = { ...next[i], name: e.target.value };
+                          setValue('pricing_plans', next);
+                        }}
+                        placeholder="e.g., Starter"
+                      />
+                    </FormField>
+                    <FormField label="Price" htmlFor={`plan-price-${i}`}>
+                      <Input
+                        id={`plan-price-${i}`}
+                        value={pricingPlans[i]?.price || ''}
+                        onChange={(e) => {
+                          const next = [...pricingPlans];
+                          next[i] = { ...next[i], price: e.target.value };
+                          setValue('pricing_plans', next);
+                        }}
+                        placeholder="e.g., $499"
+                      />
+                    </FormField>
+                    <FormField label="Period" htmlFor={`plan-period-${i}`}>
+                      <Input
+                        id={`plan-period-${i}`}
+                        value={pricingPlans[i]?.period || ''}
+                        onChange={(e) => {
+                          const next = [...pricingPlans];
+                          next[i] = { ...next[i], period: e.target.value };
+                          setValue('pricing_plans', next);
+                        }}
+                        placeholder="e.g., per month"
+                      />
+                    </FormField>
+                    <FormField label="CTA Label" htmlFor={`plan-cta-${i}`}>
+                      <Input
+                        id={`plan-cta-${i}`}
+                        value={pricingPlans[i]?.cta || ''}
+                        onChange={(e) => {
+                          const next = [...pricingPlans];
+                          next[i] = { ...next[i], cta: e.target.value };
+                          setValue('pricing_plans', next);
+                        }}
+                        placeholder="e.g., Get started"
+                      />
+                    </FormField>
+                  </div>
+                  <FormField label="Description" htmlFor={`plan-desc-${i}`}>
+                    <Textarea
+                      id={`plan-desc-${i}`}
+                      value={pricingPlans[i]?.description || ''}
+                      onChange={(e) => {
+                        const next = [...pricingPlans];
+                        next[i] = { ...next[i], description: e.target.value };
+                        setValue('pricing_plans', next);
+                      }}
+                      placeholder="Short description of what's included"
+                      rows={2}
+                    />
+                  </FormField>
+                  <FormField label="Features (one per line)" htmlFor={`plan-feats-${i}`}>
+                    <Textarea
+                      id={`plan-feats-${i}`}
+                      value={(pricingPlans[i]?.features || []).join('\n')}
+                      onChange={(e) => {
+                        const next = [...pricingPlans];
+                        next[i] = {
+                          ...next[i],
+                          features: e.target.value
+                            .split('\n')
+                            .map((f) => f.trim())
+                            .filter(Boolean),
+                        };
+                        setValue('pricing_plans', next);
+                      }}
+                      placeholder={'Feature one\nFeature two\nFeature three'}
+                      rows={4}
+                    />
+                  </FormField>
+                  <Switch
+                    checked={!!pricingPlans[i]?.highlighted}
+                    onChange={(checked) => {
+                      const next = [...pricingPlans];
+                      next[i] = { ...next[i], highlighted: checked };
+                      setValue('pricing_plans', next);
+                    }}
+                    label="Highlighted plan"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setValue('pricing_plans', pricingPlans.filter((_, j) => j !== i))}
+                  >
+                    Remove plan
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  setValue('pricing_plans', [
+                    ...pricingPlans,
+                    { name: '', description: '', price: '', period: '', features: [], cta: '', highlighted: false },
+                  ])
+                }
+              >
+                Add pricing plan
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>FAQs</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {faqs.map((_, i) => (
+                <div key={i} className="space-y-2 rounded-lg border border-slate-700 bg-slate-950/50 p-4">
+                  <FormField
+                    label={`Question ${i + 1}`}
+                    htmlFor={`faq-question-${i}`}
+                    error={errors.faqs?.[i]?.question?.message}
+                  >
+                    <Input
+                      id={`faq-question-${i}`}
+                      value={faqs[i]?.question || ''}
+                      onChange={(e) => {
+                        const next = [...faqs];
+                        next[i] = { ...next[i], question: e.target.value, answer: next[i]?.answer || '' };
+                        setValue('faqs', next);
+                      }}
+                      placeholder="e.g., How long does implementation take?"
+                    />
+                  </FormField>
+                  <FormField
+                    label="Answer"
+                    htmlFor={`faq-answer-${i}`}
+                    error={errors.faqs?.[i]?.answer?.message}
+                  >
+                    <Textarea
+                      id={`faq-answer-${i}`}
+                      value={faqs[i]?.answer || ''}
+                      onChange={(e) => {
+                        const next = [...faqs];
+                        next[i] = { ...next[i], question: next[i]?.question || '', answer: e.target.value };
+                        setValue('faqs', next);
+                      }}
+                      placeholder="Detailed answer..."
+                      rows={3}
+                    />
+                  </FormField>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setValue('faqs', faqs.filter((_, j) => j !== i))}
+                  >
+                    Remove FAQ
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setValue('faqs', [...faqs, { question: '', answer: '' }])}
+              >
+                Add FAQ
+              </Button>
             </CardContent>
           </Card>
 
@@ -244,6 +608,79 @@ export function ServiceForm({ initialData, onSubmit, isLoading }: ServiceFormPro
                   error={!!errors.display_order}
                 />
               </FormField>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>SEO Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                label="Meta Title"
+                htmlFor="meta_title"
+                error={errors.meta_title?.message}
+                description="Custom title for search engines (max 70 chars)"
+              >
+                <Input
+                  id="meta_title"
+                  {...register('meta_title')}
+                  error={!!errors.meta_title}
+                  placeholder="Leave blank to use service title"
+                  maxLength={70}
+                />
+              </FormField>
+
+              <FormField
+                label="Meta Description"
+                htmlFor="meta_description"
+                error={errors.meta_description?.message}
+                description="Search result description (max 160 chars)"
+              >
+                <Textarea
+                  id="meta_description"
+                  {...register('meta_description')}
+                  error={!!errors.meta_description}
+                  placeholder="Brief description for search results"
+                  rows={3}
+                  maxLength={160}
+                />
+              </FormField>
+
+              <FormField
+                label="OG Image"
+                htmlFor="og_image"
+                error={errors.og_image?.message}
+                description="Image for social media sharing"
+              >
+                <ImageUpload
+                  value={ogImage}
+                  onChange={(url) => setValue('og_image', url)}
+                  folder="services/og"
+                  error={!!errors.og_image}
+                  placeholder="Upload OG image (1200x630px recommended)"
+                />
+              </FormField>
+
+              <FormField
+                label="Canonical URL"
+                htmlFor="canonical_url"
+                error={errors.canonical_url?.message}
+                description="Preferred URL if multiple versions exist"
+              >
+                <Input
+                  id="canonical_url"
+                  {...register('canonical_url')}
+                  error={!!errors.canonical_url}
+                  placeholder="https://example.com/services/..."
+                />
+              </FormField>
+
+              <Switch
+                checked={noIndex}
+                onChange={(checked) => setValue('no_index', checked)}
+                label="No Index (hide from search engines)"
+              />
             </CardContent>
           </Card>
 

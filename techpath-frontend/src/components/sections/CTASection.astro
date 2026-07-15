@@ -1,0 +1,255 @@
+---
+// Rich split-panel CTA — left: form, right: consultant + process steps
+import { Image } from 'astro:assets';
+import sanjeevPhoto from '@assets/images/team/sanjeev-ceo-techpath.png';
+import { fetchCompanyInfo } from '@services/settingsService';
+
+interface Props {
+  cta?: {
+    title?: string;
+    description?: string;
+    secondary_label?: string;
+    secondary_href?: string;
+  };
+}
+const { cta = {} } = Astro.props;
+const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
+const company = await fetchCompanyInfo();
+---
+
+<section class="py-20 lg:py-28">
+  <div class="container mx-auto px-4">
+    <div class="relative overflow-hidden rounded-3xl border border-slate-700/60 bg-slate-900">
+
+      <!-- Background glows -->
+      <div class="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-blue-500/5 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-emerald-500/5 blur-3xl"></div>
+
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2">
+
+        <!-- ── LEFT: Form panel ── -->
+        <div class="border-b border-slate-700/50 p-8 md:p-12 lg:border-b-0 lg:border-r">
+
+          <!-- Status pill -->
+          <span class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
+            <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400"></span>
+            3 strategy slots open this week
+          </span>
+
+          <h2 class="mt-5 font-heading text-3xl font-bold leading-tight text-white md:text-4xl">
+            {cta.title || "Let's scope your project in 30 minutes."}
+          </h2>
+          <p class="mt-3 max-w-md leading-relaxed text-slate-400">
+            {cta.description || 'Free strategy call. No pitch deck, no obligation — just a senior engineer reviewing your problem and telling you what\'s actually buildable.'}
+          </p>
+
+          <!-- Form -->
+          <form id="cta-strategy-form" class="mt-8 space-y-3">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <input
+                type="text"
+                name="name"
+                placeholder="Your name"
+                required
+                class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition-colors focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20"
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Work email"
+                required
+                class="w-full rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition-colors focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20"
+              />
+            </div>
+            <textarea
+              name="message"
+              rows="4"
+              placeholder="What are you trying to build? (1–2 sentences is enough)"
+              required
+              class="w-full resize-none rounded-xl border border-slate-700 bg-slate-800/60 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition-colors focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20"
+            ></textarea>
+
+            <div class="flex flex-col gap-3 pt-1 sm:flex-row">
+              <button
+                id="cta-submit-btn"
+                type="submit"
+                class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Book a strategy call
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </button>
+              <a
+                href={cta.secondary_href || '/case-studies'}
+                class="inline-flex items-center justify-center rounded-xl border border-slate-600 px-6 py-3.5 text-sm font-medium text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+              >
+                {cta.secondary_label || 'See case studies'}
+              </a>
+            </div>
+
+            <p id="cta-form-message" class="hidden pt-1 text-center text-sm"></p>
+          </form>
+
+          <!-- Trust badges -->
+          <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2">
+            {['Reply within 4 hours', 'NDA on request', 'No sales script'].map((item) => (
+              <span class="inline-flex items-center gap-1.5 text-xs text-slate-500">
+                <svg class="h-3.5 w-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <!-- ── RIGHT: Consultant + process ── -->
+        <div class="flex flex-col gap-5 p-8 md:p-12">
+
+          <!-- Consultant card -->
+          <div class="rounded-2xl border border-slate-700/60 bg-slate-800/50 p-5">
+            <div class="flex items-center gap-4">
+              <div class="relative flex-shrink-0">
+                <Image
+                  src={sanjeevPhoto}
+                  alt="Sanjeev Kumar"
+                  width={112}
+                  height={112}
+                  loading="lazy"
+                  decoding="async"
+                  format="webp"
+                  class="h-14 w-14 rounded-full object-cover"
+                />
+                <span class="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-slate-800 bg-emerald-400"></span>
+              </div>
+              <div>
+                <div class="text-sm font-semibold text-white">Sanjeev Kumar</div>
+                <div class="mt-0.5 text-xs text-slate-400">Head of Solutions · 14yr exp.</div>
+              </div>
+            </div>
+            <blockquote class="mt-4 text-sm italic leading-relaxed text-slate-300">
+              "You'll talk to me, not a sales rep. I'll tell you straight if we can help."
+            </blockquote>
+          </div>
+
+          <!-- What happens next -->
+          <div class="flex-1 rounded-2xl border border-slate-700/60 bg-slate-800/30 p-5">
+            <h4 class="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+              What happens next
+            </h4>
+            <ol class="space-y-4">
+              {[
+                { n: '1', title: 'Within 4 hours.', desc: 'We email you 3 time slots.' },
+                { n: '2', title: '30-min call.', desc: 'We dig into your problem.' },
+                { n: '3', title: '48 hours later.', desc: 'Written scope + estimate.' },
+              ].map(({ n, title, desc }) => (
+                <li class="flex items-start gap-3">
+                  <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-slate-700 text-xs font-bold text-slate-300">
+                    {n}
+                  </span>
+                  <p class="text-sm leading-relaxed text-slate-400">
+                    <span class="font-semibold text-white">{title}</span>{' '}{desc}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <!-- Email fallback -->
+          <a
+            href={`mailto:${company.email}`}
+            class="group flex items-center justify-between rounded-xl border border-dashed border-slate-600/70 px-5 py-4 transition-colors hover:border-slate-500"
+          >
+            <div>
+              <div class="text-sm font-medium text-slate-300 transition-colors group-hover:text-white">Not ready to chat?</div>
+              <div class="mt-0.5 text-xs text-slate-500">Email {company.email}</div>
+            </div>
+            <svg class="h-5 w-5 text-slate-500 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+
+          <!-- Social proof bar -->
+          <div class="flex flex-wrap items-center justify-between gap-4 border-t border-slate-700/50 pt-4">
+            <div class="flex items-center gap-2">
+              <div class="flex -space-x-2">
+                {[
+                  { initials: 'SC', bg: 'bg-purple-500' },
+                  { initials: 'MR', bg: 'bg-emerald-500' },
+                  { initials: 'EW', bg: 'bg-amber-500' },
+                ].map(({ initials, bg }) => (
+                  <div class={`flex h-7 w-7 items-center justify-center rounded-full border-2 border-slate-900 ${bg} text-[10px] font-bold text-white`}>
+                    {initials}
+                  </div>
+                ))}
+              </div>
+              <span class="text-xs text-slate-400">
+                Joining <span class="font-semibold text-white">150+ teams</span> who shipped with TechPath
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-slate-400">
+              <div class="flex">
+                {[1, 2, 3, 4, 5].map((_) => (
+                  <svg class="h-3.5 w-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              4.9 · Clutch
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline define:vars={{ apiBaseUrl }}>
+  const form = document.getElementById('cta-strategy-form');
+  const submitBtn = document.getElementById('cta-submit-btn');
+  const formMessage = document.getElementById('cta-form-message');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+
+    const fd = new FormData(form);
+    const payload = {
+      name: fd.get('name'),
+      email: fd.get('email'),
+      message: fd.get('message'),
+      subject: 'Strategy Call Request',
+    };
+
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/v1/contact/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+
+      formMessage.classList.remove('hidden', 'text-red-400', 'text-emerald-400');
+      if (res.ok) {
+        formMessage.classList.add('text-emerald-400');
+        formMessage.textContent = result.message || 'Thanks! We\'ll be in touch within 4 hours.';
+        form.reset();
+      } else {
+        formMessage.classList.add('text-red-400');
+        formMessage.textContent = result.detail || 'Something went wrong. Please try again.';
+      }
+    } catch {
+      formMessage.classList.remove('hidden', 'text-emerald-400');
+      formMessage.classList.add('text-red-400');
+      formMessage.textContent = 'Network error. Please check your connection and try again.';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Book a strategy call <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>';
+    }
+  });
+</script>

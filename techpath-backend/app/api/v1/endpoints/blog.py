@@ -231,7 +231,12 @@ async def list_posts(
             order_desc=True,
         )
 
-    data = [BlogPostListResponse.model_validate(p).model_dump(mode="json") for p in posts]
+    data = []
+    for p in posts:
+        r = BlogPostListResponse.model_validate(p)
+        if r.featured_image:
+            r.featured_image = await storage_service.resolve_url(r.featured_image)
+        data.append(r.model_dump(mode="json"))
     return JSONResponse(
         content=data,
         headers={"X-Total-Count": str(total)},
@@ -253,7 +258,10 @@ async def get_post(
     if (current_user is None or current_user.role != "admin") and post.status != "published":
         raise NotFoundError("Blog post")
 
-    return BlogPostResponse.model_validate(post)
+    response = BlogPostResponse.model_validate(post)
+    if response.featured_image:
+        response.featured_image = await storage_service.resolve_url(response.featured_image)
+    return response
 
 
 @router.post("/posts", response_model=BlogPostResponse, status_code=status.HTTP_201_CREATED)

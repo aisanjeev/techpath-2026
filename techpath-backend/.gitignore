@@ -36,6 +36,11 @@ data/uploads/*
 .idea/
 .vscode/
 
+# Firebase service-account keys (NEVER commit these)
+firebase-service-account.json
+*-service-account.json
+serviceAccount*.json
+
 # Logs
 *.log
 

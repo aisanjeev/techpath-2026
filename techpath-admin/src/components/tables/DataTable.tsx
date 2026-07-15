@@ -50,6 +50,13 @@ export function DataTable<T>({
   emptyMessage = 'No data found',
 }: DataTableProps<T>) {
   const [openActionMenu, setOpenActionMenu] = useState<string | number | null>(null);
+  const [menuPos, setMenuPos] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
+
+  const openMenu = (key: string | number, e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    setOpenActionMenu(openActionMenu === key ? null : key);
+  };
 
   const handleSort = (field: string) => {
     if (!sorting) return;
@@ -131,9 +138,9 @@ export function DataTable<T>({
                       </td>
                     ))}
                     {(onEdit || onDelete || onView) && (
-                      <td className="relative px-4 py-3 text-right">
+                      <td className="px-4 py-3 text-right">
                         <button
-                          onClick={() => setOpenActionMenu(openActionMenu === key ? null : key)}
+                          onClick={(e) => openMenu(key, e)}
                           className="rounded p-1 hover:bg-gray-100"
                         >
                           <MoreHorizontal className="h-5 w-5 text-gray-500" />
@@ -141,16 +148,16 @@ export function DataTable<T>({
                         {openActionMenu === key && (
                           <>
                             <div
-                              className="fixed inset-0 z-10"
+                              className="fixed inset-0 z-40"
                               onClick={() => setOpenActionMenu(null)}
                             />
-                            <div className="absolute right-4 z-20 mt-1 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                            <div
+                              style={{ position: 'fixed', top: menuPos.top, right: menuPos.right }}
+                              className="z-50 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+                            >
                               {onView && (
                                 <button
-                                  onClick={() => {
-                                    onView(item);
-                                    setOpenActionMenu(null);
-                                  }}
+                                  onClick={() => { onView(item); setOpenActionMenu(null); }}
                                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                   <Eye className="h-4 w-4" />
@@ -159,10 +166,7 @@ export function DataTable<T>({
                               )}
                               {onEdit && (
                                 <button
-                                  onClick={() => {
-                                    onEdit(item);
-                                    setOpenActionMenu(null);
-                                  }}
+                                  onClick={() => { onEdit(item); setOpenActionMenu(null); }}
                                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                   <Pencil className="h-4 w-4" />
@@ -171,10 +175,7 @@ export function DataTable<T>({
                               )}
                               {onDelete && (
                                 <button
-                                  onClick={() => {
-                                    onDelete(item);
-                                    setOpenActionMenu(null);
-                                  }}
+                                  onClick={() => { onDelete(item); setOpenActionMenu(null); }}
                                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
                                 >
                                   <Trash2 className="h-4 w-4" />

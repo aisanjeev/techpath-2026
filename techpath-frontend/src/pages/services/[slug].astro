@@ -1,70 +1,223 @@
 ---
 /**
- * Dynamic Service Page
- * Renders individual service pages from content collection
+ * Service detail page – data from API (GET /api/v1/services/{slug}).
+ * Renders hero, trust bar, description (HTML), flexible engagement, case studies, FAQ, and value-based CTA. No pricing shown.
  */
 import MainLayout from '@layouts/MainLayout.astro';
 import Breadcrumb from '@components/shared/Breadcrumb.astro';
 import ServiceHero from './_components/ServiceHero.astro';
 import ServiceCTA from './_components/ServiceCTA.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
-import { calculateReadingTime } from '@utils/contentHelpers';
+import FlexibleEngagement from './_components/FlexibleEngagement.astro';
+import TrustBadges from '@components/sections/TrustBadges.astro';
+import FAQSection from '@components/sections/FAQSection.astro';
+import { fetchServiceBySlug } from '@services/serviceService';
+import { fetchCaseStudies, normalizeCaseStudy } from '@services/caseStudyService';
+import { generateServiceSchema } from '@utils/seo';
 import '@styles/markdown.css';
 
-// Prerender this page - uses getStaticPaths for content collection
-export const prerender = true;
+export const prerender = false;
 
-export async function getStaticPaths() {
-  const services = await getCollection('services');
-  return services.map((service) => ({
-    params: { slug: service.slug },
-    props: { service },
-  }));
+const slug = Astro.params.slug;
+if (!slug) {
+  return Astro.redirect('/404');
 }
 
-interface Props {
-  service: CollectionEntry<'services'>;
+const [service, apiCaseStudies] = await Promise.all([
+  fetchServiceBySlug(slug),
+  fetchCaseStudies({ limit: 3 }),
+]);
+
+if (!service) {
+  return Astro.redirect('/404');
 }
 
-const { service } = Astro.props;
-const { Content } = await service.render();
-const readingTime = calculateReadingTime(service.body);
+const iconKeys = ['brain', 'cloud', 'code', 'chart', 'shield', 'transform'];
+const heroIcon = service.icon && iconKeys.includes(service.icon) ? service.icon : 'code';
+const heroDescription =
+  service.short_description ||
+  (typeof service.description === 'string'
+    ? service.description.replace(/<[^>]+>/g, '').slice(0, 400)
+    : '');
 
 const breadcrumbItems = [
   { label: 'Home', href: '/' },
   { label: 'Services', href: '/services' },
-  { label: service.data.title, href: '#', current: true },
+  { label: service.title, href: '#', current: true },
 ];
+
+const caseStudies = apiCaseStudies.map(normalizeCaseStudy);
+
+const siteUrl = import.meta.env.SITE_URL || 'https://techpath.biz';
+const serviceUrl = `${siteUrl}/services/${slug}`;
+const serviceSchema = generateServiceSchema({
+  name: service.title,
+  description: heroDescription,
+  url: serviceUrl,
+});
+
+const serviceFaqs = service.faqs ?? [];
+const pricingPlans = service.pricing_plans ?? [];
 ---
 
-<MainLayout title={service.data.title} description={service.data.description}>
+<MainLayout
+  title={service.meta_title || service.title}
+  description={service.meta_description || heroDescription || service.title}
+  image={service.og_image || service.image_url || undefined}
+  canonicalUrl={service.canonical_url || undefined}
+  noIndex={service.no_index || false}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(serviceSchema)} slot="head" />
   <article class="service-page py-12 lg:py-20">
     <div class="container mx-auto px-4">
       <Breadcrumb items={breadcrumbItems} />
 
       <ServiceHero
-        title={service.data.title}
-        description={service.data.description}
-        icon={service.data.icon}
-        features={service.data.features}
+        title={service.title}
+        description={heroDescription}
+        icon={heroIcon}
+        features={service.features ?? []}
       />
 
-      <!-- Reading time indicator -->
-      <div class="mx-auto max-w-4xl mt-8 flex items-center gap-2 text-sm text-slate-500">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span>{readingTime} min read</span>
-      </div>
+      <TrustBadges />
 
-      <!-- Main Content with beautiful markdown styling -->
-      <div class="mx-auto mt-12 max-w-4xl">
-        <div class="markdown-content">
-          <Content />
+      <!-- Main content (HTML from admin) -->
+      {service.description && (
+        <div class="mx-auto mt-12 max-w-4xl">
+          <div class="markdown-content" set:html={service.description} />
         </div>
+      )}
+
+      <FlexibleEngagement />
+
+      {pricingPlans.length > 0 && (
+        <div class="mx-auto mt-20 max-w-6xl">
+          <h2 class="mb-10 text-center font-heading text-3xl font-bold text-white">
+            Pricing Plans
+          </h2>
+          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {pricingPlans.map((plan) => (
+              <div
+                class:list={[
+                  'flex flex-col rounded-2xl border p-6',
+                  plan.highlighted
+                    ? 'border-primary-500 bg-primary-500/5 shadow-lg shadow-primary-500/10'
+                    : 'border-slate-800 bg-slate-900/50',
+                ]}
+              >
+                <h3 class="font-heading text-xl font-semibold text-white">{plan.name}</h3>
+                {plan.description && (
+                  <p class="mt-2 text-sm text-slate-400">{plan.description}</p>
+                )}
+                <div class="mt-4 flex items-baseline gap-2">
+                  <span class="font-heading text-3xl font-bold text-white">{plan.price}</span>
+                  {plan.period && <span class="text-sm text-slate-400">{plan.period}</span>}
+                </div>
+                {plan.features && plan.features.length > 0 && (
+                  <ul class="mt-6 space-y-2">
+                    {plan.features.map((feat) => (
+                      <li class="flex items-start gap-2 text-sm text-slate-300">
+                        <svg class="mt-0.5 h-4 w-4 flex-shrink-0 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {plan.cta && (
+                  <a
+                    href={service.cta_url || '/contact'}
+                    class:list={[
+                      'mt-auto inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors',
+                      plan.highlighted
+                        ? 'bg-primary-500 text-white hover:bg-primary-400'
+                        : 'border border-slate-700 text-white hover:border-primary-500 hover:text-primary-400',
+                      'mt-6',
+                    ]}
+                  >
+                    {plan.cta}
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Case studies -->
+      <div class="mx-auto mt-20 max-w-6xl">
+        <h2 class="mb-10 text-center font-heading text-3xl font-bold text-white">
+          Success Stories
+        </h2>
+        {caseStudies.length > 0 ? (
+          <div class="grid gap-8 md:grid-cols-3">
+            {
+              caseStudies.map((study) => (
+                <a
+                  href={study.href}
+                  class="group flex flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 transition-colors hover:border-primary-500/50 hover:bg-slate-900"
+                >
+                  {study.image ? (
+                    <div class="aspect-video overflow-hidden">
+                      <img
+                        src={study.image}
+                        alt={study.title}
+                        class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  ) : (
+                    <div class="flex aspect-video items-center justify-center bg-gradient-to-br from-primary-500/20 to-secondary-500/20">
+                      <span class="text-4xl text-primary-400/50">📊</span>
+                    </div>
+                  )}
+                  <div class="flex flex-1 flex-col p-6">
+                    <h3 class="mb-2 font-heading text-lg font-semibold text-white transition-colors group-hover:text-primary-400">
+                      {study.title}
+                    </h3>
+                    <p class="mb-4 line-clamp-2 text-sm text-slate-400">
+                      {study.description}
+                    </p>
+                    {study.stats.value && (
+                      <p class="mt-auto text-sm font-medium text-primary-400">
+                        {study.stats.value} {study.stats.label}
+                      </p>
+                    )}
+                  </div>
+                </a>
+              ))
+            }
+          </div>
+          <div class="mt-10 text-center">
+            <a
+              href="/case-studies"
+              class="inline-flex items-center gap-2 font-medium text-primary-400 transition-colors hover:text-primary-300"
+            >
+              See All Case Studies
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+          </div>
+        ) : (
+          <p class="text-center text-slate-400">No case studies yet. <a href="/case-studies" class="text-primary-400 hover:underline">View case studies</a> when available.</p>
+        )}
       </div>
 
-      <ServiceCTA title={service.data.title} cta={service.data.cta} price={service.data.price} />
+      {serviceFaqs.length > 0 && (
+        <div class="mx-auto mt-20 max-w-4xl">
+          <h2 class="mb-10 text-center font-heading text-3xl font-bold text-white">
+            Frequently Asked Questions
+          </h2>
+          <FAQSection faqs={serviceFaqs} />
+        </div>
+      )}
+
+      <ServiceCTA
+        title={service.title}
+        cta={service.cta_text}
+      />
     </div>
   </article>
 </MainLayout>

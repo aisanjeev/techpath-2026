@@ -1,7 +1,7 @@
 """Main API v1 router."""
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import auth, services, blog, contact, ai, case_studies, uploads, media, courses, content, secrets, settings, pilot_signup
+from app.api.v1.endpoints import auth, services, blog, contact, ai, case_studies, uploads, media, courses, content, secrets, settings, pilot_signup, page
 
 router = APIRouter()
 
@@ -9,6 +9,7 @@ router = APIRouter()
 router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 router.include_router(services.router, prefix="/services", tags=["Services"])
 router.include_router(blog.router, prefix="/blog", tags=["Blog"])
+router.include_router(page.router, prefix="/pages", tags=["Pages"])
 router.include_router(case_studies.router, prefix="/case-studies", tags=["Case Studies"])
 router.include_router(courses.router, prefix="/courses", tags=["Courses"])
 router.include_router(content.router, prefix="/content", tags=["Content"])

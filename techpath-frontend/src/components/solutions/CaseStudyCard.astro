@@ -1,0 +1,67 @@
+---
+interface Result {
+  value: string;
+  label: string;
+}
+interface Testimonial {
+  text: string;
+  author: string;
+  title: string;
+}
+interface Props {
+  company: string;
+  challenge: string;
+  solution: string;
+  results: Result[];
+  testimonial: Testimonial;
+}
+const { company, challenge, solution, results, testimonial } = Astro.props;
+const initials = testimonial.author
+  .split(' ')
+  .map((n) => n[0])
+  .filter(Boolean)
+  .slice(0, 2)
+  .join('');
+---
+<article class="group relative mt-10 overflow-hidden rounded-2xl border border-white/10 border-l-4 border-l-teal-500 bg-slate-900/60 p-8 transition-shadow duration-300 hover:shadow-[0_0_0_1px_rgba(20,184,166,0.25)] md:p-12">
+  <div class="grid gap-10 lg:grid-cols-[65%_35%]">
+    <div>
+      <span class="text-xs font-semibold uppercase tracking-[0.2em] text-teal-400">Case Study</span>
+      <h3 class="mt-2 font-heading text-xl font-bold text-white md:text-2xl">{company}</h3>
+
+      <div class="mt-4 space-y-3">
+        <p class="text-base leading-relaxed text-slate-300">
+          <span class="font-semibold text-white">Challenge: </span>{challenge}
+        </p>
+        <p class="text-base leading-relaxed text-slate-300">
+          <span class="font-semibold text-white">Solution: </span>{solution}
+        </p>
+      </div>
+
+      <div class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3">
+        {results.map((r) => (
+          <div>
+            <div class="text-4xl font-bold tabular-nums text-teal-400">{r.value}</div>
+            <div class="mt-1 text-sm text-slate-400">{r.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="lg:border-l lg:border-white/10 lg:pl-10">
+      <div class="flex items-start gap-4">
+        <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-teal-500/15 text-base font-semibold uppercase text-teal-300 ring-1 ring-teal-500/30">
+          {initials}
+        </div>
+        <div class="flex-1">
+          <svg class="mb-2 h-6 w-6 fill-teal-400/30" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 7h4v4H8v6H4v-6c0-2.21 1.79-4 3-4zm10 0h4v4h-3v6h-4v-6c0-2.21 1.79-4 3-4z"/>
+          </svg>
+          <p class="text-base italic leading-relaxed text-slate-200">{testimonial.text}</p>
+          <p class="mt-4 text-sm font-semibold text-white">{testimonial.author}</p>
+          <p class="text-xs text-slate-400">{testimonial.title}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>

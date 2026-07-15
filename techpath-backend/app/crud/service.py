@@ -39,12 +39,17 @@ class CRUDService(CRUDBase[Service, ServiceCreate, ServiceUpdate]):
         return list(result.scalars().all())
 
     async def create(self, db: AsyncSession, *, obj_in: ServiceCreate) -> Service:
-        """Create a new service, converting features list to JSON."""
+        """Create a new service, converting features, pricing_plans, and faqs to JSON."""
         obj_data = obj_in.model_dump(exclude_unset=True)
 
-        # Convert features list to JSON string
         if "features" in obj_data and obj_data["features"] is not None:
             obj_data["features"] = json.dumps(obj_data["features"])
+        if "pricing_plans" in obj_data and obj_data["pricing_plans"] is not None:
+            obj_data["pricing_plans"] = json.dumps(obj_data["pricing_plans"])
+        if "faqs" in obj_data and obj_data["faqs"] is not None:
+            obj_data["faqs"] = json.dumps(obj_data["faqs"])
+        if "tags" in obj_data and obj_data["tags"] is not None:
+            obj_data["tags"] = json.dumps(obj_data["tags"])
 
         db_obj = Service(**obj_data)
         db.add(db_obj)
@@ -55,12 +60,17 @@ class CRUDService(CRUDBase[Service, ServiceCreate, ServiceUpdate]):
     async def update(
         self, db: AsyncSession, *, db_obj: Service, obj_in: ServiceUpdate
     ) -> Service:
-        """Update a service, converting features list to JSON."""
+        """Update a service, converting features, pricing_plans, and faqs to JSON."""
         update_data = obj_in.model_dump(exclude_unset=True)
 
-        # Convert features list to JSON string
         if "features" in update_data and update_data["features"] is not None:
             update_data["features"] = json.dumps(update_data["features"])
+        if "pricing_plans" in update_data and update_data["pricing_plans"] is not None:
+            update_data["pricing_plans"] = json.dumps(update_data["pricing_plans"])
+        if "faqs" in update_data and update_data["faqs"] is not None:
+            update_data["faqs"] = json.dumps(update_data["faqs"])
+        if "tags" in update_data and update_data["tags"] is not None:
+            update_data["tags"] = json.dumps(update_data["tags"])
 
         for field, value in update_data.items():
             setattr(db_obj, field, value)

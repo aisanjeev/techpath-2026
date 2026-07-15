@@ -156,6 +156,7 @@ PUBLIC_KEYS = {
     "seo_default_title",
     "seo_default_description",
     "google_analytics_id",
+    "gtm_id",
 }
 
 
