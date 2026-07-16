@@ -34,6 +34,12 @@ interface DataTableProps<T> {
     direction: 'asc' | 'desc';
     onSort: (field: string, direction: 'asc' | 'desc') => void;
   };
+  /** Opt-in row selection with a checkbox column. */
+  selection?: {
+    selectedKeys: Set<string | number>;
+    onToggle: (key: string | number) => void;
+    onToggleAll: (checked: boolean) => void;
+  };
   emptyMessage?: string;
 }
 
@@ -47,6 +53,7 @@ export function DataTable<T>({
   onView,
   pagination,
   sorting,
+  selection,
   emptyMessage = 'No data found',
 }: DataTableProps<T>) {
   const [openActionMenu, setOpenActionMenu] = useState<string | number | null>(null);
@@ -66,6 +73,12 @@ export function DataTable<T>({
 
   const totalPages = pagination ? Math.ceil(pagination.total / pagination.limit) : 1;
 
+  const allSelected =
+    !!selection && data.length > 0 && data.every((item) => selection.selectedKeys.has(keyExtractor(item)));
+
+  const hasActions = !!(onEdit || onDelete || onView);
+  const colSpan = columns.length + (selection ? 1 : 0) + (hasActions ? 1 : 0);
+
   const getValue = (item: T, key: string): unknown => {
     return key.split('.').reduce((obj: unknown, k: string) => {
       if (obj && typeof obj === 'object' && k in obj) {
@@ -81,6 +94,17 @@ export function DataTable<T>({
         <table className="w-full">
           <thead className="border-b border-gray-200 bg-gray-50">
             <tr>
+              {selection && (
+                <th className="w-10 px-4 py-3">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all rows"
+                    className="h-4 w-4 cursor-pointer rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                    checked={allSelected}
+                    onChange={(e) => selection.onToggleAll(e.target.checked)}
+                  />
+                </th>
+              )}
               {columns.map((column) => (
                 <th
                   key={column.key}
@@ -113,7 +137,7 @@ export function DataTable<T>({
           <tbody className="divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={columns.length + 1} className="px-4 py-12">
+                <td colSpan={colSpan} className="px-4 py-12">
                   <div className="flex justify-center">
                     <Spinner size="lg" />
                   </div>
@@ -121,15 +145,27 @@ export function DataTable<T>({
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 1} className="px-4 py-12 text-center text-gray-500">
+                <td colSpan={colSpan} className="px-4 py-12 text-center text-gray-500">
                   {emptyMessage}
                 </td>
               </tr>
             ) : (
               data.map((item) => {
                 const key = keyExtractor(item);
+                const isSelected = selection?.selectedKeys.has(key) ?? false;
                 return (
-                  <tr key={key} className="hover:bg-gray-50">
+                  <tr key={key} className={cn('hover:bg-gray-50', isSelected && 'bg-teal-50')}>
+                    {selection && (
+                      <td className="w-10 px-4 py-3">
+                        <input
+                          type="checkbox"
+                          aria-label="Select row"
+                          className="h-4 w-4 cursor-pointer rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                          checked={isSelected}
+                          onChange={() => selection.onToggle(key)}
+                        />
+                      </td>
+                    )}
                     {columns.map((column) => (
                       <td key={column.key} className={cn('px-4 py-3 text-sm', column.className)}>
                         {column.render
