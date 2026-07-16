@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Search, Mail, Phone, Building, MessageSquare } from 'lucide-react';
+import { Search, Mail, Phone, Building, MessageSquare, FileJson, FileSpreadsheet, Trash2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Input } from '@/components/ui/Input';
@@ -14,8 +14,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Textarea } from '@/components/ui/Textarea';
 import { FormField } from '@/components/ui/FormField';
 import { contactsService } from '@/services/contacts.service';
-import { formatDate, formatRelativeTime } from '@/lib/utils/format';
+import { formatDate, formatDateTime, formatRelativeTime } from '@/lib/utils/format';
+import { exportToJson, exportToExcel, withDateStamp, type ExportColumn } from '@/lib/utils/export';
 import type { ContactInquiry } from '@/types/api';
+
+type ContactStatus = 'new' | 'in_progress' | 'resolved' | 'closed';
+
+const EXPORT_COLUMNS: ExportColumn<ContactInquiry>[] = [
+  { header: 'ID', accessor: (c) => c.id },
+  { header: 'Name', accessor: (c) => c.name },
+  { header: 'Email', accessor: (c) => c.email },
+  { header: 'Phone', accessor: (c) => c.phone },
+  { header: 'Company', accessor: (c) => c.company },
+  { header: 'Subject', accessor: (c) => c.subject },
+  { header: 'Message', accessor: (c) => c.message },
+  { header: 'Service Interest', accessor: (c) => c.service_interest },
+  { header: 'Status', accessor: (c) => c.status },
+  { header: 'Notes', accessor: (c) => c.notes },
+  { header: 'Received', accessor: (c) => formatDateTime(c.created_at) },
+  { header: 'Updated', accessor: (c) => (c.updated_at ? formatDateTime(c.updated_at) : '') },
+];
 
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<ContactInquiry[]>([]);
@@ -34,6 +52,13 @@ export default function ContactsPage() {
   const [updating, setUpdating] = useState(false);
   const [notes, setNotes] = useState('');
   const [newStatus, setNewStatus] = useState<string>('');
+  const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
+  const [exporting, setExporting] = useState<'json' | 'excel' | null>(null);
+  const [clearModal, setClearModal] = useState<{ open: boolean; mode: 'selected' | 'all' }>({
+    open: false,
+    mode: 'selected',
+  });
+  const [clearing, setClearing] = useState(false);
   const limit = 20;
 
   const fetchContacts = useCallback(async () => {
@@ -108,6 +133,84 @@ export default function ContactsPage() {
       toast.error('Failed to delete contact');
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const toggleSelect = (key: string | number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = (checked: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      contacts.forEach((c) => (checked ? next.add(c.id) : next.delete(c.id)));
+      return next;
+    });
+  };
+
+  const handleExport = async (kind: 'json' | 'excel') => {
+    setExporting(kind);
+    try {
+      const data = await contactsService.listAll(
+        (statusFilter as ContactStatus) || undefined
+      );
+      if (data.length === 0) {
+        toast.error('No inquiries to export');
+        return;
+      }
+      const filename = withDateStamp('contact-inquiries');
+      if (kind === 'json') {
+        exportToJson(data, filename);
+      } else {
+        exportToExcel(data, EXPORT_COLUMNS, filename, 'Inquiries');
+      }
+      toast.success(`Exported ${data.length} ${data.length === 1 ? 'inquiry' : 'inquiries'}`);
+    } catch (error) {
+      console.error('Error exporting contacts:', error);
+      toast.error('Failed to export inquiries');
+    } finally {
+      setExporting(null);
+    }
+  };
+
+  const handleClearRecords = async () => {
+    setClearing(true);
+    try {
+      let ids: number[];
+      if (clearModal.mode === 'selected') {
+        ids = Array.from(selectedIds).map(Number);
+      } else {
+        const all = await contactsService.listAll((statusFilter as ContactStatus) || undefined);
+        ids = all.map((c) => c.id);
+      }
+
+      if (ids.length === 0) {
+        toast.error('No records to clear');
+        setClearModal({ open: false, mode: clearModal.mode });
+        return;
+      }
+
+      const { deleted, failed } = await contactsService.deleteMany(ids);
+      if (failed > 0) {
+        toast.error(`Deleted ${deleted}, ${failed} failed`);
+      } else {
+        toast.success(`Deleted ${deleted} ${deleted === 1 ? 'record' : 'records'}`);
+      }
+
+      setSelectedIds(new Set());
+      setClearModal({ open: false, mode: clearModal.mode });
+      setPage(1);
+      fetchContacts();
+    } catch (error) {
+      console.error('Error clearing contacts:', error);
+      toast.error('Failed to clear records');
+    } finally {
+      setClearing(false);
     }
   };
 
@@ -193,7 +296,59 @@ export default function ContactsPage() {
           <option value="resolved">Resolved</option>
           <option value="closed">Closed</option>
         </Select>
+
+        {/* Export & bulk actions */}
+        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+          <Button
+            variant="outline"
+            onClick={() => handleExport('json')}
+            loading={exporting === 'json'}
+            disabled={exporting !== null}
+          >
+            <FileJson className="h-4 w-4" />
+            Download JSON
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => handleExport('excel')}
+            loading={exporting === 'excel'}
+            disabled={exporting !== null}
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            Download Excel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => setClearModal({ open: true, mode: 'all' })}
+          >
+            <Trash2 className="h-4 w-4" />
+            Clear All
+          </Button>
+        </div>
       </div>
+
+      {/* Selection action bar */}
+      {selectedIds.size > 0 && (
+        <div className="mb-4 flex items-center justify-between rounded-lg border border-teal-200 bg-teal-50 px-4 py-3">
+          <span className="text-sm font-medium text-teal-800">
+            {selectedIds.size} {selectedIds.size === 1 ? 'record' : 'records'} selected
+          </span>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
+              <X className="h-4 w-4" />
+              Clear selection
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setClearModal({ open: true, mode: 'selected' })}
+            >
+              <Trash2 className="h-4 w-4" />
+              Clear Selected
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Data Table */}
       <DataTable
@@ -203,6 +358,11 @@ export default function ContactsPage() {
         keyExtractor={(item) => item.id}
         onView={handleViewDetails}
         onDelete={(item) => setDeleteModal({ open: true, contact: item })}
+        selection={{
+          selectedKeys: selectedIds,
+          onToggle: toggleSelect,
+          onToggleAll: toggleSelectAll,
+        }}
         pagination={{
           page,
           limit,
@@ -331,6 +491,26 @@ export default function ContactsPage() {
         confirmText="Delete"
         variant="danger"
         loading={deleting}
+      />
+
+      {/* Clear Records Confirmation Modal */}
+      <ConfirmModal
+        isOpen={clearModal.open}
+        onClose={() => setClearModal({ open: false, mode: clearModal.mode })}
+        onConfirm={handleClearRecords}
+        title={clearModal.mode === 'selected' ? 'Clear Selected Records' : 'Clear All Records'}
+        description={
+          clearModal.mode === 'selected'
+            ? `Permanently delete ${selectedIds.size} selected ${
+                selectedIds.size === 1 ? 'inquiry' : 'inquiries'
+              }? This action cannot be undone.`
+            : `Permanently delete ALL ${
+                statusFilter ? `"${statusFilter.replace('_', ' ')}" ` : ''
+              }contact inquiries? This action cannot be undone.`
+        }
+        confirmText={clearModal.mode === 'selected' ? 'Clear Selected' : 'Clear All'}
+        variant="danger"
+        loading={clearing}
       />
     </div>
   );
