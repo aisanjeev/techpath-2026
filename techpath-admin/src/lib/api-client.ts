@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
-import { firebaseAuth } from '@/lib/firebase';
+import { getFirebaseAuth } from '@/lib/firebase';
 import { useAuthStore } from '@/store/auth.store';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
@@ -15,7 +15,7 @@ const apiClient: AxiosInstance = axios.create({
 // Attach a fresh Firebase ID token to every request (auto-refreshes if expired)
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const firebaseUser = firebaseAuth.currentUser;
+    const firebaseUser = getFirebaseAuth().currentUser;
     if (firebaseUser) {
       const token = await firebaseUser.getIdToken();
       config.headers.Authorization = `Bearer ${token}`;
