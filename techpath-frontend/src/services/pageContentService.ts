@@ -66,7 +66,7 @@ function getDefaultHomeContent(): HomeLandingContent {
     seo: {
       title: 'Techpath — IT Training in Mughalsarai + Enterprise AI & IT Services India',
       description:
-        'Techpath: 14 IT courses in Mughalsarai (offline + live online) and enterprise AI, cloud, web, and DevOps services. 50,000+ students trained. 150+ projects delivered.',
+        'Techpath: 14 IT courses in Mughalsarai (offline + live online) and enterprise AI, cloud, web, and DevOps services. 1,000+ students trained. 150+ projects delivered.',
       image: '/images/homepage-featured.jpg',
       canonical_url: 'https://techpath.biz/',
     },
@@ -181,7 +181,7 @@ function getDefaultAboutContent(): AboutPageContent {
     seo: {
       title: 'About Techpath | IT Training + Professional IT Services — Mughalsarai, Chandauli',
       description:
-        'Techpath Research and Development Pvt Ltd — IT training institute and enterprise IT services company in Mughalsarai, Chandauli, UP. 50,000+ students trained. 150+ projects delivered.',
+        'Techpath Research and Development Pvt Ltd — IT training institute and enterprise IT services company in Mughalsarai, Chandauli, UP. 1,000+ students trained. 150+ projects delivered.',
       image: '/images/about-featured.jpg',
       canonical_url: 'https://techpath.biz/about/',
     },
@@ -195,7 +195,7 @@ function getDefaultAboutContent(): AboutPageContent {
     mission_text:
       'To make world-class technology education and enterprise IT solutions accessible from eastern Uttar Pradesh — and beyond. We believe that where you are from should never limit what you can build. From Circus Road, Mughalsarai, we train the next generation of Indian tech professionals and deliver production-grade AI, cloud, and software solutions to businesses that demand results.',
     stats: [
-      { value: '50,000+', label: 'Students Trained' },
+      { value: '1,000+', label: 'Students Trained' },
       { value: '150+', label: 'Projects Delivered' },
       { value: '94%', label: 'Placement Rate' },
       { value: '98%', label: 'Client Satisfaction' },
@@ -209,7 +209,7 @@ function getDefaultAboutContent(): AboutPageContent {
         href: '/training/',
         cta_label: 'Explore All Courses',
         stats: [
-          { value: '50,000+', label: 'Students Trained' },
+          { value: '1,000+', label: 'Students Trained' },
           { value: '14', label: 'Courses' },
           { value: '94%', label: 'Placement Rate' },
           { value: '₹6,000', label: 'Starting Price' },
@@ -249,7 +249,7 @@ function getDefaultAboutContent(): AboutPageContent {
       {
         name: 'Sanjeev Kumar',
         role: 'Head of Solutions',
-        bio: '14 years of experience in IT solutions and software delivery. Leads all client strategy, project scoping, and solution architecture at Techpath Professional Services.',
+        bio: '8 years of experience in IT solutions and software delivery. Leads all client strategy, project scoping, and solution architecture at Techpath Professional Services.',
         image: '/team/sanjeev-ceo-techpath.png',
       },
     ],
@@ -313,7 +313,7 @@ function getDefaultServicesContent(): ServicesLandingContent {
     ],
     cta_title: 'Need a Custom Solution?',
     cta_description:
-      'Talk to Sanjeev Kumar, our Head of Solutions — 14 years experience, no sales rep, no pitch deck. Free 30-minute strategy call. Written scope and estimate within 48 hours.',
+      'Talk to Sanjeev Kumar, our Head of Solutions — 8 years experience, no sales rep, no pitch deck. Free 30-minute strategy call. Written scope and estimate within 48 hours.',
     cta_primary_label: 'Book a Free Strategy Call',
     cta_primary_href: '/contact',
     cta_secondary_label: 'View Pricing',
@@ -422,7 +422,7 @@ function getDefaultContactContent(): ContactPageContent {
         id: 'services',
         label: '💼 I Need IT Services',
         headline: 'Book a Free Strategy Call',
-        subtext: 'Talk directly to Sanjeev Kumar, Head of Solutions (14 years experience). Written scope + estimate in 48 hours.',
+        subtext: 'Talk directly to Sanjeev Kumar, Head of Solutions (8 years experience). Written scope + estimate in 48 hours.',
         cta_primary: { label: '📞 Book Strategy Call', href: 'tel:+918299708052' },
         cta_secondary: { label: '✉️ Email info@techpath.biz', href: 'mailto:info@techpath.biz' },
         urgency: '3 strategy slots open this week — NDA on request, no pitch deck, no obligation',
@@ -470,7 +470,7 @@ function getDefaultContactContent(): ContactPageContent {
     social_proof: {
       academy: {
         stats: [
-          { value: '50,000+', label: 'Students Trained' },
+          { value: '1,000+', label: 'Students Trained' },
           { value: '94%', label: 'Placement Rate' },
           { value: '25', label: 'Max Batch Size' },
           { value: '14', label: 'Courses Available' },
