@@ -141,3 +141,9 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 - **Frontend & Admin**: Auto-deploy via Vercel on push to respective branches.
 - **Backend**: GitHub Actions (`.github/workflows/deploy-backend.yml`) deploys to VPS via SSH. `develop` → staging (port 8093); `main` → production (port 8092, requires manual approval gate).
 - Database migrations must be run manually on the VPS after deploying backend changes (`poetry run alembic upgrade heads` — note plural `heads` to handle multiple migration branches).
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan:
+file:///D:/project/techpath/techpath-2026/specs/001-fix-staging-api-url/plan.md
+<!-- SPECKIT END -->

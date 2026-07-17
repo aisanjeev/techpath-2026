@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ClassroomEvent } from '@/types/classroom';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
 const WS_BASE = API_BASE_URL.replace(/^http/, 'ws');
 
 type EventHandler = (event: ClassroomEvent) => void;

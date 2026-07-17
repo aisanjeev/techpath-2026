@@ -44,9 +44,6 @@ export default defineConfig({
   },
 
   vite: {
-    define: {
-      __API_BASE_URL__: JSON.stringify(env.VITE_API_BASE_URL || 'http://localhost:8000'),
-    },
     resolve: {
       alias: {
         '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
