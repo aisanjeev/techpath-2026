@@ -1,0 +1,20 @@
+[
+  {
+    "id": "TR-001",
+    "name": "Sanjeev",
+    "email": "techpath.biz@gmail.com",
+    "phone": "+91-98000-10001",
+    "status": "active",
+    "expertise": ["Python", "SQL", "Cloud"],
+    "updated_at": "2026-07-01T05:00:00Z"
+  },
+  {
+    "id": "TR-002",
+    "name": "Priya",
+    "email": "priya.trainer@techpath.biz",
+    "phone": "+91-98000-10002",
+    "status": "active",
+    "expertise": ["DevOps", "Kubernetes"],
+    "updated_at": "2026-07-02T05:00:00Z"
+  }
+]

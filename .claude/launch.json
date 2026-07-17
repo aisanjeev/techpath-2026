@@ -6,6 +6,21 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev", "--prefix", "techpath-frontend", "--", "--port", "4399"],
       "port": 4399
+    },
+    {
+      "name": "admin",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "techpath-admin"],
+      "port": 3000
+    },
+    {
+      "name": "backend",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "cd techpath-backend && venv\\Scripts\\python.exe -m uvicorn app.main:app --reload --port 8000"
+      ],
+      "port": 8000
     }
   ]
 }

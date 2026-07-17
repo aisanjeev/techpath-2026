@@ -131,6 +131,18 @@ class Settings(BaseSettings):
     REDIS_URL: Optional[str] = Field(default=None)
 
     # -----------------
+    # External roster API (batches / students)
+    # -----------------
+    # "mock" serves fixtures; "http" calls the real API. ROSTER_API_KEY is a credential
+    # and is expected via Key Vault in deployed environments, not from here.
+    ROSTER_PROVIDER: str = Field(default="http")
+    ROSTER_API_BASE_URL: Optional[str] = Field(default="http://localhost:8080")
+    ROSTER_API_KEY: Optional[str] = Field(
+        default="ae6d7173ad11bc2f45ed528a3deea3afeac3afb13c8b9c643522b4ab1613c67a"
+    )
+    ROSTER_SYNC_PAGE_SIZE: int = Field(default=100)
+
+    # -----------------
     # Azure Key Vault
     # -----------------
     AZURE_TENANT_ID: str = Field(default="")

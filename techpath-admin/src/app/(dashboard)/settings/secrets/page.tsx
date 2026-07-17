@@ -6,6 +6,7 @@ import {
   Mail,
   Brain,
   HardDrive,
+  Shield,
   RefreshCw,
   Eye,
   EyeOff,
@@ -39,6 +40,8 @@ const CategoryIcon = ({ category }: { category: string }) => {
       return <Brain className="h-5 w-5" />;
     case 'storage':
       return <HardDrive className="h-5 w-5" />;
+    case 'firebase':
+      return <Shield className="h-5 w-5" />;
     default:
       return <Key className="h-5 w-5" />;
   }
@@ -53,6 +56,8 @@ const getCategoryColor = (category: string) => {
       return 'bg-purple-100 text-purple-700';
     case 'storage':
       return 'bg-green-100 text-green-700';
+    case 'firebase':
+      return 'bg-amber-100 text-amber-700';
     default:
       return 'bg-gray-100 text-gray-700';
   }

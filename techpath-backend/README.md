@@ -28,9 +28,17 @@ cp .env.example .env.local
 # Create upload directory
 mkdir -p data/uploads
 
+# Create the schema. Required before first run — the app no longer creates tables
+# at startup, so skipping this leaves you with an empty database.
+poetry run alembic upgrade head
+
 # Run the development server
 poetry run uvicorn app.main:app --reload
 ```
+
+> **Schema is owned by Alembic.** The app used to call `Base.metadata.create_all()` on
+> startup, which silently created any missing table and masked schema drift. It no
+> longer does. Model changes are only real once you write a migration for them.
 
 **First-time setup (recommended):** After migrations, seed default training page content so `/training` has hero, FAQs, stories, etc.:
 

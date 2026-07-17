@@ -45,9 +45,12 @@ export async function apiRequest<T>(
     const data = await response.json();
 
     if (!response.ok) {
+      // The backend's APIException handler wraps errors as {error: {message}}, not a
+      // top-level message/detail — without this, every backend-raised error (invalid
+      // input, not found, etc.) silently fell through to the generic fallback below.
       return {
         success: false,
-        error: data.message || data.detail || 'An error occurred',
+        error: data.error?.message || data.message || data.detail || 'An error occurred',
       };
     }
 

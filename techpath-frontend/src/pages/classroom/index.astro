@@ -1,0 +1,38 @@
+---
+/**
+ * Live classroom — student join page.
+ *
+ * Deliberately not on MainLayout: this is a focused, full-screen app (join code →
+ * identify → live view), not marketing content, so it skips the header/footer/cookie
+ * banner/analytics entirely, the same way the admin app's presenter view skips its
+ * dashboard chrome.
+ */
+import '@styles/globals.css';
+import '@styles/markdown.css';
+import ClassroomApp from '@components/react-components/ClassroomApp.jsx';
+
+export const prerender = false;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Join Class | TechPath</title>
+    <meta name="robots" content="noindex, nofollow" />
+
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
+    <ClassroomApp client:load />
+  </body>
+</html>

@@ -1,0 +1,42 @@
+---
+/**
+ * Student materials portal — durable, Google-authenticated sign-in for a student who
+ * attended a published session to come back later (days/weeks after class) and view
+ * or download whatever the trainer published for it.
+ *
+ * Deliberately not on MainLayout, same reasoning as classroom/index.astro: a focused,
+ * full-screen app (sign in -> session list -> materials), not marketing content, so it
+ * skips the header/footer/cookie banner/analytics entirely. This is a genuinely
+ * different identity system from the live classroom (real Firebase/Google accounts
+ * here, not a 6-digit join code + short-lived token), so it gets its own page + island
+ * rather than growing classroom/index.astro.
+ */
+import '@styles/globals.css';
+import '@styles/markdown.css';
+import StudentPortalApp from '@components/react-components/StudentPortalApp.jsx';
+
+export const prerender = false;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>My Learning | TechPath</title>
+    <meta name="robots" content="noindex, nofollow" />
+
+    <link rel="icon" type="image/png" href="/images/favicon.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
+    <StudentPortalApp client:load />
+  </body>
+</html>

@@ -19,21 +19,50 @@ import {
   User,
   Key,
   Sliders,
+  Presentation,
+  Library,
+  Users,
+  UserCog,
+  BookOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { useUIStore } from '@/store/ui.store';
+import { useAuthStore } from '@/store/auth.store';
+import { hasRole } from '@/lib/auth/roles';
+import type { Role } from '@/types/api';
+
+interface NavChild {
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  roles?: Role[];
+}
 
 interface NavItem {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
-  children?: { href: string; icon: React.ComponentType<{ className?: string }>; label: string }[];
+  /** Who may see this. Omitted means admin-only — deny by default, so a new item
+   *  can never leak to other roles just because someone forgot to set this. */
+  roles?: Role[];
+  children?: NavChild[];
 }
 
 const navItems: NavItem[] = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/services', icon: Briefcase, label: 'Services' },
   { href: '/courses', icon: GraduationCap, label: 'Courses' },
+  {
+    href: '/training',
+    icon: Presentation,
+    label: 'Training',
+    children: [
+      { href: '/training', icon: BookOpen, label: 'Programs' },
+      { href: '/training/assets', icon: Library, label: 'Asset Library' },
+      { href: '/training/batches', icon: Users, label: 'Batches' },
+      { href: '/training/students', icon: User, label: 'Students' },
+    ],
+  },
   { href: '/blog', icon: FileText, label: 'Blog Posts' },
   { href: '/pages', icon: LayoutTemplate, label: 'Pages' },
   { href: '/case-studies', icon: FolderKanban, label: 'Case Studies' },
@@ -45,16 +74,24 @@ const navItems: NavItem[] = [
     label: 'Settings',
     children: [
       { href: '/settings', icon: User, label: 'Profile' },
+      { href: '/settings/users', icon: UserCog, label: 'Users' },
       { href: '/settings/general', icon: Sliders, label: 'App Settings' },
       { href: '/settings/secrets', icon: Key, label: 'Secrets' },
     ],
   },
 ];
 
+const DEFAULT_ROLES: Role[] = ['admin'];
+
 export function Sidebar() {
   const pathname = usePathname();
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
-  const [expandedItems, setExpandedItems] = useState<string[]>(['/settings']);
+  const { user } = useAuthStore();
+  const [expandedItems, setExpandedItems] = useState<string[]>(['/settings', '/training']);
+
+  const visibleItems = navItems.filter((item) =>
+    hasRole(user, ...(item.roles ?? DEFAULT_ROLES))
+  );
 
   const toggleExpanded = (href: string) => {
     setExpandedItems((prev) =>
@@ -68,6 +105,11 @@ export function Sidebar() {
     }
     return pathname.startsWith(item.href);
   };
+
+  const visibleChildren = (item: NavItem) =>
+    (item.children ?? []).filter((child) =>
+      hasRole(user, ...(child.roles ?? item.roles ?? DEFAULT_ROLES))
+    );
 
   return (
     <aside
@@ -97,10 +139,11 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex flex-col gap-1 p-3">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const isActive = isItemActive(item);
           const Icon = item.icon;
-          const hasChildren = item.children && item.children.length > 0;
+          const children = visibleChildren(item);
+          const hasChildren = children.length > 0;
           const isExpanded = expandedItems.includes(item.href);
 
           if (hasChildren && !sidebarCollapsed) {
@@ -126,7 +169,7 @@ export function Sidebar() {
                 </button>
                 {isExpanded && (
                   <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-gray-200 pl-3">
-                    {item.children!.map((child) => {
+                    {children.map((child) => {
                       const isChildActive = pathname === child.href;
                       const ChildIcon = child.icon;
                       return (
@@ -154,7 +197,7 @@ export function Sidebar() {
           return (
             <Link
               key={item.href}
-              href={hasChildren ? item.children![0].href : item.href}
+              href={hasChildren ? children[0].href : item.href}
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                 isActive

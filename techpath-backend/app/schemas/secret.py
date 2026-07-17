@@ -68,6 +68,7 @@ CATEGORY_DISPLAY_NAMES = {
     "email": "Email (Azure Communication)",
     "azure_openai": "Azure OpenAI",
     "storage": "Azure Storage",
+    "firebase": "Firebase Authentication",
 }
 
 

@@ -2,6 +2,7 @@
 import logging
 from typing import AsyncGenerator
 
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
@@ -70,17 +71,18 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 async def init_db() -> None:
     """
-    Initialize the database by creating all tables.
+    Verify database connectivity on application startup.
 
-    This should be called on application startup.
+    Schema is owned exclusively by Alembic; run ``alembic upgrade heads`` to create or
+    migrate tables. This deliberately does not call ``Base.metadata.create_all``: doing
+    so masked schema drift by silently conjuring missing tables, which let the migration
+    history diverge unnoticed.
     """
-    from app.models.base import Base
-
     logger.info(f"Initializing database: {settings.DATABASE_URL.split('@')[-1] if '@' in settings.DATABASE_URL else settings.DATABASE_URL}")
     logger.info(f"Database type: {'SQLite' if settings.is_sqlite else 'MySQL'}")
 
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.execute(text("SELECT 1"))
 
-    logger.info("Database tables created successfully")
+    logger.info("Database connection verified")
 

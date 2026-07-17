@@ -74,6 +74,56 @@
   @apply text-teal-600 underline;
 }
 
+/* Dark variant for the presenter view — the base .prose rules above assume a white
+   card (CMS editor, asset previews) and go near-invisible on a dark slide, most
+   visibly .prose code's light-gray-on-light-gray inline chip. Additive only, so
+   nothing that already uses .prose elsewhere is affected. */
+.prose-dark {
+  color: #f3f4f6;
+}
+
+.prose-dark h1,
+.prose-dark h2,
+.prose-dark h3,
+.prose-dark strong {
+  color: #ffffff;
+}
+
+.prose-dark p,
+.prose-dark li {
+  color: #e5e7eb;
+}
+
+.prose-dark blockquote {
+  @apply border-teal-500 text-gray-300;
+}
+
+.prose-dark pre {
+  @apply bg-gray-900 text-gray-100 border border-gray-700;
+}
+
+.prose-dark code {
+  @apply bg-gray-800 text-teal-300;
+}
+
+.prose-dark pre code {
+  @apply bg-transparent p-0 text-gray-100;
+}
+
+.prose-dark a {
+  @apply text-teal-400;
+}
+
+.prose-dark hr {
+  @apply border-gray-700;
+}
+
+.prose-dark table,
+.prose-dark th,
+.prose-dark td {
+  @apply border-gray-700 text-gray-200;
+}
+
 /* Tiptap placeholder */
 .tiptap p.is-editor-empty:first-child::before {
   color: #9ca3af;
@@ -90,4 +140,28 @@
 
 .toast-error {
   background-color: #ef4444 !important;
+}
+
+/* Classroom reaction flourish — a reaction emoji fades in, drifts upward, then fades
+   out over ~2s inside the trainer panel's floating overlay (ClassroomPanel.tsx). The
+   matching setTimeout that unmounts the element is also ~2s, so the two stay in sync. */
+@keyframes reaction-float {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  15% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+}
+
+.animate-reaction-float {
+  animation: reaction-float 2s ease-out forwards;
 }

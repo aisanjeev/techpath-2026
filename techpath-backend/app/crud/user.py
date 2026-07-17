@@ -4,6 +4,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.constants import UserRole
 from app.core.security import get_password_hash, verify_password
 from app.crud.base import CRUDBase
 from app.models.user import User
@@ -28,14 +29,16 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     ) -> User:
         """Return existing user matched by Firebase UID, migrating by email if needed.
 
-        Creates a new admin user on first login if none exists.
+        An unrecognised Firebase account is provisioned inactive with no privileges;
+        an admin must grant a role and activate it before it can be used.
         """
         # Primary lookup: by firebase_uid
         user = await self.get_by_firebase_uid(db, firebase_uid)
         if user:
             return user
 
-        # Migration path: existing user created before Firebase had no firebase_uid
+        # Migration path: an account provisioned by an admin ahead of first sign-in, or
+        # created before Firebase, is claimed here by email — its role is preserved.
         user = await self.get_by_email(db, email)
         if user:
             user.firebase_uid = firebase_uid
@@ -44,15 +47,16 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             await db.refresh(user)
             return user
 
-        # Auto-provision: new Firebase user gets an admin DB record
+        # Unrecognised account. Record it so an admin can see and activate it, but grant
+        # nothing: is_active=False is rejected by get_current_user, so this is inert.
         display_name = name or email.split("@")[0]
         new_user = User(
             email=email,
             name=display_name,
             firebase_uid=firebase_uid,
             password_hash=None,
-            role="admin",
-            is_active=True,
+            role=UserRole.USER.value,
+            is_active=False,
         )
         db.add(new_user)
         await db.flush()
@@ -102,7 +106,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return user.is_active
 
     async def is_admin(self, user: User) -> bool:
-        return user.role == "admin"
+        return user.role == UserRole.ADMIN.value
 
 
 user_crud = CRUDUser(User)
