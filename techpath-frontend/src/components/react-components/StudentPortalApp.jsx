@@ -23,11 +23,18 @@ import ClassroomAssetView from './ClassroomAssetView';
  */
 
 const SESSION_QUERY_PARAM = 'session';
+const PAGE_QUERY_PARAM = 'page';
 
 function getSessionIdFromUrl() {
   const raw = new URLSearchParams(window.location.search).get(SESSION_QUERY_PARAM);
   const id = raw ? Number(raw) : NaN;
   return Number.isFinite(id) ? id : null;
+}
+
+function getPageFromUrl() {
+  const raw = new URLSearchParams(window.location.search).get(PAGE_QUERY_PARAM);
+  const page = raw ? Number(raw) : 0;
+  return Number.isFinite(page) && page >= 0 ? page : 0;
 }
 
 function formatDate(iso) {
@@ -267,7 +274,7 @@ function SessionListScreen({ profile, sessions, loading, error, onOpenSession, o
   );
 }
 
-function MaterialsScreen({ materials, loading, notFound, onBack, onSignOut }) {
+function MaterialsScreen({ materials, currentPage, onPageChange, loading, notFound, onBack, onSignOut }) {
   return (
     <div className="min-h-screen bg-slate-950">
       <PortalHeader
@@ -317,12 +324,42 @@ function MaterialsScreen({ materials, loading, notFound, onBack, onSignOut }) {
               </div>
             ) : (
               <div className="space-y-8">
-                {materials.assets.map((asset) => (
-                  <div key={asset.id}>
-                    <h3 className="mb-3 font-heading text-base font-semibold text-white">{asset.title}</h3>
-                    <ClassroomAssetView asset={asset} />
+                {materials.assets[currentPage] && (
+                  <div key={materials.assets[currentPage].id}>
+                    <h3 className="mb-3 font-heading text-base font-semibold text-white">
+                      {materials.assets[currentPage].title}
+                    </h3>
+                    <ClassroomAssetView asset={materials.assets[currentPage]} />
                   </div>
-                ))}
+                )}
+                
+                {materials.assets.length > 1 && (
+                  <div className="mt-8 flex items-center justify-between border-t border-slate-800 pt-6">
+                    <button
+                      onClick={() => onPageChange(currentPage - 1)}
+                      disabled={currentPage === 0}
+                      className="flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50 disabled:hover:bg-slate-800"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                      Previous
+                    </button>
+                    <span className="text-sm text-slate-400">
+                      Page {currentPage + 1} of {materials.assets.length}
+                    </span>
+                    <button
+                      onClick={() => onPageChange(currentPage + 1)}
+                      disabled={currentPage === materials.assets.length - 1}
+                      className="flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50 disabled:hover:bg-slate-800"
+                    >
+                      Next
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </>
@@ -346,13 +383,15 @@ export default function StudentPortalApp() {
   const [materials, setMaterials] = useState(null);
   const [materialsLoading, setMaterialsLoading] = useState(false);
   const [materialsNotFound, setMaterialsNotFound] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
 
-  // Holds a `?session=<id>` seen on first load until the initial auth check resolves,
+  // Holds a `?session=<id>` and `?page=<num>` seen on first load until the initial auth check resolves,
   // so a bookmarked/refreshed materials URL can jump straight there. Cleared after
   // first use; later navigation goes through openSession/backToList directly. Populated
   // inside the auth effect below (not here) — this page is `client:load`, so Astro
   // server-renders this component on each request, and `window` doesn't exist there.
   const pendingSessionIdRef = useRef(null);
+  const pendingPageRef = useRef(0);
 
   const loadSessions = useCallback(async () => {
     setSessionsLoading(true);
@@ -366,13 +405,14 @@ export default function StudentPortalApp() {
     }
   }, []);
 
-  const openSession = useCallback(async (sessionId, { pushState = true } = {}) => {
+  const openSession = useCallback(async (sessionId, { pushState = true, page = 0 } = {}) => {
     setStage('materials');
     setMaterials(null);
     setMaterialsNotFound(false);
     setMaterialsLoading(true);
+    setCurrentPage(page);
     if (pushState) {
-      window.history.pushState({}, '', `${window.location.pathname}?${SESSION_QUERY_PARAM}=${sessionId}`);
+      window.history.pushState({}, '', `${window.location.pathname}?${SESSION_QUERY_PARAM}=${sessionId}&${PAGE_QUERY_PARAM}=${page}`);
     }
     const res = await getSessionMaterials(sessionId);
     setMaterialsLoading(false);
@@ -396,6 +436,7 @@ export default function StudentPortalApp() {
 
   useEffect(() => {
     pendingSessionIdRef.current = getSessionIdFromUrl();
+    pendingPageRef.current = getPageFromUrl();
     const unsubscribe = onAuthStateChanged(getFirebaseAuth(), async (user) => {
       if (!user) {
         setProfile(null);
@@ -416,9 +457,10 @@ export default function StudentPortalApp() {
       await loadSessions();
 
       const pendingId = pendingSessionIdRef.current;
+      const pendingPage = pendingPageRef.current;
       pendingSessionIdRef.current = null;
       if (pendingId) {
-        await openSession(pendingId, { pushState: false });
+        await openSession(pendingId, { pushState: false, page: pendingPage });
       } else {
         setStage('list');
       }
@@ -429,15 +471,20 @@ export default function StudentPortalApp() {
   useEffect(() => {
     const onPopState = () => {
       const id = getSessionIdFromUrl();
+      const page = getPageFromUrl();
       if (id) {
-        openSession(id, { pushState: false });
+        if (stage === 'materials' && materials && materials.session_id === id) {
+           setCurrentPage(page);
+        } else {
+           openSession(id, { pushState: false, page });
+        }
       } else {
         backToList({ pushState: false });
       }
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
-  }, [openSession, backToList]);
+  }, [openSession, backToList, stage, materials]);
 
   const handleSignIn = async () => {
     setSigningIn(true);
@@ -489,6 +536,11 @@ export default function StudentPortalApp() {
     return (
       <MaterialsScreen
         materials={materials}
+        currentPage={currentPage}
+        onPageChange={(newPage) => {
+          setCurrentPage(newPage);
+          window.history.pushState({}, '', `${window.location.pathname}?${SESSION_QUERY_PARAM}=${materials.session_id}&${PAGE_QUERY_PARAM}=${newPage}`);
+        }}
         loading={materialsLoading}
         notFound={materialsNotFound}
         onBack={() => backToList()}
