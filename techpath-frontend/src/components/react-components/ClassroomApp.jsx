@@ -402,7 +402,7 @@ function LiveScreen({
           stay reachable even then, unlike the confusion button below, which the poll
           sheet is already known to cover (existing, accepted tradeoff, left as-is). */}
       <div className="fixed bottom-24 right-4 z-50 flex items-center gap-2 sm:right-6">
-        {sessionInfo?.questions_are_public && (
+        {liveState?.questions_are_public && (
           <button
             onClick={() => setQaOpen(true)}
             className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-slate-300 shadow-xl transition hover:bg-slate-700 hover:text-white"
@@ -566,7 +566,7 @@ export default function ClassroomApp() {
           list.map((q) => (q.id === event.payload.question_id ? { ...q, is_answered: true } : q))
         );
       } else if (event.type === 'questions_visibility_changed') {
-        setSessionInfo((s) => (s ? { ...s, questions_are_public: event.payload.questions_are_public } : s));
+        setLiveState((s) => (s ? { ...s, questions_are_public: event.payload.questions_are_public } : s));
       }
       // `participant_kicked` is a broadcast about someone else being removed — this app
       // has no roster view to update. This student's own removal arrives as the socket
