@@ -144,8 +144,40 @@ test.describe('Classroom live video tile', () => {
     await expect(page.locator('video')).toHaveCount(0);
   });
 
+  test('renders no video area while the trainer has not gone live with video', async ({ page }) => {
+    // The backend hands out whep_url for the whole live session, but the trainer opts in
+    // to broadcasting separately. Until they do, there is no stream to connect to — the
+    // student must get full-width content, not a video box waiting on nothing.
+    const media = {
+      whep_url: MOCK_WHEP_URL,
+      hls_url: MOCK_HLS_URL,
+      broadcasting: false,
+      mic_muted: false,
+      camera_off: false,
+      screen_sharing: false,
+    };
+    await page.route('**/api/v1/classroom/**', (route) => mockClassroomApi(route, media));
+
+    let whepAttempted = false;
+    await page.route(MOCK_WHEP_URL, (route) => {
+      whepAttempted = true;
+      return route.fulfill({ status: 201, contentType: 'application/sdp', body: MOCK_SDP_ANSWER });
+    });
+
+    await page.goto('/classroom');
+    await enterJoinCode(page, JOIN_CODE);
+    await page.getByRole('button', { name: /continue as a guest/i }).click();
+    await page.getByRole('button', { name: /join classroom/i }).click();
+
+    await expect(page.getByText(/content will appear here as soon as they start/i)).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('video')).toHaveCount(0);
+    expect(whepAttempted).toBe(false);
+  });
+
   test('connects the WHEP viewer once media.whep_url is present', async ({ page }) => {
-    const media = { whep_url: MOCK_WHEP_URL, hls_url: null, mic_muted: false, camera_off: false, screen_sharing: false };
+    const media = { whep_url: MOCK_WHEP_URL, hls_url: null, broadcasting: true, mic_muted: false, camera_off: false, screen_sharing: false };
     await page.route('**/api/v1/classroom/**', (route) => mockClassroomApi(route, media));
     await page.route(MOCK_WHEP_URL, (route) =>
       route.fulfill({ status: 201, contentType: 'application/sdp', body: MOCK_SDP_ANSWER })
@@ -171,6 +203,7 @@ test.describe('Classroom live video tile', () => {
     // after ICE_FAILURES_BEFORE_HLS (2) consecutive occurrences, it switches to HLS.
     const media = {
       whep_url: MOCK_WHEP_URL,
+      broadcasting: true,
       hls_url: MOCK_HLS_URL,
       mic_muted: false,
       camera_off: false,
@@ -209,6 +242,7 @@ test.describe('Classroom live video tile', () => {
     // attempted for this failure type; the component should just keep retrying WHEP.
     const media = {
       whep_url: MOCK_WHEP_URL,
+      broadcasting: true,
       hls_url: MOCK_HLS_URL,
       mic_muted: false,
       camera_off: false,

@@ -27,10 +27,12 @@ Behavior extends: also clears `live_stream_path`, and if a `live_stream_path` ha
 
 Request:
 ```jsonc
-{ "mic_muted": true, "camera_off": false, "screen_sharing": false }  // all optional, partial update
+{ "broadcasting": true, "mic_muted": true, "camera_off": false, "screen_sharing": false }  // all optional, partial update
 ```
 
-Response: `TrainingSessionResponse` (same shape `get_session` returns, now including the three `media_*` flags). Publishes `media_state_changed` on the bus (payload = the three resulting boolean flags). 403s via the same `_assert_owns_batch` guard as `set_current_slide`; 404s if session doesn't exist; a `ValidationError` if `status != live` (no state to change on a session that isn't presenting).
+`broadcasting` (added after the original 004 build) is the trainer's opt-in to publishing at all: it starts `false` on every `start_session`, and while it is `false` the trainer's browser never calls `getUserMedia` and students render no video frame. Distinct from `camera_off`, which still publishes (audio-only) and keeps the frame. Setting it to `false` also resets `mic_muted`/`camera_off`/`screen_sharing`, since the capture they describe is torn down.
+
+Response: `TrainingSessionResponse` (same shape `get_session` returns, now including the four `media_*` flags). Publishes `media_state_changed` on the bus (payload = the three resulting boolean flags). 403s via the same `_assert_owns_batch` guard as `set_current_slide`; 404s if session doesn't exist; a `ValidationError` if `status != live` (no state to change on a session that isn't presenting).
 
 ### `GET /trainer/sessions/{session_id}/recording` — new
 
@@ -52,6 +54,7 @@ No change — join-code lookup is unaffected by whether the session happens to h
   "media": {
     "whep_url": "https://live.techpath.biz/class-42-8f2a.../whep",
     "hls_url": "https://live.techpath.biz/class-42-8f2a.../index.m3u8",
+    "broadcasting": false,
     "mic_muted": false,
     "camera_off": false,
     "screen_sharing": false
@@ -66,7 +69,7 @@ Only ever returned to a caller who has already passed `get_current_participant` 
 ### `media_state_changed`
 
 ```jsonc
-{ "type": "media_state_changed", "payload": { "mic_muted": true, "camera_off": false, "screen_sharing": false } }
+{ "type": "media_state_changed", "payload": { "broadcasting": true, "mic_muted": true, "camera_off": false, "screen_sharing": false } }
 ```
 
 Delivered over the existing WebSocket (`classroom_ws.py`) to both trainer and student connections for a session, via the existing DB-outbox poller (`app/services/classroom/bus.py`) — no new transport. `ClassroomApp.jsx` and `ClassroomPanel.tsx` both already have a `subscribe((event) => ...)` switch for event types (`slide_change`, `timer_started`, etc.); this is one more `case`.

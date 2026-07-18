@@ -137,11 +137,17 @@ export const trainerService = {
     }
   },
 
-  /** Mute/camera/screen-share toggles — partial update, only the passed fields
-   *  change. Broadcasts to students via the classroom WebSocket (media_state_changed). */
+  /** Broadcast on/off plus the mute/camera/screen-share toggles — partial update, only
+   *  the passed fields change. Broadcasts to students via the classroom WebSocket
+   *  (media_state_changed). */
   async setMediaState(
     id: number,
-    state: { mic_muted?: boolean; camera_off?: boolean; screen_sharing?: boolean }
+    state: {
+      broadcasting?: boolean;
+      mic_muted?: boolean;
+      camera_off?: boolean;
+      screen_sharing?: boolean;
+    }
   ): Promise<TrainingSession> {
     try {
       const response = await apiClient.post<TrainingSession>(
@@ -171,7 +177,8 @@ export const trainerService = {
   async publishMaterials(id: number): Promise<TrainingSession> {
     try {
       const response = await apiClient.post<TrainingSession>(
-        `/api/v1/trainer/sessions/${id}/materials/publish`
+        `/api/v1/trainer/sessions/${id}/materials/publish`,
+        {}
       );
       return response.data;
     } catch (error) {
@@ -182,7 +189,8 @@ export const trainerService = {
   async unpublishMaterials(id: number): Promise<TrainingSession> {
     try {
       const response = await apiClient.post<TrainingSession>(
-        `/api/v1/trainer/sessions/${id}/materials/unpublish`
+        `/api/v1/trainer/sessions/${id}/materials/unpublish`,
+        {}
       );
       return response.data;
     } catch (error) {

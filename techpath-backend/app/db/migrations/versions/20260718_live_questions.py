@@ -35,7 +35,7 @@ def upgrade():
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.ForeignKeyConstraint(['session_id'], ['training_sessions.id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['student_id'], ['users.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['student_id'], ['training_students.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_training_session_questions_session_id'), 'training_session_questions', ['session_id'], unique=False)

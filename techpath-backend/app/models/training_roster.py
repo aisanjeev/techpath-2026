@@ -204,6 +204,14 @@ class TrainingSession(Base, TimestampMixin):
     # bootstrap a late joiner — same "persist derived live state on the session row"
     # pattern as current_asset_id/timer_started_at above. Reset to defaults on the next
     # start_session, meaningful only while status == live.
+    # Whether the trainer has chosen to broadcast camera/mic at all. Deliberately
+    # separate from media_camera_off: "camera off" still publishes a stream (audio only,
+    # students keep the video frame with a placeholder), whereas broadcasting=False means
+    # nothing is published and students get no video frame whatsoever. Starts False every
+    # session — going live opens the classroom, it does not open the trainer's camera.
+    media_broadcasting: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false", nullable=False
+    )
     media_mic_muted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     media_camera_off: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     media_screen_sharing: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
@@ -291,7 +299,7 @@ class TrainingSessionQuestion(Base, TimestampMixin):
         Integer, ForeignKey("training_sessions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     student_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+        Integer, ForeignKey("training_students.id", ondelete="CASCADE"), nullable=False, index=True
     )
     
     question_text: Mapped[str] = mapped_column(String(500), nullable=False)

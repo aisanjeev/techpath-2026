@@ -62,6 +62,9 @@ export interface TimerStateView {
 export interface MediaStateView {
   whep_url?: string | null;
   hls_url?: string | null;
+  /** False until the trainer turns their camera/mic on — the video tile is not rendered
+   *  at all in that case, since there is nothing to wait for. */
+  broadcasting: boolean;
   mic_muted: boolean;
   camera_off: boolean;
   screen_sharing: boolean;
@@ -115,7 +118,12 @@ export type ClassroomEvent =
   | { type: 'participant_kicked'; payload: { participant_key: string } }
   | {
       type: 'media_state_changed';
-      payload: { mic_muted: boolean; camera_off: boolean; screen_sharing: boolean };
+      payload: {
+        broadcasting: boolean;
+        mic_muted: boolean;
+        camera_off: boolean;
+        screen_sharing: boolean;
+      };
     }
   | { type: 'question_asked'; payload: TrainingSessionQuestionResponse }
   | { type: 'question_upvoted'; payload: { question_id: number; upvotes: number } }

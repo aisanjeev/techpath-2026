@@ -242,6 +242,7 @@ async def get_state(
         media_view = MediaView(
             whep_url=media.whep_url(session.live_stream_path),
             hls_url=media.hls_url(session.live_stream_path),
+            broadcasting=session.media_broadcasting,
             mic_muted=session.media_mic_muted,
             camera_off=session.media_camera_off,
             screen_sharing=session.media_screen_sharing,

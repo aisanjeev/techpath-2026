@@ -223,6 +223,51 @@ class TestMediaState:
                 current_user=_user(TRAINER_EMAIL),
             )
 
+    async def test_going_live_does_not_start_broadcasting(self, test_db: AsyncSession) -> None:
+        """Starting a session opens the classroom, not the trainer's camera — students
+        must see no video frame until the trainer explicitly opts in."""
+        session = await _seed_session(test_db)
+
+        response = await start_session(
+            session.id, StartSessionRequest(), db=test_db, current_user=_user(TRAINER_EMAIL)
+        )
+
+        assert response.media.broadcasting is False
+
+    async def test_stopping_the_broadcast_clears_the_track_flags(
+        self, test_db: AsyncSession
+    ) -> None:
+        """The trainer's browser tears the whole capture down when broadcasting stops, so
+        a mute/screen-share flag left over from that broadcast would misdescribe the next
+        one (shown as muted before any track exists)."""
+        session = await _seed_session(test_db)
+        await start_session(
+            session.id, StartSessionRequest(), db=test_db, current_user=_user(TRAINER_EMAIL)
+        )
+        await update_media_state(
+            session.id,
+            MediaStateRequest(broadcasting=True),
+            db=test_db,
+            current_user=_user(TRAINER_EMAIL),
+        )
+        await update_media_state(
+            session.id,
+            MediaStateRequest(mic_muted=True, screen_sharing=True),
+            db=test_db,
+            current_user=_user(TRAINER_EMAIL),
+        )
+
+        response = await update_media_state(
+            session.id,
+            MediaStateRequest(broadcasting=False),
+            db=test_db,
+            current_user=_user(TRAINER_EMAIL),
+        )
+
+        assert response.media.broadcasting is False
+        assert response.media.mic_muted is False
+        assert response.media.screen_sharing is False
+
     async def test_going_live_resets_leftover_media_state(self, test_db: AsyncSession) -> None:
         """Defends the scheduled->live transition's reset: a row that somehow already
         carries a stale mic_muted=True (e.g. state that predates a fix, or a future

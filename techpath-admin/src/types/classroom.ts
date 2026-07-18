@@ -161,7 +161,12 @@ export type ClassroomEvent =
   | { type: 'participant_kicked'; payload: { participant_key: string } }
   | {
       type: 'media_state_changed';
-      payload: { mic_muted: boolean; camera_off: boolean; screen_sharing: boolean };
+      payload: {
+        broadcasting: boolean;
+        mic_muted: boolean;
+        camera_off: boolean;
+        screen_sharing: boolean;
+      };
     }
   | { type: 'question_asked'; payload: TrainingSessionQuestionResponse }
   | { type: 'question_upvoted'; payload: { question_id: number; upvotes: number } }

@@ -81,6 +81,10 @@ class MediaView(BaseModel):
     whip_url: Optional[str] = None
     whep_url: Optional[str] = None
     hls_url: Optional[str] = None
+    # False means the trainer has not turned their camera/mic on for this session at all
+    # — clients must render no video frame, not an empty/waiting one. The playback URLs
+    # are still handed out so a client can connect the instant this flips to True.
+    broadcasting: bool = False
     mic_muted: bool = False
     camera_off: bool = False
     screen_sharing: bool = False
@@ -132,6 +136,7 @@ class MediaStateRequest(BaseModel):
     about camera/screen-share state, so every field is optional and unset fields are
     left untouched (see the endpoint's ``exclude_unset`` usage)."""
 
+    broadcasting: Optional[bool] = None
     mic_muted: Optional[bool] = None
     camera_off: Optional[bool] = None
     screen_sharing: Optional[bool] = None

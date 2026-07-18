@@ -300,7 +300,11 @@ function LiveScreen({
 }) {
   const hasCode = !!liveState.code?.content;
   const asset = liveState.current_asset;
-  const hasMedia = !!liveState.media?.whep_url;
+  // Playback URLs exist for the whole live session, but the trainer decides whether to
+  // actually broadcast — until they do there is nothing to show, so drop the video pane
+  // entirely (full-width content) rather than parking a "waiting for camera" box that
+  // may never resolve. Flips live via media_state_changed, no rejoin needed.
+  const hasMedia = !!liveState.media?.whep_url && !!liveState.media?.broadcasting;
   // Offset the sticky video so it parks just under the (also-sticky) header. The header
   // is taller when the Slide/Code tab row is present, so clear the correct amount.
   const stickyTop = hasCode ? 'top-[104px]' : 'top-[68px]';
@@ -381,7 +385,7 @@ function LiveScreen({
         )}
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 pb-28">
+      <main className="mx-auto max-w-6xl px-4 py-6 pb-56 md:pb-32">
         {hasMedia ? (
           // Two-pane on desktop: the live video is the hero and stays pinned (sticky) as
           // the lecture content scrolls beside it. On mobile it stacks and the video
@@ -472,9 +476,14 @@ export default function ClassroomApp() {
     (async () => {
       const res = await getState(stored.sessionId, stored.token);
       if (res.success && res.data) {
-        setSession(stored);
-        setLiveState(res.data);
-        setStage(res.data.status === 'ended' ? 'ended' : 'live');
+        if (res.data.status === 'ended') {
+          clearStoredSession();
+          setStage('join');
+        } else {
+          setSession(stored);
+          setLiveState(res.data);
+          setStage('live');
+        }
       } else {
         clearStoredSession();
         setStage('join');

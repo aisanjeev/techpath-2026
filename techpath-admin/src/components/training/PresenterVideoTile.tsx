@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Mic, MicOff, Monitor, Radio, Video, VideoOff } from 'lucide-react';
+import { Mic, MicOff, Monitor, PhoneOff, Radio, Video, VideoOff } from 'lucide-react';
 import { trainerService } from '@/services/trainer.service';
 
 interface Props {
@@ -11,6 +11,12 @@ interface Props {
   whipUrl?: string | null;
   /** Whether the session is currently live — publishing only ever runs while true. */
   isLive: boolean;
+  /** Whether the trainer has chosen to broadcast camera/mic. Going live no longer implies
+   *  this: capture and publishing only start once the trainer opts in, so a session can
+   *  run slides-only with no camera prompt and no video frame for students. */
+  broadcasting: boolean;
+  /** Called with the new value after the broadcast toggle is persisted. */
+  onBroadcastingChange: (broadcasting: boolean) => void;
   /** Whether the session is currently flagged to keep the recording. */
   keepRecording?: boolean;
   /** Callback when the recording flag is toggled successfully. */
@@ -41,13 +47,22 @@ const ICE_CONNECT_TIMEOUT_MS = 12_000;
  * ClassroomVideoTile.jsx's `media_state_changed` handling) — that broadcast is best-
  * effort UI sync, independent of the local track mute this component always applies.
  */
-export function PresenterVideoTile({ sessionId, whipUrl, isLive, keepRecording = false, onToggleRecording }: Props) {
+export function PresenterVideoTile({
+  sessionId,
+  whipUrl,
+  isLive,
+  broadcasting,
+  onBroadcastingChange,
+  keepRecording = false,
+  onToggleRecording,
+}: Props) {
   const [state, setState] = useState<PublishState>('idle');
   const [error, setError] = useState<string | null>(null);
   const [muted, setMuted] = useState(false);
   const [cameraOff, setCameraOff] = useState(false);
   const [screenSharing, setScreenSharing] = useState(false);
   const [isTogglingRecord, setIsTogglingRecord] = useState(false);
+  const [isTogglingBroadcast, setIsTogglingBroadcast] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
@@ -57,7 +72,10 @@ export function PresenterVideoTile({ sessionId, whipUrl, isLive, keepRecording =
   const stallTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!isLive || !whipUrl) {
+    // getUserMedia is deliberately downstream of `broadcasting`: this effect not running
+    // is what keeps the browser from ever prompting for camera/mic in a slides-only
+    // session, so the gate has to live here rather than in the render below.
+    if (!isLive || !broadcasting || !whipUrl) {
       stop();
       return;
     }
@@ -149,7 +167,7 @@ export function PresenterVideoTile({ sessionId, whipUrl, isLive, keepRecording =
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLive, whipUrl]);
+  }, [isLive, broadcasting, whipUrl]);
 
   function clearStallTimer() {
     if (stallTimerRef.current) {
@@ -172,6 +190,10 @@ export function PresenterVideoTile({ sessionId, whipUrl, isLive, keepRecording =
     cameraTrackRef.current = null;
     startedForUrlRef.current = null;
     setScreenSharing(false);
+    // Mute/camera flags describe tracks that no longer exist — carrying them into the
+    // next broadcast would show the trainer as muted the moment they go live again.
+    setMuted(false);
+    setCameraOff(false);
     setState((s) => (s === 'error' ? s : 'idle'));
   }
 
@@ -255,7 +277,48 @@ export function PresenterVideoTile({ sessionId, whipUrl, isLive, keepRecording =
     }
   };
 
+  const handleToggleBroadcast = async () => {
+    if (isTogglingBroadcast) return;
+    const next = !broadcasting;
+    setIsTogglingBroadcast(true);
+    setError(null);
+    try {
+      await trainerService.setMediaState(sessionId, { broadcasting: next });
+      // Only after the server agrees, so students and the presenter can't disagree about
+      // whether a stream exists. The parent flipping `broadcasting` is what actually
+      // starts or tears down capture (see the effect above).
+      onBroadcastingChange(next);
+    } catch {
+      setError(next ? 'Could not go live' : 'Could not stop the broadcast');
+    } finally {
+      setIsTogglingBroadcast(false);
+    }
+  };
+
   if (!isLive) return null;
+
+  // Not broadcasting: no <video> element at all, just the control to start. Students see
+  // no video frame either (the classroom hides the tile on broadcasting=false).
+  if (!broadcasting) {
+    return (
+      <div className="rounded-xl border border-gray-800 bg-gray-900/90 p-3 backdrop-blur">
+        <div className="flex items-center gap-2 text-xs text-gray-400">
+          <VideoOff className="h-4 w-4 shrink-0" />
+          <span>Camera off — students see slides only</span>
+        </div>
+        {error && <p className="mt-1.5 text-xs text-amber-400">{error}</p>}
+        <button
+          onClick={handleToggleBroadcast}
+          disabled={isTogglingBroadcast || !whipUrl}
+          title={whipUrl ? 'Start your camera and microphone' : 'Live media is unavailable'}
+          className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-teal-500 disabled:opacity-40"
+        >
+          <Radio className="h-4 w-4" />
+          {isTogglingBroadcast ? 'Starting…' : 'Go live with video'}
+        </button>
+      </div>
+    );
+  }
 
   const badge =
     state === 'live'
@@ -323,6 +386,14 @@ export function PresenterVideoTile({ sessionId, whipUrl, isLive, keepRecording =
           }`}
         >
           <Monitor className="h-4 w-4" />
+        </button>
+        <button
+          onClick={handleToggleBroadcast}
+          disabled={isTogglingBroadcast}
+          title="Stop broadcasting — releases the camera and hides the video for students"
+          className="rounded-md p-1.5 text-gray-400 transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-40"
+        >
+          <PhoneOff className="h-4 w-4" />
         </button>
         <div className="ml-auto">
           <button

@@ -83,6 +83,7 @@ def _trainer_media_view(session) -> Optional[MediaView]:
         return None
     return MediaView(
         whip_url=media.whip_url(session.live_stream_path),
+        broadcasting=session.media_broadcasting,
         mic_muted=session.media_mic_muted,
         camera_off=session.media_camera_off,
         screen_sharing=session.media_screen_sharing,
@@ -403,6 +404,7 @@ async def start_session(
         session.join_code = await training_session_crud.generate_join_code(db)
         session.started_at = datetime.now(timezone.utc)
         session.status = SessionStatus.LIVE.value
+        session.media_broadcasting = False
         session.media_mic_muted = False
         session.media_camera_off = False
         session.media_screen_sharing = False
@@ -492,6 +494,15 @@ async def update_media_state(
         raise ValidationError("Session must be live to change media state")
 
     updates = payload.model_dump(exclude_unset=True)
+    if "broadcasting" in updates:
+        session.media_broadcasting = updates["broadcasting"]
+        # Stale mute/camera/share flags from a previous broadcast would otherwise leak
+        # into the next one — the trainer's browser tears the whole capture down and
+        # starts fresh, so the persisted state has to match that.
+        if not session.media_broadcasting:
+            session.media_mic_muted = False
+            session.media_camera_off = False
+            session.media_screen_sharing = False
     if "mic_muted" in updates:
         session.media_mic_muted = updates["mic_muted"]
     if "camera_off" in updates:
@@ -506,6 +517,7 @@ async def update_media_state(
         session_id,
         "media_state_changed",
         {
+            "broadcasting": session.media_broadcasting,
             "mic_muted": session.media_mic_muted,
             "camera_off": session.media_camera_off,
             "screen_sharing": session.media_screen_sharing,

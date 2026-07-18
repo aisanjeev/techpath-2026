@@ -250,6 +250,12 @@ export default function PresenterPage({ params }: { params: Promise<{ id: string
                 sessionId={sessionId}
                 whipUrl={session.media?.whip_url}
                 isLive={isLive}
+                broadcasting={session.media?.broadcasting ?? false}
+                onBroadcastingChange={(broadcasting) =>
+                  setSession((s) =>
+                    s && s.media ? { ...s, media: { ...s.media, broadcasting } } : s
+                  )
+                }
                 keepRecording={session.keep_recording}
                 onToggleRecording={(keep) => setSession((s) => (s ? { ...s, keep_recording: keep } : null))}
               />

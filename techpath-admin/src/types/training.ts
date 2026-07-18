@@ -262,6 +262,9 @@ export interface MediaView {
   whip_url?: string | null;
   whep_url?: string | null;
   hls_url?: string | null;
+  /** Whether the trainer has turned camera/mic on for this session. False means nothing
+   *  is being published and no video frame is shown to anyone. */
+  broadcasting: boolean;
   mic_muted: boolean;
   camera_off: boolean;
   screen_sharing: boolean;
