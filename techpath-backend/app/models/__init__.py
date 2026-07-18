@@ -11,6 +11,26 @@ from app.models.secret import SecretMetadata
 from app.models.app_setting import AppSetting
 from app.models.pilot_signup import PilotSignup
 from app.models.page import Page
+from app.models.training import (
+    LectureAsset,
+    TrainingModule,
+    TrainingModuleAsset,
+    TrainingProgram,
+)
+from app.models.training_roster import (
+    TrainingBatch,
+    TrainingBatchStudent,
+    TrainingSession,
+    TrainingStudent,
+    TrainingSyncState,
+)
+from app.models.classroom import (
+    ClassroomEvent,
+    SessionCodeState,
+    SessionParticipant,
+    SessionPoll,
+    SessionPollVote,
+)
 
 __all__ = [
     "Base",
@@ -36,5 +56,22 @@ __all__ = [
     "AppSetting",
     "PilotSignup",
     "Page",
+    # Training content
+    "TrainingProgram",
+    "TrainingModule",
+    "LectureAsset",
+    "TrainingModuleAsset",
+    # Training roster mirror
+    "TrainingBatch",
+    "TrainingStudent",
+    "TrainingBatchStudent",
+    "TrainingSession",
+    "TrainingSyncState",
+    # Live classroom
+    "SessionParticipant",
+    "SessionPoll",
+    "SessionPollVote",
+    "SessionCodeState",
+    "ClassroomEvent",
 ]
 

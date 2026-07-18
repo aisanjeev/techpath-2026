@@ -17,7 +17,7 @@ Configure these in Vercel dashboard:
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `VITE_API_BASE_URL` | Backend API URL | Yes |
+| `PUBLIC_API_URL` | Backend API URL | Yes |
 | `SITE_URL` | Production site URL | Yes |
 | `VITE_GA_TRACKING_ID` | Google Analytics ID | No |
 | `VITE_SENTRY_DSN` | Sentry error tracking | No |

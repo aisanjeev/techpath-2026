@@ -77,6 +77,8 @@ In the admin Axios client (`src/lib/api-client.ts`), a request interceptor fetch
 ### Backend Patterns
 
 - **CRUD layer**: `app/crud/base.py` has a generic `CRUDBase[Model, CreateSchema, UpdateSchema]` — extend it for all new entities, don't write raw queries.
+- **Asset serialization & the quiz answer key**: `asset_to_response()` in `app/crud/training.py` is the single place deciding what a lecture asset looks like off the wire. It takes an `audience` parameter that defaults to `"trainer"` (unredacted). **Any student-destined caller must pass `audience="student"`**, which strips `correct_index`/`explanation` from quiz questions. "Student-destined" means where the payload *goes*, not who called: `set_slide` in `trainer.py` is trainer-authenticated but broadcasts to every student, so it passes `"student"` too. `tests/test_student_quiz_flow.py` guards this.
+- **Quiz grading**: server-side only, in `app/services/quiz_grading.py`. Pass/fail compares the raw fraction `score / total >= pass_mark` — never a rounded percentage (2/3 must fail at a 0.7 mark). Per-quiz `config.pass_mark_percent` (0-100) wins over the global `QUIZ_PASS_MARK` (a fraction). Attempts in `session_quiz_attempts` are immutable; a retry inserts a new row.
 - **SQLAlchemy 2.0 queries**: Use `select(Model)` + `await db.execute()`, never `db.session.query()`. Use `await db.flush()` to refresh ORM state within a transaction; commits happen automatically when the `get_db()` dependency exits cleanly.
 - **Pydantic v2**: Use `model_dump(exclude_unset=True)` for partial updates; use `ConfigDict(from_attributes=True)` on response schemas that map from ORM models.
 - **Dependencies**: `app/api/v1/dependencies.py` — use `get_current_user` (auth required), `get_current_admin_user` (role == "admin"), or `get_optional_user` (auth optional, returns `User | None`).
@@ -141,3 +143,9 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 - **Frontend & Admin**: Auto-deploy via Vercel on push to respective branches.
 - **Backend**: GitHub Actions (`.github/workflows/deploy-backend.yml`) deploys to VPS via SSH. `develop` → staging (port 8093); `main` → production (port 8092, requires manual approval gate).
 - Database migrations must be run manually on the VPS after deploying backend changes (`poetry run alembic upgrade heads` — note plural `heads` to handle multiple migration branches).
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan:
+file:///D:/project/techpath/techpath-2026/specs/007-live-questions/plan.md
+<!-- SPECKIT END -->

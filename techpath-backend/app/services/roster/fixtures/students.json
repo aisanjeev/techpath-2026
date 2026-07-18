@@ -1,0 +1,74 @@
+[
+  {
+    "id": "STU-001",
+    "roll_no": "PY26-001",
+    "name": "Aarav Sharma",
+    "email": "aarav.sharma@example.com",
+    "phone": "+91-98000-00001",
+    "status": "active",
+    "enrolled_on": "2026-06-25",
+    "photo_url": null,
+    "batch_ids": ["BATCH-001"],
+    "updated_at": "2026-07-10T06:30:00Z"
+  },
+  {
+    "id": "STU-002",
+    "roll_no": "PY26-002",
+    "name": "Diya Patel",
+    "email": "diya.patel@example.com",
+    "phone": "+91-98000-00002",
+    "status": "active",
+    "enrolled_on": "2026-06-25",
+    "photo_url": null,
+    "batch_ids": ["BATCH-001", "BATCH-002"],
+    "updated_at": "2026-07-11T08:00:00Z"
+  },
+  {
+    "id": "STU-003",
+    "roll_no": "PY26-003",
+    "name": "Rohan Verma",
+    "email": "rohan.verma@example.com",
+    "phone": "+91-98000-00003",
+    "status": "on_hold",
+    "enrolled_on": "2026-06-26",
+    "photo_url": null,
+    "batch_ids": ["BATCH-001"],
+    "updated_at": "2026-07-12T09:20:00Z"
+  },
+  {
+    "id": "STU-004",
+    "roll_no": "SQL26-001",
+    "name": "Ananya Rao",
+    "email": "ananya.rao@example.com",
+    "phone": "+91-98000-00004",
+    "status": "active",
+    "enrolled_on": "2026-07-01",
+    "photo_url": null,
+    "batch_ids": ["BATCH-002"],
+    "updated_at": "2026-07-12T11:15:00Z"
+  },
+  {
+    "id": "STU-005",
+    "roll_no": "DO26-001",
+    "name": "Kabir Singh",
+    "email": "kabir.singh@example.com",
+    "phone": "+91-98000-00005",
+    "status": "active",
+    "enrolled_on": "2026-07-14",
+    "photo_url": null,
+    "batch_ids": ["BATCH-003"],
+    "updated_at": "2026-07-14T04:00:00Z"
+  },
+  {
+    "id": "STU-006",
+    "roll_no": "PY26-004",
+    "name": "Meera Iyer",
+    "email": "meera.iyer@example.com",
+    "phone": "+91-98000-00006",
+    "status": "dropped",
+    "enrolled_on": "2026-06-25",
+    "photo_url": null,
+    "batch_ids": [],
+    "updated_at": "2026-07-05T15:00:00Z"
+  }
+]

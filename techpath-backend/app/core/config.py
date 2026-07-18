@@ -131,6 +131,38 @@ class Settings(BaseSettings):
     REDIS_URL: Optional[str] = Field(default=None)
 
     # -----------------
+    # External roster API (batches / students)
+    # -----------------
+    # "mock" serves fixtures; "http" calls the real API. ROSTER_API_KEY is a credential
+    # and is expected via Key Vault in deployed environments, not from here.
+    ROSTER_PROVIDER: str = Field(default="http")
+    ROSTER_API_BASE_URL: Optional[str] = Field(default="http://localhost:8080")
+    ROSTER_API_KEY: Optional[str] = Field(
+        default="ae6d7173ad11bc2f45ed528a3deea3afeac3afb13c8b9c643522b4ab1613c67a"
+    )
+    ROSTER_SYNC_PAGE_SIZE: int = Field(default=100)
+
+    # -----------------
+    # Graded quizzes
+    # -----------------
+    # Fraction of questions a student must get right to pass a quiz and unlock the
+    # material that follows it. A fraction (0.7), NOT a percentage (70) — grading
+    # compares `score / total >= QUIZ_PASS_MARK` directly, so a percentage here would
+    # make every quiz unpassable.
+    QUIZ_PASS_MARK: float = Field(default=0.7)
+
+    # -----------------
+    # Live classroom media (WHIP/WHEP + recording transcode)
+    # -----------------
+    LIVE_MEDIA_BASE_URL: str = Field(default="")
+    WATCH_SERVICE_BASE_URL: str = Field(default="")
+
+    @property
+    def is_live_media_configured(self) -> bool:
+        """Check if the live-media (MediaMTX) host is configured."""
+        return bool(self.LIVE_MEDIA_BASE_URL)
+
+    # -----------------
     # Azure Key Vault
     # -----------------
     AZURE_TENANT_ID: str = Field(default="")

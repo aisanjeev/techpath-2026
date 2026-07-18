@@ -28,7 +28,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Forward to FastAPI backend
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+    const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
     const response = await fetch(`${apiBaseUrl}/api/v1/newsletter/subscribe`, {
       method: 'POST',
       headers: {

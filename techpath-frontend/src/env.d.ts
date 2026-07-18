@@ -2,7 +2,6 @@
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_API_BASE_URL: string;
   readonly PUBLIC_API_URL: string;
   readonly SITE_URL: string;
   /** "production" | "staging" | "development" — controls robots indexing */

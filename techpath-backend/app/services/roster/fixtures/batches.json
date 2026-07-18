@@ -1,0 +1,112 @@
+[
+  {
+    "id": "BATCH-001",
+    "code": "PY-2026-JUL-A",
+    "name": "Python Fundamentals — July Morning",
+    "status": "running",
+    "mode": "offline",
+    "start_date": "2026-07-01",
+    "end_date": "2026-09-30",
+    "schedule": {
+      "days": ["Mon", "Wed", "Fri"],
+      "start_time": "09:00",
+      "end_time": "11:00",
+      "timezone": "Asia/Kolkata"
+    },
+    "trainer_id": "TR-001",
+    "trainer_name": "Sanjeev",
+    "trainer_email": "techpath.biz@gmail.com",
+    "course_ref": "python-fundamentals",
+    "student_count": 3,
+    "location": "Lab 1, Bengaluru",
+    "updated_at": "2026-07-10T06:30:00Z"
+  },
+  {
+    "id": "BATCH-002",
+    "code": "SQL-2026-JUL-B",
+    "name": "SQL for Analysts — July Evening",
+    "status": "running",
+    "mode": "online",
+    "start_date": "2026-07-05",
+    "end_date": "2026-08-30",
+    "schedule": {
+      "days": ["Tue", "Thu"],
+      "start_time": "19:00",
+      "end_time": "21:00",
+      "timezone": "Asia/Kolkata"
+    },
+    "trainer_id": "TR-001",
+    "trainer_name": "Sanjeev",
+    "trainer_email": "techpath.biz@gmail.com",
+    "course_ref": null,
+    "student_count": 2,
+    "location": null,
+    "updated_at": "2026-07-12T11:15:00Z"
+  },
+  {
+    "id": "BATCH-003",
+    "code": "DEVOPS-2026-AUG",
+    "name": "DevOps Essentials — August",
+    "status": "upcoming",
+    "mode": "hybrid",
+    "start_date": "2026-08-01",
+    "end_date": "2026-10-15",
+    "schedule": {
+      "days": ["Sat"],
+      "start_time": "10:00",
+      "end_time": "14:00",
+      "timezone": "Asia/Kolkata"
+    },
+    "trainer_id": "TR-002",
+    "trainer_name": "Priya",
+    "trainer_email": "priya.trainer@techpath.biz",
+    "course_ref": "devops-essentials",
+    "student_count": 1,
+    "location": "Lab 2, Bengaluru",
+    "updated_at": "2026-07-14T04:00:00Z"
+  },
+  {
+    "id": "BATCH-004",
+    "code": "PY-2026-MAY",
+    "name": "Python Fundamentals — May (closed)",
+    "status": "completed",
+    "mode": "offline",
+    "start_date": "2026-05-01",
+    "end_date": "2026-06-30",
+    "schedule": {
+      "days": ["Mon", "Wed"],
+      "start_time": "09:00",
+      "end_time": "11:00",
+      "timezone": "Asia/Kolkata"
+    },
+    "trainer_id": "TR-002",
+    "trainer_name": "Priya",
+    "trainer_email": "priya.trainer@techpath.biz",
+    "course_ref": "python-fundamentals",
+    "student_count": 0,
+    "location": "Lab 1, Bengaluru",
+    "updated_at": "2026-06-30T10:00:00Z"
+  },
+  {
+    "id": "BATCH-005",
+    "code": "CLOUD-2026-SEP",
+    "name": "Cloud Foundations — September",
+    "status": "upcoming",
+    "mode": "online",
+    "start_date": "2026-09-01",
+    "end_date": "2026-11-30",
+    "schedule": {
+      "days": ["Mon", "Thu"],
+      "start_time": "18:00",
+      "end_time": "20:00",
+      "timezone": "Asia/Kolkata"
+    },
+    "trainer_id": "TR-001",
+    "trainer_name": "Sanjeev",
+    "trainer_email": "techpath.biz@gmail.com",
+    "course_ref": null,
+    "student_count": 0,
+    "location": null,
+    "updated_at": "2026-07-15T09:45:00Z"
+  }
+]

@@ -46,6 +46,11 @@ class BaseStorageService(ABC):
         """Check if a file exists."""
         pass
 
+    @abstractmethod
+    async def delete_recording(self, stream_path: str) -> bool:
+        """Delete all recording files associated with a stream path."""
+        pass
+
 
 class LocalStorageService(BaseStorageService):
     """Local filesystem storage service for development."""
@@ -113,6 +118,28 @@ class LocalStorageService(BaseStorageService):
             return False
         except Exception as e:
             logger.error(f"Error deleting file from local storage: {e}")
+            return False
+
+    async def delete_recording(self, stream_path: str) -> bool:
+        """Delete all recording files associated with a stream path."""
+        import os
+        try:
+            target_dir = self.upload_path / stream_path
+            if target_dir.exists() and target_dir.is_dir():
+                deleted = False
+                for f in os.listdir(target_dir):
+                    if f.endswith(".mp4"):
+                        file_path = target_dir / f
+                        os.remove(file_path)
+                        logger.info(f"Deleted recording from local storage: {file_path}")
+                        deleted = True
+                # Clean up empty dir
+                if not os.listdir(target_dir):
+                    os.rmdir(target_dir)
+                return deleted
+            return False
+        except Exception as e:
+            logger.error(f"Error deleting recording from local storage: {e}")
             return False
 
     async def get_file_url(self, file_path: str) -> str:
@@ -227,6 +254,22 @@ class AzureBlobStorageService(BaseStorageService):
             logger.error(f"Error deleting file from Azure Blob Storage: {e}")
             return False
 
+    async def delete_recording(self, stream_path: str) -> bool:
+        """Delete all recording files associated with a stream path."""
+        try:
+            container = self._get_container_client()
+            blobs = container.list_blobs(name_starts_with=stream_path)
+            deleted = False
+            for blob in blobs:
+                if blob.name.endswith(".mp4"):
+                    container.delete_blob(blob.name)
+                    logger.info(f"Deleted recording from Azure Blob Storage: {blob.name}")
+                    deleted = True
+            return deleted
+        except Exception as e:
+            logger.error(f"Error deleting recording from Azure Blob Storage: {e}")
+            return False
+
     async def get_file_url(self, file_path: str) -> str:
         """Get the public URL for a blob."""
         try:
@@ -337,6 +380,9 @@ class StorageServiceProxy:
     
     async def delete_file(self, file_path: str) -> bool:
         return await self._get_service().delete_file(file_path)
+    
+    async def delete_recording(self, stream_path: str) -> bool:
+        return await self._get_service().delete_recording(stream_path)
     
     async def get_file_url(self, file_path: str) -> str:
         return await self._get_service().get_file_url(file_path)

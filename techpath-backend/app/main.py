@@ -7,12 +7,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.core.config import settings
 from app.api.v1.router import router as v1_router
+from app.core.config import settings
+from app.db.session import init_db
 from app.middleware.error_handlers import setup_exception_handlers
 from app.middleware.logging import LoggingMiddleware
-from app.db.session import init_db
 from app.services.secrets_loader import load_secrets_from_keyvault, runtime_secrets
+
 
 # Configure logging
 logging.basicConfig(
@@ -46,12 +47,18 @@ async def lifespan(app: FastAPI):
     # Initialize database
     await init_db()
 
+    # One poll loop per worker process — see app/services/classroom/bus.py for why an
+    # in-memory broadcaster alone isn't safe under --workers 2.
+    from app.services.classroom.bus import start_poller
+
+    start_poller()
+
     # Ensure upload directory exists for local storage and mount it
     if storage_type.lower() == "local":
         upload_path = Path(settings.LOCAL_UPLOAD_PATH)
         upload_path.mkdir(parents=True, exist_ok=True)
         logger.info(f"Local upload path: {upload_path.absolute()}")
-        
+
         # Mount static files for uploads
         app.mount("/uploads", StaticFiles(directory=str(upload_path)), name="uploads")
         logger.info("Mounted /uploads for serving uploaded files")
@@ -60,6 +67,19 @@ async def lifespan(app: FastAPI):
 
     # Shutdown
     logger.info("Shutting down application...")
+
+    from app.services.classroom.bus import stop_poller
+
+    await stop_poller()
+
+    # Release the outbound HTTP pool (roster API) rather than leaking sockets on reload.
+    try:
+        from app.services.roster.factory import get_roster_provider, reset_roster_provider
+
+        await get_roster_provider().aclose()
+        reset_roster_provider()
+    except Exception as exc:  # noqa: BLE001 — shutdown must not raise
+        logger.warning(f"Error closing roster provider: {exc}")
 
 
 # Create FastAPI app

@@ -9,12 +9,15 @@ import Image from 'next/image';
 import { Eye, EyeOff } from 'lucide-react';
 import { loginSchema, type LoginFormData } from '@/lib/validations';
 import { authService } from '@/services/auth.service';
+import { useAuthStore } from '@/store/auth.store';
+import { landingPathForRole } from '@/lib/auth/roles';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,7 +33,11 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await authService.login(data.email, data.password);
-      router.push('/dashboard');
+      // Fetch the TechPath profile immediately so we know the role before redirecting.
+      // Trainers go to /trainer; admins go to /dashboard.
+      const user = await authService.getCurrentUser();
+      login(user);
+      router.push(landingPathForRole(user));
     } catch (error) {
       const firebaseError = error as { code?: string };
       const invalidCodes = [

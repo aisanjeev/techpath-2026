@@ -13,15 +13,22 @@ export interface PaginatedResponse<T> {
 }
 
 // User Types
+export type Role = 'admin' | 'trainer' | 'user';
+
 export interface User {
   id: number;
   email: string;
   name: string;
-  role: string;
+  role: Role;
   is_active: boolean;
   avatar_url?: string;
   created_at: string;
   updated_at?: string;
+}
+
+export interface AdminUser extends User {
+  /** Whether a Firebase account has been linked to this record yet. */
+  has_signed_in: boolean;
 }
 
 export interface LoginResponse {

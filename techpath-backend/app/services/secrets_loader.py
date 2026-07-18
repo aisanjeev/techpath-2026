@@ -59,6 +59,13 @@ SECRETS_TO_LOAD = [
     "AZURE_OPENAI_API_VERSION",
     "AZURE_COMMUNICATION_EMAIL_CONNECTION_STRING",
     "SENDER_ADDRESS",
+    # External roster API (batches/students). The key is a credential, so it goes
+    # through Key Vault like every other secret rather than sitting in Settings.
+    "ROSTER_API_BASE_URL",
+    "ROSTER_API_KEY",
+    "ROSTER_PROVIDER",
+    # Firebase service account (base64-encoded JSON) — needed for user create/delete.
+    "FIREBASE_SERVICE_ACCOUNT_B64",
 ]
 
 
