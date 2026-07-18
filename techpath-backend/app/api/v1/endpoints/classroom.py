@@ -360,11 +360,13 @@ async def ask_question(
     if session is None or session.status != SessionStatus.LIVE.value:
         raise ValidationError("Session is not live")
 
+    obj_data = payload.model_dump()
+    obj_data["session_id"] = session_id
+    obj_data["student_id"] = participant.student_id
+
     new_question = await question_crud.create(
         db,
-        obj_in=payload,
-        session_id=session_id,
-        student_id=participant.student_id
+        obj_in=obj_data
     )
     
     response_obj = TrainingSessionQuestionResponse.model_validate(new_question)
