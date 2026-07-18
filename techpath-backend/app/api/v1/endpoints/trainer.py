@@ -794,7 +794,6 @@ async def create_poll_from_quiz(
     question = questions[payload.question_index]
     options = question["options"]
 
-    existing = await session_poll_crud.get_open_poll(db, session_id)
     if existing:
         existing.status = PollStatus.CLOSED.value
         existing.closed_at = datetime.now(timezone.utc)
@@ -927,6 +926,22 @@ async def get_roster(
     participants = await session_participant_crud.list_for_session(db, session_id)
     summary = await session_participant_crud.confusion_summary(db, session_id)
     hands_raised = await session_participant_crud.hands_raised_queue(db, session_id)
+    from app.schemas.classroom import DoubtRequestView
+    from app.crud.classroom import doubt_request_crud
+    from app.services.classroom.media import whep_url as build_whep_url
+
+    doubts = await doubt_request_crud.list_by_session(db, session_id, statuses=["pending", "approved"])
+    doubt_views = [
+        DoubtRequestView(
+            id=d.id,
+            participant_id=d.participant_id,
+            display_name=d.participant.display_name,
+            status=d.status,
+            requested_at=d.created_at,
+            whep_url=build_whep_url(f"doubt-{d.id}") if d.status == "approved" else None
+        )
+        for d in doubts
+    ]
 
     timer = None
     if session.timer_started_at and session.timer_duration_seconds:
@@ -946,8 +961,205 @@ async def get_roster(
             )
             for p in hands_raised
         ],
+        doubt_requests=[
+            {
+                "id": d.id,
+                "participant_id": d.participant_id,
+                "display_name": d.participant.display_name,
+                "status": d.status,
+                "requested_at": d.created_at,
+                "whep_url": build_whep_url(f"class-{session_id}-doubt-{d.participant_id}") if d.status == "approved" else None
+            }
+            for d in doubts
+        ],
         timer=timer,
     )
+async def _get_owned_participant(
+    db: AsyncSession, current_user: User, session_id: int, participant_id: int
+) -> SessionParticipant:
+    """Shared lookup for the per-participant trainer actions below: confirms the
+    session belongs to this trainer, then confirms the participant belongs to that
+    session — the same two-step scoping every other session-scoped route here does."""
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    participant = await session_participant_crud.get(db, participant_id)
+    if not participant or participant.session_id != session_id:
+        raise NotFoundError("Participant")
+    return participant
+
+
+@router.post(
+    "/sessions/{session_id}/participants/{participant_id}/kick",
+    response_model=MessageResponse,
+)
+async def kick_participant(
+    session_id: int,
+    participant_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> MessageResponse:
+    """Removes a participant and revokes their session token going forward (see
+    SessionParticipant.is_removed, enforced in classroom.py's get_current_participant
+    and classroom_ws.py's connect handler — this endpoint only flips the flag)."""
+    participant = await _get_owned_participant(db, current_user, session_id, participant_id)
+
+    await session_participant_crud.kick(db, participant)
+    await publish_roster_snapshot(db, session_id)
+    # Carries participant_key, not the numeric id: that's what a student's browser holds
+    # locally to recognise "this event is about me" and react (e.g. show a removed
+    # screen, stop reconnecting).
+    await bus.publish(
+        db, session_id, "participant_kicked", {"participant_key": participant.participant_key}
+    )
+
+    return MessageResponse(message="Participant removed")
+
+
+@router.post(
+    "/sessions/{session_id}/participants/{participant_id}/lower-hand",
+    response_model=MessageResponse,
+)
+async def lower_participant_hand(
+    session_id: int,
+    participant_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> MessageResponse:
+    """Trainer-initiated equivalent of a student lowering their own hand — e.g. after
+    calling on them. Same CRUD method the student endpoint uses."""
+    participant = await _get_owned_participant(db, current_user, session_id, participant_id)
+
+    await session_participant_crud.set_hand_raised(db, participant, False)
+    await publish_roster_snapshot(db, session_id)
+
+    return MessageResponse(message="Hand lowered")
+
+
+@router.post("/sessions/{session_id}/timer/start", response_model=MessageResponse)
+async def start_timer(
+    session_id: int,
+    payload: StartTimerRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> MessageResponse:
+    """Starts (or restarts) a countdown broadcast to every client. Persisted on the
+    session, not just broadcast, so a client bootstrapping mid-countdown (GET
+    /classroom/{id}/state or the trainer's GET .../roster) can compute remaining time
+    itself instead of depending on having seen the event live."""
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    started_at = datetime.now(timezone.utc)
+    session.timer_started_at = started_at
+    session.timer_duration_seconds = payload.duration_seconds
+    db.add(session)
+    await db.flush()
+
+    await bus.publish(
+        db,
+        session_id,
+        "timer_started",
+        {
+            "duration_seconds": payload.duration_seconds,
+            "started_at": started_at.isoformat(),
+        },
+    )
+    return MessageResponse(message="Timer started")
+
+
+@router.post("/sessions/{session_id}/timer/cancel", response_model=MessageResponse)
+async def cancel_timer(
+    session_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> MessageResponse:
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    session.timer_started_at = None
+    session.timer_duration_seconds = None
+    db.add(session)
+    await db.flush()
+
+    await bus.publish(db, session_id, "timer_cancelled", {})
+    return MessageResponse(message="Timer cancelled")
+
+
+@router.get("/sessions/{session_id}/questions", response_model=list[TrainingSessionQuestionResponse])
+async def trainer_list_questions(
+    session_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> list[TrainingSessionQuestionResponse]:
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    questions = await question_crud.get_by_session(db, session_id=session_id)
+    return [TrainingSessionQuestionResponse.model_validate(q) for q in questions]
+
+
+@router.post("/sessions/{session_id}/questions/{question_id}/answer", response_model=TrainingSessionQuestionResponse)
+async def trainer_answer_question(
+    session_id: int,
+    question_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> TrainingSessionQuestionResponse:
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    q = await question_crud.get(db, id=question_id)
+    if not q or q.session_id != session_id:
+        raise NotFoundError("Question")
+
+    updated_question = await question_crud.mark_answered(db, db_obj=q)
+
+    await bus.publish(
+        db,
+        session_id,
+        "question_answered",
+        {"question_id": updated_question.id}
+    )
+    
+    response_obj = TrainingSessionQuestionResponse.model_validate(updated_question)
+    return response_obj
+
+
+@router.patch("/sessions/{session_id}/settings", response_model=TrainingSessionResponse)
+async def update_session_settings(
+    session_id: int,
+    payload: ToggleQuestionsPublicRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> TrainingSessionResponse:
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    session.questions_are_public = payload.questions_are_public
+    db.add(session)
+    await db.flush()
+
+    await bus.publish(
+        db,
+        session_id,
+        "questions_visibility_changed",
+        {"questions_are_public": session.questions_are_public}
+    )
+    
+    return _session_out(session)
 
 
 async def _get_owned_participant(
@@ -1108,23 +1320,10 @@ async def trainer_answer_question(
         {"question_id": updated_question.id}
     )
     
-    return TrainingSessionQuestionResponse.model_validate(updated_question)
+    response_obj = TrainingSessionQuestionResponse.model_validate(updated_question)
+    return response_obj
 
 
-@router.patch("/sessions/{session_id}/settings", response_model=TrainingSessionResponse)
-async def update_session_settings(
-    session_id: int,
-    payload: ToggleQuestionsPublicRequest,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_trainer_user),
-) -> TrainingSessionResponse:
-    session = await training_session_crud.get_with_relations(db, session_id)
-    if not session:
-        raise NotFoundError("Session")
-    await _assert_owns_batch(db, current_user, session.batch)
-
-    session.questions_are_public = payload.questions_are_public
-    db.add(session)
     await db.flush()
 
     await bus.publish(
@@ -1135,3 +1334,58 @@ async def update_session_settings(
     )
     
     return _session_out(session)
+
+@router.post("/sessions/{session_id}/doubts/{doubt_id}/approve", response_model=MessageResponse)
+async def approve_doubt(
+    session_id: int,
+    doubt_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> MessageResponse:
+    from app.crud.classroom import doubt_request_crud
+    from app.services.classroom.media import whip_url as build_whip_url, whep_url as build_whep_url
+    from app.models.classroom import DOUBT_APPROVED
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+    
+    req = await doubt_request_crud.update_status(db, doubt_id, "approved")
+    if not req:
+        raise NotFoundError("DoubtRequest")
+    
+    whip_path = f"class-{session_id}-doubt-{req.participant_id}"
+    full_whip_url = build_whip_url(whip_path)
+    full_whep_url = build_whep_url(whip_path)
+    
+    await bus.publish(db, session_id, DOUBT_APPROVED, {
+        "participant_id": req.participant_id, 
+        "doubt_id": doubt_id,
+        "whip_url": full_whip_url,
+        "whep_url": full_whep_url
+    })
+    return MessageResponse(message="Doubt approved")
+
+@router.post("/sessions/{session_id}/doubts/{doubt_id}/complete", response_model=MessageResponse)
+async def complete_doubt(
+    session_id: int,
+    doubt_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> MessageResponse:
+    from app.crud.classroom import doubt_request_crud
+    from app.models.classroom import DOUBT_COMPLETED
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+    
+    req = await doubt_request_crud.update_status(db, doubt_id, "completed")
+    if not req:
+        raise NotFoundError("DoubtRequest")
+    
+    await bus.publish(db, session_id, DOUBT_COMPLETED, {
+        "participant_id": req.participant_id, 
+        "doubt_id": doubt_id
+    })
+    return MessageResponse(message="Doubt audio stopped")

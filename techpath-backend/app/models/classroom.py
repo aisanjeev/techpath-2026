@@ -32,6 +32,26 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.constants import PollStatus, RecordingStatus
 from app.models.base import Base, TimestampMixin
 
+DOUBT_REQUESTED = "doubt_requested"
+DOUBT_APPROVED = "doubt_approved"
+DOUBT_REJECTED = "doubt_rejected"
+DOUBT_COMPLETED = "doubt_completed"
+
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.core.constants import PollStatus, RecordingStatus
+from app.models.base import Base, TimestampMixin
+
 
 class SessionParticipant(Base, TimestampMixin):
     """One browser tab's presence in one session — attendance, confusion state, and the
@@ -189,3 +209,22 @@ class SessionRecording(Base, TimestampMixin):
 
     def __repr__(self) -> str:
         return f"<SessionRecording(id={self.id}, session={self.session_id}, status='{self.status}')>"
+
+class DoubtRequest(Base, TimestampMixin):
+    """A student's request to speak via push-to-talk audio."""
+    __tablename__ = "doubt_requests"
+    __table_args__ = (Index("ix_doubt_requests_session_id", "session_id"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    session_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("training_sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    participant_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("session_participants.id", ondelete="CASCADE"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(
+        String(20), default="pending", nullable=False, index=True
+    )
+
+    participant: Mapped["SessionParticipant"] = relationship("SessionParticipant")
+

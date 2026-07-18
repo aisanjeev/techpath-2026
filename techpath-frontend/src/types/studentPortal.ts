@@ -51,34 +51,12 @@ export interface StudentSessionMaterialsResponse {
 /* -------------------------------------------------------------------------
  * Graded quizzes
  *
- * Note what is NOT here: a quiz asset's `config.questions` reaching this app
- * carries only `question` and `options`. The backend strips `correct_index` and
- * `explanation` for students, so the only place this app ever sees them is
- * `QuizQuestionFeedback` below — the response to a submitted attempt.
+ * QuizAttemptResult / QuizQuestionFeedback are declared in classroom.ts and
+ * re-exported here: both the portal and the live classroom submit quizzes, so
+ * the shape belongs on the shared base module rather than on this one.
  * ---------------------------------------------------------------------- */
 
-export interface QuizQuestionFeedback {
-  index: number;
-  your_answer: number;
-  correct_index: number | null;
-  is_correct: boolean;
-  explanation: string | null;
-}
-
-export interface QuizAttemptResult {
-  attempt_id: number;
-  attempt_number: number;
-  score: number;
-  total_questions: number;
-  percentage: number;
-  passed: boolean;
-  pass_mark: number;
-  attempted_at: string;
-  /** True when this attempt unlocked the next material item, so the pager can
-   *  reveal it without refetching progress. */
-  unlocked_next: boolean;
-  questions: QuizQuestionFeedback[];
-}
+export type { QuizAttemptResult, QuizQuestionFeedback } from './classroom';
 
 export interface StudentProgressItem {
   asset_id: number;

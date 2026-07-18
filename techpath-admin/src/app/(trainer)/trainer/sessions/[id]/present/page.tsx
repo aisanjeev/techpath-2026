@@ -218,29 +218,37 @@ export default function PresenterPage({ params }: { params: Promise<{ id: string
           </div>
         </header>
 
-        {/* Slide area */}
+        {/* Slide area.
+
+            main is the positioning context only — it deliberately does NOT scroll.
+            The scrolling lives on the inner wrapper below. Absolute positioning inside
+            a scrolling element resolves against that element's *content* box, so when
+            the camera tile lived directly inside the scroller it slid away with the
+            slide on any long asset (a multi-question quiz, a long markdown page).
+            Splitting the two keeps the tile pinned to the visible slide area. */}
         <main
-          className="relative flex flex-1 flex-col overflow-auto"
+          className="relative flex min-h-0 flex-1 flex-col"
           onClick={() => setHeaderVisible((v) => !v)}
         >
-          {/* Asset title bar */}
-          <div className="sticky top-0 z-10 flex shrink-0 items-center gap-3 bg-gray-950/80 px-8 py-3 backdrop-blur">
-            <Icon className="h-5 w-5 shrink-0 text-teal-500" />
-            <h1 className="text-xl font-semibold text-white">{asset.title}</h1>
-            <span className="text-sm text-gray-500">{meta.label}</span>
+          <div className="flex min-h-0 flex-1 flex-col overflow-auto">
+            {/* Asset title bar */}
+            <div className="sticky top-0 z-10 flex shrink-0 items-center gap-3 bg-gray-950/80 px-8 py-3 backdrop-blur">
+              <Icon className="h-5 w-5 shrink-0 text-teal-500" />
+              <h1 className="text-xl font-semibold text-white">{asset.title}</h1>
+              <span className="text-sm text-gray-500">{meta.label}</span>
+            </div>
+
+            {/* This wrapper is the flex context that lets file-embed slide types (ppt,
+                pdf, video) actually claim remaining height via flex-1 — with plain block
+                layout, flex-1 on children below is a no-op and those embeds silently
+                size to a tiny content-driven height instead of filling the available
+                area. Long text content (markdown, quiz) scrolls here. */}
+            <AssetRenderer asset={asset} className="min-h-0 flex-1" />
           </div>
 
-          {/* main is now the flex context that lets file-embed slide types (ppt, pdf,
-              video) actually claim remaining height via flex-1 — before this, main was
-              plain block layout, so flex-1 on children below it was a no-op and those
-              embeds silently sized to a tiny content-driven height instead of filling
-              the available area. Long text content (markdown, quiz) still scrolls via
-              main's own overflow-auto exactly as before. */}
-          <AssetRenderer asset={asset} className="min-h-0 flex-1" />
-
-          {/* Floating self-preview, not part of document flow — the slide/asset area
-              above remains the primary content, camera is a picture-in-picture like
-              every other webinar tool, not a full-screen video call. */}
+          {/* Floating self-preview. Sibling of the scroller, not inside it, so it stays
+              put while the slide scrolls — the camera is a picture-in-picture like every
+              other webinar tool, not something that scrolls off with the content. */}
           {isLive && (
             <div
               className="pointer-events-auto absolute bottom-4 left-4 z-20 w-64"

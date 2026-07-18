@@ -9,13 +9,14 @@ assume the caller could be anyone who saw the code on a shared screen.
 import json
 import logging
 import time
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Path, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.constants import PollStatus, SessionStatus
+from app.core.constants import AssetType, PollStatus, SessionStatus
 from app.core.exceptions import NotFoundError, RateLimitError, UnauthorizedError, ValidationError
 from app.crud.classroom import (
     session_code_state_crud,
@@ -24,7 +25,8 @@ from app.crud.classroom import (
     session_poll_vote_crud,
 )
 from app.crud.crud_question import question as question_crud
-from app.crud.training import asset_to_response, lecture_asset_crud
+from app.crud.quiz_attempts import session_quiz_attempt_crud
+from app.crud.training import asset_to_response, lecture_asset_crud, load_config
 from app.crud.training_roster import training_session_crud
 from app.db.session import get_db
 from app.models.classroom import SessionParticipant
@@ -49,6 +51,8 @@ from app.schemas.training_roster import (
     TrainingSessionQuestionResponse,
 )
 from app.schemas.common import MessageResponse
+from app.schemas.student_portal import QuizAttemptResult, QuizAttemptSubmission, QuizQuestionFeedback
+from app.services import quiz_grading
 from app.services.classroom import bus, media
 from app.services.classroom.identity import decode_classroom_token, mint_classroom_token
 from app.services.classroom.roster import publish_roster_snapshot
@@ -251,6 +255,7 @@ async def get_state(
             screen_sharing=session.media_screen_sharing,
         )
 
+    from app.schemas.classroom import ParticipantStateView
     return SessionStateResponse(
         session_id=session.id,
         title=session.title,
@@ -265,6 +270,11 @@ async def get_state(
         timer=timer,
         media=media_view,
         questions_are_public=session.questions_are_public,
+        me=ParticipantStateView(
+            id=participant.id,
+            participant_key=participant.participant_key,
+            display_name=participant.display_name,
+        ),
     )
 
 
@@ -440,3 +450,123 @@ async def list_questions(
     # but for now we'll just return the schema which defaults student_name to None or requires a JOIN.
     # To keep it simple, we just return the questions.
     return [TrainingSessionQuestionResponse.model_validate(q) for q in questions]
+
+
+@router.post("/{session_id}/assets/{asset_id}/quiz-attempts", response_model=QuizAttemptResult)
+async def submit_classroom_quiz_attempt(
+    session_id: int,
+    asset_id: int,
+    payload: QuizAttemptSubmission,
+    participant: SessionParticipant = Depends(get_current_participant),
+    db: AsyncSession = Depends(get_db),
+) -> QuizAttemptResult:
+    """Answer a quiz during the live class, as a session participant.
+
+    Deliberately separate from the student-portal endpoint of the same shape. That one
+    authenticates a Firebase-signed-in roster student; a live participant has only a
+    classroom token and may not have an account at all (see this module's docstring).
+    Same grading service, same response, different identity — sharing one endpoint
+    would mean one of the two auth models leaking into the other.
+
+    A roster-matched participant gets a persisted attempt, so it shows up in the
+    trainer's report and counts towards portal progress later. A guest (no matched
+    ``student_id``) still gets graded and sees their feedback, but nothing is stored —
+    there is no roster row to attach it to, and inventing one would corrupt the roster.
+    """
+    session = await training_session_crud.get(db, session_id)
+    if session is None:
+        raise NotFoundError("Session")
+
+    asset = await lecture_asset_crud.get(db, asset_id)
+    if asset is None:
+        raise NotFoundError("Lecture asset")
+    if asset.asset_type != AssetType.QUIZ.value:
+        raise ValidationError("That asset isn't a quiz")
+
+    config = load_config(asset.config_json)
+    try:
+        questions = quiz_grading.extract_questions(config)
+    except quiz_grading.QuizConfigError as exc:
+        raise ValidationError(str(exc))
+
+    try:
+        answers = quiz_grading.validate_answers(questions, payload.answers)
+    except ValueError as exc:
+        raise ValidationError(str(exc))
+
+    pass_mark = quiz_grading.pass_mark_for(config)
+    score, total, passed = quiz_grading.grade(questions, answers, pass_mark)
+
+    attempt_id = 0
+    attempt_number = 1
+    attempted_at = datetime.now(timezone.utc)
+
+    if participant.student_id is not None:
+        attempt_number = await session_quiz_attempt_crud.next_attempt_number(
+            db, participant.student_id, asset.id
+        )
+        attempt = await session_quiz_attempt_crud.create(
+            db,
+            obj_in={
+                "student_id": participant.student_id,
+                "session_id": session_id,
+                "asset_id": asset.id,
+                "attempt_number": attempt_number,
+                "answers_json": json.dumps(answers),
+                "score": score,
+                "total_questions": total,
+                "passed": passed,
+                "attempted_at": attempted_at,
+            },
+        )
+        attempt_id = attempt.id
+        attempt_number = attempt.attempt_number
+        attempted_at = attempt.attempted_at
+
+    # Tells the trainer someone just finished, so their panel can show the room's
+    # progress as it happens. Name and score only — never the submitted answers, which
+    # every other connected student would also receive.
+    await bus.publish(
+        db,
+        session_id,
+        "quiz_attempt_submitted",
+        {
+            "asset_id": asset.id,
+            "participant_id": participant.id,
+            "display_name": participant.display_name,
+            "score": score,
+            "total_questions": total,
+            "passed": passed,
+            "recorded": participant.student_id is not None,
+        },
+    )
+
+    return QuizAttemptResult(
+        attempt_id=attempt_id,
+        attempt_number=attempt_number,
+        score=score,
+        total_questions=total,
+        percentage=round((score / total * 100) if total else 100.0, 1),
+        passed=passed,
+        pass_mark=pass_mark,
+        attempted_at=attempted_at,
+        # Portal-only concept; nothing is gated during a live class, where the trainer
+        # controls what is on screen.
+        unlocked_next=False,
+        questions=[
+            QuizQuestionFeedback(**fb)
+            for fb in quiz_grading.question_feedback(questions, answers)
+        ],
+    )
+
+@router.post("/{session_id}/doubts", response_model=SessionStateResponse)
+async def raise_hand_doubt(
+    session_id: int,
+    participant: SessionParticipant = Depends(get_current_participant),
+    db: AsyncSession = Depends(get_db),
+) -> SessionStateResponse:
+    from app.crud.classroom import doubt_request_crud
+    from app.models.classroom import DOUBT_REQUESTED
+    req = await doubt_request_crud.create_request(db, session_id=session_id, participant_id=participant.id)
+    await bus.publish(db, session_id, DOUBT_REQUESTED, {"participant_id": participant.id, "display_name": participant.display_name, "doubt_id": req.id})
+    return await get_state(session_id, participant, db)

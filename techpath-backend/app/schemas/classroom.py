@@ -90,6 +90,12 @@ class MediaView(BaseModel):
     screen_sharing: bool = False
 
 
+class ParticipantStateView(BaseModel):
+    id: int
+    participant_key: str
+    display_name: str
+
+
 class SessionStateResponse(BaseModel):
     session_id: int
     title: Optional[str] = None
@@ -102,10 +108,9 @@ class SessionStateResponse(BaseModel):
     my_confusion: bool = False
     presence: PresenceView
     timer: Optional[TimerView] = None
-    # Participant-facing view: whep_url/hls_url only, never whip_url (see MediaView).
-    # Null whenever the trainer hasn't started publishing media for this session.
     media: Optional[MediaView] = None
     questions_are_public: bool = True
+    me: ParticipantStateView
 
 
 class ConfusionRequest(BaseModel):
@@ -211,10 +216,20 @@ class HandRaisedEntry(BaseModel):
     hand_raised_at: Optional[datetime] = None
 
 
+class DoubtRequestView(BaseModel):
+    id: int
+    participant_id: int
+    display_name: str
+    status: str
+    requested_at: datetime
+    whep_url: Optional[str] = None
+
+
 class RosterResponse(BaseModel):
     participants: List[RosterParticipant]
     confusion: ConfusionSummary
     hands_raised: List[HandRaisedEntry] = []
+    doubt_requests: List[DoubtRequestView] = []
     timer: Optional[TimerView] = None
 
 

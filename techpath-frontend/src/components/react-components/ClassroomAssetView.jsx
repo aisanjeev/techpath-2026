@@ -156,21 +156,26 @@ function LinkCard({ url, label }) {
 }
 
 /**
- * A takeable, server-graded quiz.
+ * A takeable, server-graded quiz — one question at a time.
  *
- * `asset.config.questions` here carries only `question` and `options` — the backend
+ * `asset.config.questions` here carries only `question` and `options`; the backend
  * strips the answer key for students. The only correctness information this component
- * ever has is what comes back in the result of a submitted attempt, which is why
- * feedback is rendered from `result.questions` rather than from the asset.
+ * ever has is what comes back from a submitted attempt, which is why feedback renders
+ * from `result.questions` rather than from the asset.
  *
- * `onSubmit` is injected rather than called directly so this same component works in
- * the portal (where submitting is wired up) and in the live classroom (where it isn't
- * — the trainer drives quizzes there as live polls instead). With no `onSubmit`, it
- * degrades to a read-only preview rather than showing a button that goes nowhere.
+ * One question per screen rather than a long scroll: it keeps a projected classroom on
+ * the same question at the same time, and stops a student skimming ahead while the
+ * trainer is still talking about Q1.
+ *
+ * `onSubmit` is injected so the same component serves both surfaces — the portal posts
+ * as a signed-in student, the live classroom posts as a session participant. Without
+ * it the quiz still renders and can be answered, but says so plainly instead of
+ * showing a submit button that would go nowhere.
  */
 function QuizView({ asset, onSubmit, initialResult }) {
   const questions = asset.config?.questions || [];
   const [selected, setSelected] = useState({});
+  const [step, setStep] = useState(0);
   const [result, setResult] = useState(initialResult || null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -191,12 +196,12 @@ function QuizView({ asset, onSubmit, initialResult }) {
     setSubmitting(true);
     setError(null);
     try {
-      const answers = questions.map((_, i) => selected[i]);
-      const res = await onSubmit(answers);
+      const res = await onSubmit(questions.map((_, i) => selected[i]));
       if (res?.success === false) {
         setError(res.error || 'Could not submit your answers.');
       } else {
         setResult(res);
+        setStep(0);
       }
     } catch (err) {
       setError(err?.message || 'Could not submit your answers.');
@@ -209,10 +214,19 @@ function QuizView({ asset, onSubmit, initialResult }) {
     setSelected({});
     setResult(null);
     setError(null);
+    setStep(0);
   };
 
+  const isLast = step === questions.length - 1;
+  const q = questions[step];
+  const feedback = feedbackByIndex[step];
+  const chosen = feedback ? feedback.your_answer : selected[step];
+  // After submitting, every question is navigable so a student can read all the
+  // explanations. Before submitting, Next requires an answer for the current one.
+  const canAdvance = result ? !isLast : !isLast && selected[step] != null;
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {result && (
         <div
           className={`rounded-2xl border p-5 ${
@@ -223,13 +237,16 @@ function QuizView({ asset, onSubmit, initialResult }) {
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className={`font-semibold ${result.passed ? 'text-emerald-300' : 'text-amber-300'}`}>
-                {result.passed ? '✓ Passed' : 'Not passed yet'}
+              <p
+                className={`font-semibold ${
+                  result.passed ? 'text-emerald-300' : 'text-amber-300'
+                }`}
+              >
+                {result.passed ? 'Passed' : 'Not passed yet'}
               </p>
               <p className="mt-0.5 text-sm text-slate-400">
-                You scored {result.score} of {result.total_questions} ({Math.round(result.percentage)}%)
-                {' · '}
-                {Math.round(result.pass_mark * 100)}% needed to pass
+                {result.score} of {result.total_questions} correct (
+                {Math.round(result.percentage)}%) · {Math.round(result.pass_mark * 100)}% needed
               </p>
             </div>
             <button
@@ -239,65 +256,80 @@ function QuizView({ asset, onSubmit, initialResult }) {
               {result.passed ? 'Try again' : 'Retry quiz'}
             </button>
           </div>
-          {!result.passed && (
-            <p className="mt-3 text-sm text-amber-200/80">
-              Review the explanations below, then retry — you can take this as many times as
-              you need.
-            </p>
-          )}
         </div>
       )}
 
-      {questions.map((q, qi) => {
-        const feedback = feedbackByIndex[qi];
-        const chosen = feedback ? feedback.your_answer : selected[qi];
-        return (
-          <div key={qi} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-            <p className="mb-3 font-medium text-white">
-              <span className="mr-2 text-primary-400">Q{qi + 1}.</span>
-              {q.question}
-            </p>
-            <div className="space-y-2">
-              {(q.options || []).map((opt, oi) => {
-                const isChosen = chosen === oi;
-                // Correctness is only ever known after submitting — before that,
-                // this component genuinely does not have the answer.
-                const isCorrect = feedback && feedback.correct_index === oi;
-                const isWrongChoice = feedback && isChosen && !feedback.is_correct;
+      {/* Step dots: where you are, and which questions still need an answer. */}
+      <div className="flex flex-wrap items-center gap-1.5">
+        {questions.map((_, i) => {
+          const fb = feedbackByIndex[i];
+          let tone = 'bg-slate-700';
+          if (fb) tone = fb.is_correct ? 'bg-emerald-500' : 'bg-red-500';
+          else if (selected[i] != null) tone = 'bg-primary-500';
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setStep(i)}
+              aria-label={`Go to question ${i + 1}`}
+              className={`h-1.5 rounded-full transition-all ${tone} ${
+                i === step ? 'w-8 ring-2 ring-primary-400/60' : 'w-5 hover:opacity-80'
+              }`}
+            />
+          );
+        })}
+      </div>
 
-                let tone = 'border-slate-800 text-slate-300 hover:border-primary-500/60';
-                if (isCorrect) tone = 'border-emerald-600/60 bg-emerald-950/30 text-emerald-200';
-                else if (isWrongChoice) tone = 'border-red-600/60 bg-red-950/30 text-red-200';
-                else if (isChosen) tone = 'border-primary-500 bg-primary-500/10 text-white';
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+        <div className="mb-1 flex items-center justify-between">
+          <span className="text-xs font-medium uppercase tracking-wide text-primary-400">
+            Question {step + 1} of {questions.length}
+          </span>
+          {!result && <span className="text-xs text-slate-500">{answeredCount} answered</span>}
+        </div>
+        <p className="mb-4 text-base font-medium text-white">{q.question}</p>
 
-                return (
-                  <button
-                    key={oi}
-                    type="button"
-                    disabled={!!result || submitting || !onSubmit}
-                    onClick={() => setSelected((s) => ({ ...s, [qi]: oi }))}
-                    className={`flex w-full items-center gap-3 rounded-xl border px-4 py-2.5 text-left text-sm transition disabled:cursor-default ${tone}`}
-                  >
-                    <span
-                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[11px] ${
-                        isChosen ? 'border-current' : 'border-slate-600'
-                      }`}
-                    >
-                      {isCorrect ? '✓' : isWrongChoice ? '✕' : isChosen ? '•' : ''}
-                    </span>
-                    <span className="min-w-0 flex-1">{opt}</span>
-                  </button>
-                );
-              })}
-            </div>
-            {feedback?.explanation && (
-              <p className="mt-3 rounded-xl bg-slate-800/60 px-4 py-2.5 text-sm text-slate-300">
-                {feedback.explanation}
-              </p>
-            )}
-          </div>
-        );
-      })}
+        <div className="space-y-2">
+          {(q.options || []).map((opt, oi) => {
+            const isChosen = chosen === oi;
+            // Correctness is only known after submitting — before that, this component
+            // genuinely does not have the answer.
+            const isCorrect = feedback && feedback.correct_index === oi;
+            const isWrongChoice = feedback && isChosen && !feedback.is_correct;
+
+            let tone =
+              'border-slate-700 text-slate-200 hover:border-primary-500 hover:bg-primary-500/5';
+            if (isCorrect) tone = 'border-emerald-600/60 bg-emerald-950/30 text-emerald-200';
+            else if (isWrongChoice) tone = 'border-red-600/60 bg-red-950/30 text-red-200';
+            else if (isChosen) tone = 'border-primary-500 bg-primary-500/10 text-white';
+
+            return (
+              <button
+                key={oi}
+                type="button"
+                disabled={!!result || submitting}
+                onClick={() => setSelected((s) => ({ ...s, [step]: oi }))}
+                className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition disabled:cursor-default ${tone}`}
+              >
+                <span
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[11px] ${
+                    isChosen || isCorrect ? 'border-current' : 'border-slate-600'
+                  }`}
+                >
+                  {isCorrect ? '✓' : isWrongChoice ? '✕' : isChosen ? '•' : ''}
+                </span>
+                <span className="min-w-0 flex-1">{opt}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {feedback?.explanation && (
+          <p className="mt-4 rounded-xl bg-slate-800/60 px-4 py-3 text-sm text-slate-300">
+            {feedback.explanation}
+          </p>
+        )}
+      </div>
 
       {error && (
         <p className="rounded-xl border border-red-800 bg-red-950/40 px-4 py-3 text-sm text-red-300">
@@ -305,23 +337,46 @@ function QuizView({ asset, onSubmit, initialResult }) {
         </p>
       )}
 
-      {!result && onSubmit && (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-5">
-          <p className="text-sm text-slate-500">
-            {answeredCount} of {questions.length} answered
-          </p>
+      <div className="flex items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={() => setStep((s) => Math.max(0, s - 1))}
+          disabled={step === 0}
+          className="rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 disabled:opacity-40"
+        >
+          Back
+        </button>
+
+        {isLast && !result ? (
+          onSubmit ? (
+            <button
+              type="button"
+              onClick={submit}
+              disabled={!allAnswered || submitting}
+              title={!allAnswered ? 'Answer every question first' : undefined}
+              className="rounded-xl bg-primary-500 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {submitting ? 'Submitting…' : 'Submit answers'}
+            </button>
+          ) : (
+            <span className="text-xs text-slate-500">Submitting is not available here</span>
+          )
+        ) : (
           <button
-            onClick={submit}
-            disabled={!allAnswered || submitting}
+            type="button"
+            onClick={() => setStep((s) => Math.min(questions.length - 1, s + 1))}
+            disabled={!canAdvance}
+            title={!canAdvance && !result ? 'Choose an answer to continue' : undefined}
             className="rounded-xl bg-primary-500 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {submitting ? 'Submitting…' : 'Submit answers'}
+            Next
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
+
 
 function StructuredView({ asset }) {
   const config = asset.config || {};

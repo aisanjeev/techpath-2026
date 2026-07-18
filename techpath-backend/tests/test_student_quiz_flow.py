@@ -20,6 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.dependencies import get_current_student
 from app.core.constants import AssetType, SessionStatus
+from app.crud.quiz_attempts import session_quiz_attempt_crud
 from app.crud.training import asset_to_response
 from app.crud.training_roster import (
     training_batch_crud,
@@ -572,3 +573,111 @@ class TestTrainerQuizResults:
         assert row["is_stale"] is True
         assert row["best_score"] == 2, "the original score must be preserved"
         assert row["passed"] is True, "a student who passed stays passed"
+
+
+class TestLiveClassroomQuiz:
+    """Answering a quiz during the live class, as a session participant.
+
+    Distinct identity from the portal: a classroom token, not a Firebase account. A
+    roster-matched participant's attempt is persisted (so it reaches the trainer's
+    report and the student's later portal progress); a guest is graded but not stored,
+    because there is no roster row to attach an attempt to.
+    """
+
+    @staticmethod
+    async def _live_session_with_quiz(db: AsyncSession, *, matched: bool):
+        from app.core.constants import SessionStatus as _S
+        from app.crud.classroom import session_participant_crud
+        from app.services.classroom.identity import mint_classroom_token
+
+        quiz = await _quiz_asset(db)
+        session, student = await _published_session_with_material(db, [quiz])
+        session.status = _S.LIVE.value
+        db.add(session)
+        await db.flush()
+
+        participant = await session_participant_crud.join(
+            db,
+            session_id=session.id,
+            display_name=student.name if matched else "Guest Visitor",
+            student_id=student.id if matched else None,
+            is_guest=not matched,
+        )
+        token = mint_classroom_token(
+            session_id=session.id,
+            participant_key=participant.participant_key,
+            display_name=participant.display_name,
+        )
+        return session, quiz, student, token
+
+    async def test_matched_participant_attempt_is_graded_and_recorded(
+        self, test_db: AsyncSession, client
+    ) -> None:
+        session, quiz, student, token = await self._live_session_with_quiz(
+            test_db, matched=True
+        )
+
+        resp = await client.post(
+            f"/api/v1/classroom/{session.id}/assets/{quiz.id}/quiz-attempts",
+            json={"answers": [0, 1]},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["score"] == 2
+        assert data["passed"] is True
+        assert data["questions"][0]["correct_index"] == 0
+
+        stored = await session_quiz_attempt_crud.list_for_student_asset(
+            test_db, student.id, quiz.id
+        )
+        assert len(stored) == 1, "a roster-matched attempt must reach the trainer's report"
+        assert stored[0].score == 2
+
+    async def test_guest_is_graded_but_nothing_is_stored(
+        self, test_db: AsyncSession, client
+    ) -> None:
+        session, quiz, student, token = await self._live_session_with_quiz(
+            test_db, matched=False
+        )
+
+        resp = await client.post(
+            f"/api/v1/classroom/{session.id}/assets/{quiz.id}/quiz-attempts",
+            json={"answers": [0, 1]},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        assert resp.status_code == 200
+        assert resp.json()["score"] == 2
+        assert resp.json()["attempt_id"] == 0, "no row, so no id"
+
+        stored = await session_quiz_attempt_crud.list_for_student_asset(
+            test_db, student.id, quiz.id
+        )
+        assert stored == [], "a guest has no roster row to attach an attempt to"
+
+    async def test_requires_a_classroom_token(
+        self, test_db: AsyncSession, client
+    ) -> None:
+        session, quiz, _, _ = await self._live_session_with_quiz(test_db, matched=True)
+
+        resp = await client.post(
+            f"/api/v1/classroom/{session.id}/assets/{quiz.id}/quiz-attempts",
+            json={"answers": [0, 1]},
+        )
+
+        assert resp.status_code == 401
+
+    async def test_malformed_submission_is_rejected(
+        self, test_db: AsyncSession, client
+    ) -> None:
+        session, quiz, _, token = await self._live_session_with_quiz(test_db, matched=True)
+
+        resp = await client.post(
+            f"/api/v1/classroom/{session.id}/assets/{quiz.id}/quiz-attempts",
+            json={"answers": [0]},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        assert resp.status_code == 422

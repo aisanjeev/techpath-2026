@@ -16,10 +16,12 @@ import {
   setConfusion,
   vote,
   setHandRaised as requestHandRaised,
+  requestDoubt,
   sendReaction,
+  submitQuizAttempt,
 } from '@/services/classroomService';
 import { useClassroomSocket } from '@/hooks/useClassroomSocket';
-
+import { WHIPClient } from '../../utils/webrtc';
 const STORAGE_KEY = 'techpath_classroom_session';
 
 function loadStoredSession() {
@@ -288,6 +290,7 @@ function LiveScreen({
   onVote,
   onLeave,
   handRaised,
+  micLive,
   onHandRaiseToggle,
   floatingReactions,
   onSendReaction,
@@ -309,6 +312,21 @@ function LiveScreen({
   // is taller when the Slide/Code tab row is present, so clear the correct amount.
   const stickyTop = hasCode ? 'top-[104px]' : 'top-[68px]';
 
+  // Grade a quiz slide the trainer is presenting. Posts as this session participant,
+  // not as a portal student — see submitQuizAttempt's note on why the two identities
+  // need separate endpoints. Returns the graded result straight to the quiz component,
+  // or a {success:false} envelope it renders as an inline error.
+  const handleQuizSubmit = async (answers) => {
+    if (!session?.sessionId || !session?.token) {
+      return { success: false, error: 'Your session has expired — rejoin to submit.' };
+    }
+    const res = await submitQuizAttempt(session.sessionId, session.token, asset.id, answers);
+    if (!res.success || !res.data) {
+      return { success: false, error: res.error || 'Could not submit your answers.' };
+    }
+    return res.data;
+  };
+
   const contentBlock =
     contentTab === 'code' && hasCode ? (
       <LiveCodeView code={liveState.code} />
@@ -320,7 +338,7 @@ function LiveScreen({
           </p>
           <h2 className="mt-0.5 font-heading text-xl font-bold text-white">{asset.title}</h2>
         </div>
-        <ClassroomAssetView asset={asset} />
+        <ClassroomAssetView asset={asset} onQuizSubmit={handleQuizSubmit} />
       </>
     ) : (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-800 py-24 text-center">
@@ -415,7 +433,7 @@ function LiveScreen({
             <MessageCircleQuestion className="h-5 w-5" />
           </button>
         )}
-        <ClassroomHandRaiseButton raised={handRaised} onToggle={onHandRaiseToggle} />
+        <ClassroomHandRaiseButton raised={handRaised} micLive={micLive} onToggle={onHandRaiseToggle} />
         <ClassroomReactionsBar onSend={onSendReaction} floating={floatingReactions} />
       </div>
       <ClassroomConfusionButton confused={liveState.my_confusion} onToggle={onConfusionToggle} />
@@ -455,6 +473,8 @@ export default function ClassroomApp() {
   // A page refresh mid-session will visually reset this even if the trainer's roster
   // still shows the hand raised — known, acceptable limitation.
   const [handRaised, setHandRaisedFlag] = useState(false);
+  const [micLive, setMicLive] = useState(false);
+  const whipClientRef = useRef(null);
   const [floatingReactions, setFloatingReactions] = useState([]);
   const reactionIdRef = useRef(0);
 
@@ -480,6 +500,7 @@ export default function ClassroomApp() {
           clearStoredSession();
           setStage('join');
         } else {
+          stored.participantId = res.data.me.id;
           setSession(stored);
           setLiveState(res.data);
           setStage('live');
@@ -576,6 +597,35 @@ export default function ClassroomApp() {
         );
       } else if (event.type === 'questions_visibility_changed') {
         setLiveState((s) => (s ? { ...s, questions_are_public: event.payload.questions_are_public } : s));
+      } else if (event.type === 'doubt_approved') {
+        if (session && event.payload.participant_id === session.participantId && event.payload.whip_url) {
+          if (!whipClientRef.current) {
+            whipClientRef.current = new WHIPClient(event.payload.whip_url, (state) => {
+              if (state === 'connected') setMicLive(true);
+              else if (state === 'disconnected' || state === 'error') {
+                setMicLive(false);
+                setHandRaisedFlag(false);
+                whipClientRef.current = null;
+              }
+            });
+            whipClientRef.current.start(true).catch(err => {
+              console.error(err);
+              toast.error('Could not access microphone. Please check permissions.', { duration: 5000 });
+              setMicLive(false);
+              setHandRaisedFlag(false);
+              whipClientRef.current = null;
+            });
+          }
+        }
+      } else if (event.type === 'doubt_completed') {
+        if (session && event.payload.participant_id === session.participantId) {
+          if (whipClientRef.current) {
+            whipClientRef.current.stop();
+            whipClientRef.current = null;
+          }
+          setMicLive(false);
+          setHandRaisedFlag(false);
+        }
       }
       // `participant_kicked` is a broadcast about someone else being removed — this app
       // has no roster view to update. This student's own removal arrives as the socket
@@ -619,10 +669,11 @@ export default function ClassroomApp() {
         token: res.data.token,
         displayName: res.data.display_name,
       };
-      storeSession(stored);
-      setSession(stored);
       const stateRes = await getState(stored.sessionId, stored.token);
       if (stateRes.success && stateRes.data) {
+        stored.participantId = stateRes.data.me.id;
+        storeSession(stored);
+        setSession(stored);
         setLiveState(stateRes.data);
         setStage('live');
       }
@@ -646,10 +697,12 @@ export default function ClassroomApp() {
   const handleHandRaiseToggle = async (raised) => {
     if (!session) return;
     setHandRaisedFlag(raised);
-    // The response is the same SessionStateResponse bootstrap shape as setConfusion,
-    // but it doesn't report hand-raised state back (backend gap) — nothing useful to do
-    // with it here, same fire-and-forget as handleConfusionToggle above.
+    // Raise the hand flag on the participant row AND create a doubt request so the
+    // trainer sees the "Enable Mic" button in the Doubt Audio Requests queue.
     await requestHandRaised(session.sessionId, session.token, raised);
+    if (raised) {
+      await requestDoubt(session.sessionId, session.token);
+    }
   };
 
   const handleSendReaction = async (emoji) => {
@@ -660,6 +713,10 @@ export default function ClassroomApp() {
   };
 
   const handleLeave = () => {
+    if (whipClientRef.current) {
+      whipClientRef.current.stop();
+      whipClientRef.current = null;
+    }
     clearStoredSession();
     setSession(null);
     setLiveState(null);
@@ -727,6 +784,7 @@ export default function ClassroomApp() {
       onVote={handleVote}
       onLeave={handleLeave}
       handRaised={handRaised}
+      micLive={micLive}
       onHandRaiseToggle={handleHandRaiseToggle}
       floatingReactions={floatingReactions}
       onSendReaction={handleSendReaction}

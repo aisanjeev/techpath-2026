@@ -3,6 +3,7 @@ import type {
   IdentifyResponse,
   JoinResponse,
   SessionStateResponse,
+  QuizAttemptResult,
   TrainingSessionQuestionResponse,
 } from '@/types/classroom';
 
@@ -66,10 +67,41 @@ export async function vote(sessionId: number, token: string, pollId: number, opt
   );
 }
 
+/** Submit a quiz asset during the live class, as a session participant.
+ *
+ *  Separate endpoint from the portal's — a live participant holds a classroom token,
+ *  not a Firebase account, so the two identities can't share one route. Same grading
+ *  and same response shape. A roster-matched participant's attempt is recorded; a
+ *  guest is graded but not stored (no roster row to attach it to). */
+export async function submitQuizAttempt(
+  sessionId: number,
+  token: string,
+  assetId: number,
+  answers: number[]
+) {
+  return apiRequest<QuizAttemptResult>(
+    `/api/v1/classroom/${sessionId}/assets/${assetId}/quiz-attempts`,
+    {
+      method: 'POST',
+      body: { answers },
+      headers: authHeaders(token),
+    }
+  );
+}
+
 export async function setHandRaised(sessionId: number, token: string, raised: boolean) {
   return apiRequest<SessionStateResponse>(`/api/v1/classroom/${sessionId}/hand`, {
     method: 'POST',
     body: { raised },
+    headers: authHeaders(token),
+  });
+}
+
+/** Creates a doubt request so the trainer sees an "Enable Mic" button in the
+ *  Doubt Audio Requests queue. Called alongside setHandRaised when raising. */
+export async function requestDoubt(sessionId: number, token: string) {
+  return apiRequest<SessionStateResponse>(`/api/v1/classroom/${sessionId}/doubts`, {
+    method: 'POST',
     headers: authHeaders(token),
   });
 }

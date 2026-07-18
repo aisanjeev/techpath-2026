@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
 from app.models.classroom import (
+    DoubtRequest,
     SessionCodeState,
     SessionParticipant,
     SessionPoll,
@@ -276,3 +277,65 @@ session_poll_crud = CRUDSessionPoll(SessionPoll)
 session_poll_vote_crud = CRUDSessionPollVote(SessionPollVote)
 session_code_state_crud = CRUDSessionCodeState(SessionCodeState)
 session_recording_crud = CRUDSessionRecording(SessionRecording)
+
+class CRUDDoubtRequest(CRUDBase[DoubtRequest, Any, Any]):
+    async def create_request(
+        self, db: AsyncSession, *, session_id: int, participant_id: int
+    ) -> DoubtRequest:
+        req = DoubtRequest(session_id=session_id, participant_id=participant_id, status="pending")
+        db.add(req)
+        await db.flush()
+        return req
+
+    async def get_for_participant(
+        self, db: AsyncSession, session_id: int, participant_id: int
+    ) -> Optional[DoubtRequest]:
+        result = await db.execute(
+            select(DoubtRequest).where(
+                DoubtRequest.session_id == session_id,
+                DoubtRequest.participant_id == participant_id,
+            ).order_by(DoubtRequest.id.desc())
+        )
+        return result.scalars().first()
+
+    async def list_pending(
+        self, db: AsyncSession, session_id: int
+    ) -> list[DoubtRequest]:
+        result = await db.execute(
+            select(DoubtRequest)
+            .where(DoubtRequest.session_id == session_id, DoubtRequest.status == "pending")
+            .order_by(DoubtRequest.created_at.asc())
+        )
+        return list(result.scalars().all())
+
+    async def list_by_session(
+        self, db: AsyncSession, session_id: int, statuses: list[str] = None
+    ) -> list[DoubtRequest]:
+        from sqlalchemy.orm import joinedload
+        stmt = (
+            select(DoubtRequest)
+            .options(joinedload(DoubtRequest.participant))
+            .where(DoubtRequest.session_id == session_id)
+        )
+        if statuses:
+            stmt = stmt.where(DoubtRequest.status.in_(statuses))
+        result = await db.execute(stmt.order_by(DoubtRequest.created_at.asc()))
+        return list(result.scalars().all())
+
+    async def update_status(
+        self, db: AsyncSession, doubt_id: int, status: str
+    ) -> Optional[DoubtRequest]:
+        from sqlalchemy.orm import joinedload
+        result = await db.execute(
+            select(DoubtRequest)
+            .options(joinedload(DoubtRequest.participant))
+            .where(DoubtRequest.id == doubt_id)
+        )
+        req = result.scalar_one_or_none()
+        if req:
+            req.status = status
+            db.add(req)
+            await db.flush()
+        return req
+
+doubt_request_crud = CRUDDoubtRequest(DoubtRequest)

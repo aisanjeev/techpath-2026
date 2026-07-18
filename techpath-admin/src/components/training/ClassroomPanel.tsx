@@ -30,6 +30,8 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { CodeEditor } from '@/components/editors/CodeEditor';
+import { DoubtQueue } from './DoubtQueue';
+import { AudioMixer } from './AudioMixer';
 import { trainerService } from '@/services/trainer.service';
 import { useClassroomStore } from '@/store/classroom.store';
 import type { ClassroomEvent, PollResultsResponse, RosterResponse, TimerView } from '@/types/classroom';
@@ -100,10 +102,14 @@ function RosterTab({ sessionId }: { sessionId: number }) {
   const [roster, setRoster] = useState<RosterResponse | null>(null);
   const [kickingId, setKickingId] = useState<number | null>(null);
   const [loweringId, setLoweringId] = useState<number | null>(null);
+  const setDoubtRequests = useClassroomStore((s) => s.setDoubtRequests);
 
   useEffect(() => {
-    void trainerService.getRoster(sessionId).then(setRoster).catch(() => {});
-  }, [sessionId]);
+    void trainerService.getRoster(sessionId).then((r) => {
+      setRoster(r);
+      setDoubtRequests(r.doubt_requests || []);
+    }).catch(() => {});
+  }, [sessionId, setDoubtRequests]);
 
   const kick = async (participantId: number, displayName: string) => {
     if (!confirm(`Remove ${displayName} from the session?`)) return;
@@ -178,6 +184,8 @@ function RosterTab({ sessionId }: { sessionId: number }) {
           </div>
         </div>
       )}
+
+      <DoubtQueue sessionId={sessionId} />
 
       <div className="space-y-1">
         {roster?.participants.length === 0 && (
@@ -916,6 +924,36 @@ export function ClassroomPanel({ sessionId, connected, subscribe, assets }: Prop
         markQuestionAnswered(event.payload.question_id);
       } else if (event.type === 'questions_visibility_changed') {
         setQuestionsArePublic(event.payload.questions_are_public);
+      } else if (event.type === 'quiz_attempt_submitted') {
+        const { display_name, score, total_questions, passed } = event.payload;
+        if (passed) {
+          toast.success(`${display_name} passed the quiz: ${score}/${total_questions}`, {
+            duration: 4000,
+          });
+        } else {
+          toast(`${display_name} submitted quiz: ${score}/${total_questions}`, {
+            duration: 4000,
+            icon: '📝',
+          });
+        }
+      } else if (event.type === 'doubt_requested') {
+        const { doubt_id, participant_id, display_name } = event.payload;
+        useClassroomStore.getState().addDoubtRequest({
+          id: doubt_id,
+          participant_id,
+          display_name,
+          status: 'pending',
+          requested_at: new Date().toISOString()
+        });
+      } else if (event.type === 'doubt_approved') {
+        useClassroomStore.getState().updateDoubtRequest(event.payload.doubt_id, { 
+          status: 'approved',
+          whep_url: event.payload.whep_url
+        });
+      } else if (event.type === 'doubt_completed') {
+        useClassroomStore.getState().updateDoubtRequest(event.payload.doubt_id, { 
+          status: 'completed'
+        });
       }
       // poll_open / session_ended: the trainer is the one who triggers these, nothing
       // to react to here. slide_change / code_update: broadcast BY the trainer, not
@@ -942,6 +980,7 @@ export function ClassroomPanel({ sessionId, connected, subscribe, assets }: Prop
         wide ? 'w-[560px]' : 'w-[380px]'
       }`}
     >
+      <AudioMixer />
       <div className="flex items-center justify-between border-b border-gray-800 px-3 py-2.5">
         <div className="flex items-center gap-2">
           {connected ? (

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { TrainingSessionQuestionResponse } from '@/types/classroom';
+import type { TrainingSessionQuestionResponse, DoubtRequest } from '@/types/classroom';
 
 interface ClassroomState {
   questions: TrainingSessionQuestionResponse[];
@@ -10,6 +10,11 @@ interface ClassroomState {
   markQuestionAnswered: (questionId: number) => void;
   setQuestionsArePublic: (isPublic: boolean) => void;
   clearQuestions: () => void;
+  
+  doubtRequests: DoubtRequest[];
+  setDoubtRequests: (doubts: DoubtRequest[]) => void;
+  addDoubtRequest: (doubt: DoubtRequest) => void;
+  updateDoubtRequest: (doubtId: number, update: Partial<DoubtRequest>) => void;
 }
 
 export const useClassroomStore = create<ClassroomState>((set) => ({
@@ -30,6 +35,16 @@ export const useClassroomStore = create<ClassroomState>((set) => ({
         q.id === questionId ? { ...q, is_answered: true } : q
       ),
     })),
-  setQuestionsArePublic: (isPublic) => set({ questionsArePublic: isPublic }),
+  setQuestionsArePublic: (isPublic: boolean) => set({ questionsArePublic: isPublic }),
   clearQuestions: () => set({ questions: [], questionsArePublic: false }),
+  
+  doubtRequests: [],
+  setDoubtRequests: (doubtRequests) => set({ doubtRequests }),
+  addDoubtRequest: (doubt) => set((state) => {
+    if (state.doubtRequests.some(d => d.id === doubt.id)) return state;
+    return { doubtRequests: [...state.doubtRequests, doubt] };
+  }),
+  updateDoubtRequest: (doubtId, update) => set((state) => ({
+    doubtRequests: state.doubtRequests.map(d => d.id === doubtId ? { ...d, ...update } : d)
+  }))
 }));

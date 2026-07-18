@@ -271,4 +271,30 @@ Recorded because they contradict what the plan assumed. Anyone reading the desig
 
 Verified: all 49 quiz tests pass against the real ASGI app; full suite 207 passed / 3 failed (the 3 are pre-existing `test_recordings.py` failures, confirmed identical on clean `HEAD`); migration applies and rolls back on MySQL; new routes and schemas present in the live OpenAPI spec; all three endpoints reject unauthenticated access; frontend builds and the portal loads with no console errors.
 
-**Not verified:** the student quiz UI past the Google sign-in gate, and the trainer's quiz-results panel. Both need real authentication, which cannot be performed here. Their behaviour is covered by integration tests, but nobody has looked at them on screen — walk quickstart.md Scenarios 2–4 manually before shipping.
+**Not verified:** the student portal quiz UI past the Google sign-in gate, and the trainer's quiz-results panel. Both need real authentication, which cannot be performed here. Their behaviour is covered by integration tests, but nobody has looked at them on screen — walk quickstart.md Scenarios 2–4 manually before shipping.
+
+---
+
+## Follow-up: live-classroom quiz (added after review)
+
+The first pass wired submission into the portal only. In the live classroom the quiz rendered read-only — every option disabled — which is what "unable to click" meant. Two changes:
+
+8. **The live classroom needs its own submit endpoint.** A live participant holds a classroom token, not a Firebase account, so `get_current_student` is unusable there and the portal endpoint was unreachable by design. Added `POST /api/v1/classroom/{session_id}/assets/{asset_id}/quiz-attempts`, participant-authenticated, sharing the same grading service and response shape. A roster-matched participant's attempt is persisted (so it reaches the trainer's report and their later portal progress); a **guest is graded but not stored**, because `session_quiz_attempts.student_id` is non-null and inventing a roster row to satisfy it would corrupt the roster. It also publishes a `quiz_attempt_submitted` bus event carrying name and score only — never the submitted answers, which every other connected student would receive.
+
+9. **One question at a time.** `QuizView` is now a wizard: a step indicator, Back/Next, Next gated until the current question is answered, Submit only on the last. After submitting, every question stays navigable so a student can read all the explanations.
+
+**Also found:** declaring the shared quiz types in `types/studentPortal.ts` and importing them from `classroomService.ts` pulled the portal's type module into the classroom island's graph. They now live in `types/classroom.ts` (the shared base) and are re-exported from `studentPortal.ts`.
+
+### Live verification (this time it was possible)
+
+The classroom join flow needs only a 6-digit code, no credentials — so the whole path was driven for real against session 34 in the dev database, joining as a guest:
+
+- One question per screen, "QUESTION 1 OF 5", Next disabled until answered
+- Options are real buttons and register selection ("1 answered", • marker)
+- All five steps navigate; Submit enables only when every question is answered
+- Submitting returned **Passed — 4 of 5 correct (80%) · 70% needed**, with ✓ revealing the correct answer only afterwards
+- The live `/classroom/{id}/state` response was inspected in the browser: quiz questions carry **only** `question` and `options`, and the raw body contains neither `correct_index` nor `explanation`
+
+Backend suite after this change: **211 passed, 3 failed** (the same pre-existing `test_recordings.py` failures).
+
+**Unrelated pre-existing bug found:** the Astro **dev** server fails to hydrate the `ClassroomApp` island (`Failed to fetch dynamically imported module`), leaving `/classroom` blank on `npm run dev`. Confirmed identical on clean `HEAD` via `git stash`, so it is not from this work — but it means the live classroom cannot be exercised on the dev server at all. The production build is fine; verification above ran against `node dist/server/entry.mjs`. Worth its own fix.

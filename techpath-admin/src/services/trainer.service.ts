@@ -138,6 +138,28 @@ export const trainerService = {
     }
   },
 
+  async approveDoubt(sessionId: number, doubtId: number): Promise<{ message: string }> {
+    try {
+      const response = await apiClient.post<{ message: string }>(
+        `/api/v1/trainer/sessions/${sessionId}/doubts/${doubtId}/approve`
+      );
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  async stopDoubt(sessionId: number, doubtId: number): Promise<{ message: string }> {
+    try {
+      const response = await apiClient.post<{ message: string }>(
+        `/api/v1/trainer/sessions/${sessionId}/doubts/${doubtId}/complete`
+      );
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
   /** Broadcast on/off plus the mute/camera/screen-share toggles — partial update, only
    *  the passed fields change. Broadcasts to students via the classroom WebSocket
    *  (media_state_changed). */

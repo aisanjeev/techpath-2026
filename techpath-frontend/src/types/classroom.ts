@@ -128,4 +128,55 @@ export type ClassroomEvent =
   | { type: 'question_asked'; payload: TrainingSessionQuestionResponse }
   | { type: 'question_upvoted'; payload: { question_id: number; upvotes: number } }
   | { type: 'question_answered'; payload: { question_id: number } }
-  | { type: 'questions_visibility_changed'; payload: { questions_are_public: boolean } };
+  | { type: 'questions_visibility_changed'; payload: { questions_are_public: boolean } }
+  | {
+      type: 'quiz_attempt_submitted';
+      payload: {
+        asset_id: number;
+        participant_id: number;
+        display_name: string;
+        score: number;
+        total_questions: number;
+        passed: boolean;
+        recorded: boolean;
+      };
+    };
+
+/* -------------------------------------------------------------------------
+ * Graded quizzes
+ *
+ * Lives here rather than in studentPortal.ts because both surfaces submit
+ * quizzes — the live classroom as a session participant, the portal as a
+ * signed-in student — and classroom.ts is the shared base studentPortal.ts
+ * already builds on. Declaring it the other way round makes the classroom
+ * bundle depend on the portal's type module, which broke island hydration.
+ *
+ * Note what is NOT in the asset payload: a quiz's `config.questions` reaching
+ * either client carries only `question` and `options`. The backend strips
+ * `correct_index` and `explanation`, so the only place they ever appear is
+ * `QuizQuestionFeedback` below — the response to a submitted attempt.
+ * ---------------------------------------------------------------------- */
+
+export interface QuizQuestionFeedback {
+  index: number;
+  your_answer: number;
+  correct_index: number | null;
+  is_correct: boolean;
+  explanation: string | null;
+}
+
+export interface QuizAttemptResult {
+  attempt_id: number;
+  attempt_number: number;
+  score: number;
+  total_questions: number;
+  percentage: number;
+  passed: boolean;
+  pass_mark: number;
+  attempted_at: string;
+  /** True when this attempt unlocked the next material item, so the portal's
+   *  pager can reveal it without refetching. Always false in the live
+   *  classroom, where nothing is gated. */
+  unlocked_next: boolean;
+  questions: QuizQuestionFeedback[];
+}

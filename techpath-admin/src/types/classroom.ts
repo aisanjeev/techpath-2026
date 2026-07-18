@@ -26,6 +26,15 @@ export interface HandRaisedEntry {
   hand_raised_at: string | null;
 }
 
+export interface DoubtRequest {
+  id: number;
+  participant_id: number;
+  display_name: string;
+  status: 'pending' | 'approved' | 'completed';
+  requested_at: string;
+  whep_url?: string;
+}
+
 export interface TimerView {
   duration_seconds: number;
   started_at: string;
@@ -35,6 +44,7 @@ export interface RosterResponse {
   participants: RosterParticipant[];
   confusion: ConfusionSummary;
   hands_raised: HandRaisedEntry[];
+  doubt_requests: DoubtRequest[];
   /** A timer already in progress, if any — read on mount so a page refresh doesn't
    *  lose track of a running countdown. Live updates after that arrive over the
    *  timer_started / timer_cancelled WebSocket events instead of this field. */
@@ -213,4 +223,19 @@ export type ClassroomEvent =
   | { type: 'question_asked'; payload: TrainingSessionQuestionResponse }
   | { type: 'question_upvoted'; payload: { question_id: number; upvotes: number } }
   | { type: 'question_answered'; payload: { question_id: number } }
-  | { type: 'questions_visibility_changed'; payload: { questions_are_public: boolean } };
+  | { type: 'questions_visibility_changed'; payload: { questions_are_public: boolean } }
+  | {
+      type: 'quiz_attempt_submitted';
+      payload: {
+        asset_id: number;
+        participant_id: number;
+        display_name: string;
+        score: number;
+        total_questions: number;
+        passed: boolean;
+        recorded: boolean;
+      };
+    }
+  | { type: 'doubt_requested'; payload: DoubtRequest }
+  | { type: 'doubt_approved'; payload: DoubtRequest }
+  | { type: 'doubt_completed'; payload: DoubtRequest };
