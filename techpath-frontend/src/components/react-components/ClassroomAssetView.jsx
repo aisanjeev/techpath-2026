@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { marked } from 'marked';
 
 function youtubeId(url) {
@@ -155,30 +155,169 @@ function LinkCard({ url, label }) {
   );
 }
 
-function QuizView({ asset }) {
+/**
+ * A takeable, server-graded quiz.
+ *
+ * `asset.config.questions` here carries only `question` and `options` — the backend
+ * strips the answer key for students. The only correctness information this component
+ * ever has is what comes back in the result of a submitted attempt, which is why
+ * feedback is rendered from `result.questions` rather than from the asset.
+ *
+ * `onSubmit` is injected rather than called directly so this same component works in
+ * the portal (where submitting is wired up) and in the live classroom (where it isn't
+ * — the trainer drives quizzes there as live polls instead). With no `onSubmit`, it
+ * degrades to a read-only preview rather than showing a button that goes nowhere.
+ */
+function QuizView({ asset, onSubmit, initialResult }) {
   const questions = asset.config?.questions || [];
+  const [selected, setSelected] = useState({});
+  const [result, setResult] = useState(initialResult || null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  if (questions.length === 0) {
+    return <p className="text-center text-slate-500">No questions in this quiz yet.</p>;
+  }
+
+  const answeredCount = questions.filter((_, i) => selected[i] != null).length;
+  const allAnswered = answeredCount === questions.length;
+  const feedbackByIndex = {};
+  if (result) {
+    for (const f of result.questions || []) feedbackByIndex[f.index] = f;
+  }
+
+  const submit = async () => {
+    if (!allAnswered || submitting || !onSubmit) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const answers = questions.map((_, i) => selected[i]);
+      const res = await onSubmit(answers);
+      if (res?.success === false) {
+        setError(res.error || 'Could not submit your answers.');
+      } else {
+        setResult(res);
+      }
+    } catch (err) {
+      setError(err?.message || 'Could not submit your answers.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const retry = () => {
+    setSelected({});
+    setResult(null);
+    setError(null);
+  };
+
   return (
     <div className="space-y-5">
-      {questions.map((q, qi) => (
-        <div key={qi} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-          <p className="mb-3 font-medium text-white">
-            <span className="mr-2 text-primary-400">Q{qi + 1}.</span>
-            {q.question}
-          </p>
-          <div className="space-y-2">
-            {(q.options || []).map((opt, oi) => (
-              <div
-                key={oi}
-                className="rounded-xl border border-slate-800 px-4 py-2.5 text-sm text-slate-300"
-              >
-                {opt}
-              </div>
-            ))}
+      {result && (
+        <div
+          className={`rounded-2xl border p-5 ${
+            result.passed
+              ? 'border-emerald-600/50 bg-emerald-950/30'
+              : 'border-amber-600/50 bg-amber-950/30'
+          }`}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className={`font-semibold ${result.passed ? 'text-emerald-300' : 'text-amber-300'}`}>
+                {result.passed ? '✓ Passed' : 'Not passed yet'}
+              </p>
+              <p className="mt-0.5 text-sm text-slate-400">
+                You scored {result.score} of {result.total_questions} ({Math.round(result.percentage)}%)
+                {' · '}
+                {Math.round(result.pass_mark * 100)}% needed to pass
+              </p>
+            </div>
+            <button
+              onClick={retry}
+              className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-800"
+            >
+              {result.passed ? 'Try again' : 'Retry quiz'}
+            </button>
           </div>
+          {!result.passed && (
+            <p className="mt-3 text-sm text-amber-200/80">
+              Review the explanations below, then retry — you can take this as many times as
+              you need.
+            </p>
+          )}
         </div>
-      ))}
-      {questions.length === 0 && (
-        <p className="text-center text-slate-500">No questions in this quiz yet.</p>
+      )}
+
+      {questions.map((q, qi) => {
+        const feedback = feedbackByIndex[qi];
+        const chosen = feedback ? feedback.your_answer : selected[qi];
+        return (
+          <div key={qi} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+            <p className="mb-3 font-medium text-white">
+              <span className="mr-2 text-primary-400">Q{qi + 1}.</span>
+              {q.question}
+            </p>
+            <div className="space-y-2">
+              {(q.options || []).map((opt, oi) => {
+                const isChosen = chosen === oi;
+                // Correctness is only ever known after submitting — before that,
+                // this component genuinely does not have the answer.
+                const isCorrect = feedback && feedback.correct_index === oi;
+                const isWrongChoice = feedback && isChosen && !feedback.is_correct;
+
+                let tone = 'border-slate-800 text-slate-300 hover:border-primary-500/60';
+                if (isCorrect) tone = 'border-emerald-600/60 bg-emerald-950/30 text-emerald-200';
+                else if (isWrongChoice) tone = 'border-red-600/60 bg-red-950/30 text-red-200';
+                else if (isChosen) tone = 'border-primary-500 bg-primary-500/10 text-white';
+
+                return (
+                  <button
+                    key={oi}
+                    type="button"
+                    disabled={!!result || submitting || !onSubmit}
+                    onClick={() => setSelected((s) => ({ ...s, [qi]: oi }))}
+                    className={`flex w-full items-center gap-3 rounded-xl border px-4 py-2.5 text-left text-sm transition disabled:cursor-default ${tone}`}
+                  >
+                    <span
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[11px] ${
+                        isChosen ? 'border-current' : 'border-slate-600'
+                      }`}
+                    >
+                      {isCorrect ? '✓' : isWrongChoice ? '✕' : isChosen ? '•' : ''}
+                    </span>
+                    <span className="min-w-0 flex-1">{opt}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {feedback?.explanation && (
+              <p className="mt-3 rounded-xl bg-slate-800/60 px-4 py-2.5 text-sm text-slate-300">
+                {feedback.explanation}
+              </p>
+            )}
+          </div>
+        );
+      })}
+
+      {error && (
+        <p className="rounded-xl border border-red-800 bg-red-950/40 px-4 py-3 text-sm text-red-300">
+          {error}
+        </p>
+      )}
+
+      {!result && onSubmit && (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-5">
+          <p className="text-sm text-slate-500">
+            {answeredCount} of {questions.length} answered
+          </p>
+          <button
+            onClick={submit}
+            disabled={!allAnswered || submitting}
+            className="rounded-xl bg-primary-500 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {submitting ? 'Submitting…' : 'Submit answers'}
+          </button>
+        </div>
       )}
     </div>
   );
@@ -288,7 +427,7 @@ function DownloadCard({ asset, message }) {
   );
 }
 
-export default function ClassroomAssetView({ asset }) {
+export default function ClassroomAssetView({ asset, onQuizSubmit, quizResult }) {
   if (!asset) return null;
 
   switch (asset.asset_type) {
@@ -313,7 +452,7 @@ export default function ClassroomAssetView({ asset }) {
     case 'github_repo':
       return <LinkCard url={asset.external_url} label={`View on GitHub — ${asset.title}`} />;
     case 'quiz':
-      return <QuizView asset={asset} />;
+      return <QuizView asset={asset} onSubmit={onQuizSubmit} initialResult={quizResult} />;
     case 'assignment':
     case 'lab':
       return <StructuredView asset={asset} />;

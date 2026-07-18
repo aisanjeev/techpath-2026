@@ -104,6 +104,48 @@ export interface PollHistoryResponse {
   polls: PollHistoryEntry[];
 }
 
+/* ---------- quiz results ---------- */
+
+export interface QuizStudentResult {
+  student_id: number;
+  name: string;
+  email: string | null;
+  attempt_count: number;
+  best_score: number | null;
+  total_questions: number | null;
+  passed: boolean;
+  last_attempted_at: string | null;
+  /** The best attempt was graded against a different question count than the quiz
+   *  has now. Catches added/removed questions, not a reworded one. */
+  is_stale: boolean;
+}
+
+export interface QuizQuestionStat {
+  index: number;
+  question: string;
+  correct_count: number;
+  attempted_count: number;
+}
+
+export interface QuizResultSummary {
+  asset_id: number;
+  title: string;
+  total_questions: number;
+  pass_mark: number;
+  attempted_count: number;
+  passed_count: number;
+  roster_size: number;
+  question_stats: QuizQuestionStat[];
+  /** Every roster student, including those who never attempted — those carry
+   *  attempt_count 0 and null scores. */
+  students: QuizStudentResult[];
+}
+
+export interface QuizResultsResponse {
+  session_id: number;
+  quizzes: QuizResultSummary[];
+}
+
 export interface ConfusionTimelinePoint {
   timestamp: string;
   online: number;

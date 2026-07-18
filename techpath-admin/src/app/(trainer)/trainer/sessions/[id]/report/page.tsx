@@ -3,7 +3,7 @@
 import { use, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Users, BarChart3, Activity, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Users, BarChart3, Activity, CheckCircle2, ListChecks } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -14,7 +14,10 @@ import type {
   AttendanceReportResponse,
   ConfusionTimelineResponse,
   PollHistoryResponse,
+  QuizResultsResponse,
+  QuizResultSummary,
 } from '@/types/classroom';
+import { SessionMaterialsModal } from '@/components/SessionMaterialsModal';
 
 function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
@@ -54,6 +57,118 @@ function ConfusionSparkline({ points }: { points: ConfusionTimelineResponse['poi
   );
 }
 
+/** One quiz's results: the headline pass rate, who stands where, and which question
+ *  the group actually got wrong — that last one is usually what changes what a
+ *  trainer does next. */
+function QuizResultBlock({ quiz }: { quiz: QuizResultSummary }) {
+  const notAttempted = quiz.roster_size - quiz.attempted_count;
+  // Sorted worst-first: the students who need attention are the reason to open this.
+  const students = [...quiz.students].sort((a, b) => {
+    if (a.passed !== b.passed) return a.passed ? 1 : -1;
+    if (a.attempt_count === 0 !== (b.attempt_count === 0)) return a.attempt_count === 0 ? -1 : 1;
+    return (a.best_score ?? -1) - (b.best_score ?? -1);
+  });
+
+  return (
+    <div className="rounded-lg border border-gray-200">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-gray-50 px-4 py-3">
+        <div>
+          <p className="text-sm font-medium text-gray-900">{quiz.title}</p>
+          <p className="mt-0.5 text-xs text-gray-500">
+            {quiz.total_questions} question{quiz.total_questions === 1 ? '' : 's'} ·{' '}
+            {Math.round(quiz.pass_mark * 100)}% to pass
+          </p>
+        </div>
+        <div className="flex items-center gap-4 text-xs">
+          <span className="font-medium text-green-700">{quiz.passed_count} passed</span>
+          <span className="text-amber-700">
+            {quiz.attempted_count - quiz.passed_count} attempted, not passed
+          </span>
+          <span className="text-gray-500">{notAttempted} not attempted</span>
+        </div>
+      </div>
+
+      {quiz.question_stats.length > 0 && (
+        <div className="border-b border-gray-200 px-4 py-3">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+            Where the group struggled
+          </p>
+          <div className="space-y-1.5">
+            {quiz.question_stats.map((stat) => {
+              const pct =
+                stat.attempted_count > 0
+                  ? Math.round((stat.correct_count / stat.attempted_count) * 100)
+                  : 0;
+              return (
+                <div key={stat.index} className="flex items-center gap-3 text-xs">
+                  <span className="w-6 shrink-0 text-gray-400">Q{stat.index + 1}</span>
+                  <span className="min-w-0 flex-1 truncate text-gray-700" title={stat.question}>
+                    {stat.question}
+                  </span>
+                  <div className="h-1.5 w-24 shrink-0 overflow-hidden rounded-full bg-gray-200">
+                    <div
+                      className={`h-full rounded-full ${
+                        pct >= 70 ? 'bg-green-500' : pct >= 40 ? 'bg-amber-500' : 'bg-red-500'
+                      }`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <span className="w-16 shrink-0 text-right text-gray-500">
+                    {stat.correct_count}/{stat.attempted_count} right
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="max-h-80 overflow-auto">
+        <table className="w-full text-left text-xs">
+          <thead className="sticky top-0 bg-white">
+            <tr className="border-b border-gray-200 text-gray-500">
+              <th className="px-4 py-2 font-medium">Student</th>
+              <th className="px-4 py-2 font-medium">Attempts</th>
+              <th className="px-4 py-2 font-medium">Best</th>
+              <th className="px-4 py-2 font-medium">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {students.map((s) => (
+              <tr key={s.student_id} className="border-b border-gray-100 last:border-0">
+                <td className="px-4 py-2">
+                  <span className="text-gray-900">{s.name}</span>
+                  {s.is_stale && (
+                    <span
+                      className="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-600"
+                      title="Graded against an earlier version of this quiz — the score was not recalculated"
+                    >
+                      earlier version
+                    </span>
+                  )}
+                </td>
+                <td className="px-4 py-2 text-gray-600">{s.attempt_count || '—'}</td>
+                <td className="px-4 py-2 text-gray-600">
+                  {s.best_score != null ? `${s.best_score}/${s.total_questions}` : '—'}
+                </td>
+                <td className="px-4 py-2">
+                  {s.attempt_count === 0 ? (
+                    <span className="text-gray-400">Not attempted</span>
+                  ) : s.passed ? (
+                    <span className="font-medium text-green-700">Passed</span>
+                  ) : (
+                    <span className="font-medium text-amber-700">Not passed</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export default function SessionReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const sessionId = Number(id);
@@ -63,6 +178,7 @@ export default function SessionReportPage({ params }: { params: Promise<{ id: st
   const [attendance, setAttendance] = useState<AttendanceReportResponse | null>(null);
   const [pollHistory, setPollHistory] = useState<PollHistoryResponse | null>(null);
   const [timeline, setTimeline] = useState<ConfusionTimelineResponse | null>(null);
+  const [quizResults, setQuizResults] = useState<QuizResultsResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -79,15 +195,22 @@ export default function SessionReportPage({ params }: { params: Promise<{ id: st
     // Each report section is fetched independently and degrades on its own — one
     // endpoint having a bad day (or, as observed against the live dev backend, a route
     // that 422s) shouldn't blank out the sections that loaded fine.
-    const [attResult, pollResult, confResult] = await Promise.allSettled([
+    const [attResult, pollResult, confResult, quizResult] = await Promise.allSettled([
       trainerService.getAttendanceReport(sessionId),
       trainerService.getPollHistory(sessionId),
       trainerService.getConfusionTimeline(sessionId),
+      trainerService.getQuizResults(sessionId),
     ]);
     setAttendance(attResult.status === 'fulfilled' ? attResult.value : null);
     setPollHistory(pollResult.status === 'fulfilled' ? pollResult.value : null);
     setTimeline(confResult.status === 'fulfilled' ? confResult.value : null);
-    if (attResult.status === 'rejected' || pollResult.status === 'rejected' || confResult.status === 'rejected') {
+    setQuizResults(quizResult.status === 'fulfilled' ? quizResult.value : null);
+    if (
+      attResult.status === 'rejected' ||
+      pollResult.status === 'rejected' ||
+      confResult.status === 'rejected' ||
+      quizResult.status === 'rejected'
+    ) {
       toast.error('Some parts of this report could not be loaded');
     }
     setLoading(false);
@@ -111,17 +234,23 @@ export default function SessionReportPage({ params }: { params: Promise<{ id: st
         Back to session
       </Link>
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          {attendance?.session_title || session.title || session.module_title || 'Session report'}
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          {session.batch_name}
-          {attendance &&
-            ` · ${attendance.total_participants} participant${
-              attendance.total_participants === 1 ? '' : 's'
-            }`}
-        </p>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {attendance?.session_title || session.title || session.module_title || 'Session report'}
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">
+            {session.batch_name}
+            {attendance &&
+              ` · ${attendance.total_participants} participant${
+                attendance.total_participants === 1 ? '' : 's'
+              }`}
+          </p>
+        </div>
+        
+        {session.module_id && (
+          <SessionMaterialsModal moduleId={session.module_id} />
+        )}
       </div>
 
       <div className="space-y-6">
@@ -236,6 +365,21 @@ export default function SessionReportPage({ params }: { params: Promise<{ id: st
             </div>
           )}
         </Card>
+
+        {/* Quiz results */}
+        {quizResults && quizResults.quizzes.length > 0 && (
+          <Card className="p-6">
+            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-gray-900">
+              <ListChecks className="h-4 w-4 text-teal-600" />
+              Quiz results
+            </h2>
+            <div className="space-y-8">
+              {quizResults.quizzes.map((quiz) => (
+                <QuizResultBlock key={quiz.asset_id} quiz={quiz} />
+              ))}
+            </div>
+          </Card>
+        )}
 
         {/* Confusion timeline */}
         <Card className="p-6">

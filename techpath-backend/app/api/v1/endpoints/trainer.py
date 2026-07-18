@@ -661,7 +661,11 @@ async def set_current_slide(
     db.add(session)
     await db.flush()
 
-    asset_payload = await asset_to_response(db, asset)
+    # audience="student" even though this endpoint is trainer-authenticated: the payload
+    # is broadcast to every connected student, so it's the *audience of the broadcast*
+    # that decides redaction, not the caller's role. Without this, putting a quiz slide
+    # on screen ships its answer key to the whole class over the WebSocket.
+    asset_payload = await asset_to_response(db, asset, audience="student")
     await bus.publish(
         db, session_id, "slide_change", {"asset": asset_payload.model_dump(mode="json")}
     )

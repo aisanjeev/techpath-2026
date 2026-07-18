@@ -12,6 +12,7 @@ import type {
   AttendanceReportResponse,
   ConfusionTimelineResponse,
   PollHistoryResponse,
+  QuizResultsResponse,
   PollResultsResponse,
   RosterResponse,
   WsTokenResponse,
@@ -347,6 +348,17 @@ export const trainerService = {
     try {
       const response = await apiClient.get<AttendanceReportResponse>(
         `/api/v1/trainer/sessions/${sessionId}/attendance`
+      );
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  async getQuizResults(sessionId: number): Promise<QuizResultsResponse> {
+    try {
+      const response = await apiClient.get<QuizResultsResponse>(
+        `/api/v1/trainer/sessions/${sessionId}/quiz-results`
       );
       return response.data;
     } catch (error) {

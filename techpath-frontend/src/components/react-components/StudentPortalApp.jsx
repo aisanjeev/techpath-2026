@@ -5,6 +5,8 @@ import {
   loginToPortal,
   getMySessions,
   getSessionMaterials,
+  getSessionProgress,
+  submitQuizAttempt,
 } from '@/services/studentPortalService';
 import ClassroomAssetView from './ClassroomAssetView';
 
@@ -311,7 +313,74 @@ function RecordingCard({ recording }) {
   );
 }
 
-function MaterialsScreen({ materials, currentPage, onPageChange, loading, notFound, onBack, onSignOut }) {
+/** The "where am I" strip: one dot per material item, so a student can see what
+ *  they've completed and what's still locked rather than only discovering the wall
+ *  when Next stops working. */
+function ProgressTrack({ items, currentPage }) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 border-t border-slate-800 pt-5">
+      {items.map((item) => {
+        const isCurrent = item.index === currentPage;
+        let tone = 'bg-slate-700';
+        let label = item.title;
+        if (item.locked) {
+          tone = 'bg-slate-800 ring-1 ring-slate-700';
+          label = `${item.title} — locked`;
+        } else if (item.isQuiz && item.passed) {
+          tone = 'bg-emerald-500';
+          label = `${item.title} — passed`;
+        } else if (item.isQuiz) {
+          tone = 'bg-amber-500';
+          label = `${item.title} — quiz not passed`;
+        }
+        return (
+          <span
+            key={item.id}
+            title={label}
+            className={`h-1.5 rounded-full transition-all ${tone} ${
+              isCurrent ? 'w-8 ring-2 ring-primary-400/60' : 'w-5'
+            }`}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function MaterialsScreen({
+  materials,
+  progress,
+  quizResults,
+  onQuizSubmit,
+  currentPage,
+  onPageChange,
+  loading,
+  notFound,
+  onBack,
+  onSignOut,
+}) {
+  // Forward navigation stops at the first unpassed quiz. Backward is never
+  // restricted — a student can always revisit anything they've already reached.
+  //
+  // With no progress loaded (the request failed), firstLocked is Infinity and the
+  // pager behaves exactly as it did before this feature. Failing open is deliberate:
+  // gating is a sequencing aid, not a security boundary, and locking someone out of
+  // material they're entitled to because a secondary fetch failed is the worse bug.
+  const firstLocked = progress?.first_locked_index ?? Infinity;
+  const isNextBlocked = currentPage >= firstLocked;
+
+  const progressTrack = (materials?.assets || []).map((asset, i) => {
+    const item = progress?.items?.find((p) => p.asset_id === asset.id);
+    return {
+      id: asset.id,
+      index: i,
+      title: asset.title,
+      isQuiz: item?.is_quiz ?? asset.asset_type === 'quiz',
+      passed: item?.passed ?? null,
+      locked: item?.locked ?? false,
+    };
+  });
+
   return (
     <div className="min-h-screen bg-slate-950">
       <PortalHeader
@@ -367,10 +436,29 @@ function MaterialsScreen({ materials, currentPage, onPageChange, loading, notFou
                     <h3 className="mb-3 font-heading text-base font-semibold text-white">
                       {materials.assets[currentPage].title}
                     </h3>
-                    <ClassroomAssetView asset={materials.assets[currentPage]} />
+                    <ClassroomAssetView
+                      asset={materials.assets[currentPage]}
+                      quizResult={quizResults?.[materials.assets[currentPage].id]}
+                      onQuizSubmit={
+                        onQuizSubmit
+                          ? (answers) => onQuizSubmit(materials.assets[currentPage].id, answers)
+                          : undefined
+                      }
+                    />
                   </div>
                 )}
-                
+
+                {progressTrack.length > 1 && (
+                  <ProgressTrack items={progressTrack} currentPage={currentPage} />
+                )}
+
+                {isNextBlocked && (
+                  <p className="rounded-xl border border-amber-800/60 bg-amber-950/30 px-4 py-3 text-sm text-amber-200">
+                    Pass the quiz above to continue to the rest of this session's material.
+                    You can retake it as many times as you need.
+                  </p>
+                )}
+
                 {materials.assets.length > 1 && (
                   <div className="mt-8 flex items-center justify-between border-t border-slate-800 pt-6">
                     <button
@@ -388,12 +476,22 @@ function MaterialsScreen({ materials, currentPage, onPageChange, loading, notFou
                     </span>
                     <button
                       onClick={() => onPageChange(currentPage + 1)}
-                      disabled={currentPage === materials.assets.length - 1}
+                      disabled={currentPage === materials.assets.length - 1 || isNextBlocked}
+                      title={isNextBlocked ? 'Pass the quiz on this page to continue' : undefined}
                       className="flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50 disabled:hover:bg-slate-800"
                     >
-                      Next
+                      {isNextBlocked ? 'Locked' : 'Next'}
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        {isNextBlocked ? (
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                          />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        )}
                       </svg>
                     </button>
                   </div>
@@ -422,6 +520,13 @@ export default function StudentPortalApp() {
   const [materialsLoading, setMaterialsLoading] = useState(false);
   const [materialsNotFound, setMaterialsNotFound] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+  // Server-computed gating state. Null means "couldn't load it" — in that case the
+  // pager falls back to ungated navigation rather than locking a student out of
+  // material they're entitled to because a secondary request failed.
+  const [progress, setProgress] = useState(null);
+  // Attempt results keyed by asset id, so paging away from a quiz and back doesn't
+  // discard the feedback the student just earned.
+  const [quizResults, setQuizResults] = useState({});
 
   // Holds a `?session=<id>` and `?page=<num>` seen on first load until the initial auth check resolves,
   // so a bookmarked/refreshed materials URL can jump straight there. Cleared after
@@ -452,16 +557,56 @@ export default function StudentPortalApp() {
     if (pushState) {
       window.history.pushState({}, '', `${window.location.pathname}?${SESSION_QUERY_PARAM}=${sessionId}&${PAGE_QUERY_PARAM}=${page}`);
     }
-    const res = await getSessionMaterials(sessionId);
+    // Materials and progress are fetched together: rendering the pager without
+    // knowing what's locked would briefly show a Next button that then disables
+    // itself, which reads as a bug.
+    const [res, progressRes] = await Promise.all([
+      getSessionMaterials(sessionId),
+      getSessionProgress(sessionId),
+    ]);
     setMaterialsLoading(false);
     if (res.success && res.data) {
       setMaterials(res.data);
+      const loadedProgress = progressRes.success ? progressRes.data : null;
+      setProgress(loadedProgress);
+      setQuizResults({});
+      // The page index comes from the URL, so a deep link (or a stale bookmark from
+      // before a quiz was added) can point past the gate. Clamp it, otherwise
+      // gating is trivially bypassed by editing the query string.
+      if (loadedProgress && page > loadedProgress.first_locked_index) {
+        setCurrentPage(loadedProgress.first_locked_index);
+      }
     } else {
       // The backend deliberately returns the same 404 whether the session doesn't
       // exist, wasn't attended, or isn't published yet — no need to distinguish here.
       setMaterialsNotFound(true);
     }
   }, []);
+
+  /** Submit a quiz, then fold the outcome back into gating state.
+   *
+   *  On a pass the server tells us `unlocked_next`, so the next item is revealed
+   *  immediately rather than after a refetch — the student sees the wall come down
+   *  as a direct result of what they just did. */
+  const handleQuizSubmit = useCallback(
+    async (assetId, answers) => {
+      if (!materials) return { success: false, error: 'No session loaded' };
+      const res = await submitQuizAttempt(materials.session_id, assetId, answers);
+      if (!res.success || !res.data) {
+        return { success: false, error: res.error || 'Could not submit your answers.' };
+      }
+      setQuizResults((prev) => ({ ...prev, [assetId]: res.data }));
+      if (res.data.passed) {
+        // Refresh authoritative gating rather than mutating it locally — the server
+        // owns the pass mark and the lock computation, and a passing attempt can
+        // unlock more than just the immediate next item.
+        const progressRes = await getSessionProgress(materials.session_id);
+        if (progressRes.success) setProgress(progressRes.data);
+      }
+      return res.data;
+    },
+    [materials]
+  );
 
   const backToList = useCallback(({ pushState = true } = {}) => {
     setStage('list');
@@ -574,6 +719,9 @@ export default function StudentPortalApp() {
     return (
       <MaterialsScreen
         materials={materials}
+        progress={progress}
+        quizResults={quizResults}
+        onQuizSubmit={handleQuizSubmit}
         currentPage={currentPage}
         onPageChange={(newPage) => {
           setCurrentPage(newPage);

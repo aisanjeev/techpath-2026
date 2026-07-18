@@ -6,7 +6,7 @@ import logging
 import time
 import uuid
 from datetime import datetime, timezone
-from typing import Any, List, Optional, Sequence
+from typing import Any, List, Literal, Optional, Sequence
 
 import httpx
 from sqlalchemy import func, or_, select
@@ -132,7 +132,39 @@ async def _fetch_csv_preview(cache_key: str, url: str) -> Optional[CsvPreview]:
     )
 
 
-async def asset_to_response(db: AsyncSession, asset: LectureAsset) -> LectureAssetResponse:
+Audience = Literal["trainer", "student"]
+
+
+def _redact_quiz_config_for_student(config: Optional[dict]) -> Optional[dict]:
+    """Strip the answer key out of a quiz asset's config.
+
+    Removes ``correct_index`` and ``explanation`` from every question — the keys are
+    dropped entirely rather than nulled, so nothing about the right answer survives in
+    the payload's shape either.
+
+    Works on a copy. ``load_config`` parses fresh JSON per call today, but mutating a
+    dict that reached us from anywhere else would silently poison the trainer's view of
+    the same asset, and that failure would be near-impossible to trace back here.
+    """
+    if not config:
+        return config
+    questions = config.get("questions")
+    if not isinstance(questions, list):
+        return config
+
+    redacted = dict(config)
+    redacted["questions"] = [
+        {k: v for k, v in question.items() if k not in ("correct_index", "explanation")}
+        if isinstance(question, dict)
+        else question
+        for question in questions
+    ]
+    return redacted
+
+
+async def asset_to_response(
+    db: AsyncSession, asset: LectureAsset, *, audience: Audience = "trainer"
+) -> LectureAssetResponse:
     """Shared by the admin module endpoint, the trainer's slide broadcast, and the
     student classroom state fetch — one place decides what an asset looks like off
     the wire so the three surfaces can't quietly drift apart.
@@ -143,6 +175,13 @@ async def asset_to_response(db: AsyncSession, asset: LectureAsset) -> LectureAss
     ``storage_service``, not trusted from anything the client sent. This also means it
     correctly regenerates a fresh signed URL under Azure Blob storage, where a stored
     path alone isn't servable and a client-side guess would be flatly wrong.
+
+    ``audience`` decides whether a quiz asset carries its answer key. It defaults to
+    ``"trainer"`` because most callers here are the CMS and the presenter, which need
+    it — but that means **any new student-facing caller must pass
+    ``audience="student"`` explicitly**. Forgetting to is exactly how the answer key
+    leaked to students before; ``tests/test_student_quiz_flow.py`` asserts on the
+    student endpoints specifically to catch a regression.
     """
     file_url: Optional[str] = None
     stored_path: Optional[str] = None
@@ -158,6 +197,10 @@ async def asset_to_response(db: AsyncSession, asset: LectureAsset) -> LectureAss
         # that's only good for the actual fetch — see _fetch_csv_preview.
         csv_preview = await _fetch_csv_preview(stored_path, file_url)
 
+    config = load_config(asset.config_json)
+    if audience == "student" and asset.asset_type == AssetType.QUIZ.value:
+        config = _redact_quiz_config_for_student(config)
+
     return LectureAssetResponse(
         id=asset.id,
         public_id=asset.public_id,
@@ -167,7 +210,7 @@ async def asset_to_response(db: AsyncSession, asset: LectureAsset) -> LectureAss
         body=asset.body,
         media_file_id=asset.media_file_id,
         external_url=asset.external_url,
-        config=load_config(asset.config_json),
+        config=config,
         tags=load_tags(asset.tags_json),
         status=asset.status,
         is_active=asset.is_active,

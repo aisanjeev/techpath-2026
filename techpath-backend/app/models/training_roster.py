@@ -308,3 +308,60 @@ class TrainingSessionQuestion(Base, TimestampMixin):
 
     def __repr__(self) -> str:
         return f"<TrainingSessionQuestion(id={self.id}, session={self.session_id}, student={self.student_id})>"
+
+
+class SessionQuizAttempt(Base, TimestampMixin):
+    """One student's graded submission of one quiz asset, in one session.
+
+    Rows are immutable: a retry inserts a new row with the next ``attempt_number``
+    rather than overwriting. That keeps the full history a trainer's report needs for
+    free, and means "has this student passed?" is a plain EXISTS over ``passed`` — no
+    separate progress table to drift out of sync with the attempts that produced it.
+
+    ``total_questions`` is the question count *at grading time*, not the asset's count
+    now. A trainer editing a quiz after students have attempted it must not silently
+    rescore them, so the two are compared to flag an attempt as stale instead. This
+    only catches questions being added or removed — a reworded question, or a changed
+    correct answer at the same count, still looks current. Accepted deliberately; a
+    content hash is the additive upgrade if that ever matters.
+    """
+
+    __tablename__ = "session_quiz_attempts"
+    __table_args__ = (
+        # The actual double-submit guard. A double-clicked submit or a retried request
+        # races two inserts with the same attempt_number and the DB rejects one —
+        # client-side disabling alone can't survive two tabs. Same reasoning as
+        # SessionPollVote's unique constraint against double voting.
+        UniqueConstraint("student_id", "asset_id", "attempt_number", name="uq_quiz_attempt_number"),
+        Index("ix_quiz_attempts_session_asset", "session_id", "asset_id"),
+        Index("ix_quiz_attempts_student_session", "student_id", "session_id"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    student_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("training_students.id", ondelete="CASCADE"), nullable=False
+    )
+    session_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("training_sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    asset_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("lecture_assets.id", ondelete="CASCADE"), nullable=False
+    )
+
+    attempt_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    # JSON array of selected option indices, positionally aligned to the quiz's
+    # questions. Text rather than a native JSON column so the same DDL works on both
+    # SQLite and MySQL — matches options_json/config_json/tags_json elsewhere.
+    answers_json: Mapped[str] = mapped_column(Text, nullable=False)
+
+    score: Mapped[int] = mapped_column(Integer, nullable=False)
+    total_questions: Mapped[int] = mapped_column(Integer, nullable=False)
+    passed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    attempted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    def __repr__(self) -> str:
+        return (
+            f"<SessionQuizAttempt(student={self.student_id}, asset={self.asset_id}, "
+            f"attempt={self.attempt_number}, score={self.score}/{self.total_questions})>"
+        )

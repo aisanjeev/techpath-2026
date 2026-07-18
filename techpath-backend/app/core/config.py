@@ -143,6 +143,15 @@ class Settings(BaseSettings):
     ROSTER_SYNC_PAGE_SIZE: int = Field(default=100)
 
     # -----------------
+    # Graded quizzes
+    # -----------------
+    # Fraction of questions a student must get right to pass a quiz and unlock the
+    # material that follows it. A fraction (0.7), NOT a percentage (70) — grading
+    # compares `score / total >= QUIZ_PASS_MARK` directly, so a percentage here would
+    # make every quiz unpassable.
+    QUIZ_PASS_MARK: float = Field(default=0.7)
+
+    # -----------------
     # Live classroom media (WHIP/WHEP + recording transcode)
     # -----------------
     LIVE_MEDIA_BASE_URL: str = Field(default="")

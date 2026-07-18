@@ -202,7 +202,10 @@ async def get_state(
     if session.current_asset_id:
         asset = await lecture_asset_crud.get(db, session.current_asset_id)
         if asset:
-            current_asset = await asset_to_response(db, asset)
+            # This is the student's view of the slide the trainer is presenting, so the
+            # answer key must not travel with it — a quiz on screen is one the class is
+            # about to be asked. audience="student" strips it.
+            current_asset = await asset_to_response(db, asset, audience="student")
 
     open_poll = None
     poll = await session_poll_crud.get_open_poll(db, session_id)
