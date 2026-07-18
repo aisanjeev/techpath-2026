@@ -946,12 +946,12 @@ export function ClassroomPanel({ sessionId, connected, subscribe, assets }: Prop
           requested_at: new Date().toISOString()
         });
       } else if (event.type === 'doubt_approved') {
-        useClassroomStore.getState().updateDoubtRequest(event.payload.doubt_id, { 
+        useClassroomStore.getState().updateDoubtRequest(event.payload.id, { 
           status: 'approved',
           whep_url: event.payload.whep_url
         });
       } else if (event.type === 'doubt_completed') {
-        useClassroomStore.getState().updateDoubtRequest(event.payload.doubt_id, { 
+        useClassroomStore.getState().updateDoubtRequest(event.payload.id, { 
           status: 'completed'
         });
       }
