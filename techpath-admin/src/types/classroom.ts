@@ -236,6 +236,6 @@ export type ClassroomEvent =
         recorded: boolean;
       };
     }
-  | { type: 'doubt_requested'; payload: DoubtRequest }
+  | { type: 'doubt_requested'; payload: { doubt_id: number; participant_id: number; display_name: string; } }
   | { type: 'doubt_approved'; payload: DoubtRequest }
   | { type: 'doubt_completed'; payload: DoubtRequest };
