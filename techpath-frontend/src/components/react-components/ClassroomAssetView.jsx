@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { marked } from 'marked';
+import { Info, Check, Calendar } from 'lucide-react';
 
 function youtubeId(url) {
   const m = (url || '').match(
@@ -383,33 +384,126 @@ function StructuredView({ asset }) {
   const instructions = config.instructions || config.description || '';
   const steps = config.steps || [];
   const html = useMemo(() => renderMarkdown(instructions), [instructions]);
+  const objective = config.objective || '';
 
+  const [completedSteps, setCompletedSteps] = useState({});
+
+  if (asset.asset_type === 'assignment') {
+    const dueInDays = config.due_in_days;
+    return (
+      <div className="space-y-4">
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 shadow-sm space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-700 pb-3">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
+              <Calendar className="h-4 w-4 text-primary-400" />
+              <span>Deadline Info</span>
+            </div>
+            <span className="rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+              {dueInDays ? `Due in ${dueInDays} days` : 'No absolute due date'}
+            </span>
+          </div>
+          
+          <div
+            className="markdown-content text-sm text-slate-300"
+            dangerouslySetInnerHTML={{
+              __html: html || '<p class="italic text-slate-500">No instructions provided.</p>'
+            }}
+          />
+        </div>
+
+        {/* Mock file submission area (since full file submission logic might be elsewhere, we show a nice UI placeholder or the actual component if available) */}
+        <div className="rounded-xl border border-dashed border-slate-700 bg-slate-900/30 p-6 text-center space-y-3">
+          <p className="text-xs font-bold text-slate-300">Upload Submission</p>
+          <p className="text-[10px] text-slate-500">PDF, ZIP, or DOCX formats accepted.</p>
+          <button
+            type="button"
+            className="rounded-lg border border-slate-600 bg-slate-800 px-3.5 py-1.5 text-xs font-bold text-slate-300 shadow-sm transition hover:bg-slate-700"
+          >
+            Attach Document
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Lab View
   return (
-    <div className="space-y-5">
-      {instructions && (
-        <div className="markdown-content" dangerouslySetInnerHTML={{ __html: html }} />
-      )}
+    <div className="space-y-4">
       {steps.length > 0 && (
-        <ol className="space-y-3">
-          {steps.map((step, i) => (
-            <li key={i} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-              <div className="flex items-start gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-500 text-sm font-bold text-white">
-                  {i + 1}
-                </span>
-                <div className="min-w-0">
-                  <p className="font-medium text-white">{step.title}</p>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 shadow-sm space-y-2.5">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-200">
+            <span>Guided Exercise Progress</span>
+            <span className="text-primary-400">
+              {Math.round((Object.values(completedSteps).filter(Boolean).length / steps.length) * 100)}% Done
+            </span>
+          </div>
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+            <div
+              className="h-full bg-primary-500 transition-all duration-300"
+              style={{
+                width: `${(Object.values(completedSteps).filter(Boolean).length / steps.length) * 100}%`,
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {objective && (
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 shadow-sm space-y-2">
+          <div className="flex items-center gap-1 text-xs font-bold text-primary-400">
+            <Info className="h-4 w-4" />
+            <span>Objective</span>
+          </div>
+          <p className="text-sm leading-relaxed text-slate-300">{objective}</p>
+        </div>
+      )}
+
+      {steps.length > 0 && (
+        <div className="space-y-3.5 pl-1 pt-2">
+          {steps.map((step, idx) => {
+            const isDone = !!completedSteps[idx];
+            return (
+              <div key={idx} className="flex gap-3">
+                <div className="flex flex-col items-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCompletedSteps((prev) => ({
+                        ...prev,
+                        [idx]: !prev[idx],
+                      }));
+                    }}
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-all active:scale-95 ${
+                      isDone
+                        ? 'border-primary-500 bg-primary-500 text-white'
+                        : 'border-slate-600 bg-slate-800 text-slate-300 hover:border-primary-400'
+                    }`}
+                  >
+                    {isDone ? <Check className="h-3.5 w-3.5" /> : idx + 1}
+                  </button>
+                  {idx < steps.length - 1 && (
+                    <div className="h-full w-0.5 bg-slate-800 mt-1" />
+                  )}
+                </div>
+                <div className="pt-0.5 pb-4 min-w-0 flex-1">
+                  <p
+                    className={`text-sm leading-relaxed ${
+                      isDone ? 'line-through text-slate-500' : 'font-medium text-white'
+                    }`}
+                  >
+                    {step.title}
+                  </p>
                   {step.instructions && (
                     <div
-                      className="markdown-content mt-1 text-sm"
+                      className={`markdown-content mt-2 text-sm ${isDone ? 'opacity-50' : ''}`}
                       dangerouslySetInnerHTML={{ __html: renderMarkdown(step.instructions) }}
                     />
                   )}
                 </div>
               </div>
-            </li>
-          ))}
-        </ol>
+            );
+          })}
+        </div>
       )}
     </div>
   );

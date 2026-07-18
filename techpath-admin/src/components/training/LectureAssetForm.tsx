@@ -137,18 +137,18 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
     asset?.config?.due_in_days != null ? String(asset.config.due_in_days) : ''
   );
   const [objective, setObjective] = useState((asset?.config?.objective as string) ?? '');
-  const [steps, setSteps] = useState<string[]>(() => {
+  const [steps, setSteps] = useState<{title: string, instructions: string}[]>(() => {
     const rawSteps = asset?.config?.steps;
     if (Array.isArray(rawSteps)) {
       return rawSteps.map((s) => {
-        if (typeof s === 'string') return s;
+        if (typeof s === 'string') return { title: s, instructions: '' };
         if (s && typeof s === 'object') {
-          return (s as any).title || (s as any).instructions || JSON.stringify(s);
+          return { title: String((s as any).title || ''), instructions: String((s as any).instructions || '') };
         }
-        return String(s || '');
+        return { title: String(s || ''), instructions: '' };
       });
     }
-    return [''];
+    return [{ title: '', instructions: '' }];
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -235,7 +235,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
       next.instructions = 'Instructions are required';
     if (assetType === 'lab') {
       if (!objective.trim()) next.objective = 'Describe the objective';
-      if (!steps.some((s) => s.trim())) next.steps = 'Add at least one step';
+      if (!steps.some((s) => s.title.trim())) next.steps = 'Add at least one step';
     }
 
     setErrors(next);
@@ -283,7 +283,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
     } else if (assetType === 'lab') {
       base.config = {
         objective,
-        steps: steps.filter((s) => s.trim()),
+        steps: steps.filter((s) => s.title.trim()),
       };
     }
 
@@ -816,25 +816,37 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
                 <FormField label="Steps" required error={errors.steps} description="List instructions in sequence. Click check icon to review progress.">
                   <div className="space-y-3">
                     {steps.map((step, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-50 text-xs font-bold text-teal-700 border border-teal-100">
+                      <div key={i} className="flex gap-3">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-50 text-xs font-bold text-teal-700 border border-teal-100 mt-1">
                           {i + 1}
                         </span>
-                        <Input
-                          value={step}
-                          onChange={(e) => {
-                            const next = [...steps];
-                            next[i] = e.target.value;
-                            setSteps(next);
-                          }}
-                          placeholder={`Describe step ${i + 1}...`}
-                          className="text-xs py-1.5 px-3 bg-gray-50 focus:bg-white"
-                        />
+                        <div className="flex-1 space-y-2">
+                          <Input
+                            value={step.title}
+                            onChange={(e) => {
+                              const next = [...steps];
+                              next[i] = { ...step, title: e.target.value };
+                              setSteps(next);
+                            }}
+                            placeholder={`Step ${i + 1} Title...`}
+                            className="text-xs py-1.5 px-3 bg-gray-50 focus:bg-white font-medium"
+                          />
+                          <textarea
+                            value={step.instructions}
+                            onChange={(e) => {
+                              const next = [...steps];
+                              next[i] = { ...step, instructions: e.target.value };
+                              setSteps(next);
+                            }}
+                            placeholder="Detailed instructions (Markdown supported)..."
+                            className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-xs focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-teal-500 min-h-[80px] font-mono"
+                          />
+                        </div>
                         {steps.length > 1 && (
                           <button
                             type="button"
                             onClick={() => setSteps(steps.filter((_, x) => x !== i))}
-                            className="rounded p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                            className="rounded p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors mt-1 h-fit"
                             aria-label="Remove step"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -844,7 +856,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
                     ))}
                     <button
                       type="button"
-                      onClick={() => setSteps([...steps, ''])}
+                      onClick={() => setSteps([...steps, { title: '', instructions: '' }])}
                       className="inline-flex items-center gap-1 text-xs font-bold text-teal-600 hover:text-teal-700 mt-1"
                     >
                       <Plus className="h-3.5 w-3.5" /> Add procedural step
@@ -1342,7 +1354,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
               {assetType === 'lab' && (
                 <div className="space-y-4">
                   {/* Progress Header */}
-                  {steps.filter((s) => s.trim()).length > 0 && (
+                  {steps.filter((s) => s.title.trim()).length > 0 && (
                     <div
                       className={cn(
                         'rounded-xl border p-4 space-y-2.5 shadow-sm',
@@ -1354,7 +1366,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
                         <span className="text-teal-600">
                           {Math.round(
                             (Object.values(completedSteps).filter(Boolean).length /
-                              steps.filter((s) => s.trim()).length) *
+                              steps.filter((s) => s.title.trim()).length) *
                               100
                           )}
                           % Done
@@ -1366,7 +1378,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
                           style={{
                             width: `${
                               (Object.values(completedSteps).filter(Boolean).length /
-                                steps.filter((s) => s.trim()).length) *
+                                steps.filter((s) => s.title.trim()).length) *
                               100
                             }%`,
                           }}
@@ -1392,13 +1404,13 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
 
                   {/* Timeline Checklist */}
                   <div className="space-y-3.5">
-                    {steps.filter((s) => s.trim()).length === 0 ? (
+                    {steps.filter((s) => s.title.trim()).length === 0 ? (
                       <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-gray-300 text-xs text-gray-400 italic">
                         Add procedures to build timeline
                       </div>
                     ) : (
                       steps
-                        .filter((s) => s.trim())
+                        .filter((s) => s.title.trim())
                         .map((step, idx) => {
                           const isDone = !!completedSteps[idx];
                           return (
@@ -1422,7 +1434,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
                                 >
                                   {isDone ? <Check className="h-3.5 w-3.5" /> : idx + 1}
                                 </button>
-                                {idx < steps.filter((s) => s.trim()).length - 1 && (
+                                {idx < steps.filter((s) => s.title.trim()).length - 1 && (
                                   <div className="h-full w-0.5 bg-gray-200 mt-1" />
                                 )}
                               </div>
@@ -1433,7 +1445,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
                                     isDone ? 'line-through text-gray-400' : 'font-medium'
                                   )}
                                 >
-                                  {step}
+                                  {step.title}
                                 </p>
                               </div>
                             </div>

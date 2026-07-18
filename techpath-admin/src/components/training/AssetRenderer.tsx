@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ExternalLink,
   Github,
@@ -8,6 +8,9 @@ import {
   CheckCircle2,
   XCircle,
   HelpCircle,
+  Check,
+  Info,
+  Calendar,
 } from 'lucide-react';
 import { marked } from 'marked';
 import type { LectureAsset } from '@/types/training';
@@ -276,39 +279,122 @@ function QuizSlide({ asset }: Props) {
 }
 
 function StructuredSlide({ asset }: Props) {
-  const config = asset.config as Record<string, unknown> | null;
-  const title = (config?.title as string) ?? asset.title;
-  const instructions = (config?.instructions as string) ?? (config?.description as string) ?? '';
-  const steps = (config?.steps as Array<{ title: string; instructions: string }>) ?? [];
-
+  const config = (asset.config as Record<string, unknown>) || {};
+  
+  // For assignments
+  const instructions = (config.instructions as string) || (config.description as string) || '';
   const html = useMemo(() => renderMarkdown(instructions), [instructions]);
+  
+  // For labs
+  const objective = (config.objective as string) || '';
+  const steps = (config.steps as Array<{ title: string; instructions: string }>) || [];
 
+  const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
+
+  if (asset.asset_type === 'assignment') {
+    const dueInDays = config.due_in_days as number | undefined;
+    return (
+      <div className="overflow-auto px-8 py-6">
+        <div className="mx-auto max-w-3xl space-y-6">
+          <div className="rounded-xl border border-gray-700 bg-gray-800/50 p-5 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-700 pb-3">
+              <div className="flex items-center gap-2 text-sm font-bold text-gray-200">
+                <Calendar className="h-5 w-5 text-teal-400" />
+                <span>Deadline Info</span>
+              </div>
+              <span className="rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 px-2.5 py-1 text-xs font-bold uppercase tracking-wider">
+                {dueInDays ? `Due in ${dueInDays} days` : 'No absolute due date'}
+              </span>
+            </div>
+
+            <div
+              className="prose prose-dark text-lg max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: html || '<p class="text-gray-400 italic">No instructions provided.</p>',
+              }}
+            />
+          </div>
+
+          <div className="rounded-xl border border-dashed border-gray-600 bg-gray-800/30 p-8 text-center space-y-3">
+            <p className="text-sm font-bold text-gray-300">File Submission (Student View)</p>
+            <p className="text-xs text-gray-500">Students will upload their work here.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Lab View
   return (
     <div className="overflow-auto px-8 py-6">
-      <div className="mx-auto max-w-3xl">
-        {title && <h2 className="mb-4 text-2xl font-bold text-white">{title}</h2>}
-        {instructions && (
-          <div
-            className="prose prose-dark text-lg max-w-none mb-6"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
-        )}
+      <div className="mx-auto max-w-3xl space-y-6">
         {steps.length > 0 && (
-          <ol className="space-y-4">
-            {steps.map((step, i) => (
-              <li
-                key={i}
-                className="rounded-xl border border-gray-700 bg-gray-800/50 p-5"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-600 text-sm font-bold text-white">
-                    {i + 1}
-                  </span>
-                  <div>
-                    <p className="font-medium text-white">{step.title}</p>
+          <div className="rounded-xl border border-gray-700 bg-gray-800/50 p-5 shadow-sm space-y-3">
+            <div className="flex items-center justify-between text-sm font-bold text-gray-200">
+              <span>Guided Exercise Progress</span>
+              <span className="text-teal-400">
+                {Math.round((Object.values(completedSteps).filter(Boolean).length / steps.length) * 100)}% Done
+              </span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-700">
+              <div
+                className="h-full bg-teal-500 transition-all duration-300"
+                style={{
+                  width: `${(Object.values(completedSteps).filter(Boolean).length / steps.length) * 100}%`,
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {objective && (
+          <div className="rounded-xl border border-gray-700 bg-gray-800/50 p-5 shadow-sm space-y-2.5">
+            <div className="flex items-center gap-1.5 text-sm font-bold text-teal-400">
+              <Info className="h-5 w-5" />
+              <span>Objective</span>
+            </div>
+            <p className="text-base leading-relaxed text-gray-300">{objective}</p>
+          </div>
+        )}
+
+        {steps.length > 0 && (
+          <div className="space-y-4 pl-1 pt-2">
+            {steps.map((step, idx) => {
+              const isDone = !!completedSteps[idx];
+              return (
+                <div key={idx} className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCompletedSteps((prev) => ({
+                          ...prev,
+                          [idx]: !prev[idx],
+                        }));
+                      }}
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition-all active:scale-95 ${
+                        isDone
+                          ? 'border-teal-500 bg-teal-500 text-white'
+                          : 'border-gray-500 bg-gray-700 text-gray-300 hover:border-teal-400'
+                      }`}
+                    >
+                      {isDone ? <Check className="h-4 w-4" /> : idx + 1}
+                    </button>
+                    {idx < steps.length - 1 && (
+                      <div className="h-full w-0.5 bg-gray-700 mt-1.5" />
+                    )}
+                  </div>
+                  <div className="pt-1 pb-5 min-w-0 flex-1">
+                    <p
+                      className={`text-lg leading-relaxed ${
+                        isDone ? 'line-through text-gray-500' : 'font-medium text-white'
+                      }`}
+                    >
+                      {step.title}
+                    </p>
                     {step.instructions && (
                       <div
-                        className="mt-2 text-sm text-gray-300 prose prose-dark max-w-none"
+                        className={`mt-2 text-base prose prose-dark max-w-none ${isDone ? 'opacity-50' : ''}`}
                         dangerouslySetInnerHTML={{
                           __html: renderMarkdown(step.instructions),
                         }}
@@ -316,9 +402,9 @@ function StructuredSlide({ asset }: Props) {
                     )}
                   </div>
                 </div>
-              </li>
-            ))}
-          </ol>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>
