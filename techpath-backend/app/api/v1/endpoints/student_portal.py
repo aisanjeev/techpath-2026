@@ -53,11 +53,18 @@ async def list_my_sessions(
 ) -> StudentSessionListResponse:
     sessions = await training_session_crud.list_published_for_student(db, student.id)
     summaries = []
+    seen_modules = set()
     for s in sessions:
         # list_published_for_student's own query already filters to
         # materials_published_at IS NOT NULL — asserting rather than re-checking makes
         # that invariant explicit here instead of silently trusting the caller.
         assert s.materials_published_at is not None
+
+        if s.module_id is not None:
+            if s.module_id in seen_modules:
+                continue
+            seen_modules.add(s.module_id)
+
         summaries.append(
             StudentSessionSummary(
                 session_id=s.id,

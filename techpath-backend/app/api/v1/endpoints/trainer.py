@@ -585,10 +585,7 @@ async def publish_materials(
     if session.status != SessionStatus.ENDED.value:
         raise ValidationError("End the session before publishing its materials")
 
-    if session.module_id is not None:
-        existing = await training_session_crud.get_published_by_batch_and_module(db, session.batch_id, session.module_id)
-        if existing and existing.id != session.id:
-            raise ValidationError("Materials for this module have already been published in this batch.")
+
 
     session.materials_published_at = datetime.now(timezone.utc)
     session.materials_published_by_user_id = current_user.id
