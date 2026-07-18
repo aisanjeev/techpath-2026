@@ -259,8 +259,8 @@ function RemovedScreen() {
 
 function LiveCodeView({ code }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-xl">
-      <div className="flex items-center gap-2 border-b border-slate-800 bg-slate-800/60 px-4 py-2.5">
+    <div className="flex flex-col h-[calc(100vh-160px)] overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-xl">
+      <div className="flex shrink-0 items-center gap-2 border-b border-slate-800 bg-slate-800/60 px-4 py-2.5">
         <span className="h-3 w-3 rounded-full bg-red-500/80" />
         <span className="h-3 w-3 rounded-full bg-yellow-500/80" />
         <span className="h-3 w-3 rounded-full bg-emerald-500/80" />
@@ -272,7 +272,7 @@ function LiveCodeView({ code }) {
           live
         </span>
       </div>
-      <pre className="max-h-[65vh] overflow-auto p-5 text-sm leading-relaxed">
+      <pre className="flex-1 overflow-auto p-5 text-sm leading-relaxed">
         <code className="font-mono text-slate-100">{code.content || '// waiting for code…'}</code>
       </pre>
     </div>

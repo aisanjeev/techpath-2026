@@ -101,6 +101,7 @@ class SessionStateResponse(BaseModel):
     # Participant-facing view: whep_url/hls_url only, never whip_url (see MediaView).
     # Null whenever the trainer hasn't started publishing media for this session.
     media: Optional[MediaView] = None
+    questions_are_public: bool = True
 
 
 class ConfusionRequest(BaseModel):

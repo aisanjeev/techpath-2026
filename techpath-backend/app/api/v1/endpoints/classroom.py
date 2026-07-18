@@ -260,6 +260,7 @@ async def get_state(
         presence=PresenceView(online=summary["online"]),
         timer=timer,
         media=media_view,
+        questions_are_public=session.questions_are_public,
     )
 
 
