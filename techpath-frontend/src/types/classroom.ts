@@ -57,6 +57,16 @@ export interface TimerStateView {
   started_at: string;
 }
 
+/** Participant-facing live audio/video — whep_url/hls_url only, never a publish URL.
+ *  Absent (null on the response) until the trainer has started publishing media. */
+export interface MediaStateView {
+  whep_url?: string | null;
+  hls_url?: string | null;
+  mic_muted: boolean;
+  camera_off: boolean;
+  screen_sharing: boolean;
+}
+
 export interface SessionStateResponse {
   session_id: number;
   title?: string | null;
@@ -69,6 +79,18 @@ export interface SessionStateResponse {
   my_confusion: boolean;
   presence: { online: number };
   timer?: TimerStateView | null;
+  media?: MediaStateView | null;
+}
+
+export interface TrainingSessionQuestionResponse {
+  id: number;
+  session_id: number;
+  student_id: number | null;
+  student_name: string | null;
+  question_text: string;
+  is_answered: boolean;
+  upvotes: number;
+  created_at: string;
 }
 
 export type ClassroomEvent =
@@ -90,4 +112,12 @@ export type ClassroomEvent =
   | { type: 'timer_started'; payload: TimerStateView }
   | { type: 'timer_cancelled'; payload: Record<string, never> }
   | { type: 'reaction'; payload: { emoji: string; display_name: string } }
-  | { type: 'participant_kicked'; payload: { participant_key: string } };
+  | { type: 'participant_kicked'; payload: { participant_key: string } }
+  | {
+      type: 'media_state_changed';
+      payload: { mic_muted: boolean; camera_off: boolean; screen_sharing: boolean };
+    }
+  | { type: 'question_asked'; payload: TrainingSessionQuestionResponse }
+  | { type: 'question_upvoted'; payload: { question_id: number; upvotes: number } }
+  | { type: 'question_answered'; payload: { question_id: number } }
+  | { type: 'questions_visibility_changed'; payload: { questions_are_public: boolean } };

@@ -69,6 +69,23 @@ class TimerView(BaseModel):
     started_at: datetime
 
 
+class MediaView(BaseModel):
+    """Live audio/video URLs and state for one session.
+
+    ``whip_url`` (publish) is only ever populated on a trainer-facing response;
+    ``whep_url``/``hls_url`` (playback) only on a participant-facing one — see
+    ``contracts/live-media-api.md``. All three are ``None`` whenever the session has no
+    ``live_stream_path`` yet (media hasn't started, or this is a chat/poll-only class).
+    """
+
+    whip_url: Optional[str] = None
+    whep_url: Optional[str] = None
+    hls_url: Optional[str] = None
+    mic_muted: bool = False
+    camera_off: bool = False
+    screen_sharing: bool = False
+
+
 class SessionStateResponse(BaseModel):
     session_id: int
     title: Optional[str] = None
@@ -81,6 +98,9 @@ class SessionStateResponse(BaseModel):
     my_confusion: bool = False
     presence: PresenceView
     timer: Optional[TimerView] = None
+    # Participant-facing view: whep_url/hls_url only, never whip_url (see MediaView).
+    # Null whenever the trainer hasn't started publishing media for this session.
+    media: Optional[MediaView] = None
 
 
 class ConfusionRequest(BaseModel):
@@ -104,6 +124,16 @@ class VoteRequest(BaseModel):
 
 class SetSlideRequest(BaseModel):
     asset_id: int
+
+
+class MediaStateRequest(BaseModel):
+    """Partial update — a trainer toggling just the mic must not also imply anything
+    about camera/screen-share state, so every field is optional and unset fields are
+    left untouched (see the endpoint's ``exclude_unset`` usage)."""
+
+    mic_muted: Optional[bool] = None
+    camera_off: Optional[bool] = None
+    screen_sharing: Optional[bool] = None
 
 
 class StartTimerRequest(BaseModel):
@@ -180,6 +210,18 @@ class RosterResponse(BaseModel):
     confusion: ConfusionSummary
     hands_raised: List[HandRaisedEntry] = []
     timer: Optional[TimerView] = None
+
+
+class RecordingView(BaseModel):
+    """A session's VOD/replay status. ``watch_url`` is deterministic from the stream
+    path (see media.watch_url) and is always present once a recording row exists — the
+    frontend still gates actually linking/playing it on ``status == 'ready'``, per
+    spec.md's edge case for a still-processing replay."""
+
+    status: str
+    watch_url: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class WsTokenResponse(BaseModel):

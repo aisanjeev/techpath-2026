@@ -191,6 +191,26 @@ class TrainingSession(Base, TimestampMixin):
         String(6), unique=True, index=True, nullable=True
     )
 
+    # Same mint-on-start/release-on-end lifecycle as join_code, but for the live
+    # audio/video transport (see app/services/classroom/media.py): a high-entropy,
+    # never-displayed secret path segment used to build WHIP/WHEP/HLS URLs against the
+    # self-hosted media server. Unlike join_code it is never shown on screen or spoken
+    # aloud, so it can afford far more entropy than six digits.
+    live_stream_path: Mapped[Optional[str]] = mapped_column(
+        String(64), unique=True, index=True, nullable=True
+    )
+
+    # Trainer's last-known media state, broadcast to students on change and used to
+    # bootstrap a late joiner — same "persist derived live state on the session row"
+    # pattern as current_asset_id/timer_started_at above. Reset to defaults on the next
+    # start_session, meaningful only while status == live.
+    media_mic_muted: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    media_camera_off: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    media_screen_sharing: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    keep_recording: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+    questions_are_public: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true", nullable=False)
+
     started_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     ended_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
@@ -259,3 +279,24 @@ class TrainingSyncState(Base, TimestampMixin):
 
     def __repr__(self) -> str:
         return f"<TrainingSyncState(resource='{self.resource}', last_status='{self.last_status}')>"
+
+
+class TrainingSessionQuestion(Base, TimestampMixin):
+    """A question submitted by a student during a live virtual classroom session."""
+
+    __tablename__ = "training_session_questions"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    session_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("training_sessions.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    student_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    
+    question_text: Mapped[str] = mapped_column(String(500), nullable=False)
+    is_answered: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
+    upvotes: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+
+    def __repr__(self) -> str:
+        return f"<TrainingSessionQuestion(id={self.id}, session={self.session_id}, student={self.student_id})>"

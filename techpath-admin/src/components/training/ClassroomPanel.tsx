@@ -23,10 +23,15 @@ import {
   ListChecks,
   ChevronDown,
   CheckCircle2,
+  MessageCircleQuestion,
+  ThumbsUp,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { CodeEditor } from '@/components/editors/CodeEditor';
 import { trainerService } from '@/services/trainer.service';
+import { useClassroomStore } from '@/store/classroom.store';
 import type { ClassroomEvent, PollResultsResponse, RosterResponse, TimerView } from '@/types/classroom';
 import type { LectureAsset, ModuleAssetLink, QuizQuestion } from '@/types/training';
 
@@ -46,7 +51,7 @@ const CODE_LANGUAGES = [
   'yaml',
 ];
 
-type Tab = 'roster' | 'poll' | 'code';
+type Tab = 'roster' | 'poll' | 'code' | 'questions';
 
 interface Props {
   sessionId: number;
@@ -592,6 +597,122 @@ function CodeTab({ sessionId }: { sessionId: number }) {
   );
 }
 
+function QuestionsTab({ sessionId }: { sessionId: number }) {
+  const {
+    questions,
+    questionsArePublic,
+    setQuestions,
+    setQuestionsArePublic,
+    markQuestionAnswered,
+  } = useClassroomStore();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Initial fetch of questions (toggle state should ideally come from the session, 
+    // but we can just fetch the session here too)
+    const init = async () => {
+      try {
+        const [qList, session] = await Promise.all([
+          trainerService.getQuestions(sessionId),
+          trainerService.getSession(sessionId),
+        ]);
+        setQuestions(qList);
+        setQuestionsArePublic(session.questions_are_public ?? false);
+      } catch (err) {
+        toast.error('Could not load questions');
+      } finally {
+        setLoading(false);
+      }
+    };
+    void init();
+  }, [sessionId, setQuestions, setQuestionsArePublic]);
+
+  const togglePublic = async () => {
+    try {
+      const updated = await trainerService.setQuestionsArePublic(sessionId, !questionsArePublic);
+      setQuestionsArePublic(updated.questions_are_public ?? false);
+      toast.success(updated.questions_are_public ? 'Questions are now visible to students' : 'Questions are now hidden from students');
+    } catch (err) {
+      toast.error('Could not change visibility');
+    }
+  };
+
+  const markAnswered = async (questionId: number) => {
+    try {
+      await trainerService.answerQuestion(sessionId, questionId);
+      markQuestionAnswered(questionId);
+      toast.success('Marked as answered');
+    } catch (err) {
+      toast.error('Could not mark question as answered');
+    }
+  };
+
+  if (loading) {
+    return <div className="p-4 text-center text-sm text-gray-500">Loading questions...</div>;
+  }
+
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <div className="flex items-center justify-between rounded-xl border border-gray-800 bg-gray-900/40 p-3">
+        <div className="flex flex-col">
+          <span className="text-sm font-medium text-gray-200">Public Q&A</span>
+          <span className="text-xs text-gray-500">Allow students to see and upvote</span>
+        </div>
+        <button
+          onClick={togglePublic}
+          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 ${
+            questionsArePublic ? 'bg-teal-500' : 'bg-gray-700'
+          }`}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+              questionsArePublic ? 'translate-x-4' : 'translate-x-0'
+            }`}
+          />
+        </button>
+      </div>
+
+      <div className="flex-1 space-y-3 overflow-y-auto">
+        {questions.length === 0 ? (
+          <p className="py-8 text-center text-sm text-gray-500">No questions asked yet.</p>
+        ) : (
+          questions.map((q) => (
+            <div
+              key={q.id}
+              className={`rounded-xl border border-gray-800 p-3 transition ${
+                q.is_answered ? 'bg-gray-900/30 opacity-70' : 'bg-gray-900/60'
+              }`}
+            >
+              <div className="mb-2 flex items-start justify-between gap-3">
+                <p className={`text-sm ${q.is_answered ? 'text-gray-400 line-through decoration-gray-600/50' : 'text-gray-200'}`}>
+                  {q.question_text}
+                </p>
+                <div className="flex shrink-0 items-center gap-1 text-xs font-medium text-gray-500">
+                  <ThumbsUp className="h-3 w-3" />
+                  {q.upvotes}
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500">{q.student_name || 'Guest'}</span>
+                {!q.is_answered && (
+                  <button
+                    onClick={() => markAnswered(q.id)}
+                    className="flex items-center gap-1.5 rounded-md border border-teal-900/50 bg-teal-950/30 px-2 py-1 text-[11px] font-medium text-teal-400 transition hover:bg-teal-900/40 hover:text-teal-300"
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Mark answered
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 function formatCountdown(totalSeconds: number): string {
   const clamped = Math.max(0, Math.round(totalSeconds));
   const mins = Math.floor(clamped / 60);
@@ -726,6 +847,8 @@ export function ClassroomPanel({ sessionId, connected, subscribe, assets }: Prop
   const [timer, setTimer] = useState<TimerView | null>(null);
   const [reactions, setReactions] = useState<FloatingReaction[]>([]);
   const reactionIdRef = useRef(0);
+  
+  const { addQuestion, updateQuestionUpvotes, markQuestionAnswered, setQuestionsArePublic } = useClassroomStore();
 
   useEffect(() => {
     activePollRef.current = activePoll;
@@ -785,6 +908,14 @@ export function ClassroomPanel({ sessionId, connected, subscribe, assets }: Prop
             total_votes: event.payload.total_votes,
           });
         }
+      } else if (event.type === 'question_asked') {
+        addQuestion(event.payload);
+      } else if (event.type === 'question_upvoted') {
+        updateQuestionUpvotes(event.payload.question_id, event.payload.upvotes);
+      } else if (event.type === 'question_answered') {
+        markQuestionAnswered(event.payload.question_id);
+      } else if (event.type === 'questions_visibility_changed') {
+        setQuestionsArePublic(event.payload.questions_are_public);
       }
       // poll_open / session_ended: the trainer is the one who triggers these, nothing
       // to react to here. slide_change / code_update: broadcast BY the trainer, not
@@ -847,6 +978,7 @@ export function ClassroomPanel({ sessionId, connected, subscribe, assets }: Prop
           [
             { id: 'roster' as const, label: 'Roster', icon: Users },
             { id: 'poll' as const, label: 'Poll', icon: BarChart3 },
+            { id: 'questions' as const, label: 'Q&A', icon: MessageCircleQuestion },
             { id: 'code' as const, label: 'Code', icon: Code2 },
           ]
         ).map(({ id, label, icon: Icon }) => (
@@ -875,6 +1007,7 @@ export function ClassroomPanel({ sessionId, connected, subscribe, assets }: Prop
             onActiveChange={setActivePoll}
           />
         )}
+        {tab === 'questions' && <QuestionsTab sessionId={sessionId} />}
         {tab === 'code' && <CodeTab sessionId={sessionId} />}
       </div>
 

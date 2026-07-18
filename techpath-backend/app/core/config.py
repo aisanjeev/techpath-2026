@@ -143,6 +143,17 @@ class Settings(BaseSettings):
     ROSTER_SYNC_PAGE_SIZE: int = Field(default=100)
 
     # -----------------
+    # Live classroom media (WHIP/WHEP + recording transcode)
+    # -----------------
+    LIVE_MEDIA_BASE_URL: str = Field(default="")
+    WATCH_SERVICE_BASE_URL: str = Field(default="")
+
+    @property
+    def is_live_media_configured(self) -> bool:
+        """Check if the live-media (MediaMTX) host is configured."""
+        return bool(self.LIVE_MEDIA_BASE_URL)
+
+    # -----------------
     # Azure Key Vault
     # -----------------
     AZURE_TENANT_ID: str = Field(default="")

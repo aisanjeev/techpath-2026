@@ -30,6 +30,14 @@ export interface StudentSessionListResponse {
   sessions: StudentSessionSummary[];
 }
 
+/** The class's recorded replay, if it ever had live media. `watch_url` is always
+ *  present once this object exists, but only actually playable once `status ===
+ *  'ready'` — show a "still processing" state until then. */
+export interface RecordingView {
+  status: 'processing' | 'ready' | 'failed';
+  watch_url: string | null;
+}
+
 export interface StudentSessionMaterialsResponse {
   session_id: number;
   title: string | null;
@@ -37,4 +45,5 @@ export interface StudentSessionMaterialsResponse {
   module_title: string | null;
   published_at: string;
   assets: ClassroomAsset[];
+  recording: RecordingView | null;
 }

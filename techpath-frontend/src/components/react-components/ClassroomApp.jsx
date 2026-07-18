@@ -6,6 +6,9 @@ import ClassroomPollSheet from './ClassroomPollSheet';
 import ClassroomHandRaiseButton from './ClassroomHandRaiseButton';
 import ClassroomReactionsBar from './ClassroomReactionsBar';
 import ClassroomTimerBadge from './ClassroomTimerBadge';
+import ClassroomVideoTile from './ClassroomVideoTile';
+import ClassroomQuestionsPanel from './ClassroomQuestionsPanel';
+import { MessageCircleQuestion } from 'lucide-react';
 import {
   joinClassroom,
   identify,
@@ -288,14 +291,47 @@ function LiveScreen({
   onHandRaiseToggle,
   floatingReactions,
   onSendReaction,
+  qaOpen,
+  setQaOpen,
+  questions,
+  setQuestions,
+  sessionInfo,
+  session,
 }) {
   const hasCode = !!liveState.code?.content;
   const asset = liveState.current_asset;
+  const hasMedia = !!liveState.media?.whep_url;
+  // Offset the sticky video so it parks just under the (also-sticky) header. The header
+  // is taller when the Slide/Code tab row is present, so clear the correct amount.
+  const stickyTop = hasCode ? 'top-[104px]' : 'top-[68px]';
+
+  const contentBlock =
+    contentTab === 'code' && hasCode ? (
+      <LiveCodeView code={liveState.code} />
+    ) : asset ? (
+      <>
+        <div className="mb-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-primary-400">
+            Now presenting
+          </p>
+          <h2 className="mt-0.5 font-heading text-xl font-bold text-white">{asset.title}</h2>
+        </div>
+        <ClassroomAssetView asset={asset} />
+      </>
+    ) : (
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-800 py-24 text-center">
+        <div className="mb-3 text-3xl">⏳</div>
+        <p className="font-medium text-slate-300">Waiting for your trainer</p>
+        <p className="mt-1 text-sm text-slate-500">
+          Content will appear here as soon as they start presenting.
+        </p>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-slate-950">
-      <header className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/90 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
+      <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="min-w-0">
             <p className="truncate font-heading text-sm font-semibold text-white">
               {liveState.title || liveState.module_title || liveState.batch_name}
@@ -320,7 +356,7 @@ function LiveScreen({
         </div>
 
         {hasCode && (
-          <div className="mx-auto flex max-w-3xl gap-1 px-4 pb-2">
+          <div className="mx-auto flex max-w-6xl gap-1 px-4 pb-2">
             <button
               onClick={() => onTabChange('slide')}
               className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
@@ -345,24 +381,19 @@ function LiveScreen({
         )}
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-8 pb-28">
-        {contentTab === 'code' && hasCode ? (
-          <LiveCodeView code={liveState.code} />
-        ) : asset ? (
-          <>
-            <div className="mb-5">
-              <h2 className="font-heading text-xl font-bold text-white">{asset.title}</h2>
+      <main className="mx-auto max-w-6xl px-4 py-6 pb-28">
+        {hasMedia ? (
+          // Two-pane on desktop: the live video is the hero and stays pinned (sticky) as
+          // the lecture content scrolls beside it. On mobile it stacks and the video
+          // pins to the top so it never scrolls out of view — see stickyTop above.
+          <div className="grid gap-6 lg:grid-cols-5">
+            <div className={`sticky ${stickyTop} z-10 self-start lg:col-span-3`}>
+              <ClassroomVideoTile media={liveState.media} />
             </div>
-            <ClassroomAssetView asset={asset} />
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-800 py-24 text-center">
-            <div className="mb-3 text-3xl">⏳</div>
-            <p className="font-medium text-slate-300">Waiting for your trainer</p>
-            <p className="mt-1 text-sm text-slate-500">
-              Content will appear here as soon as they start presenting.
-            </p>
+            <div className="min-w-0 lg:col-span-2">{contentBlock}</div>
           </div>
+        ) : (
+          <div className="mx-auto max-w-3xl">{contentBlock}</div>
         )}
       </main>
 
@@ -371,11 +402,28 @@ function LiveScreen({
           stay reachable even then, unlike the confusion button below, which the poll
           sheet is already known to cover (existing, accepted tradeoff, left as-is). */}
       <div className="fixed bottom-24 right-4 z-50 flex items-center gap-2 sm:right-6">
+        {sessionInfo?.questions_are_public && (
+          <button
+            onClick={() => setQaOpen(true)}
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-slate-300 shadow-xl transition hover:bg-slate-700 hover:text-white"
+            title="Q&A"
+          >
+            <MessageCircleQuestion className="h-5 w-5" />
+          </button>
+        )}
         <ClassroomHandRaiseButton raised={handRaised} onToggle={onHandRaiseToggle} />
         <ClassroomReactionsBar onSend={onSendReaction} floating={floatingReactions} />
       </div>
       <ClassroomConfusionButton confused={liveState.my_confusion} onToggle={onConfusionToggle} />
       <ClassroomPollSheet key={liveState.open_poll?.id ?? 'none'} poll={liveState.open_poll} onVote={onVote} />
+      <ClassroomQuestionsPanel
+        sessionId={session?.sessionId}
+        token={session?.token}
+        isOpen={qaOpen}
+        onClose={() => setQaOpen(false)}
+        questions={questions}
+        setQuestions={setQuestions}
+      />
     </div>
   );
 }
@@ -405,6 +453,9 @@ export default function ClassroomApp() {
   const [handRaised, setHandRaisedFlag] = useState(false);
   const [floatingReactions, setFloatingReactions] = useState([]);
   const reactionIdRef = useRef(0);
+
+  const [qaOpen, setQaOpen] = useState(false);
+  const [questions, setQuestions] = useState([]);
 
   const { connected, subscribe, kicked } = useClassroomSocket(
     session?.sessionId ?? null,
@@ -445,6 +496,11 @@ export default function ClassroomApp() {
     return subscribe((event) => {
       if (event.type === 'slide_change') {
         setLiveState((s) => (s ? { ...s, current_asset: event.payload.asset } : s));
+      } else if (event.type === 'media_state_changed') {
+        // Only ever fires once media already exists on liveState (the trainer can't
+        // toggle mute/camera/screen-share before publishing) — merge onto the existing
+        // block rather than replacing it, so whep_url/hls_url are untouched.
+        setLiveState((s) => (s && s.media ? { ...s, media: { ...s.media, ...event.payload } } : s));
       } else if (event.type === 'code_update') {
         setLiveState((s) => (s ? { ...s, code: event.payload } : s));
       } else if (event.type === 'poll_open') {
@@ -499,6 +555,18 @@ export default function ClassroomApp() {
       } else if (event.type === 'session_ended') {
         clearStoredSession();
         setStage('ended');
+      } else if (event.type === 'question_asked') {
+        setQuestions((list) => [event.payload, ...list]);
+      } else if (event.type === 'question_upvoted') {
+        setQuestions((list) =>
+          list.map((q) => (q.id === event.payload.question_id ? { ...q, upvotes: event.payload.upvotes } : q))
+        );
+      } else if (event.type === 'question_answered') {
+        setQuestions((list) =>
+          list.map((q) => (q.id === event.payload.question_id ? { ...q, is_answered: true } : q))
+        );
+      } else if (event.type === 'questions_visibility_changed') {
+        setSessionInfo((s) => (s ? { ...s, questions_are_public: event.payload.questions_are_public } : s));
       }
       // `participant_kicked` is a broadcast about someone else being removed — this app
       // has no roster view to update. This student's own removal arrives as the socket
@@ -653,6 +721,12 @@ export default function ClassroomApp() {
       onHandRaiseToggle={handleHandRaiseToggle}
       floatingReactions={floatingReactions}
       onSendReaction={handleSendReaction}
+      qaOpen={qaOpen}
+      setQaOpen={setQaOpen}
+      questions={questions}
+      setQuestions={setQuestions}
+      sessionInfo={sessionInfo}
+      session={session}
     />
   );
 }

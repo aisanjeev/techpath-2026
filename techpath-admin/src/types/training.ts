@@ -256,6 +256,17 @@ export interface TrainerBatchSummary {
   module_count: number;
 }
 
+/** Live audio/video for a session. `whip_url` (publish) only ever appears on the
+ *  trainer-facing `TrainingSession.media` — never sent to a student/participant. */
+export interface MediaView {
+  whip_url?: string | null;
+  whep_url?: string | null;
+  hls_url?: string | null;
+  mic_muted: boolean;
+  camera_off: boolean;
+  screen_sharing: boolean;
+}
+
 export interface TrainingSession {
   id: number;
   batch_id: number;
@@ -270,6 +281,9 @@ export interface TrainingSession {
   started_at?: string | null;
   ended_at?: string | null;
   materials_published_at?: string | null;
+  keep_recording: boolean;
+  /** Null until the trainer has started publishing media for this session. */
+  media?: MediaView | null;
 }
 
 export interface TrainingSessionCreate {

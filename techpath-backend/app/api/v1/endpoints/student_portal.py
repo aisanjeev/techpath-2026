@@ -15,10 +15,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.dependencies import get_current_student
 from app.core.exceptions import NotFoundError
+from app.crud.classroom import session_recording_crud
 from app.crud.training import asset_to_response, training_module_crud
 from app.crud.training_roster import training_session_crud
 from app.db.session import get_db
 from app.models.training_roster import TrainingStudent
+from app.schemas.classroom import RecordingView
 from app.schemas.student_portal import (
     StudentLoginResponse,
     StudentSessionListResponse,
@@ -88,6 +90,9 @@ async def get_session_materials(
         if module:
             assets = [await asset_to_response(db, link.asset) for link in module.asset_links]
 
+    recording_row = await session_recording_crud.get_by_session(db, session.id)
+    recording = RecordingView.model_validate(recording_row) if recording_row else None
+
     return StudentSessionMaterialsResponse(
         session_id=session.id,
         title=session.title,
@@ -95,4 +100,5 @@ async def get_session_materials(
         module_title=session.module.title if session.module else None,
         published_at=session.materials_published_at,
         assets=assets,
+        recording=recording,
     )

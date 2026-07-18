@@ -218,6 +218,14 @@ class PollStatus(str, Enum):
     CLOSED = "closed"
 
 
+class RecordingStatus(str, Enum):
+    """Lifecycle of a live session's recording/VOD transcode."""
+
+    PROCESSING = "processing"
+    READY = "ready"
+    FAILED = "failed"
+
+
 class BatchStatus(str, Enum):
     """Mirrored batch lifecycle, mapped from the external roster API."""
 

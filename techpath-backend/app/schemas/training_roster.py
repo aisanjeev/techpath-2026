@@ -4,6 +4,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.classroom import MediaView
+
 
 class TrainingBatchResponse(BaseModel):
     id: int
@@ -102,6 +104,29 @@ class TrainingSessionUpdate(BaseModel):
     status: Optional[str] = None
 
 
+class ToggleRecordingRequest(BaseModel):
+    keep_recording: bool
+
+
+class ToggleQuestionsPublicRequest(BaseModel):
+    questions_are_public: bool
+
+
+class TrainingSessionQuestionCreate(BaseModel):
+    question_text: str = Field(..., max_length=500, min_length=1)
+
+
+class TrainingSessionQuestionResponse(BaseModel):
+    id: int
+    session_id: int
+    student_id: int
+    student_name: Optional[str] = None
+    question_text: str
+    is_answered: bool
+    upvotes: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 class TrainingSessionResponse(BaseModel):
     id: int
     batch_id: int
@@ -115,7 +140,11 @@ class TrainingSessionResponse(BaseModel):
     join_code: Optional[str] = None
     started_at: Optional[datetime] = None
     ended_at: Optional[datetime] = None
+    keep_recording: bool = False
+    questions_are_public: bool = True
     materials_published_at: Optional[datetime] = None
+    # Trainer-facing view: whip_url populated only while live. See MediaView docstring.
+    media: Optional[MediaView] = None
 
     model_config = ConfigDict(from_attributes=True)
 

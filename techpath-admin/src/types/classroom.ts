@@ -116,6 +116,17 @@ export interface ConfusionTimelineResponse {
   points: ConfusionTimelinePoint[];
 }
 
+export interface TrainingSessionQuestionResponse {
+  id: number;
+  session_id: number;
+  student_id: number | null;
+  student_name: string | null;
+  question_text: string;
+  is_answered: boolean;
+  upvotes: number;
+  created_at: string;
+}
+
 /** The roster_changed WS payload mirrors the REST roster response but isn't byte-for-
  *  byte identical to it: the raised-hands list is named hands_raised_queue on the wire
  *  (vs. hands_raised from GET .../roster) and it carries no `timer` field — ongoing
@@ -147,4 +158,12 @@ export type ClassroomEvent =
   | { type: 'timer_started'; payload: TimerView }
   | { type: 'timer_cancelled'; payload: Record<string, never> }
   | { type: 'reaction'; payload: { emoji: string; display_name: string } }
-  | { type: 'participant_kicked'; payload: { participant_key: string } };
+  | { type: 'participant_kicked'; payload: { participant_key: string } }
+  | {
+      type: 'media_state_changed';
+      payload: { mic_muted: boolean; camera_off: boolean; screen_sharing: boolean };
+    }
+  | { type: 'question_asked'; payload: TrainingSessionQuestionResponse }
+  | { type: 'question_upvoted'; payload: { question_id: number; upvotes: number } }
+  | { type: 'question_answered'; payload: { question_id: number } }
+  | { type: 'questions_visibility_changed'; payload: { questions_are_public: boolean } };

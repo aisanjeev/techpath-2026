@@ -11,6 +11,7 @@ from sqlalchemy.orm import selectinload
 from app.core.constants import SessionStatus
 from app.crud.base import CRUDBase
 from app.models.classroom import SessionParticipant
+from app.services.classroom import media
 from app.models.training_roster import (
     TrainingBatch,
     TrainingBatchStudent,
@@ -220,6 +221,22 @@ class CRUDTrainingSession(CRUDBase[TrainingSession, Any, Any]):
         )
         return result.scalar_one_or_none()
 
+    async def get_other_live_session(
+        self, db: AsyncSession, batch_id: int, exclude_session_id: int
+    ) -> Optional[TrainingSession]:
+        """Is some *other* session for this batch already live? Used to stop a batch
+        from ever having two simultaneous live broadcasts (FR-015) — excludes
+        ``exclude_session_id`` itself so restarting/re-entering the same session is
+        never mistaken for a conflict."""
+        result = await db.execute(
+            select(TrainingSession).where(
+                TrainingSession.batch_id == batch_id,
+                TrainingSession.status == SessionStatus.LIVE.value,
+                TrainingSession.id != exclude_session_id,
+            )
+        )
+        return result.scalars().first()
+
     async def list_for_batch(self, db: AsyncSession, batch_id: int) -> List[TrainingSession]:
         result = await db.execute(
             select(TrainingSession)
@@ -289,6 +306,19 @@ class CRUDTrainingSession(CRUDBase[TrainingSession, Any, Any]):
         )
         return list(result.scalars().unique().all())
 
+    async def get_published_by_batch_and_module(
+        self, db: AsyncSession, batch_id: int, module_id: int
+    ) -> Optional[TrainingSession]:
+        """Returns the first published session for this batch and module, if any exists."""
+        result = await db.execute(
+            select(TrainingSession).where(
+                TrainingSession.batch_id == batch_id,
+                TrainingSession.module_id == module_id,
+                TrainingSession.materials_published_at.isnot(None),
+            )
+        )
+        return result.scalars().first()
+
     async def get_enrolled_published(
         self, db: AsyncSession, session_id: int, student_id: int
     ) -> Optional[TrainingSession]:
@@ -311,6 +341,25 @@ class CRUDTrainingSession(CRUDBase[TrainingSession, Any, Any]):
             .options(selectinload(TrainingSession.batch), selectinload(TrainingSession.module))
         )
         return result.scalar_one_or_none()
+
+    async def mint_live_media(self, db: AsyncSession, session: TrainingSession) -> None:
+        """Start publishing eligibility: mint the stream path if this session doesn't
+        already have one. Mirrors ``join_code``'s mint-on-start lifecycle, but is
+        idempotent for an already-live session (restarting must not invalidate a
+        trainer's already-open publish connection)."""
+        if session.live_stream_path:
+            return
+        session.live_stream_path = media.mint_live_stream_path(session.id)
+        db.add(session)
+        await db.flush()
+
+    async def release_live_media(self, db: AsyncSession, session: TrainingSession) -> None:
+        """Release the stream path back — same moment ``join_code`` is released."""
+        if not session.live_stream_path:
+            return
+        session.live_stream_path = None
+        db.add(session)
+        await db.flush()
 
     async def generate_join_code(self, db: AsyncSession) -> str:
         """Mint a code not currently held by another session.

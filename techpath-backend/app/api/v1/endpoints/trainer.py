@@ -7,18 +7,19 @@ Admins are allowed through the same routes so they can support and demo the flow
 import json
 import logging
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.dependencies import get_current_trainer_user
-from app.core.constants import AssetType, PollStatus, SessionStatus, UserRole
+from app.core.constants import AssetType, PollStatus, RecordingStatus, SessionStatus, UserRole
 from app.core.exceptions import ForbiddenError, NotFoundError, ValidationError
 from app.crud.classroom import (
     session_code_state_crud,
     session_participant_crud,
     session_poll_crud,
+    session_recording_crud,
 )
 from app.crud.training import (
     asset_to_response,
@@ -27,6 +28,7 @@ from app.crud.training import (
     training_module_crud,
     training_program_crud,
 )
+from app.crud.crud_question import question as question_crud
 from app.crud.training_roster import training_batch_crud, training_session_crud
 from app.db.session import get_db
 from app.models.classroom import SessionParticipant
@@ -35,8 +37,11 @@ from app.schemas.classroom import (
     ConfusionSummary,
     CreatePollRequest,
     HandRaisedEntry,
+    MediaStateRequest,
+    MediaView,
     PollFromQuizRequest,
     PollResultsResponse,
+    RecordingView,
     RosterParticipant,
     RosterResponse,
     SetSlideRequest,
@@ -57,8 +62,11 @@ from app.schemas.training_roster import (
     TrainingSessionCreate,
     TrainingSessionResponse,
     TrainingStudentResponse,
+    ToggleRecordingRequest,
+    ToggleQuestionsPublicRequest,
+    TrainingSessionQuestionResponse,
 )
-from app.services.classroom import bus
+from app.services.classroom import bus, media
 from app.services.classroom.identity import TRAINER_WS_TOKEN_MINUTES, mint_trainer_ws_token
 from app.services.classroom.roster import publish_roster_snapshot
 
@@ -66,6 +74,19 @@ from app.services.classroom.roster import publish_roster_snapshot
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def _trainer_media_view(session) -> Optional[MediaView]:
+    """Trainer-facing media block: whip_url only, only while there's a stream path to
+    publish to (i.e. the session has gone live at least once since it last ended)."""
+    if not session.live_stream_path:
+        return None
+    return MediaView(
+        whip_url=media.whip_url(session.live_stream_path),
+        mic_muted=session.media_mic_muted,
+        camera_off=session.media_camera_off,
+        screen_sharing=session.media_screen_sharing,
+    )
 
 
 def _session_out(session) -> TrainingSessionResponse:
@@ -82,7 +103,9 @@ def _session_out(session) -> TrainingSessionResponse:
         join_code=session.join_code,
         started_at=session.started_at,
         ended_at=session.ended_at,
+        keep_recording=session.keep_recording,
         materials_published_at=session.materials_published_at,
+        media=_trainer_media_view(session),
     )
 
 
@@ -345,11 +368,8 @@ async def start_session(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_trainer_user),
 ) -> TrainingSessionResponse:
-    """Begin presenting: flip to live and mint the join code students will use.
-
-    The live classroom transport does not exist yet, so this establishes the session
-    and its code and nothing more.
-    """
+    """Begin presenting: flip to live, mint the join code students will use, and mint
+    the live-media stream path the trainer's browser will publish audio/video to."""
     session = await training_session_crud.get_with_relations(db, session_id)
     if not session:
         raise NotFoundError("Session")
@@ -368,11 +388,26 @@ async def start_session(
     if session.batch.program_id and module.program_id != session.batch.program_id:
         raise ValidationError("That module belongs to a different training programme")
 
-    # Restarting a live session must not invalidate the code students already typed in.
+    if session.status != SessionStatus.LIVE.value:
+        conflicting = await training_session_crud.get_other_live_session(
+            db, session.batch_id, exclude_session_id=session.id
+        )
+        if conflicting:
+            raise ValidationError(
+                "Another session for this batch is already live — end it before starting a new one"
+            )
+
+    # Restarting a live session must not invalidate the code students already typed in,
+    # nor the stream path a browser may already be mid-WHIP-handshake against.
     if session.status != SessionStatus.LIVE.value:
         session.join_code = await training_session_crud.generate_join_code(db)
         session.started_at = datetime.now(timezone.utc)
         session.status = SessionStatus.LIVE.value
+        session.media_mic_muted = False
+        session.media_camera_off = False
+        session.media_screen_sharing = False
+
+    await training_session_crud.mint_live_media(db, session)
 
     session.module_id = module_id
     session.trainer_user_id = current_user.id
@@ -387,20 +422,43 @@ async def start_session(
 @router.post("/sessions/{session_id}/end", response_model=TrainingSessionResponse)
 async def end_session(
     session_id: int,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_trainer_user),
 ) -> TrainingSessionResponse:
-    """Finish presenting and release the join code back to the pool."""
+    """Finish presenting and release the join code and live-media stream path back to
+    the pool. If the session had live media, kicks off a recording/VOD row and the
+    external transcode trigger for absent students to replay later."""
     session = await training_session_crud.get_with_relations(db, session_id)
     if not session:
         raise NotFoundError("Session")
     await _assert_owns_batch(db, current_user, session.batch)
+
+    stream_path = session.live_stream_path  # captured before release clears it below
 
     session.status = SessionStatus.ENDED.value
     session.ended_at = datetime.now(timezone.utc)
     session.join_code = None
     db.add(session)
     await db.flush()
+    await training_session_crud.release_live_media(db, session)
+
+    if stream_path:
+        if session.keep_recording:
+            await session_recording_crud.create(
+                db,
+                obj_in={
+                    "session_id": session_id,
+                    "status": RecordingStatus.PROCESSING.value,
+                    "recording_path": stream_path,
+                    "watch_url": media.watch_url(stream_path),
+                },
+            )
+            background_tasks.add_task(media.trigger_transcode, stream_path)
+        else:
+            from app.services.storage_service import storage_service
+            # Delete the recording in the background since we don't want it
+            background_tasks.add_task(storage_service.delete_recording, stream_path)
 
     # Otherwise a student's screen just goes silent with no explanation — nothing else
     # tells them the trainer walked away rather than the connection dropping.
@@ -414,6 +472,86 @@ async def end_session(
 
     session = await training_session_crud.get_with_relations(db, session_id)
     return _session_out(session)
+
+
+@router.post("/sessions/{session_id}/media/state", response_model=TrainingSessionResponse)
+async def update_media_state(
+    session_id: int,
+    payload: MediaStateRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> TrainingSessionResponse:
+    """Mute/camera/screen-share toggles. Only meaningful while presenting — a session
+    that isn't live has no students listening for the broadcast this triggers."""
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    if session.status != SessionStatus.LIVE.value:
+        raise ValidationError("Session must be live to change media state")
+
+    updates = payload.model_dump(exclude_unset=True)
+    if "mic_muted" in updates:
+        session.media_mic_muted = updates["mic_muted"]
+    if "camera_off" in updates:
+        session.media_camera_off = updates["camera_off"]
+    if "screen_sharing" in updates:
+        session.media_screen_sharing = updates["screen_sharing"]
+    db.add(session)
+    await db.flush()
+
+    await bus.publish(
+        db,
+        session_id,
+        "media_state_changed",
+        {
+            "mic_muted": session.media_mic_muted,
+            "camera_off": session.media_camera_off,
+            "screen_sharing": session.media_screen_sharing,
+        },
+    )
+
+    session = await training_session_crud.get_with_relations(db, session_id)
+    return _session_out(session)
+
+
+@router.patch("/sessions/{session_id}/recording", response_model=TrainingSessionResponse)
+async def toggle_recording(
+    session_id: int,
+    payload: ToggleRecordingRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> TrainingSessionResponse:
+    """Toggle whether this session's background recording will be kept or deleted at the end."""
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    session.keep_recording = payload.keep_recording
+    db.add(session)
+    await db.flush()
+
+    # We do NOT broadcast this state to students because they do not care if it's recorded
+    return _session_out(session)
+
+
+@router.get("/sessions/{session_id}/recording", response_model=RecordingView)
+async def get_recording(
+    session_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> RecordingView:
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    recording = await session_recording_crud.get_by_session(db, session_id)
+    if not recording:
+        raise NotFoundError("Recording")
+    return RecordingView.model_validate(recording)
 
 
 @router.post("/sessions/{session_id}/materials/publish", response_model=TrainingSessionResponse)
@@ -434,6 +572,11 @@ async def publish_materials(
 
     if session.status != SessionStatus.ENDED.value:
         raise ValidationError("End the session before publishing its materials")
+
+    if session.module_id is not None:
+        existing = await training_session_crud.get_published_by_batch_and_module(db, session.batch_id, session.module_id)
+        if existing and existing.id != session.id:
+            raise ValidationError("Materials for this module have already been published in this batch.")
 
     session.materials_published_at = datetime.now(timezone.utc)
     session.materials_published_by_user_id = current_user.id
@@ -910,3 +1053,72 @@ async def cancel_timer(
 
     await bus.publish(db, session_id, "timer_cancelled", {})
     return MessageResponse(message="Timer cancelled")
+
+
+@router.get("/sessions/{session_id}/questions", response_model=list[TrainingSessionQuestionResponse])
+async def trainer_list_questions(
+    session_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> list[TrainingSessionQuestionResponse]:
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    questions = await question_crud.get_by_session(db, session_id=session_id)
+    return [TrainingSessionQuestionResponse.model_validate(q) for q in questions]
+
+
+@router.post("/sessions/{session_id}/questions/{question_id}/answer", response_model=TrainingSessionQuestionResponse)
+async def trainer_answer_question(
+    session_id: int,
+    question_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> TrainingSessionQuestionResponse:
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    q = await question_crud.get(db, id=question_id)
+    if not q or q.session_id != session_id:
+        raise NotFoundError("Question")
+
+    updated_question = await question_crud.mark_answered(db, db_obj=q)
+
+    await bus.publish(
+        db,
+        session_id,
+        "question_answered",
+        {"question_id": updated_question.id}
+    )
+    
+    return TrainingSessionQuestionResponse.model_validate(updated_question)
+
+
+@router.patch("/sessions/{session_id}/settings", response_model=TrainingSessionResponse)
+async def update_session_settings(
+    session_id: int,
+    payload: ToggleQuestionsPublicRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> TrainingSessionResponse:
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    session.questions_are_public = payload.questions_are_public
+    db.add(session)
+    await db.flush()
+
+    await bus.publish(
+        db,
+        session_id,
+        "questions_visibility_changed",
+        {"questions_are_public": session.questions_are_public}
+    )
+    
+    return _session_out(session)

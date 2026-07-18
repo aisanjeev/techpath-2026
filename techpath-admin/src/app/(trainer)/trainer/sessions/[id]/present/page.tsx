@@ -17,6 +17,7 @@ import { trainerService } from '@/services/trainer.service';
 import { assetMeta } from '@/components/training/asset-type-registry';
 import { AssetRenderer } from '@/components/training/AssetRenderer';
 import { ClassroomPanel } from '@/components/training/ClassroomPanel';
+import { PresenterVideoTile } from '@/components/training/PresenterVideoTile';
 import { useClassroomSocket } from '@/hooks/useClassroomSocket';
 import type { ModuleAssetLink, TrainingSession } from '@/types/training';
 
@@ -236,6 +237,24 @@ export default function PresenterPage({ params }: { params: Promise<{ id: string
               the available area. Long text content (markdown, quiz) still scrolls via
               main's own overflow-auto exactly as before. */}
           <AssetRenderer asset={asset} className="min-h-0 flex-1" />
+
+          {/* Floating self-preview, not part of document flow — the slide/asset area
+              above remains the primary content, camera is a picture-in-picture like
+              every other webinar tool, not a full-screen video call. */}
+          {isLive && (
+            <div
+              className="pointer-events-auto absolute bottom-4 left-4 z-20 w-64"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <PresenterVideoTile
+                sessionId={sessionId}
+                whipUrl={session.media?.whip_url}
+                isLive={isLive}
+                keepRecording={session.keep_recording}
+                onToggleRecording={(keep) => setSession((s) => (s ? { ...s, keep_recording: keep } : null))}
+              />
+            </div>
+          )}
         </main>
 
         {/* Navigation footer */}

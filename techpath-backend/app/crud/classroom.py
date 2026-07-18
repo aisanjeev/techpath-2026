@@ -12,6 +12,7 @@ from app.models.classroom import (
     SessionParticipant,
     SessionPoll,
     SessionPollVote,
+    SessionRecording,
 )
 from app.models.training_roster import TrainingBatchStudent, TrainingStudent
 
@@ -255,7 +256,23 @@ class CRUDSessionCodeState(CRUDBase[SessionCodeState, Any, Any]):
         return state
 
 
+class CRUDSessionRecording(CRUDBase[SessionRecording, Any, Any]):
+    async def get_by_session(
+        self, db: AsyncSession, session_id: int
+    ) -> Optional[SessionRecording]:
+        """The most recent recording for a session — CRUD-layer note in
+        data-model.md: no DB-level uniqueness is enforced, so this is "latest wins"
+        rather than "the only one that could exist"."""
+        result = await db.execute(
+            select(SessionRecording)
+            .where(SessionRecording.session_id == session_id)
+            .order_by(SessionRecording.id.desc())
+        )
+        return result.scalars().first()
+
+
 session_participant_crud = CRUDSessionParticipant(SessionParticipant)
 session_poll_crud = CRUDSessionPoll(SessionPoll)
 session_poll_vote_crud = CRUDSessionPollVote(SessionPollVote)
 session_code_state_crud = CRUDSessionCodeState(SessionCodeState)
+session_recording_crud = CRUDSessionRecording(SessionRecording)

@@ -3,6 +3,7 @@ import type {
   IdentifyResponse,
   JoinResponse,
   SessionStateResponse,
+  TrainingSessionQuestionResponse,
 } from '@/types/classroom';
 
 /**
@@ -77,6 +78,28 @@ export async function sendReaction(sessionId: number, token: string, emoji: stri
   return apiRequest<{ message: string }>(`/api/v1/classroom/${sessionId}/reactions`, {
     method: 'POST',
     body: { emoji },
+    headers: authHeaders(token),
+  });
+}
+
+export async function getQuestions(sessionId: number, token: string) {
+  return apiRequest<TrainingSessionQuestionResponse[]>(`/api/v1/classroom/${sessionId}/questions`, {
+    method: 'GET',
+    headers: authHeaders(token),
+  });
+}
+
+export async function askQuestion(sessionId: number, token: string, questionText: string) {
+  return apiRequest<TrainingSessionQuestionResponse>(`/api/v1/classroom/${sessionId}/questions`, {
+    method: 'POST',
+    body: { question_text: questionText },
+    headers: authHeaders(token),
+  });
+}
+
+export async function upvoteQuestion(sessionId: number, token: string, questionId: number) {
+  return apiRequest<TrainingSessionQuestionResponse>(`/api/v1/classroom/${sessionId}/questions/${questionId}/upvote`, {
+    method: 'POST',
     headers: authHeaders(token),
   });
 }

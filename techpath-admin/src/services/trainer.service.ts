@@ -15,6 +15,7 @@ import type {
   PollResultsResponse,
   RosterResponse,
   WsTokenResponse,
+  TrainingSessionQuestionResponse,
 } from '@/types/classroom';
 
 /** Trainer-scoped views. The backend restricts these to the signed-in trainer's own
@@ -129,6 +130,35 @@ export const trainerService = {
     try {
       const response = await apiClient.post<TrainingSession>(
         `/api/v1/trainer/sessions/${id}/end`
+      );
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  /** Mute/camera/screen-share toggles — partial update, only the passed fields
+   *  change. Broadcasts to students via the classroom WebSocket (media_state_changed). */
+  async setMediaState(
+    id: number,
+    state: { mic_muted?: boolean; camera_off?: boolean; screen_sharing?: boolean }
+  ): Promise<TrainingSession> {
+    try {
+      const response = await apiClient.post<TrainingSession>(
+        `/api/v1/trainer/sessions/${id}/media/state`,
+        state
+      );
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  async toggleRecording(id: number, keep_recording: boolean): Promise<TrainingSession> {
+    try {
+      const response = await apiClient.patch<TrainingSession>(
+        `/api/v1/trainer/sessions/${id}/recording`,
+        { keep_recording }
       );
       return response.data;
     } catch (error) {
@@ -331,6 +361,40 @@ export const trainerService = {
     try {
       const response = await apiClient.get<ConfusionTimelineResponse>(
         `/api/v1/trainer/sessions/${sessionId}/confusion-timeline`
+      );
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  async getQuestions(sessionId: number): Promise<TrainingSessionQuestionResponse[]> {
+    try {
+      const response = await apiClient.get<TrainingSessionQuestionResponse[]>(
+        `/api/v1/trainer/sessions/${sessionId}/questions`
+      );
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  async answerQuestion(sessionId: number, questionId: number): Promise<TrainingSessionQuestionResponse> {
+    try {
+      const response = await apiClient.post<TrainingSessionQuestionResponse>(
+        `/api/v1/trainer/sessions/${sessionId}/questions/${questionId}/answer`
+      );
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  async setQuestionsArePublic(sessionId: number, isPublic: boolean): Promise<TrainingSession> {
+    try {
+      const response = await apiClient.patch<TrainingSession>(
+        `/api/v1/trainer/sessions/${sessionId}/settings`,
+        { questions_are_public: isPublic }
       );
       return response.data;
     } catch (error) {

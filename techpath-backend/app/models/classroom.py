@@ -29,7 +29,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.constants import PollStatus
+from app.core.constants import PollStatus, RecordingStatus
 from app.models.base import Base, TimestampMixin
 
 
@@ -166,3 +166,26 @@ class ClassroomEvent(Base):
 
     def __repr__(self) -> str:
         return f"<ClassroomEvent(id={self.id}, session={self.session_id}, type='{self.event_type}')>"
+
+
+class SessionRecording(Base, TimestampMixin):
+    """The VOD produced from one session's live media, if it had any (see
+    ``end_session``: created only when the session had a ``live_stream_path``).
+    ``recording_path`` is the source file on the media server, used only to build the
+    transcode request; ``watch_url`` is what a client actually links to once ready."""
+
+    __tablename__ = "session_recordings"
+    __table_args__ = (Index("ix_session_recordings_session_id", "session_id"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    session_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("training_sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(
+        String(20), default=RecordingStatus.PROCESSING.value, nullable=False, index=True
+    )
+    recording_path: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    watch_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+
+    def __repr__(self) -> str:
+        return f"<SessionRecording(id={self.id}, session={self.session_id}, status='{self.status}')>"

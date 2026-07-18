@@ -11,6 +11,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict
 
+from app.schemas.classroom import RecordingView
 from app.schemas.training import LectureAssetResponse
 
 
@@ -41,3 +42,7 @@ class StudentSessionMaterialsResponse(BaseModel):
     module_title: Optional[str] = None
     published_at: datetime
     assets: List[LectureAssetResponse]
+    # Null when the session never had live media (chat/poll-only class) — distinct from
+    # RecordingView.status == 'processing', which means media happened and the replay
+    # just isn't ready yet.
+    recording: Optional[RecordingView] = None

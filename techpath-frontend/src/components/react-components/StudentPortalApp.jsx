@@ -274,6 +274,43 @@ function SessionListScreen({ profile, sessions, loading, error, onOpenSession, o
   );
 }
 
+/** The session's recorded replay, if it had live audio/video. Matches spec.md's edge
+ *  case for a still-processing replay — a clear waiting state, never an error. */
+function RecordingCard({ recording }) {
+  if (recording.status === 'ready' && recording.watch_url) {
+    return (
+      <a
+        href={recording.watch_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mb-6 flex items-center gap-3 rounded-2xl border border-primary-500/30 bg-primary-500/10 p-4 transition hover:bg-primary-500/15"
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-500/20 text-lg">
+          ▶️
+        </div>
+        <div className="min-w-0">
+          <p className="font-medium text-white">Watch the class recording</p>
+          <p className="text-xs text-slate-400">Opens the replay in a new tab</p>
+        </div>
+      </a>
+    );
+  }
+
+  if (recording.status === 'failed') {
+    return null; // Nothing a student can act on — quietly omit rather than alarm them.
+  }
+
+  return (
+    <div className="mb-6 flex items-center gap-3 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 p-4">
+      <span className="h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-slate-700 border-t-primary-500" />
+      <div>
+        <p className="font-medium text-slate-300">Class recording is processing</p>
+        <p className="text-xs text-slate-500">Check back soon — this usually doesn't take long.</p>
+      </div>
+    </div>
+  );
+}
+
 function MaterialsScreen({ materials, currentPage, onPageChange, loading, notFound, onBack, onSignOut }) {
   return (
     <div className="min-h-screen bg-slate-950">
@@ -315,6 +352,7 @@ function MaterialsScreen({ materials, currentPage, onPageChange, loading, notFou
                 Published {formatDate(materials.published_at)} · {formatRelativeTime(materials.published_at)}
               </p>
             </div>
+            {materials.recording && <RecordingCard recording={materials.recording} />}
             {materials.assets.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-800 py-24 text-center">
                 <p className="font-medium text-slate-300">Nothing published yet</p>
