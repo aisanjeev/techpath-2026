@@ -282,6 +282,7 @@ export interface TrainingSession {
   ended_at?: string | null;
   materials_published_at?: string | null;
   keep_recording: boolean;
+  questions_are_public?: boolean;
   /** Null until the trainer has started publishing media for this session. */
   media?: MediaView | null;
 }
