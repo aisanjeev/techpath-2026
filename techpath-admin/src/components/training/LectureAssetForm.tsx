@@ -117,7 +117,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
     (asset?.config?.language as string) ?? 'python'
   );
   const [externalUrl, setExternalUrl] = useState(asset?.external_url ?? '');
-  const [file, setFile] = useState<{ id: number; filename: string; size: number } | null>(
+  const [file, setFile] = useState<{ id: number; filename: string; size: number; url?: string } | null>(
     asset?.media_file_id
       ? { id: asset.media_file_id, filename: asset?.config?.filename as string ?? 'Attached file', size: asset?.config?.size as number ?? 0 }
       : null
@@ -206,14 +206,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
   }, [instructions]);
 
   const htmlPreviewUrl = useMemo(() => {
-    if (file) {
-      try {
-        return URL.createObjectURL(file);
-      } catch {
-        return null;
-      }
-    }
-    return asset?.file_url ?? null;
+    return file?.url ?? asset?.file_url ?? null;
   }, [file, asset?.file_url]);
 
   const validate = (): boolean => {
