@@ -496,6 +496,25 @@ function DownloadCard({ asset, message }: Props & { message?: string }) {
     </div>
   );
 }
+function HtmlBundleSlide({ asset }: Props) {
+  const src = asset.file_url ?? null;
+
+  if (!src) {
+    return <DownloadCard asset={asset} message="HTML file not available" />;
+  }
+
+  return (
+    <div className="flex h-full items-center justify-center px-4 py-4">
+      <iframe
+        src={src}
+        sandbox="allow-scripts allow-same-origin"
+        className="h-full w-full rounded-xl border border-gray-700 bg-white shadow-2xl"
+        title={asset.title}
+      />
+    </div>
+  );
+}
+
 
 export function AssetRenderer({ asset, className }: Props) {
   const type = asset.asset_type;
@@ -527,6 +546,8 @@ export function AssetRenderer({ asset, className }: Props) {
       case 'assignment':
       case 'lab':
         return <StructuredSlide asset={asset} />;
+      case 'html_bundle':
+        return <HtmlBundleSlide asset={asset} />;
       default:
         return <DownloadCard asset={asset} />;
     }

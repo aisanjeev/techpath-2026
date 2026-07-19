@@ -163,18 +163,18 @@ ASSET_TYPE_RULES: dict[AssetType, AssetTypeRule] = {
     AssetType.ASSIGNMENT: AssetTypeRule(AssetStorageKind.STRUCTURED, "Assignment"),
     AssetType.LAB: AssetTypeRule(AssetStorageKind.STRUCTURED, "Lab"),
     AssetType.HTML_BUNDLE: AssetTypeRule(
-        AssetStorageKind.BUNDLE,
-        "HTML Bundle",
-        100,
-        ["application/zip", "application/x-zip-compressed"],
-        [".zip"],
+        AssetStorageKind.FILE,
+        "Interactive HTML",
+        10,
+        ["text/html"],
+        [".html"],
     ),
 }
 
 # html_bundle is modelled but deliberately not offered: authored JS must be served from
 # a dedicated origin before it can be rendered safely, and that origin does not exist
 # yet. Everything else about the type is ready, so enabling it is a one-line change.
-ASSET_TYPES_DISABLED: frozenset[AssetType] = frozenset({AssetType.HTML_BUNDLE})
+ASSET_TYPES_DISABLED: frozenset[AssetType] = frozenset()
 
 ASSET_TYPES_ENABLED: tuple[AssetType, ...] = tuple(
     t for t in AssetType if t not in ASSET_TYPES_DISABLED
