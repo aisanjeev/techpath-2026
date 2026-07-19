@@ -1081,8 +1081,8 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
               )}
 
               {assetType === 'html_bundle' && htmlPreviewUrl && (
-                <div className="flex h-full items-center justify-center">
-                  <div className="h-full w-full rounded-xl border border-gray-700 bg-white overflow-hidden shadow-2xl">
+                <div className="flex w-full items-center justify-center">
+                  <div className="h-96 w-full rounded-xl border border-gray-700 bg-white overflow-hidden shadow-2xl">
                     <iframe
                       src={htmlPreviewUrl}
                       sandbox="allow-scripts allow-same-origin"

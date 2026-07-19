@@ -1,0 +1,2 @@
+### Pre-Deployment Verification Rule
+When modifying TypeScript or React code in any of the project's applications (`techpath-admin`, `techpath-frontend`, etc.), you **MUST** run the appropriate local build or type-check command (e.g., `cmd.exe /c npm run build`) in the respective directory to verify there are no TypeScript compiler errors before considering the task complete. Do not assume code is bug-free without verifying it against the compiler.
