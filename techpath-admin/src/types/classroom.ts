@@ -237,5 +237,7 @@ export type ClassroomEvent =
       };
     }
   | { type: 'doubt_requested'; payload: { doubt_id: number; participant_id: number; display_name: string; } }
-  | { type: 'doubt_approved'; payload: DoubtRequest }
-  | { type: 'doubt_completed'; payload: DoubtRequest };
+  // These mirror what trainer.py's approve_doubt/complete_doubt actually publish — a
+  // flat payload keyed by `doubt_id`, NOT a serialized DoubtRequest (which keys on `id`).
+  | { type: 'doubt_approved'; payload: { doubt_id: number; participant_id: number; whip_url: string; whep_url: string; } }
+  | { type: 'doubt_completed'; payload: { doubt_id: number; participant_id: number; } };
