@@ -419,10 +419,13 @@ function CourseLearningScreen({
   const completedCount = course.modules.filter((m) => m.completed).length;
   const pct = course.modules.length > 0 ? Math.round((completedCount / course.modules.length) * 100) : 0;
 
+  const activeAssets = materials?.assets || [];
+  const progressItems = progress?.items || [];
+
   return (
     <div className="h-screen flex flex-col bg-slate-950 overflow-hidden">
       <PortalHeader title={course.title} subtitle={course.batch_name} onBack={onBack} backLabel="Dashboard" onSignOut={onSignOut} />
-      
+
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar: Curriculum */}
         <div className="w-80 shrink-0 border-r border-slate-800 bg-slate-900/40 flex flex-col overflow-y-auto hidden md:flex">
@@ -446,8 +449,8 @@ function CourseLearningScreen({
 
               return (
                 <div key={m.module_id} className="rounded-lg overflow-hidden">
-                  <button 
-                    onClick={() => onOpenModule(m.module_id, m.last_asset_index)} 
+                  <button
+                    onClick={() => onOpenModule(m.module_id, m.last_asset_index)}
                     className={`w-full flex items-start gap-3 p-3 text-left transition hover:bg-slate-800/60 ${isActive ? 'bg-slate-800/80 border-l-2 border-primary-500' : 'border-l-2 border-transparent'}`}
                   >
                     <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-slate-800/80 font-heading text-[10px] font-bold text-slate-400">
@@ -461,12 +464,32 @@ function CourseLearningScreen({
                         <span className={`flex items-center gap-1 ${statusColor}`}>
                           {m.completed ? '✓ Completed' : m.started ? '▶ In progress' : 'Not started'}
                         </span>
-                        <span>•</span>
+                        <span>·</span>
                         <span>{m.asset_count} items</span>
                       </div>
                     </div>
                   </button>
-                  {/* If active, optionally show the list of materials here if we had them, but currently we just show them in the right pane! */}
+                  {isActive && activeAssets.length > 0 && (
+                    <div className="pl-9 pr-2 pb-2 space-y-0.5">
+                      {activeAssets.map((a, ai) => {
+                        const isCurrent = ai === currentPage;
+                        const prog = progressItems.find(p => p.asset_id === a.id);
+                        const passed = prog?.passed;
+                        return (
+                          <button
+                            key={a.id}
+                            onClick={() => onPageChange(ai)}
+                            className={`w-full flex items-center gap-2 rounded px-2 py-1.5 text-left text-xs transition ${isCurrent ? 'bg-primary-500/15 text-primary-300' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'}`}
+                          >
+                            <span className="shrink-0 w-4 text-center">
+                              {passed === true ? <span className="text-emerald-400">✓</span> : passed === false ? <span className="text-red-400">✗</span> : <span className="text-slate-600">·</span>}
+                            </span>
+                            <span className="truncate">{a.title}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -474,7 +497,7 @@ function CourseLearningScreen({
         </div>
 
         {/* Right Content Area: Viewer */}
-        <div className="flex-1 overflow-y-auto bg-slate-950 p-6 sm:p-10">
+        <div className="flex-1 overflow-y-auto bg-slate-950 px-4 py-8 pb-24 sm:px-6">
           {!activeModuleId ? (
             <div className="flex h-full items-center justify-center text-center">
               <div>
@@ -483,14 +506,14 @@ function CourseLearningScreen({
                 <p className="mt-2 text-sm text-slate-400">Choose a module from the curriculum to start learning.</p>
               </div>
             </div>
-          ) : materialsLoading ? (
+          ) : materialsLoading && !materials ? (
             <div className="flex h-full items-center justify-center"><Spinner /></div>
           ) : !materials ? (
             <EmptyState icon="⚠️" title="Could not load materials" />
           ) : (
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-5xl mx-auto">
               <AssetPager
-                assets={materials?.assets || []}
+                assets={activeAssets}
                 progress={progress}
                 quizResults={quizResults}
                 onQuizSubmit={onQuizSubmit}
@@ -499,9 +522,11 @@ function CourseLearningScreen({
                 hasNextModule={hasNextModule}
                 hasPrevModule={hasPrevModule}
                 headerExtra={
-                  <div className="mb-6">
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-primary-400">{materials?.batch_name}</p>
-                    <h2 className="mt-1 font-heading text-2xl font-bold text-white">{materials?.module_title}</h2>
+                  <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-[11px] font-medium uppercase tracking-wider text-primary-400">{materials?.batch_name}</p>
+                      <h2 className="mt-1 font-heading text-xl font-bold text-white">{materials?.module_title}</h2>
+                    </div>
                   </div>
                 }
               />
@@ -656,6 +681,8 @@ export default function StudentPortalApp() {
   const [materialsContext, setMaterialsContext] = useState(null);
 
   const pendingParamsRef = useRef(null);
+  const courseDetailRef = useRef(null);
+  courseDetailRef.current = courseDetail;
 
   // ---------------------------------------------------------------------------
   // Data loading
@@ -678,11 +705,9 @@ export default function StudentPortalApp() {
 
   const openCourse = useCallback(async (programId, { pushState = true } = {}) => {
     setStage('course');
-    setCourseDetail(null);
     setCourseNotFound(false);
     setCourseLoading(true);
-    setMaterialsContext(null); // Clear active module
-    setMaterials(null);
+    setMaterialsContext(null);
     if (pushState) pushUrl({ course: programId });
     const res = await getSelfPacedCourse(programId);
     setCourseLoading(false);
@@ -700,17 +725,16 @@ export default function StudentPortalApp() {
 
   const openModuleMaterials = useCallback(async (programId, moduleId, { pushState = true, page = 0, preloadedCourse = null } = {}) => {
     setStage('course');
-    setMaterials(null);
     setMaterialsNotFound(false);
     setMaterialsLoading(true);
     setCurrentPage(page);
     setQuizResults({});
     setMaterialsContext({ type: 'module', programId, moduleId });
     if (pushState) pushUrl({ course: programId, module: moduleId, page });
-    
-    // If we deep linked directly, we need to load the course sidebar as well
-    let loadCoursePromise = Promise.resolve({ success: true, data: preloadedCourse || courseDetail });
-    if (!preloadedCourse && (!courseDetail || courseDetail.program_id !== programId)) {
+
+    const cached = courseDetailRef.current;
+    let loadCoursePromise = Promise.resolve({ success: true, data: preloadedCourse || cached });
+    if (!preloadedCourse && (!cached || cached.program_id !== programId)) {
       setCourseLoading(true);
       loadCoursePromise = getSelfPacedCourse(programId);
     }
@@ -720,7 +744,7 @@ export default function StudentPortalApp() {
       getSelfPacedModuleProgress(programId, moduleId),
       loadCoursePromise
     ]);
-    
+
     if (courseRes.success && courseRes.data) {
       setCourseDetail(courseRes.data);
     } else {
@@ -739,11 +763,10 @@ export default function StudentPortalApp() {
     } else {
       setMaterialsNotFound(true);
     }
-  }, [courseDetail]);
+  }, []);
 
   const openSessionMaterials = useCallback(async (sessionId, { pushState = true, page = 0 } = {}) => {
     setStage('session-materials');
-    setMaterials(null);
     setMaterialsNotFound(false);
     setMaterialsLoading(true);
     setCurrentPage(page);
@@ -946,16 +969,14 @@ export default function StudentPortalApp() {
       setCurrentPage(p);
       if (materialsContext) {
         pushUrl({ course: materialsContext.programId, module: materialsContext.moduleId, page: p });
-        updateSelfPacedModuleBookmark(materialsContext.programId, materialsContext.moduleId, p).then(res => {
-          if (res.success) {
-            getSelfPacedModuleProgress(materialsContext.programId, materialsContext.moduleId).then(progRes => {
-              if (progRes.success) setProgress(progRes.data);
-            });
-            // Also refresh course summary to update module completion statuses in sidebar
-            getSelfPacedCourse(materialsContext.programId).then(courseRes => {
-              if (courseRes.success) setCourseDetail(courseRes.data);
-            });
-          }
+        updateSelfPacedModuleBookmark(materialsContext.programId, materialsContext.moduleId, p).then(async (res) => {
+          if (!res.success) return;
+          const [progRes, courseRes] = await Promise.all([
+            getSelfPacedModuleProgress(materialsContext.programId, materialsContext.moduleId),
+            getSelfPacedCourse(materialsContext.programId),
+          ]);
+          if (progRes.success) setProgress(progRes.data);
+          if (courseRes.success) setCourseDetail(courseRes.data);
         });
       }
     };
@@ -1010,7 +1031,7 @@ export default function StudentPortalApp() {
           onSignOut={handleSignOut}
         />
         <main className="mx-auto max-w-5xl px-4 py-8 pb-24 sm:px-6">
-          {materialsLoading ? (
+          {materialsLoading && !materials ? (
             <div className="flex justify-center py-24"><Spinner /></div>
           ) : materialsNotFound ? (
             <EmptyState
