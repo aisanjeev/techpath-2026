@@ -448,18 +448,22 @@ const courseSchema = {
   // Sidebar form submission
   const sidebarForm = document.getElementById('sidebar-enquiry-form') as HTMLFormElement | null;
   const sidebarMessage = document.getElementById('sidebar-form-message');
-  
+
+  if (window.__spamProtection && sidebarForm) window.__spamProtection.attach(sidebarForm);
+
   sidebarForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const formData = new FormData(sidebarForm);
     const submitBtn = sidebarForm.querySelector('button[type="submit"]') as HTMLButtonElement | null;
-    
+    const sp = window.__spamProtection ? window.__spamProtection.payload(sidebarForm) : {};
+
     const data = {
       name: formData.get('name'),
       email: formData.get('email'),
       phone: formData.get('phone'),
       message: `Training Enquiry for: ${formData.get('course')}`,
+      ...sp,
     };
     
     if (submitBtn) {
@@ -483,6 +487,7 @@ const courseSchema = {
           sidebarMessage.classList.add('text-green-400');
           sidebarMessage.textContent = '✅ Thank you! We\'ll call you soon.';
           sidebarForm.reset();
+          if (window.__spamProtection) window.__spamProtection.reset(sidebarForm);
         } else {
           sidebarMessage.classList.add('text-red-400');
           sidebarMessage.textContent = result.detail || 'Something went wrong.';

@@ -3,7 +3,7 @@ import type { APIRoute } from 'astro';
 export const POST: APIRoute = async ({ request }) => {
   try {
     const data = await request.json();
-    const { name, email, company, message, service } = data;
+    const { name, email, company, message, service, turnstile_token, website } = data;
 
     // Validate required fields
     if (!name || !email || !message) {
@@ -41,6 +41,8 @@ export const POST: APIRoute = async ({ request }) => {
         company: company || null,
         message,
         service: service || null,
+        turnstile_token: turnstile_token || undefined,
+        website: website || undefined,
       }),
     });
 

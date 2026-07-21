@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import techpathLogo from '@/assets/images/techpath-logo.webp';
 import { fetchPublicSettings } from '@services/settingsService';
+import SpamProtection from '@components/shared/SpamProtection.astro';
 
 const currentYear = new Date().getFullYear();
 const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
@@ -52,6 +53,7 @@ const socialLinks = [
 ].filter(Boolean) as { label: string; href: string; icon: string }[];
 ---
 
+<SpamProtection />
 <footer class="border-t border-slate-800 bg-slate-950">
   <div class="container mx-auto px-4 py-16">
     <div class="grid gap-10 grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
@@ -254,17 +256,20 @@ const socialLinks = [
   const form = document.getElementById('newsletter-form');
   const message = document.getElementById('newsletter-message');
 
+  if (window.__spamProtection && form) window.__spamProtection.attach(form);
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(form);
     const email = formData.get('email');
+    const sp = window.__spamProtection ? window.__spamProtection.payload(form) : {};
 
     try {
       // Call FastAPI backend directly
       const response = await fetch(`${API_URL}/api/v1/contact/newsletter`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, ...sp }),
       });
 
       const result = await response.json();
@@ -276,6 +281,7 @@ const socialLinks = [
           message.classList.add('text-green-400');
           message.textContent = result.message || 'Successfully subscribed!';
           form.reset();
+          if (window.__spamProtection) window.__spamProtection.reset(form);
         } else {
           message.classList.add('text-red-400');
           message.textContent = result.detail || 'An error occurred. Please try again.';

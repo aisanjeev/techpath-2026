@@ -8,6 +8,7 @@ import Breadcrumb from '@components/shared/Breadcrumb.astro';
 import IndustrySection from '@components/solutions/IndustrySection.astro';
 import SectionDivider from '@components/solutions/SectionDivider.astro';
 import StatTile from '@components/solutions/StatTile.astro';
+import SpamProtection from '@components/shared/SpamProtection.astro';
 
 const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -533,6 +534,7 @@ const certifications = [
             <h3 class="font-heading text-xl font-bold text-white">Schedule Free Consultation</h3>
             <p class="mt-1 text-sm text-slate-400">We'll get back within 24 hours.</p>
 
+            <SpamProtection />
             <form id="solutions-form" class="mt-8 space-y-5">
               <div class="grid gap-5 md:grid-cols-2">
                 <div>
@@ -813,6 +815,8 @@ const certifications = [
   const submitBtn = document.getElementById('solutions-submit-btn');
   const formMessage = document.getElementById('solutions-message');
 
+  if (window.__spamProtection && solutionsForm) window.__spamProtection.attach(solutionsForm);
+
   solutionsForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -824,12 +828,14 @@ const certifications = [
     const formData = new FormData(solutionsForm);
     const firstname = formData.get('firstname') || '';
     const lastname = formData.get('lastname') || '';
+    const sp = window.__spamProtection ? window.__spamProtection.payload(solutionsForm) : {};
     const data = {
       name: `${firstname} ${lastname}`.trim(),
       email: formData.get('email'),
       company: formData.get('company') || null,
       service: formData.get('industry') || null,
       message: formData.get('challenge') || 'Consultation request from Solutions page',
+      ...sp,
     };
 
     try {
@@ -848,6 +854,7 @@ const certifications = [
           formMessage.classList.add('text-green-400');
           formMessage.textContent = result.message || 'Thank you! We will contact you within 24 hours.';
           solutionsForm.reset();
+          if (window.__spamProtection) window.__spamProtection.reset(solutionsForm);
         } else {
           formMessage.classList.add('text-red-400');
           formMessage.textContent = result.detail || 'An error occurred. Please try again.';

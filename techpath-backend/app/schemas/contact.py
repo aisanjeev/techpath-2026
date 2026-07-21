@@ -1,4 +1,5 @@
 """Contact and newsletter Pydantic schemas."""
+
 from datetime import datetime
 from typing import Optional
 
@@ -20,6 +21,25 @@ class ContactInquiryCreate(ContactInquiryBase):
     company: Optional[str] = Field(None, max_length=255)
     subject: Optional[str] = Field(None, max_length=255)
     service_interest: Optional[str] = Field(None, max_length=255)
+
+
+class SpamProtectionMixin(BaseModel):
+    """Anti-spam fields accepted on public form submissions, never persisted.
+
+    `website` is a honeypot — the frontend renders it visually hidden, so any
+    non-empty value means a bot. Strip both fields before handing the payload
+    to CRUD (see SPAM_PROTECTION_FIELDS).
+    """
+
+    turnstile_token: Optional[str] = Field(None, max_length=4096)
+    website: Optional[str] = Field(None, max_length=1024)
+
+
+SPAM_PROTECTION_FIELDS = {"turnstile_token", "website"}
+
+
+class ContactInquirySubmit(ContactInquiryCreate, SpamProtectionMixin):
+    """Public contact form payload: inquiry fields + anti-spam fields."""
 
 
 class ContactInquiryUpdate(BaseModel):
@@ -58,6 +78,10 @@ class NewsletterCreate(NewsletterBase):
     source: Optional[str] = Field(None, max_length=100)
 
 
+class NewsletterSubscribe(NewsletterCreate, SpamProtectionMixin):
+    """Public newsletter form payload: subscription fields + anti-spam fields."""
+
+
 class NewsletterResponse(NewsletterBase):
     """Schema for newsletter subscription response."""
 
@@ -68,4 +92,3 @@ class NewsletterResponse(NewsletterBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
-

@@ -126,6 +126,24 @@ class Settings(BaseSettings):
         return bool(self.SMTP_USER and self.SMTP_PASSWORD)
 
     # -----------------
+    # Spam protection (public forms)
+    # -----------------
+    # Cloudflare Turnstile secret key. When set, POST /contact and /contact/newsletter
+    # require a valid `turnstile_token` in the request body. Leave blank to disable
+    # verification (local dev, tests). The matching site key lives in the frontend as
+    # PUBLIC_TURNSTILE_SITE_KEY — set both or neither, or every submission is rejected.
+    TURNSTILE_SECRET_KEY: str = Field(default="")
+    # Max public form submissions per client IP per hour (contact + newsletter combined
+    # counters are tracked per endpoint). In-memory, per worker process.
+    CONTACT_RATE_LIMIT_PER_HOUR: int = Field(default=5)
+    NEWSLETTER_RATE_LIMIT_PER_HOUR: int = Field(default=10)
+
+    @property
+    def is_turnstile_enabled(self) -> bool:
+        """Check if Turnstile verification is configured."""
+        return bool(self.TURNSTILE_SECRET_KEY)
+
+    # -----------------
     # Redis (Optional)
     # -----------------
     REDIS_URL: Optional[str] = Field(default=None)
