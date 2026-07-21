@@ -117,7 +117,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
     (asset?.config?.language as string) ?? 'python'
   );
   const [externalUrl, setExternalUrl] = useState(asset?.external_url ?? '');
-  const [file, setFile] = useState<{ id: number; filename: string; size: number } | null>(
+  const [file, setFile] = useState<{ id: number; filename: string; size: number; url?: string } | null>(
     asset?.media_file_id
       ? { id: asset.media_file_id, filename: asset?.config?.filename as string ?? 'Attached file', size: asset?.config?.size as number ?? 0 }
       : null
@@ -204,6 +204,10 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
       return instructions;
     }
   }, [instructions]);
+
+  const htmlPreviewUrl = useMemo(() => {
+    return file?.url ?? asset?.file_url ?? null;
+  }, [file, asset?.file_url]);
 
   const validate = (): boolean => {
     const next: Record<string, string> = {};
@@ -1036,7 +1040,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
               )}
 
               {/* 3. File Preview */}
-              {kind === 'file' && (
+              {kind === 'file' && assetType !== 'html_bundle' && (
                 <div
                   className={cn(
                     'flex flex-col items-center justify-center rounded-xl border p-6 text-center gap-3',
@@ -1073,6 +1077,19 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
                       <Download className="h-3.5 w-3.5" /> Download File
                     </button>
                   )}
+                </div>
+              )}
+
+              {assetType === 'html_bundle' && htmlPreviewUrl && (
+                <div className="flex w-full items-center justify-center">
+                  <div className="h-96 w-full rounded-xl border border-gray-700 bg-white overflow-hidden shadow-2xl">
+                    <iframe
+                      src={htmlPreviewUrl}
+                      sandbox="allow-scripts allow-same-origin"
+                      className="h-full w-full"
+                      title={title || 'HTML Bundle Preview'}
+                    />
+                  </div>
                 </div>
               )}
 

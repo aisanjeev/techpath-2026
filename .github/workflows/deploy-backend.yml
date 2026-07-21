@@ -165,14 +165,14 @@ jobs:
             WorkingDirectory=${DEPLOY_DIR}
             Environment="PATH=${DEPLOY_DIR}/venv/bin:/usr/local/bin:/usr/bin:/bin"
             Environment="PYTHONUNBUFFERED=1"
-            ExecStart=${DEPLOY_DIR}/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port ${APP_PORT}
+            ExecStart=${DEPLOY_DIR}/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port ${APP_PORT} --proxy-headers --forwarded-allow-ips='*'
             Restart=always
             RestartSec=10
-            
+
             [Install]
             WantedBy=multi-user.target
             SERVICEEOF
-            
+
             # Restart service
             echo "🔄 Restarting service..."
             systemctl daemon-reload
@@ -310,7 +310,7 @@ jobs:
             WorkingDirectory=${DEPLOY_DIR}
             Environment="PATH=${DEPLOY_DIR}/venv/bin:/usr/local/bin:/usr/bin:/bin"
             Environment="PYTHONUNBUFFERED=1"
-            ExecStart=${DEPLOY_DIR}/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port ${APP_PORT} --workers 2
+            ExecStart=${DEPLOY_DIR}/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port ${APP_PORT} --workers 2 --proxy-headers --forwarded-allow-ips='*'
             Restart=always
             RestartSec=10
             

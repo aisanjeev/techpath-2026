@@ -9,9 +9,14 @@ const services = [
   { value: 'other', label: 'Other' },
 ];
 
+import SpamProtection from '@components/shared/SpamProtection.astro';
+
 // API URL - defaults to localhost for development
 const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
 ---
+
+<SpamProtection />
+
 
 <form id="contact-form" class="space-y-6">
   <!-- Name and Email Row -->
@@ -105,19 +110,23 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
   const submitButton = document.getElementById('submit-button');
   const formMessage = document.getElementById('form-message');
 
+  if (window.__spamProtection && form) window.__spamProtection.attach(form);
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     submitButton.disabled = true;
     submitButton.textContent = 'Sending...';
 
     const formData = new FormData(form);
+    const sp = window.__spamProtection ? window.__spamProtection.payload(form) : {};
     const data = {
       name: formData.get('name'),
       email: formData.get('email'),
       company: formData.get('company') || null,
       message: formData.get('message'),
       service: formData.get('service') || null,
+      ...sp,
     };
 
     try {
@@ -137,6 +146,7 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
           formMessage.classList.add('text-green-400');
           formMessage.textContent = result.message || 'Thank you! We will get back to you soon.';
           form.reset();
+          if (window.__spamProtection) window.__spamProtection.reset(form);
         } else {
           formMessage.classList.add('text-red-400');
           formMessage.textContent = result.detail || 'An error occurred. Please try again.';

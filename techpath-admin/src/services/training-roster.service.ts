@@ -99,6 +99,19 @@ export const trainingRosterService = {
     }
   },
 
+  async setSelfPaced(batchId: number, isSelfPaced: boolean): Promise<TrainingBatch> {
+    try {
+      const response = await apiClient.patch<TrainingBatch>(
+        `/api/v1/training/batches/${batchId}/self-paced`,
+        null,
+        { params: { is_self_paced: isSelfPaced } }
+      );
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
   async listStudents(params: StudentListParams = {}): Promise<PaginatedResponse<TrainingStudent>> {
     try {
       const response = await apiClient.get<TrainingStudent[]>('/api/v1/training/students', {

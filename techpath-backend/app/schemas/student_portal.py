@@ -114,8 +114,67 @@ class StudentProgressItem(BaseModel):
 
 
 class StudentProgressResponse(BaseModel):
-    session_id: int
-    # Index of the first quiz without a passing attempt; equals len(items) when there
-    # is none. The quiz *at* this index is reachable — everything after it is not.
+    session_id: Optional[int] = None
+    module_id: Optional[int] = None
     first_locked_index: int
     items: List[StudentProgressItem]
+
+
+# ---------------------------------------------------------------------------
+# Self-paced courses
+# ---------------------------------------------------------------------------
+
+
+class SelfPacedModuleSummary(BaseModel):
+    module_id: int
+    title: str
+    description: Optional[str] = None
+    display_order: int
+    estimated_minutes: Optional[int] = None
+    asset_count: int
+    quiz_count: int
+    started: bool = False
+    completed: bool = False
+    last_asset_index: int = 0
+
+
+class SelfPacedCourseSummary(BaseModel):
+    program_id: int
+    title: str
+    slug: str
+    summary: Optional[str] = None
+    cover_image: Optional[str] = None
+    delivery_mode: str
+    level: Optional[str] = None
+    duration: Optional[str] = None
+    batch_name: str
+    module_count: int
+    completed_modules: int
+    total_assets: int
+
+
+class SelfPacedCourseListResponse(BaseModel):
+    courses: List[SelfPacedCourseSummary]
+
+
+class SelfPacedCourseDetailResponse(BaseModel):
+    program_id: int
+    title: str
+    slug: str
+    summary: Optional[str] = None
+    description: Optional[str] = None
+    cover_image: Optional[str] = None
+    delivery_mode: str
+    level: Optional[str] = None
+    duration: Optional[str] = None
+    batch_name: str
+    modules: List[SelfPacedModuleSummary]
+
+
+class SelfPacedModuleMaterialsResponse(BaseModel):
+    program_id: int
+    module_id: int
+    module_title: str
+    program_title: str
+    batch_name: str
+    assets: List[LectureAssetResponse]

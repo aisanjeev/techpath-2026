@@ -96,6 +96,52 @@ class CRUDSessionQuizAttempt(CRUDBase[SessionQuizAttempt, Any, Any]):
             for row in result.all()
         }
 
+    async def passed_asset_ids_for_module(
+        self, db: AsyncSession, student_id: int, module_id: int
+    ) -> Set[int]:
+        """Every asset this student has a passing attempt on, scoped to a module.
+
+        Used for self-paced progress gating where there is no session.
+        """
+        result = await db.execute(
+            select(SessionQuizAttempt.asset_id)
+            .where(
+                SessionQuizAttempt.student_id == student_id,
+                SessionQuizAttempt.module_id == module_id,
+                SessionQuizAttempt.passed.is_(True),
+            )
+            .distinct()
+        )
+        return set(result.scalars().all())
+
+    async def summary_for_student_module(
+        self, db: AsyncSession, student_id: int, module_id: int
+    ) -> Dict[int, Dict[str, Any]]:
+        """Per-asset attempt summary for one student in a self-paced module."""
+        result = await db.execute(
+            select(
+                SessionQuizAttempt.asset_id,
+                func.max(SessionQuizAttempt.score).label("best_score"),
+                func.count(SessionQuizAttempt.id).label("attempt_count"),
+                func.max(SessionQuizAttempt.total_questions).label("total_questions"),
+                func.max(SessionQuizAttempt.passed).label("passed"),
+            )
+            .where(
+                SessionQuizAttempt.student_id == student_id,
+                SessionQuizAttempt.module_id == module_id,
+            )
+            .group_by(SessionQuizAttempt.asset_id)
+        )
+        return {
+            row.asset_id: {
+                "best_score": row.best_score,
+                "attempt_count": row.attempt_count,
+                "total_questions": row.total_questions,
+                "passed": bool(row.passed),
+            }
+            for row in result.all()
+        }
+
     async def list_for_session_assets(
         self, db: AsyncSession, session_id: int, asset_ids: Sequence[int]
     ) -> List[SessionQuizAttempt]:

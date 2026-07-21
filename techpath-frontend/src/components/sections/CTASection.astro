@@ -3,6 +3,7 @@
 import { Image } from 'astro:assets';
 import sanjeevPhoto from '@assets/images/team/sanjeev-ceo-techpath.png';
 import { fetchCompanyInfo } from '@services/settingsService';
+import SpamProtection from '@components/shared/SpamProtection.astro';
 
 interface Props {
   cta?: {
@@ -17,6 +18,7 @@ const apiBaseUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:8000';
 const company = await fetchCompanyInfo();
 ---
 
+<SpamProtection />
 <section class="py-20 lg:py-28">
   <div class="container mx-auto px-4">
     <div class="relative overflow-hidden rounded-3xl border border-slate-700/60 bg-slate-900">
@@ -211,6 +213,8 @@ const company = await fetchCompanyInfo();
   const submitBtn = document.getElementById('cta-submit-btn');
   const formMessage = document.getElementById('cta-form-message');
 
+  if (window.__spamProtection && form) window.__spamProtection.attach(form);
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -218,11 +222,13 @@ const company = await fetchCompanyInfo();
     submitBtn.textContent = 'Sending…';
 
     const fd = new FormData(form);
+    const sp = window.__spamProtection ? window.__spamProtection.payload(form) : {};
     const payload = {
       name: fd.get('name'),
       email: fd.get('email'),
       message: fd.get('message'),
       subject: 'Strategy Call Request',
+      ...sp,
     };
 
     try {
@@ -239,6 +245,7 @@ const company = await fetchCompanyInfo();
         formMessage.classList.add('text-emerald-400');
         formMessage.textContent = result.message || 'Thanks! We\'ll be in touch within 4 hours.';
         form.reset();
+        if (window.__spamProtection) window.__spamProtection.reset(form);
       } else {
         formMessage.classList.add('text-red-400');
         formMessage.textContent = result.detail || 'Something went wrong. Please try again.';

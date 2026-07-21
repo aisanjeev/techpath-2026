@@ -1,11 +1,13 @@
-"""Public student-portal endpoints — the post-session, Firebase-authenticated side.
+"""Public student-portal endpoints — Firebase-authenticated.
 
-Distinct from ``classroom.py``'s join-code flow (see that module's docstring): this is
-a returning student coming back after class to view or download what a trainer has
-published, proven by a real Google sign-in rather than a 6-digit code. Every route here
-depends on ``get_current_student``, which is the entire access-control boundary — a
-student only ever sees a session if they both attended it (a matched
-``SessionParticipant`` row) and a trainer has since published it.
+Two access modes:
+1. **Session materials** (post-live-session): a student sees published sessions from
+   batches they belong to. The trainer controls the publish gate.
+2. **Self-paced courses**: a batch marked ``is_self_paced`` gives enrolled students
+   direct access to all published modules in the linked programme, with no session
+   required.
+
+Both share ``get_current_student`` as the identity boundary.
 """
 
 import json
@@ -13,25 +15,38 @@ import logging
 from datetime import datetime, timezone
 from typing import List, Set
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Body, Depends, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.dependencies import get_current_student
-from app.core.constants import AssetType
+from app.core.constants import AssetStatus, AssetType
 from app.core.exceptions import NotFoundError, ValidationError
 from app.crud.classroom import session_recording_crud
 from app.crud.quiz_attempts import session_quiz_attempt_crud
-from app.crud.training import asset_to_response, load_config, training_module_crud
-from app.crud.training_roster import training_session_crud
+from app.crud.training import (
+    asset_to_response,
+    load_config,
+    training_module_crud,
+    training_program_crud,
+)
+from app.crud.training_roster import (
+    student_module_progress_crud,
+    training_session_crud,
+)
 from app.db.session import get_db
-from app.models.training import LectureAsset
+from app.models.training import LectureAsset, TrainingModule
 from app.models.training_roster import TrainingSession, TrainingStudent
 from app.schemas.classroom import RecordingView
 from app.schemas.student_portal import (
     QuizAttemptResult,
     QuizAttemptSubmission,
     QuizQuestionFeedback,
+    SelfPacedCourseDetailResponse,
+    SelfPacedCourseListResponse,
+    SelfPacedCourseSummary,
+    SelfPacedModuleMaterialsResponse,
+    SelfPacedModuleSummary,
     StudentLoginResponse,
     StudentProgressItem,
     StudentProgressResponse,
@@ -307,3 +322,369 @@ async def submit_quiz_attempt(
             QuizQuestionFeedback(**fb) for fb in quiz_grading.question_feedback(questions, answers)
         ],
     )
+
+
+# ---------------------------------------------------------------------------
+# Self-paced courses
+# ---------------------------------------------------------------------------
+
+
+async def _module_assets(db: AsyncSession, module_id: int) -> List[LectureAsset]:
+    module = await training_module_crud.get_with_assets(db, module_id)
+    if not module:
+        return []
+    return [link.asset for link in module.asset_links]
+
+
+def _module_asset_counts(module: TrainingModule) -> tuple[int, int]:
+    """(total_assets, quiz_count) from a module's eager-loaded asset_links."""
+    total = len(module.asset_links)
+    quizzes = sum(
+        1
+        for link in module.asset_links
+        if link.asset.asset_type == AssetType.QUIZ.value
+    )
+    return total, quizzes
+
+
+@router.get("/courses", response_model=SelfPacedCourseListResponse)
+async def list_self_paced_courses(
+    student: TrainingStudent = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+) -> SelfPacedCourseListResponse:
+    rows = await student_module_progress_crud.self_paced_programs_for_student(
+        db, student.id
+    )
+    seen_programs: set[int] = set()
+    courses: List[SelfPacedCourseSummary] = []
+
+    for program, batch in rows:
+        if program.id in seen_programs:
+            continue
+        seen_programs.add(program.id)
+
+        program_full = await training_program_crud.get_with_modules_and_assets(db, program.id)
+        if not program_full:
+            continue
+
+        published_modules = [
+            m
+            for m in program_full.modules
+            if m.status == AssetStatus.PUBLISHED.value
+        ]
+
+        all_module_ids = [m.id for m in published_modules]
+        progress_rows = await student_module_progress_crud.list_for_student_modules(
+            db, student.id, all_module_ids
+        )
+        completed = sum(1 for p in progress_rows if p.completed_at is not None)
+        total_assets = sum(len(m.asset_links) for m in published_modules)
+
+        courses.append(
+            SelfPacedCourseSummary(
+                program_id=program.id,
+                title=program.title,
+                slug=program.slug,
+                summary=program.summary,
+                cover_image=program.cover_image,
+                delivery_mode=program.delivery_mode,
+                level=program.level,
+                duration=program.duration,
+                batch_name=batch.name,
+                module_count=len(published_modules),
+                completed_modules=completed,
+                total_assets=total_assets,
+            )
+        )
+
+    return SelfPacedCourseListResponse(courses=courses)
+
+
+@router.get("/courses/{program_id}", response_model=SelfPacedCourseDetailResponse)
+async def get_self_paced_course(
+    program_id: int,
+    student: TrainingStudent = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+) -> SelfPacedCourseDetailResponse:
+    batch = await student_module_progress_crud.verify_self_paced_enrollment(
+        db, student.id, program_id
+    )
+    if batch is None:
+        raise NotFoundError("Course")
+
+    program = await training_program_crud.get_with_modules_and_assets(db, program_id)
+    if program is None:
+        raise NotFoundError("Course")
+
+    published_modules = [
+        m for m in program.modules if m.status == AssetStatus.PUBLISHED.value
+    ]
+    module_ids = [m.id for m in published_modules]
+    progress_rows = await student_module_progress_crud.list_for_student_modules(
+        db, student.id, module_ids
+    )
+    progress_map = {p.module_id: p for p in progress_rows}
+
+    module_summaries: List[SelfPacedModuleSummary] = []
+    for m in published_modules:
+        asset_count, quiz_count = _module_asset_counts(m)
+        prog = progress_map.get(m.id)
+        module_summaries.append(
+            SelfPacedModuleSummary(
+                module_id=m.id,
+                title=m.title,
+                description=m.description,
+                display_order=m.display_order,
+                estimated_minutes=m.estimated_minutes,
+                asset_count=asset_count,
+                quiz_count=quiz_count,
+                started=prog is not None,
+                completed=prog is not None and prog.completed_at is not None,
+                last_asset_index=prog.last_asset_index if prog else 0,
+            )
+        )
+
+    return SelfPacedCourseDetailResponse(
+        program_id=program.id,
+        title=program.title,
+        slug=program.slug,
+        summary=program.summary,
+        description=program.description,
+        cover_image=program.cover_image,
+        delivery_mode=program.delivery_mode,
+        level=program.level,
+        duration=program.duration,
+        batch_name=batch.name,
+        modules=module_summaries,
+    )
+
+
+@router.get(
+    "/courses/{program_id}/modules/{module_id}/materials",
+    response_model=SelfPacedModuleMaterialsResponse,
+)
+async def get_self_paced_module_materials(
+    program_id: int,
+    module_id: int,
+    student: TrainingStudent = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+) -> SelfPacedModuleMaterialsResponse:
+    batch = await student_module_progress_crud.verify_self_paced_enrollment(
+        db, student.id, program_id
+    )
+    if batch is None:
+        raise NotFoundError("Course")
+
+    module = await training_module_crud.get_with_assets(db, module_id)
+    if module is None or module.program_id != program_id:
+        raise NotFoundError("Module")
+    if module.status != AssetStatus.PUBLISHED.value:
+        raise NotFoundError("Module")
+
+    program = await training_program_crud.get(db, program_id)
+
+    assets = [
+        await asset_to_response(db, link.asset, audience="student")
+        for link in module.asset_links
+    ]
+
+    await student_module_progress_crud.upsert(
+        db, student.id, module_id, last_asset_index=0
+    )
+
+    return SelfPacedModuleMaterialsResponse(
+        program_id=program_id,
+        module_id=module_id,
+        module_title=module.title,
+        program_title=program.title if program else "",
+        batch_name=batch.name,
+        assets=assets,
+    )
+
+
+@router.get(
+    "/courses/{program_id}/modules/{module_id}/progress",
+    response_model=StudentProgressResponse,
+)
+async def get_self_paced_module_progress(
+    program_id: int,
+    module_id: int,
+    student: TrainingStudent = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+) -> StudentProgressResponse:
+    batch = await student_module_progress_crud.verify_self_paced_enrollment(
+        db, student.id, program_id
+    )
+    if batch is None:
+        raise NotFoundError("Course")
+
+    module = await training_module_crud.get_with_assets(db, module_id)
+    if module is None or module.program_id != program_id:
+        raise NotFoundError("Module")
+
+    assets = [link.asset for link in module.asset_links]
+    passed_ids = await session_quiz_attempt_crud.passed_asset_ids_for_module(
+        db, student.id, module_id
+    )
+    summaries = await session_quiz_attempt_crud.summary_for_student_module(
+        db, student.id, module_id
+    )
+    first_locked = _first_locked_index(assets, passed_ids)
+
+    items: List[StudentProgressItem] = []
+    for i, asset in enumerate(assets):
+        is_quiz = asset.asset_type == AssetType.QUIZ.value
+        summary = summaries.get(asset.id) if is_quiz else None
+        items.append(
+            StudentProgressItem(
+                asset_id=asset.id,
+                index=i,
+                is_quiz=is_quiz,
+                passed=(asset.id in passed_ids) if is_quiz else None,
+                locked=i > first_locked,
+                best_score=summary["best_score"] if summary else None,
+                total_questions=summary["total_questions"] if summary else None,
+                attempt_count=summary["attempt_count"] if summary else None,
+            )
+        )
+
+    return StudentProgressResponse(
+        module_id=module_id, first_locked_index=first_locked, items=items
+    )
+
+
+@router.post(
+    "/courses/{program_id}/modules/{module_id}/assets/{asset_id}/quiz-attempts",
+    response_model=QuizAttemptResult,
+    status_code=status.HTTP_201_CREATED,
+)
+async def submit_self_paced_quiz_attempt(
+    program_id: int,
+    module_id: int,
+    asset_id: int,
+    payload: QuizAttemptSubmission,
+    student: TrainingStudent = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+) -> QuizAttemptResult:
+    batch = await student_module_progress_crud.verify_self_paced_enrollment(
+        db, student.id, program_id
+    )
+    if batch is None:
+        raise NotFoundError("Course")
+
+    assets = await _module_assets(db, module_id)
+    asset = next((a for a in assets if a.id == asset_id), None)
+    if asset is None:
+        raise NotFoundError("Lecture asset")
+    if asset.asset_type != AssetType.QUIZ.value:
+        raise ValidationError("That asset isn't a quiz")
+
+    config = load_config(asset.config_json)
+    try:
+        questions = quiz_grading.extract_questions(config)
+    except quiz_grading.QuizConfigError as exc:
+        raise ValidationError(str(exc))
+
+    try:
+        answers = quiz_grading.validate_answers(questions, payload.answers)
+    except ValueError as exc:
+        raise ValidationError(str(exc))
+
+    pass_mark = quiz_grading.pass_mark_for(config)
+    score, total, passed = quiz_grading.grade(questions, answers, pass_mark)
+
+    attempt_number = await session_quiz_attempt_crud.next_attempt_number(
+        db, student.id, asset.id
+    )
+    try:
+        attempt = await session_quiz_attempt_crud.create(
+            db,
+            obj_in={
+                "student_id": student.id,
+                "session_id": None,
+                "module_id": module_id,
+                "asset_id": asset.id,
+                "attempt_number": attempt_number,
+                "answers_json": json.dumps(answers),
+                "score": score,
+                "total_questions": total,
+                "passed": passed,
+                "attempted_at": datetime.now(timezone.utc),
+            },
+        )
+    except IntegrityError:
+        await db.rollback()
+        existing = await session_quiz_attempt_crud.list_for_student_asset(
+            db, student.id, asset.id
+        )
+        if not existing:
+            raise
+        attempt = existing[-1]
+        score, total, passed = attempt.score, attempt.total_questions, attempt.passed
+        answers = json.loads(attempt.answers_json)
+
+    passed_ids = await session_quiz_attempt_crud.passed_asset_ids_for_module(
+        db, student.id, module_id
+    )
+    asset_index = next(i for i, a in enumerate(assets) if a.id == asset.id)
+    unlocked_next = _first_locked_index(assets, passed_ids) > asset_index
+
+    if passed:
+        all_passed = _first_locked_index(assets, passed_ids) >= len(assets)
+        if all_passed:
+            await student_module_progress_crud.upsert(
+                db,
+                student.id,
+                module_id,
+                last_asset_index=asset_index,
+                completed=True,
+            )
+
+    return QuizAttemptResult(
+        attempt_id=attempt.id,
+        attempt_number=attempt.attempt_number,
+        score=score,
+        total_questions=total,
+        percentage=round((score / total * 100) if total else 100.0, 1),
+        passed=passed,
+        pass_mark=pass_mark,
+        attempted_at=attempt.attempted_at,
+        unlocked_next=unlocked_next,
+        questions=[
+            QuizQuestionFeedback(**fb)
+            for fb in quiz_grading.question_feedback(questions, answers)
+        ],
+    )
+
+
+@router.post("/courses/{program_id}/modules/{module_id}/bookmark")
+async def update_module_bookmark(
+    program_id: int,
+    module_id: int,
+    last_asset_index: int = Body(..., embed=True),
+    student: TrainingStudent = Depends(get_current_student),
+    db: AsyncSession = Depends(get_db),
+):
+    batch = await student_module_progress_crud.verify_self_paced_enrollment(
+        db, student.id, program_id
+    )
+    if batch is None:
+        raise NotFoundError("Course")
+
+    module = await training_module_crud.get_with_assets(db, module_id)
+    if module is None:
+        raise NotFoundError("Course")
+    
+    assets = [a.asset for a in module.assets if a.asset.is_active]
+    progress = await student_module_progress_crud.get(db, student.id, module_id)
+    passed_ids = set(progress.passed_asset_ids) if progress else set()
+    
+    completed = False
+    if last_asset_index >= len(assets) - 1:
+        if _first_locked_index(assets, passed_ids) >= len(assets):
+            completed = True
+
+    await student_module_progress_crud.upsert(
+        db, student.id, module_id, last_asset_index=last_asset_index, completed=completed
+    )
+    return {"success": True}

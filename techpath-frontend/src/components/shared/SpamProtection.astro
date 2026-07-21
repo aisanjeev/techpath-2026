@@ -1,0 +1,138 @@
+---
+/**
+ * Drop this component into any page that contains a public form.
+ *
+ * What it does:
+ *   1. Loads the Cloudflare Turnstile API script (deferred, once).
+ *   2. Exposes `window.__spamProtection` — call `.attach(formEl)` to render
+ *      the Turnstile widget + honeypot inside the form, and `.payload(formEl)`
+ *      to get `{ turnstile_token, website }` ready to spread into a fetch body.
+ *   3. Everything degrades cleanly when TURNSTILE_SITE_KEY is unset (local dev).
+ */
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
+---
+
+{/* Honeypot + Turnstile styles — the honeypot must be invisible to humans but
+    present in the DOM so bots fill it. Using opacity:0 + position:absolute
+    instead of display:none so screen-readers also skip it, while bots that
+    parse the DOM still find a text input. */}
+<style is:global>
+  .hp-field { opacity: 0; position: absolute; top: 0; left: 0; height: 0; width: 0; z-index: -1; overflow: hidden; }
+  .cf-turnstile { margin-top: 0.5rem; }
+</style>
+
+<script is:inline define:vars={{ turnstileSiteKey }}>
+(function () {
+  // Only load once even if multiple SpamProtection components render (shouldn't
+  // happen, but guards against it).
+  if (window.__spamProtection) return;
+
+  const SITE_KEY = turnstileSiteKey;
+  let turnstileReady = false;
+  const pendingAttachments = [];
+
+  // Dynamically load the Turnstile script when a site key is configured.
+  if (SITE_KEY) {
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=__onTurnstileReady&render=explicit';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+
+    window.__onTurnstileReady = function () {
+      turnstileReady = true;
+      pendingAttachments.forEach(function (fn) { fn(); });
+      pendingAttachments.length = 0;
+    };
+  }
+
+  function renderWidget(form) {
+    // Avoid double-rendering.
+    if (form.querySelector('.cf-turnstile [data-turnstile-rendered]')) return;
+
+    var container = form.querySelector('.cf-turnstile');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'cf-turnstile';
+      var submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.parentNode.insertBefore(container, submitBtn);
+      } else {
+        form.appendChild(container);
+      }
+    }
+
+    if (typeof turnstile !== 'undefined') {
+      turnstile.render(container, {
+        sitekey: SITE_KEY,
+        theme: 'dark',
+        callback: function (token) {
+          // stash the token on the container for payload() to pick up
+          container.setAttribute('data-turnstile-token', token);
+        },
+      });
+      container.setAttribute('data-turnstile-rendered', '1');
+    }
+  }
+
+  window.__spamProtection = {
+    /**
+     * Call once per form after the DOM is ready. Injects the honeypot field
+     * and (when configured) the Turnstile widget.
+     */
+    attach: function (form) {
+      if (!form) return;
+
+      // Inject the honeypot field if not already present.
+      if (!form.querySelector('.hp-field')) {
+        var hp = document.createElement('div');
+        hp.className = 'hp-field';
+        hp.setAttribute('aria-hidden', 'true');
+        hp.innerHTML = '<input type="text" name="website" tabindex="-1" autocomplete="off" />';
+        form.insertBefore(hp, form.firstChild);
+      }
+
+      // Record the time the form was attached (for future time-trap use).
+      form.setAttribute('data-sp-ts', String(Date.now()));
+
+      // Render Turnstile if ready, otherwise queue.
+      if (SITE_KEY) {
+        if (turnstileReady) {
+          renderWidget(form);
+        } else {
+          pendingAttachments.push(function () { renderWidget(form); });
+        }
+      }
+    },
+
+    /**
+     * Call inside the submit handler. Returns the extra fields to spread into
+     * the JSON body: { turnstile_token, website }.
+     */
+    payload: function (form) {
+      var result = {};
+      var hp = form.querySelector('.hp-field input[name="website"]');
+      result.website = hp ? hp.value : undefined;
+
+      var container = form.querySelector('.cf-turnstile');
+      result.turnstile_token = container
+        ? container.getAttribute('data-turnstile-token') || undefined
+        : undefined;
+
+      return result;
+    },
+
+    /** Reset the Turnstile widget after a successful submission. */
+    reset: function (form) {
+      var container = form.querySelector('.cf-turnstile');
+      if (container && typeof turnstile !== 'undefined') {
+        var widgetId = container.querySelector('iframe');
+        if (widgetId) {
+          turnstile.reset(container);
+          container.removeAttribute('data-turnstile-token');
+        }
+      }
+    },
+  };
+})();
+</script>

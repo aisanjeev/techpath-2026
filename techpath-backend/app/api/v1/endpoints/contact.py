@@ -1,32 +1,50 @@
 """Contact and newsletter API endpoints."""
+
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query, Request, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import NotFoundError, ConflictError
+from app.core.config import settings
+from app.core.exceptions import ForbiddenError, NotFoundError, ConflictError
+from app.core.rate_limit import SlidingWindowRateLimiter, get_client_ip
 from app.crud.contact import contact_crud, newsletter_crud
 from app.db.session import get_db
 from app.schemas.contact import (
+    SPAM_PROTECTION_FIELDS,
     ContactInquiryCreate,
+    ContactInquirySubmit,
     ContactInquiryUpdate,
     ContactInquiryResponse,
     NewsletterCreate,
+    NewsletterSubscribe,
     NewsletterResponse,
 )
 from app.schemas.common import MessageResponse
 from app.api.v1.dependencies import get_current_admin_user
 from app.services.email_service import email_service, get_contact_form_recipients
+from app.services.turnstile import verify_turnstile_token
 from app.models.user import User
 
 router = APIRouter()
 
+# Public-form abuse damping. Per-IP, in-memory (see SlidingWindowRateLimiter for
+# the multi-worker caveat). Emails are only sent after every check passes, so
+# these limits also cap outbound notification/confirmation email volume.
+_contact_limiter = SlidingWindowRateLimiter(max_hits=settings.CONTACT_RATE_LIMIT_PER_HOUR)
+_newsletter_limiter = SlidingWindowRateLimiter(max_hits=settings.NEWSLETTER_RATE_LIMIT_PER_HOUR)
+
+_CONTACT_SUCCESS_MESSAGE = "Thank you for your inquiry. We'll get back to you soon!"
+_NEWSLETTER_SUCCESS_MESSAGE = "Successfully subscribed to the newsletter!"
+_VERIFICATION_FAILED_MESSAGE = "Verification failed — please refresh the page and try again."
+
 
 # ----- Contact Inquiries -----
 
+
 @router.post("/", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
 async def submit_contact_form(
-    inquiry_in: ContactInquiryCreate,
+    inquiry_in: ContactInquirySubmit,
     request: Request,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
@@ -37,13 +55,23 @@ async def submit_contact_form(
     This is a public endpoint - no authentication required.
     """
     # Get request metadata
-    ip_address = request.client.host if request.client else None
+    ip_address = get_client_ip(request)
     user_agent = request.headers.get("user-agent")
+
+    _contact_limiter.check(ip_address, "Too many submissions — please try again later")
+
+    # Honeypot: hidden field real users never fill. Return the normal success
+    # response without saving anything so bots can't tell they were caught.
+    if inquiry_in.website:
+        return MessageResponse(message=_CONTACT_SUCCESS_MESSAGE)
+
+    if not await verify_turnstile_token(inquiry_in.turnstile_token, ip_address):
+        raise ForbiddenError(_VERIFICATION_FAILED_MESSAGE)
 
     # Create inquiry
     inquiry = await contact_crud.create_with_metadata(
         db,
-        obj_in=inquiry_in,
+        obj_in=ContactInquiryCreate(**inquiry_in.model_dump(exclude=SPAM_PROTECTION_FIELDS)),
         ip_address=ip_address,
         user_agent=user_agent,
     )
@@ -52,7 +80,7 @@ async def submit_contact_form(
     if email_service.is_configured:
         # Get admin recipients from app settings
         admin_recipients = await get_contact_form_recipients(db)
-        
+
         # Send notification to admin(s)
         for admin_email in admin_recipients:
             background_tasks.add_task(
@@ -63,7 +91,7 @@ async def submit_contact_form(
                 inquiry_in.subject,
                 inquiry_in.message,
             )
-        
+
         # Send confirmation to user
         background_tasks.add_task(
             email_service.send_contact_confirmation,
@@ -71,9 +99,7 @@ async def submit_contact_form(
             inquiry_in.name,
         )
 
-    return MessageResponse(
-        message="Thank you for your inquiry. We'll get back to you soon!"
-    )
+    return MessageResponse(message=_CONTACT_SUCCESS_MESSAGE)
 
 
 @router.get("/inquiries", response_model=List[ContactInquiryResponse])
@@ -86,9 +112,7 @@ async def list_inquiries(
 ) -> List[ContactInquiryResponse]:
     """List contact inquiries (admin only)."""
     if status:
-        inquiries = await contact_crud.get_by_status(
-            db, status=status, skip=skip, limit=limit
-        )
+        inquiries = await contact_crud.get_by_status(db, status=status, skip=skip, limit=limit)
     else:
         inquiries = await contact_crud.get_recent(db, skip=skip, limit=limit)
 
@@ -141,9 +165,10 @@ async def delete_inquiry(
 
 # ----- Newsletter -----
 
+
 @router.post("/newsletter", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
 async def subscribe_newsletter(
-    subscriber_in: NewsletterCreate,
+    subscriber_in: NewsletterSubscribe,
     request: Request,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
@@ -154,10 +179,21 @@ async def subscribe_newsletter(
     This is a public endpoint - no authentication required.
     If already subscribed, the subscription will be reactivated.
     """
-    ip_address = request.client.host if request.client else None
+    ip_address = get_client_ip(request)
+
+    _newsletter_limiter.check(ip_address, "Too many submissions — please try again later")
+
+    # Honeypot — see submit_contact_form.
+    if subscriber_in.website:
+        return MessageResponse(message=_NEWSLETTER_SUCCESS_MESSAGE)
+
+    if not await verify_turnstile_token(subscriber_in.turnstile_token, ip_address):
+        raise ForbiddenError(_VERIFICATION_FAILED_MESSAGE)
 
     subscriber = await newsletter_crud.subscribe(
-        db, obj_in=subscriber_in, ip_address=ip_address
+        db,
+        obj_in=NewsletterCreate(**subscriber_in.model_dump(exclude=SPAM_PROTECTION_FIELDS)),
+        ip_address=ip_address,
     )
 
     # Send welcome email in background
@@ -168,7 +204,7 @@ async def subscribe_newsletter(
             subscriber_in.name,
         )
 
-    return MessageResponse(message="Successfully subscribed to the newsletter!")
+    return MessageResponse(message=_NEWSLETTER_SUCCESS_MESSAGE)
 
 
 @router.delete("/newsletter", response_model=MessageResponse)
@@ -203,4 +239,3 @@ async def list_subscribers(
         subscribers = await newsletter_crud.get_multi(db, skip=skip, limit=limit)
 
     return [NewsletterResponse.model_validate(s) for s in subscribers]
-

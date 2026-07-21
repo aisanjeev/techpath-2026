@@ -62,6 +62,10 @@ class TrainingBatch(Base, TimestampMixin):
     trainer_external_id: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
     trainer_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
+    is_self_paced: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false", nullable=False
+    )
+
     student_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     course_ref: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
 
@@ -335,14 +339,18 @@ class SessionQuizAttempt(Base, TimestampMixin):
         UniqueConstraint("student_id", "asset_id", "attempt_number", name="uq_quiz_attempt_number"),
         Index("ix_quiz_attempts_session_asset", "session_id", "asset_id"),
         Index("ix_quiz_attempts_student_session", "student_id", "session_id"),
+        Index("ix_quiz_attempts_student_module", "student_id", "module_id"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     student_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("training_students.id", ondelete="CASCADE"), nullable=False
     )
-    session_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("training_sessions.id", ondelete="CASCADE"), nullable=False
+    session_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("training_sessions.id", ondelete="CASCADE"), nullable=True
+    )
+    module_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("training_modules.id", ondelete="CASCADE"), nullable=True
     )
     asset_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("lecture_assets.id", ondelete="CASCADE"), nullable=False
@@ -365,3 +373,34 @@ class SessionQuizAttempt(Base, TimestampMixin):
             f"<SessionQuizAttempt(student={self.student_id}, asset={self.asset_id}, "
             f"attempt={self.attempt_number}, score={self.score}/{self.total_questions})>"
         )
+
+
+class StudentModuleProgress(Base, TimestampMixin):
+    """Per-student, per-module progress for self-paced training.
+
+    Created on first access and updated as the student works through the module's
+    assets. ``last_asset_index`` is a bookmark so they can resume where they left off.
+    ``completed_at`` is set when every required quiz in the module has a passing
+    attempt — computed by the endpoint, not maintained by a trigger.
+    """
+
+    __tablename__ = "student_module_progress"
+    __table_args__ = (
+        UniqueConstraint("student_id", "module_id", name="uq_student_module_progress"),
+        Index("ix_student_module_progress_student", "student_id"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    student_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("training_students.id", ondelete="CASCADE"), nullable=False
+    )
+    module_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("training_modules.id", ondelete="CASCADE"), nullable=False
+    )
+
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    completed_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    last_accessed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    last_asset_index: Mapped[int] = mapped_column(Integer, default=0, nullable=False)

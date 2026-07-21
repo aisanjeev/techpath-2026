@@ -2,7 +2,7 @@
 
 import { use, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Lock, Link2, UserCheck } from 'lucide-react';
+import { ArrowLeft, Lock, Link2, UserCheck, BookOpen } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card } from '@/components/ui/Card';
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { FormField } from '@/components/ui/FormField';
 import { PageLoader } from '@/components/ui/Spinner';
+import { Switch } from '@/components/ui/Switch';
 import { DataTable, type Column } from '@/components/tables/DataTable';
 import { trainingRosterService } from '@/services/training-roster.service';
 import { trainingService } from '@/services/training.service';
@@ -30,7 +31,9 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
   const [linking, setLinking] = useState(false);
   const [programId, setProgramId] = useState<string>('');
   const [trainerEmail, setTrainerEmail] = useState<string>('');
+  const [isSelfPaced, setIsSelfPaced] = useState(false);
   const [assigningTrainer, setAssigningTrainer] = useState(false);
+  const [togglingMode, setTogglingMode] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -47,6 +50,7 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
       setTrainers(t.items);
       setProgramId(b.program_id != null ? String(b.program_id) : '');
       setTrainerEmail(b.trainer_email ?? '');
+      setIsSelfPaced(b.is_self_paced ?? false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not load the batch');
     } finally {
@@ -87,6 +91,20 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
       toast.error(err instanceof Error ? err.message : 'Could not assign trainer');
     } finally {
       setAssigningTrainer(false);
+    }
+  };
+
+  const toggleSelfPaced = async (val: boolean) => {
+    setTogglingMode(true);
+    try {
+      const updated = await trainingRosterService.setSelfPaced(batchId, val);
+      setBatch(updated);
+      setIsSelfPaced(updated.is_self_paced);
+      toast.success(val ? 'Self-paced mode enabled' : 'Instructor-led mode enabled');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not change mode');
+    } finally {
+      setTogglingMode(false);
     }
   };
 
@@ -195,6 +213,25 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
             <Button onClick={saveTrainer} disabled={assigningTrainer} className="mt-4 w-full">
               {assigningTrainer ? 'Saving…' : 'Save trainer'}
             </Button>
+          </Card>
+
+          <Card className="p-6">
+            <div className="mb-1 flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-teal-600" />
+              <h2 className="text-sm font-semibold text-gray-900">Delivery mode</h2>
+            </div>
+            <p className="mb-4 text-xs text-gray-500">
+              Self-paced courses give students direct access to all published modules in the portal without needing a live session.
+            </p>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <Switch
+                checked={isSelfPaced}
+                onChange={toggleSelfPaced}
+                disabled={togglingMode}
+                label="Self-paced mode"
+                description="Enable if this batch is studying independently"
+              />
+            </div>
           </Card>
 
           <Card className="p-6">

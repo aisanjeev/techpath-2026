@@ -576,6 +576,22 @@ function DownloadCard({ asset, message }) {
   );
 }
 
+function HtmlBundleView({ asset }) {
+  const src = asset.file_url || null;
+  if (!src) return <DownloadCard asset={asset} message="HTML file not available." />;
+
+  return (
+    <div className="h-[70vh] overflow-hidden rounded-2xl border border-slate-800 bg-white shadow-xl">
+      <iframe
+        src={src}
+        sandbox="allow-scripts allow-same-origin"
+        className="h-full w-full"
+        title={asset.title}
+      />
+    </div>
+  );
+}
+
 export default function ClassroomAssetView({ asset, onQuizSubmit, quizResult }) {
   if (!asset) return null;
 
@@ -605,6 +621,8 @@ export default function ClassroomAssetView({ asset, onQuizSubmit, quizResult }) 
     case 'assignment':
     case 'lab':
       return <StructuredView asset={asset} />;
+    case 'html_bundle':
+      return <HtmlBundleView asset={asset} />;
     default:
       return <DownloadCard asset={asset} />;
   }

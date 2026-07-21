@@ -65,6 +65,7 @@ def _batch_out(batch, program_title: Optional[str] = None) -> TrainingBatchRespo
         location=batch.location,
         trainer_email=batch.trainer_email,
         trainer_name=batch.trainer_name,
+        is_self_paced=batch.is_self_paced,
         student_count=batch.student_count,
         course_ref=batch.course_ref,
         synced_at=batch.synced_at,
@@ -159,6 +160,29 @@ async def assign_batch_trainer(
         raise NotFoundError("Batch")
 
     batch.trainer_email = payload.trainer_email.strip().lower() if payload.trainer_email else None
+    db.add(batch)
+    await db.flush()
+    await db.refresh(batch)
+
+    program_title = None
+    if batch.program_id:
+        program = await training_program_crud.get(db, batch.program_id)
+        program_title = program.title if program else None
+    return _batch_out(batch, program_title)
+
+
+@router.patch("/batches/{batch_id}/self-paced", response_model=TrainingBatchResponse)
+async def toggle_batch_self_paced(
+    batch_id: int,
+    is_self_paced: bool = Query(...),
+    db: AsyncSession = Depends(get_db),
+    current_admin: User = Depends(get_current_admin_user),
+) -> TrainingBatchResponse:
+    batch = await training_batch_crud.get(db, batch_id)
+    if not batch:
+        raise NotFoundError("Batch")
+
+    batch.is_self_paced = is_self_paced
     db.add(batch)
     await db.flush()
     await db.refresh(batch)
