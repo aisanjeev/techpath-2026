@@ -27,7 +27,7 @@ import ClassroomAssetView from './ClassroomAssetView';
  *   (none)                         — dashboard
  */
 
-const QP = { SESSION: 'session', COURSE: 'course', MODULE: 'module', PAGE: 'page' };
+const QP = { SESSION: 'session', COURSE: 'course', MODULE: 'module', PAGE: 'page', BATCH: 'batch' };
 
 function getUrlParams() {
   const sp = new URLSearchParams(window.location.search);
@@ -37,6 +37,7 @@ function getUrlParams() {
     session: num(QP.SESSION),
     course: num(QP.COURSE),
     module: num(QP.MODULE),
+    batch: sp.get(QP.BATCH) || null,
     page: Number.isFinite(page) && page >= 0 ? page : 0,
   };
 }
@@ -47,6 +48,9 @@ function pushUrl(params) {
   else if (params.course) {
     sp.set(QP.COURSE, params.course);
     if (params.module) { sp.set(QP.MODULE, params.module); if (params.page) sp.set(QP.PAGE, params.page); }
+  }
+  else if (params.batch) {
+    sp.set(QP.BATCH, params.batch);
   }
   const qs = sp.toString();
   window.history.pushState({}, '', qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
@@ -273,10 +277,51 @@ function SessionCard({ session, onOpen }) {
   );
 }
 
-function DashboardScreen({ profile, courses, sessions, loading, error, onOpenCourse, onOpenSession, onSignOut, onRetry }) {
+function BatchFolderCard({ batchName, count, onOpen }) {
+  return (
+    <button onClick={onOpen} className="group relative block w-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-5 text-left transition hover:border-slate-700 hover:bg-slate-800/80">
+      <Glow />
+      <div className="mb-4 text-3xl">📁</div>
+      <p className="font-heading text-lg font-bold text-white transition group-hover:text-primary-400">
+        {batchName}
+      </p>
+      <p className="mt-1 text-sm text-slate-400">{count} sessions published</p>
+    </button>
+  );
+}
+
+function BatchDetailScreen({ batchName, sessions, onOpenSession, onBack, onSignOut }) {
+  return (
+    <div className="min-h-screen bg-slate-950">
+      <PortalHeader
+        title={batchName}
+        subtitle="Class Materials"
+        onBack={onBack}
+        backLabel="Back to dashboard"
+        onSignOut={onSignOut}
+      />
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {sessions.map((s) => (
+             <SessionCard key={s.session_id} session={s} onOpen={() => onOpenSession(s.session_id)} />
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function DashboardScreen({ profile, courses, sessions, loading, error, onOpenCourse, onOpenBatch, onSignOut, onRetry }) {
   const hasCourses = courses.length > 0;
   const hasSessions = sessions.length > 0;
   const hasNothing = !hasCourses && !hasSessions;
+
+  const sessionsByBatch = sessions.reduce((acc, s) => {
+    const b = s.batch_name || 'Other';
+    if (!acc[b]) acc[b] = [];
+    acc[b].push(s);
+    return acc;
+  }, {});
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -316,8 +361,8 @@ function DashboardScreen({ profile, courses, sessions, loading, error, onOpenCou
               <section>
                 <SectionHeading>Class Materials</SectionHeading>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {sessions.map((s) => (
-                    <SessionCard key={s.session_id} session={s} onOpen={() => onOpenSession(s.session_id)} />
+                  {Object.entries(sessionsByBatch).map(([batchName, batchSessions]) => (
+                    <BatchFolderCard key={batchName} batchName={batchName} count={batchSessions.length} onOpen={() => onOpenBatch(batchName)} />
                   ))}
                 </div>
               </section>
@@ -554,6 +599,9 @@ export default function StudentPortalApp() {
   const [dashLoading, setDashLoading] = useState(false);
   const [dashError, setDashError] = useState('');
 
+  // Batch Detail
+  const [selectedBatch, setSelectedBatch] = useState(null);
+
   // Course detail
   const [courseDetail, setCourseDetail] = useState(null);
   const [courseLoading, setCourseLoading] = useState(false);
@@ -658,6 +706,12 @@ export default function StudentPortalApp() {
     }
   }, []);
 
+  const openBatch = useCallback((batchName, { pushState = true } = {}) => {
+    setStage('batch-sessions');
+    setSelectedBatch(batchName);
+    if (pushState) pushUrl({ batch: batchName });
+  }, []);
+
   const handleQuizSubmit = useCallback(async (assetId, answers) => {
     if (!materialsContext) return { success: false, error: 'No context' };
     let res;
@@ -684,10 +738,8 @@ export default function StudentPortalApp() {
 
   const backToDashboard = useCallback(({ pushState = true } = {}) => {
     setStage('dashboard');
-    setMaterials(null);
-    setMaterialsNotFound(false);
     setCourseDetail(null);
-    setCourseNotFound(false);
+    setSelectedBatch(null);
     setMaterialsContext(null);
     if (pushState) pushUrl({});
   }, []);
@@ -732,12 +784,14 @@ export default function StudentPortalApp() {
         await openModuleMaterials(p.course, p.module, { pushState: false, page: p.page });
       } else if (p?.course) {
         await openCourse(p.course, { pushState: false });
+      } else if (p?.batch) {
+        openBatch(p.batch, { pushState: false });
       } else {
         setStage('dashboard');
       }
     });
-    return unsubscribe;
-  }, [loadDashboard, openSessionMaterials, openModuleMaterials, openCourse]);
+    return () => unsubscribe();
+  }, [loadDashboard, openSessionMaterials, openModuleMaterials, openCourse, openBatch]);
 
   // Browser back/forward
   useEffect(() => {
@@ -749,13 +803,15 @@ export default function StudentPortalApp() {
         openModuleMaterials(p.course, p.module, { pushState: false, page: p.page });
       } else if (p.course) {
         openCourse(p.course, { pushState: false });
+      } else if (p.batch) {
+        openBatch(p.batch, { pushState: false });
       } else {
         backToDashboard({ pushState: false });
       }
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
-  }, [openSessionMaterials, openModuleMaterials, openCourse, backToDashboard]);
+  }, [openSessionMaterials, openModuleMaterials, openCourse, openBatch, backToDashboard]);
 
   // ---------------------------------------------------------------------------
   // Auth handlers
@@ -804,6 +860,19 @@ export default function StudentPortalApp() {
         onOpenModule={(moduleId, lastIndex) =>
           openModuleMaterials(courseDetail?.program_id, moduleId, { page: lastIndex || 0 })
         }
+        onBack={() => backToDashboard()}
+        onSignOut={handleSignOut}
+      />
+    );
+  }
+
+  if (stage === 'batch-sessions') {
+    const batchSessions = sessions.filter((s) => (s.batch_name || 'Other') === selectedBatch);
+    return (
+      <BatchDetailScreen
+        batchName={selectedBatch}
+        sessions={batchSessions}
+        onOpenSession={openSessionMaterials}
         onBack={() => backToDashboard()}
         onSignOut={handleSignOut}
       />
@@ -921,8 +990,9 @@ export default function StudentPortalApp() {
       sessions={sessions}
       loading={dashLoading}
       error={dashError}
-      onOpenCourse={(id) => openCourse(id)}
-      onOpenSession={(id) => openSessionMaterials(id)}
+      onOpenCourse={openCourse}
+      onOpenBatch={openBatch}
+      onOpenSession={openSessionMaterials}
       onSignOut={handleSignOut}
       onRetry={loadDashboard}
     />
