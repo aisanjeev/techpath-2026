@@ -28,7 +28,7 @@ def upgrade():
             "is_self_paced",
             sa.Boolean(),
             nullable=False,
-            server_default="false",
+            server_default=sa.text("false"),
         ),
     )
 
