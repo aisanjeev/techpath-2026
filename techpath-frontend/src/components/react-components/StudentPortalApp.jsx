@@ -378,58 +378,38 @@ function DashboardScreen({ profile, courses, sessions, loading, error, onOpenCou
 // Course detail (module list)
 // ---------------------------------------------------------------------------
 
-function ModuleCard({ module, index, onOpen }) {
-  const statusColor = module.completed
-    ? 'border-emerald-500/40 bg-emerald-500/5'
-    : module.started
-      ? 'border-primary-500/30 bg-primary-500/5'
-      : 'border-slate-800 bg-slate-900/60';
-
-  const statusBadge = module.completed
-    ? <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">Completed</span>
-    : module.started
-      ? <span className="rounded-full bg-primary-500/10 px-2 py-0.5 text-[10px] font-medium text-primary-400">In progress</span>
-      : <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-500">Not started</span>;
-
-  return (
-    <button onClick={onOpen} className={`group flex w-full items-start gap-4 rounded-xl border p-4 text-left transition hover:border-primary-500/40 ${statusColor}`}>
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-800/80 font-heading text-sm font-bold text-slate-400 group-hover:text-primary-400">
-        {String(index + 1).padStart(2, '0')}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-heading text-sm font-semibold text-white group-hover:text-primary-300">{module.title}</h3>
-          {statusBadge}
-        </div>
-        {module.description && <p className="mt-1 line-clamp-2 text-xs text-slate-400">{module.description}</p>}
-        <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-slate-500">
-          <span>{module.asset_count} materials</span>
-          {module.quiz_count > 0 && <span>{module.quiz_count} {module.quiz_count === 1 ? 'quiz' : 'quizzes'}</span>}
-          {module.estimated_minutes && <span>~{module.estimated_minutes} min</span>}
-        </div>
-      </div>
-      <svg className="mt-1 h-5 w-5 shrink-0 text-slate-600 group-hover:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-      </svg>
-    </button>
-  );
-}
-
-function CourseDetailScreen({ course, loading, notFound, onOpenModule, onBack, onSignOut }) {
+function CourseLearningScreen({ 
+  course, 
+  loading, 
+  notFound, 
+  activeModuleId,
+  materials,
+  materialsLoading,
+  currentPage,
+  progress,
+  quizResults,
+  hasNextModule,
+  hasPrevModule,
+  onOpenModule,
+  onPageChange,
+  onQuizSubmit,
+  onBack, 
+  onSignOut 
+}) {
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950">
-        <PortalHeader title="Loading..." onBack={onBack} backLabel="Back" onSignOut={onSignOut} />
-        <div className="flex justify-center py-24"><Spinner /></div>
+      <div className="min-h-screen flex flex-col bg-slate-950">
+        <PortalHeader title="Loading..." onBack={onBack} backLabel="Dashboard" onSignOut={onSignOut} />
+        <div className="flex-1 flex justify-center items-center"><Spinner /></div>
       </div>
     );
   }
 
   if (notFound || !course) {
     return (
-      <div className="min-h-screen bg-slate-950">
-        <PortalHeader title="Course" onBack={onBack} backLabel="Back" onSignOut={onSignOut} />
-        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="min-h-screen flex flex-col bg-slate-950">
+        <PortalHeader title="Course" onBack={onBack} backLabel="Dashboard" onSignOut={onSignOut} />
+        <main className="flex-1 flex justify-center items-center">
           <EmptyState icon="🔍" title="Course not found" message="This course may no longer be available." action={<button onClick={onBack} className="mt-4 rounded-xl bg-primary-500 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-primary-600">Back to dashboard</button>} />
         </main>
       </div>
@@ -440,38 +420,95 @@ function CourseDetailScreen({ course, loading, notFound, onOpenModule, onBack, o
   const pct = course.modules.length > 0 ? Math.round((completedCount / course.modules.length) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="h-screen flex flex-col bg-slate-950 overflow-hidden">
       <PortalHeader title={course.title} subtitle={course.batch_name} onBack={onBack} backLabel="Dashboard" onSignOut={onSignOut} />
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-        {/* Course header */}
-        <div className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-primary-400">{course.batch_name}</p>
-              <h1 className="mt-1 font-heading text-2xl font-bold text-white">{course.title}</h1>
-              {course.summary && <p className="mt-2 text-sm text-slate-400">{course.summary}</p>}
-              <div className="mt-3 flex flex-wrap gap-2">
-                {course.level && <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-400">{course.level}</span>}
-                {course.duration && <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-400">{course.duration}</span>}
-                <span className="rounded-full bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-400">{course.modules.length} modules</span>
+      
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Sidebar: Curriculum */}
+        <div className="w-80 shrink-0 border-r border-slate-800 bg-slate-900/40 flex flex-col overflow-y-auto hidden md:flex">
+          <div className="p-5 border-b border-slate-800">
+            <h2 className="font-heading text-lg font-bold text-white mb-2">Curriculum</h2>
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <ProgressBar value={completedCount} max={course.modules.length} />
               </div>
-            </div>
-            <div className="flex flex-col items-end gap-1">
-              <span className="font-heading text-3xl font-bold text-white">{pct}%</span>
-              <span className="text-xs text-slate-500">complete</span>
+              <span className="text-xs font-bold text-slate-400">{pct}%</span>
             </div>
           </div>
-          <ProgressBar value={completedCount} max={course.modules.length} className="mt-5" />
+          <div className="flex-1 p-3 space-y-1">
+            {course.modules.map((m, i) => {
+              const isActive = activeModuleId === m.module_id;
+              const statusColor = m.completed
+                ? 'text-emerald-400'
+                : m.started
+                  ? 'text-primary-400'
+                  : 'text-slate-500';
+
+              return (
+                <div key={m.module_id} className="rounded-lg overflow-hidden">
+                  <button 
+                    onClick={() => onOpenModule(m.module_id, m.last_asset_index)} 
+                    className={`w-full flex items-start gap-3 p-3 text-left transition hover:bg-slate-800/60 ${isActive ? 'bg-slate-800/80 border-l-2 border-primary-500' : 'border-l-2 border-transparent'}`}
+                  >
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-slate-800/80 font-heading text-[10px] font-bold text-slate-400">
+                      {String(i + 1).padStart(2, '0')}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-heading text-sm font-semibold truncate ${isActive ? 'text-primary-300' : 'text-slate-200'}`}>
+                        {m.title}
+                      </p>
+                      <div className="mt-1 flex items-center gap-2 text-[10px] text-slate-500">
+                        <span className={`flex items-center gap-1 ${statusColor}`}>
+                          {m.completed ? '✓ Completed' : m.started ? '▶ In progress' : 'Not started'}
+                        </span>
+                        <span>•</span>
+                        <span>{m.asset_count} items</span>
+                      </div>
+                    </div>
+                  </button>
+                  {/* If active, optionally show the list of materials here if we had them, but currently we just show them in the right pane! */}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Module list */}
-        <SectionHeading>Modules</SectionHeading>
-        <div className="space-y-3">
-          {course.modules.map((m, i) => (
-            <ModuleCard key={m.module_id} module={m} index={i} onOpen={() => onOpenModule(m.module_id, m.last_asset_index)} />
-          ))}
+        {/* Right Content Area: Viewer */}
+        <div className="flex-1 overflow-y-auto bg-slate-950 p-6 sm:p-10">
+          {!activeModuleId ? (
+            <div className="flex h-full items-center justify-center text-center">
+              <div>
+                <div className="text-4xl mb-4">👈</div>
+                <h3 className="font-heading text-xl font-bold text-white">Select a module</h3>
+                <p className="mt-2 text-sm text-slate-400">Choose a module from the curriculum to start learning.</p>
+              </div>
+            </div>
+          ) : materialsLoading ? (
+            <div className="flex h-full items-center justify-center"><Spinner /></div>
+          ) : !materials ? (
+            <EmptyState icon="⚠️" title="Could not load materials" />
+          ) : (
+            <div className="max-w-4xl mx-auto">
+              <AssetPager
+                assets={materials?.assets || []}
+                progress={progress}
+                quizResults={quizResults}
+                onQuizSubmit={onQuizSubmit}
+                currentPage={currentPage}
+                onPageChange={onPageChange}
+                hasNextModule={hasNextModule}
+                hasPrevModule={hasPrevModule}
+                headerExtra={
+                  <div className="mb-6">
+                    <p className="text-[11px] font-medium uppercase tracking-wider text-primary-400">{materials?.batch_name}</p>
+                    <h2 className="mt-1 font-heading text-2xl font-bold text-white">{materials?.module_title}</h2>
+                  </div>
+                }
+              />
+            </div>
+          )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }
@@ -522,7 +559,7 @@ function ProgressTrack({ items, currentPage }) {
   );
 }
 
-function AssetPager({ assets, progress, quizResults, onQuizSubmit, currentPage, onPageChange, recording, headerExtra }) {
+function AssetPager({ assets, progress, quizResults, onQuizSubmit, currentPage, onPageChange, recording, headerExtra, hasNextModule, hasPrevModule }) {
   const firstLocked = progress?.first_locked_index ?? Infinity;
   const isNextBlocked = currentPage >= firstLocked;
   const progressTrack = (assets || []).map((asset, i) => {
@@ -554,16 +591,16 @@ function AssetPager({ assets, progress, quizResults, onQuizSubmit, currentPage, 
               Pass the quiz above to continue. You can retake it as many times as you need.
             </p>
           )}
-          {assets.length > 1 && (
+          {(assets.length > 1 || hasNextModule || hasPrevModule) && (
             <div className="mt-8 flex items-center justify-between border-t border-slate-800 pt-6">
-              <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0} className="flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50">
+              <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 0 && !hasPrevModule} className="flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 Previous
               </button>
               <span className="text-sm text-slate-400">{currentPage + 1} / {assets.length}</span>
               <button
                 onClick={() => onPageChange(currentPage + 1)}
-                disabled={currentPage === assets.length - 1 || isNextBlocked}
+                disabled={(currentPage === assets.length - 1 && !hasNextModule) || isNextBlocked}
                 title={isNextBlocked ? 'Pass the quiz to continue' : undefined}
                 className="flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50"
               >
@@ -644,18 +681,25 @@ export default function StudentPortalApp() {
     setCourseDetail(null);
     setCourseNotFound(false);
     setCourseLoading(true);
+    setMaterialsContext(null); // Clear active module
+    setMaterials(null);
     if (pushState) pushUrl({ course: programId });
     const res = await getSelfPacedCourse(programId);
     setCourseLoading(false);
     if (res.success && res.data) {
       setCourseDetail(res.data);
+      // Auto-open the first unfinished module
+      const firstUnfinished = res.data.modules.find(m => !m.completed) || res.data.modules[0];
+      if (firstUnfinished) {
+        openModuleMaterials(programId, firstUnfinished.module_id, { pushState: false, page: firstUnfinished.last_asset_index || 0, preloadedCourse: res.data });
+      }
     } else {
       setCourseNotFound(true);
     }
   }, []);
 
-  const openModuleMaterials = useCallback(async (programId, moduleId, { pushState = true, page = 0 } = {}) => {
-    setStage('module-materials');
+  const openModuleMaterials = useCallback(async (programId, moduleId, { pushState = true, page = 0, preloadedCourse = null } = {}) => {
+    setStage('course');
     setMaterials(null);
     setMaterialsNotFound(false);
     setMaterialsLoading(true);
@@ -663,10 +707,27 @@ export default function StudentPortalApp() {
     setQuizResults({});
     setMaterialsContext({ type: 'module', programId, moduleId });
     if (pushState) pushUrl({ course: programId, module: moduleId, page });
-    const [matRes, progRes] = await Promise.all([
+    
+    // If we deep linked directly, we need to load the course sidebar as well
+    let loadCoursePromise = Promise.resolve({ success: true, data: preloadedCourse || courseDetail });
+    if (!preloadedCourse && (!courseDetail || courseDetail.program_id !== programId)) {
+      setCourseLoading(true);
+      loadCoursePromise = getSelfPacedCourse(programId);
+    }
+
+    const [matRes, progRes, courseRes] = await Promise.all([
       getSelfPacedModuleMaterials(programId, moduleId),
       getSelfPacedModuleProgress(programId, moduleId),
+      loadCoursePromise
     ]);
+    
+    if (courseRes.success && courseRes.data) {
+      setCourseDetail(courseRes.data);
+    } else {
+      setCourseNotFound(true);
+    }
+    setCourseLoading(false);
+
     setMaterialsLoading(false);
     if (matRes.success && matRes.data) {
       setMaterials(matRes.data);
@@ -678,7 +739,7 @@ export default function StudentPortalApp() {
     } else {
       setMaterialsNotFound(true);
     }
-  }, []);
+  }, [courseDetail]);
 
   const openSessionMaterials = useCallback(async (sessionId, { pushState = true, page = 0 } = {}) => {
     setStage('session-materials');
@@ -852,14 +913,71 @@ export default function StudentPortalApp() {
   }
 
   if (stage === 'course') {
+    const activeModuleId = materialsContext?.type === 'module' ? materialsContext.moduleId : null;
+
+    let hasNextModule = false;
+    let hasPrevModule = false;
+    let nextModule = null;
+    let prevModule = null;
+
+    if (courseDetail && activeModuleId) {
+      const activeIdx = courseDetail.modules.findIndex(m => m.module_id === activeModuleId);
+      if (activeIdx > 0) {
+        hasPrevModule = true;
+        prevModule = courseDetail.modules[activeIdx - 1];
+      }
+      if (activeIdx !== -1 && activeIdx < courseDetail.modules.length - 1) {
+        hasNextModule = true;
+        nextModule = courseDetail.modules[activeIdx + 1];
+      }
+    }
+
+    const handlePageChange = (p) => {
+      const totalAssets = materials?.assets?.length || 0;
+      if (p < 0 && hasPrevModule) {
+        openModuleMaterials(courseDetail.program_id, prevModule.module_id, { page: Math.max(0, (prevModule.asset_count || 1) - 1) });
+        return;
+      }
+      if (p >= totalAssets && hasNextModule) {
+        openModuleMaterials(courseDetail.program_id, nextModule.module_id, { page: 0 });
+        return;
+      }
+
+      setCurrentPage(p);
+      if (materialsContext) {
+        pushUrl({ course: materialsContext.programId, module: materialsContext.moduleId, page: p });
+        updateSelfPacedModuleBookmark(materialsContext.programId, materialsContext.moduleId, p).then(res => {
+          if (res.success) {
+            getSelfPacedModuleProgress(materialsContext.programId, materialsContext.moduleId).then(progRes => {
+              if (progRes.success) setProgress(progRes.data);
+            });
+            // Also refresh course summary to update module completion statuses in sidebar
+            getSelfPacedCourse(materialsContext.programId).then(courseRes => {
+              if (courseRes.success) setCourseDetail(courseRes.data);
+            });
+          }
+        });
+      }
+    };
+
     return (
-      <CourseDetailScreen
+      <CourseLearningScreen
         course={courseDetail}
         loading={courseLoading}
         notFound={courseNotFound}
+        activeModuleId={activeModuleId}
+        materials={materials}
+        materialsLoading={materialsLoading}
+        currentPage={currentPage}
+        progress={progress}
+        quizResults={quizResults}
+        hasNextModule={hasNextModule}
+        hasPrevModule={hasPrevModule}
         onOpenModule={(moduleId, lastIndex) =>
           openModuleMaterials(courseDetail?.program_id, moduleId, { page: lastIndex || 0 })
         }
+        onPageChange={handlePageChange}
+        onQuizSubmit={handleQuizSubmit}
         onBack={() => backToDashboard()}
         onSignOut={handleSignOut}
       />
@@ -879,58 +997,7 @@ export default function StudentPortalApp() {
     );
   }
 
-  if (stage === 'module-materials') {
-    return (
-      <div className="min-h-screen bg-slate-950">
-        <PortalHeader
-          title={materials?.module_title || 'Module'}
-          subtitle={materials?.program_title}
-          onBack={() => backToCourse()}
-          backLabel="Back to course"
-          onSignOut={handleSignOut}
-        />
-        <main className="mx-auto max-w-5xl px-4 py-8 pb-24 sm:px-6">
-          {materialsLoading ? (
-            <div className="flex justify-center py-24"><Spinner /></div>
-          ) : materialsNotFound ? (
-            <EmptyState
-              icon="🔍"
-              title="Module not found"
-              action={<button onClick={() => backToCourse()} className="mt-4 rounded-xl bg-primary-500 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-primary-600">Back to course</button>}
-            />
-          ) : (
-            <AssetPager
-              assets={materials?.assets || []}
-              progress={progress}
-              quizResults={quizResults}
-              onQuizSubmit={handleQuizSubmit}
-              currentPage={currentPage}
-              onPageChange={(p) => {
-                setCurrentPage(p);
-                if (materialsContext) {
-                  pushUrl({ course: materialsContext.programId, module: materialsContext.moduleId, page: p });
-                  updateSelfPacedModuleBookmark(materialsContext.programId, materialsContext.moduleId, p).then(res => {
-                    if (res.success) {
-                      // refresh progress to update the progress bar on Dashboard and Course Detail
-                      getSelfPacedModuleProgress(materialsContext.programId, materialsContext.moduleId).then(progRes => {
-                        if (progRes.success) setProgress(progRes.data);
-                      });
-                    }
-                  });
-                }
-              }}
-              headerExtra={
-                <div className="mb-6">
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-primary-400">{materials?.batch_name}</p>
-                  <h2 className="mt-1 font-heading text-xl font-bold text-white">{materials?.module_title}</h2>
-                </div>
-              }
-            />
-          )}
-        </main>
-      </div>
-    );
-  }
+
 
   if (stage === 'session-materials') {
     return (
