@@ -12,7 +12,9 @@ from app.core.constants import SessionStatus
 from app.crud.base import CRUDBase
 from app.models.classroom import SessionParticipant
 from app.services.classroom import media
+from app.models.training import TrainingModule, TrainingProgram
 from app.models.training_roster import (
+    StudentModuleProgress,
     TrainingBatch,
     TrainingBatchStudent,
     TrainingSession,
@@ -391,7 +393,119 @@ class CRUDSyncState(CRUDBase[TrainingSyncState, Any, Any]):
         return result.scalar_one_or_none()
 
 
+class CRUDStudentModuleProgress(CRUDBase[StudentModuleProgress, Any, Any]):
+    async def get_for_student_module(
+        self, db: AsyncSession, student_id: int, module_id: int
+    ) -> Optional[StudentModuleProgress]:
+        result = await db.execute(
+            select(StudentModuleProgress).where(
+                StudentModuleProgress.student_id == student_id,
+                StudentModuleProgress.module_id == module_id,
+            )
+        )
+        return result.scalar_one_or_none()
+
+    async def upsert(
+        self,
+        db: AsyncSession,
+        student_id: int,
+        module_id: int,
+        *,
+        last_asset_index: int = 0,
+        completed: bool = False,
+    ) -> StudentModuleProgress:
+        from datetime import datetime, timezone
+
+        now = datetime.now(timezone.utc)
+        progress = await self.get_for_student_module(db, student_id, module_id)
+        if progress is None:
+            progress = StudentModuleProgress(
+                student_id=student_id,
+                module_id=module_id,
+                started_at=now,
+                last_accessed_at=now,
+                last_asset_index=last_asset_index,
+            )
+            db.add(progress)
+        else:
+            progress.last_accessed_at = now
+            progress.last_asset_index = last_asset_index
+        if completed and progress.completed_at is None:
+            progress.completed_at = now
+        await db.flush()
+        return progress
+
+    async def list_for_student(
+        self, db: AsyncSession, student_id: int
+    ) -> List[StudentModuleProgress]:
+        result = await db.execute(
+            select(StudentModuleProgress).where(
+                StudentModuleProgress.student_id == student_id
+            )
+        )
+        return list(result.scalars().all())
+
+    async def list_for_student_modules(
+        self, db: AsyncSession, student_id: int, module_ids: List[int]
+    ) -> List[StudentModuleProgress]:
+        if not module_ids:
+            return []
+        result = await db.execute(
+            select(StudentModuleProgress).where(
+                StudentModuleProgress.student_id == student_id,
+                StudentModuleProgress.module_id.in_(module_ids),
+            )
+        )
+        return list(result.scalars().all())
+
+    async def self_paced_programs_for_student(
+        self, db: AsyncSession, student_id: int
+    ) -> List[tuple]:
+        """Programs the student can access via self-paced batches.
+
+        Returns (TrainingProgram, TrainingBatch) tuples. A student may be in
+        multiple self-paced batches linked to the same programme — deduplicated
+        by the caller.
+        """
+        result = await db.execute(
+            select(TrainingProgram, TrainingBatch)
+            .join(TrainingBatch, TrainingBatch.program_id == TrainingProgram.id)
+            .join(
+                TrainingBatchStudent,
+                TrainingBatchStudent.batch_id == TrainingBatch.id,
+            )
+            .where(
+                TrainingBatchStudent.student_id == student_id,
+                TrainingBatch.is_self_paced.is_(True),
+                TrainingBatch.program_id.isnot(None),
+            )
+            .order_by(TrainingProgram.title)
+        )
+        return list(result.all())
+
+    async def verify_self_paced_enrollment(
+        self, db: AsyncSession, student_id: int, program_id: int
+    ) -> Optional[TrainingBatch]:
+        """Check that this student is in at least one self-paced batch linked to the
+        given programme. Returns the batch (for its name) or None."""
+        result = await db.execute(
+            select(TrainingBatch)
+            .join(
+                TrainingBatchStudent,
+                TrainingBatchStudent.batch_id == TrainingBatch.id,
+            )
+            .where(
+                TrainingBatchStudent.student_id == student_id,
+                TrainingBatch.is_self_paced.is_(True),
+                TrainingBatch.program_id == program_id,
+            )
+            .limit(1)
+        )
+        return result.scalar_one_or_none()
+
+
 training_batch_crud = CRUDTrainingBatch(TrainingBatch)
 training_student_crud = CRUDTrainingStudent(TrainingStudent)
 training_session_crud = CRUDTrainingSession(TrainingSession)
 sync_state_crud = CRUDSyncState(TrainingSyncState)
+student_module_progress_crud = CRUDStudentModuleProgress(StudentModuleProgress)

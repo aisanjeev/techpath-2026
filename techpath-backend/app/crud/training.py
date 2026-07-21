@@ -235,6 +235,21 @@ class CRUDTrainingProgram(CRUDBase[TrainingProgram, TrainingProgramCreate, Train
         )
         return result.scalar_one_or_none()
 
+    async def get_with_modules_and_assets(
+        self, db: AsyncSession, id: int
+    ) -> Optional[TrainingProgram]:
+        """Deep load: programme -> modules -> asset_links -> asset."""
+        result = await db.execute(
+            select(TrainingProgram)
+            .where(TrainingProgram.id == id)
+            .options(
+                selectinload(TrainingProgram.modules).selectinload(
+                    TrainingModule.asset_links
+                ).selectinload(TrainingModuleAsset.asset)
+            )
+        )
+        return result.scalar_one_or_none()
+
     async def search(
         self,
         db: AsyncSession,

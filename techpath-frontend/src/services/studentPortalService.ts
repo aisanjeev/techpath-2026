@@ -2,6 +2,9 @@ import { apiRequest } from '@utils/api';
 import { getFirebaseAuth } from '@/lib/firebase';
 import type {
   QuizAttemptResult,
+  SelfPacedCourseDetailResponse,
+  SelfPacedCourseListResponse,
+  SelfPacedModuleMaterialsResponse,
   StudentLoginResponse,
   StudentProgressResponse,
   StudentSessionListResponse,
@@ -77,7 +80,80 @@ export async function submitQuizAttempt(
     {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
-      // apiRequest stringifies this itself — passing a string here would double-encode.
+      body: { answers },
+    }
+  );
+}
+
+
+// ---------------------------------------------------------------------------
+// Self-paced courses
+// ---------------------------------------------------------------------------
+
+export async function getSelfPacedCourses() {
+  const token = await getFirebaseAuth().currentUser?.getIdToken();
+  if (!token) return { success: false as const, error: 'Not signed in' };
+  return apiRequest<SelfPacedCourseListResponse>('/api/v1/student/courses', {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export async function getSelfPacedCourse(programId: number) {
+  const token = await getFirebaseAuth().currentUser?.getIdToken();
+  if (!token) return { success: false as const, error: 'Not signed in' };
+  return apiRequest<SelfPacedCourseDetailResponse>(
+    `/api/v1/student/courses/${programId}`,
+    {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+}
+
+export async function getSelfPacedModuleMaterials(
+  programId: number,
+  moduleId: number
+) {
+  const token = await getFirebaseAuth().currentUser?.getIdToken();
+  if (!token) return { success: false as const, error: 'Not signed in' };
+  return apiRequest<SelfPacedModuleMaterialsResponse>(
+    `/api/v1/student/courses/${programId}/modules/${moduleId}/materials`,
+    {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+}
+
+export async function getSelfPacedModuleProgress(
+  programId: number,
+  moduleId: number
+) {
+  const token = await getFirebaseAuth().currentUser?.getIdToken();
+  if (!token) return { success: false as const, error: 'Not signed in' };
+  return apiRequest<StudentProgressResponse>(
+    `/api/v1/student/courses/${programId}/modules/${moduleId}/progress`,
+    {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+}
+
+export async function submitSelfPacedQuizAttempt(
+  programId: number,
+  moduleId: number,
+  assetId: number,
+  answers: number[]
+) {
+  const token = await getFirebaseAuth().currentUser?.getIdToken();
+  if (!token) return { success: false as const, error: 'Not signed in' };
+  return apiRequest<QuizAttemptResult>(
+    `/api/v1/student/courses/${programId}/modules/${moduleId}/assets/${assetId}/quiz-attempts`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
       body: { answers },
     }
   );

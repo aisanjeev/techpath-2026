@@ -72,9 +72,68 @@ export interface StudentProgressItem {
 }
 
 export interface StudentProgressResponse {
-  session_id: number;
-  /** Index of the first quiz without a passing attempt; equals items.length when
-   *  there is none. The item AT this index is reachable — later ones are not. */
+  session_id: number | null;
+  module_id: number | null;
   first_locked_index: number;
   items: StudentProgressItem[];
+}
+
+
+// ---------------------------------------------------------------------------
+// Self-paced courses
+// ---------------------------------------------------------------------------
+
+export interface SelfPacedModuleSummary {
+  module_id: number;
+  title: string;
+  description: string | null;
+  display_order: number;
+  estimated_minutes: number | null;
+  asset_count: number;
+  quiz_count: number;
+  started: boolean;
+  completed: boolean;
+  last_asset_index: number;
+}
+
+export interface SelfPacedCourseSummary {
+  program_id: number;
+  title: string;
+  slug: string;
+  summary: string | null;
+  cover_image: string | null;
+  delivery_mode: string;
+  level: string | null;
+  duration: string | null;
+  batch_name: string;
+  module_count: number;
+  completed_modules: number;
+  total_assets: number;
+}
+
+export interface SelfPacedCourseListResponse {
+  courses: SelfPacedCourseSummary[];
+}
+
+export interface SelfPacedCourseDetailResponse {
+  program_id: number;
+  title: string;
+  slug: string;
+  summary: string | null;
+  description: string | null;
+  cover_image: string | null;
+  delivery_mode: string;
+  level: string | null;
+  duration: string | null;
+  batch_name: string;
+  modules: SelfPacedModuleSummary[];
+}
+
+export interface SelfPacedModuleMaterialsResponse {
+  program_id: number;
+  module_id: number;
+  module_title: string;
+  program_title: string;
+  batch_name: string;
+  assets: ClassroomAsset[];
 }

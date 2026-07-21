@@ -8,12 +8,10 @@
         "run",
         "dev",
         "--prefix",
-        "techpath-frontend",
-        "--",
-        "--port",
-        "4399"
+        "techpath-frontend"
       ],
-      "port": 4399
+      "port": 4321,
+      "autoPort": true
     },
     {
       "name": "admin",

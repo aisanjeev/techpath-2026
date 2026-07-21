@@ -23,9 +23,9 @@ class TrainingBatchResponse(BaseModel):
     location: Optional[str] = None
     trainer_email: Optional[str] = None
     trainer_name: Optional[str] = None
+    is_self_paced: bool = False
     student_count: int = 0
     course_ref: Optional[str] = None
-    # Surfaced so operators can see how fresh the mirror is rather than trusting it.
     synced_at: Optional[datetime] = None
     external_updated_at: Optional[datetime] = None
 
