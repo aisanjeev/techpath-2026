@@ -671,7 +671,20 @@ async def update_module_bookmark(
     if batch is None:
         raise NotFoundError("Course")
 
+    module = await training_module_crud.get_with_assets(db, module_id)
+    if module is None:
+        raise NotFoundError("Course")
+    
+    assets = [a.asset for a in module.assets if a.asset.is_active]
+    progress = await student_module_progress_crud.get(db, student.id, module_id)
+    passed_ids = set(progress.passed_asset_ids) if progress else set()
+    
+    completed = False
+    if last_asset_index >= len(assets) - 1:
+        if _first_locked_index(assets, passed_ids) >= len(assets):
+            completed = True
+
     await student_module_progress_crud.upsert(
-        db, student.id, module_id, last_asset_index=last_asset_index
+        db, student.id, module_id, last_asset_index=last_asset_index, completed=completed
     )
     return {"success": True}

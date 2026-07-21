@@ -141,6 +141,23 @@ export async function getSelfPacedModuleProgress(
   );
 }
 
+export async function updateSelfPacedModuleBookmark(
+  programId: number,
+  moduleId: number,
+  lastAssetIndex: number
+) {
+  const token = await getFirebaseAuth().currentUser?.getIdToken();
+  if (!token) return { success: false as const, error: 'Not signed in' };
+  return apiRequest<{ success: boolean }>(
+    `/api/v1/student/courses/${programId}/modules/${moduleId}/bookmark`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ last_asset_index: lastAssetIndex }),
+    }
+  );
+}
+
 export async function submitSelfPacedQuizAttempt(
   programId: number,
   moduleId: number,

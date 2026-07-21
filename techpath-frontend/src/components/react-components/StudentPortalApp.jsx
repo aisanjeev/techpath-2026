@@ -12,6 +12,7 @@ import {
   getSelfPacedModuleMaterials,
   getSelfPacedModuleProgress,
   submitSelfPacedQuizAttempt,
+  updateSelfPacedModuleBookmark,
 } from '@/services/studentPortalService';
 import ClassroomAssetView from './ClassroomAssetView';
 
@@ -837,7 +838,17 @@ export default function StudentPortalApp() {
               currentPage={currentPage}
               onPageChange={(p) => {
                 setCurrentPage(p);
-                if (materialsContext) pushUrl({ course: materialsContext.programId, module: materialsContext.moduleId, page: p });
+                if (materialsContext) {
+                  pushUrl({ course: materialsContext.programId, module: materialsContext.moduleId, page: p });
+                  updateSelfPacedModuleBookmark(materialsContext.programId, materialsContext.moduleId, p).then(res => {
+                    if (res.success) {
+                      // refresh progress to update the progress bar on Dashboard and Course Detail
+                      getSelfPacedModuleProgress(materialsContext.programId, materialsContext.moduleId).then(progRes => {
+                        if (progRes.success) setProgress(progRes.data);
+                      });
+                    }
+                  });
+                }
               }}
               headerExtra={
                 <div className="mb-6">
