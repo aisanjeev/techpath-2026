@@ -189,6 +189,7 @@ export interface TrainingBatch {
   trainer_name?: string | null;
   student_count: number;
   course_ref?: string | null;
+  is_self_paced: boolean;
   synced_at?: string | null;
   external_updated_at?: string | null;
 }
