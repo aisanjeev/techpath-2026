@@ -85,10 +85,15 @@ class AssignmentAssetIn(_AssetCommon):
     rubric: Optional[List[str]] = None
 
 
+class LabStep(BaseModel):
+    title: str = Field(..., min_length=1)
+    instructions: str = ""
+
+
 class LabAssetIn(_AssetCommon):
     asset_type: Literal[AssetType.LAB]
     objective: str = Field(..., min_length=1)
-    steps: List[str] = Field(..., min_length=1)
+    steps: List[Union[LabStep, str]] = Field(..., min_length=1)
     starter_code: Optional[str] = None
     expected_output: Optional[str] = None
 
