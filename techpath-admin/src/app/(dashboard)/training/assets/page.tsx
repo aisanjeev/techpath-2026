@@ -13,18 +13,29 @@ import { Select } from '@/components/ui/Select';
 import { ConfirmModal } from '@/components/ui/Modal';
 import { assetMeta } from '@/components/training/asset-type-registry';
 import { trainingService } from '@/services/training.service';
-import type { AssetType, AssetTypeInfo, ContentStatus, LectureAsset } from '@/types/training';
+import type {
+  AssetType,
+  AssetTypeInfo,
+  ContentStatus,
+  LectureAsset,
+  TrainingProgram,
+} from '@/types/training';
+
+type ProgramMap = Record<string, { program_id: number; program_title: string }[]>;
 
 export default function AssetLibraryPage() {
   const router = useRouter();
   const [assets, setAssets] = useState<LectureAsset[]>([]);
   const [types, setTypes] = useState<AssetTypeInfo[]>([]);
+  const [programs, setPrograms] = useState<TrainingProgram[]>([]);
+  const [programMap, setProgramMap] = useState<ProgramMap>({});
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<AssetType | ''>('');
   const [status, setStatus] = useState<ContentStatus | ''>('');
+  const [programFilter, setProgramFilter] = useState<number | ''>('');
   const [deleting, setDeleting] = useState<LectureAsset | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
 
@@ -32,6 +43,10 @@ export default function AssetLibraryPage() {
 
   useEffect(() => {
     trainingService.assetTypes().then(setTypes).catch(() => undefined);
+    trainingService
+      .listPrograms({ limit: 100 })
+      .then((r) => setPrograms(r.items))
+      .catch(() => undefined);
   }, []);
 
   const load = useCallback(async () => {
@@ -43,15 +58,23 @@ export default function AssetLibraryPage() {
         search: search || undefined,
         asset_type: typeFilter || undefined,
         status: status || undefined,
+        program_id: programFilter || undefined,
       });
       setAssets(result.items);
       setTotal(result.total);
+
+      const ids = result.items.map((a) => a.id);
+      if (ids.length) {
+        trainingService.bulkAssetPrograms(ids).then(setProgramMap).catch(() => undefined);
+      } else {
+        setProgramMap({});
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not load assets');
     } finally {
       setLoading(false);
     }
-  }, [page, search, typeFilter, status]);
+  }, [page, search, typeFilter, status, programFilter]);
 
   useEffect(() => {
     const timer = setTimeout(load, search ? 250 : 0);
@@ -67,8 +90,6 @@ export default function AssetLibraryPage() {
       setDeleting(null);
       void load();
     } catch (err) {
-      // The API refuses to delete an asset that modules still teach from, and says
-      // how many. Surfacing that verbatim is more useful than a generic failure.
       toast.error(err instanceof Error ? err.message : 'Could not delete');
     } finally {
       setDeleteBusy(false);
@@ -99,6 +120,28 @@ export default function AssetLibraryPage() {
       key: 'asset_type',
       header: 'Type',
       render: (a) => <span className="text-gray-600">{assetMeta(a.asset_type).label}</span>,
+    },
+    {
+      key: 'programs',
+      header: 'Used in',
+      render: (a) => {
+        const usages = programMap[String(a.id)] || [];
+        if (!usages.length) {
+          return <span className="text-xs text-gray-400">Not used</span>;
+        }
+        return (
+          <div className="flex flex-wrap gap-1">
+            {usages.slice(0, 2).map((u) => (
+              <Badge key={u.program_id} variant="info">
+                {u.program_title}
+              </Badge>
+            ))}
+            {usages.length > 2 && (
+              <span className="text-xs text-gray-400">+{usages.length - 2}</span>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: 'tags',
@@ -156,6 +199,21 @@ export default function AssetLibraryPage() {
             className="pl-9"
           />
         </div>
+        <Select
+          value={programFilter}
+          onChange={(e) => {
+            setProgramFilter(e.target.value ? Number(e.target.value) : '');
+            setPage(1);
+          }}
+          className="max-w-[200px]"
+        >
+          <option value="">All programs</option>
+          {programs.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.title}
+            </option>
+          ))}
+        </Select>
         <Select
           value={typeFilter}
           onChange={(e) => {

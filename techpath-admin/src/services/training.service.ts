@@ -32,6 +32,7 @@ export interface AssetListParams {
   asset_type?: AssetType;
   status?: ContentStatus;
   search?: string;
+  program_id?: number;
 }
 
 function paginate<T>(response: { data: T[]; headers?: Record<string, unknown> }): PaginatedResponse<T> {
@@ -220,6 +221,7 @@ export const trainingService = {
           asset_type: params.asset_type,
           status: params.status,
           search: params.search,
+          program_id: params.program_id,
         },
       });
       return paginate(response);
@@ -244,6 +246,20 @@ export const trainingService = {
       return response.data;
     } catch (error) {
       throw handleApiError(error);
+    }
+  },
+
+  async bulkAssetPrograms(
+    ids: number[]
+  ): Promise<Record<string, { program_id: number; program_title: string }[]>> {
+    if (!ids.length) return {};
+    try {
+      const response = await apiClient.post<{
+        data: Record<string, { program_id: number; program_title: string }[]>;
+      }>('/api/v1/training/assets/bulk-programs', { asset_ids: ids });
+      return response.data.data;
+    } catch {
+      return {};
     }
   },
 
