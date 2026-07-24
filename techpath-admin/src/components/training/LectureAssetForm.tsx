@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Plus,
@@ -25,7 +25,9 @@ import {
   Sparkles,
   BookOpen,
   Sun,
-  Moon
+  Moon,
+  Upload,
+  FileJson
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { marked } from 'marked';
@@ -159,6 +161,72 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
+
+  const quizFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleQuizFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const json = JSON.parse(ev.target?.result as string);
+        const raw: unknown[] = Array.isArray(json) ? json : json.questions;
+        if (!Array.isArray(raw) || raw.length === 0) {
+          toast.error('No questions found. Ensure file has a "questions" array.');
+          return;
+        }
+        const parsed: QuizQuestion[] = raw.map((item: any) => ({
+          question: String(item.question || ''),
+          options: Array.isArray(item.options) ? item.options.map(String) : ['', ''],
+          correct_index: typeof item.correct_index === 'number' ? item.correct_index : 0,
+          explanation: String(item.explanation || ''),
+        }));
+        setQuestions(parsed);
+        toast.success(`Imported ${parsed.length} question${parsed.length > 1 ? 's' : ''} from file`);
+      } catch {
+        toast.error('Invalid JSON file. Check the format and try again.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const downloadQuizSample = () => {
+    const sample = {
+      questions: [
+        {
+          question: "What does CPU stand for?",
+          options: [
+            "Computer Personal Unit",
+            "Central Processing Unit",
+            "Central Program Utility",
+            "Computer Processing Unit"
+          ],
+          correct_index: 1,
+          explanation: "CPU = Central Processing Unit. It is called the brain of the computer."
+        },
+        {
+          question: "RAM is which type of memory?",
+          options: [
+            "Permanent memory",
+            "Temporary memory (lost when power off)",
+            "External memory",
+            "Read-only memory"
+          ],
+          correct_index: 1,
+          explanation: "RAM (Random Access Memory) is volatile — it loses all data when turned off."
+        }
+      ]
+    };
+    const blob = new Blob([JSON.stringify(sample, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'quiz-sample.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   useEffect(() => {
     trainingService
@@ -622,6 +690,32 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
                       />
                     </FormField>
                   </div>
+                </div>
+
+                <div className="flex items-center gap-2 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-3">
+                  <FileJson className="h-4 w-4 text-gray-500 shrink-0" />
+                  <span className="text-xs text-gray-600 flex-1">Import questions from a JSON file</span>
+                  <input
+                    ref={quizFileInputRef}
+                    type="file"
+                    accept=".json"
+                    onChange={handleQuizFileImport}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => quizFileInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-100 shadow-sm transition-colors"
+                  >
+                    <Upload className="h-3.5 w-3.5" /> Fill from File
+                  </button>
+                  <button
+                    type="button"
+                    onClick={downloadQuizSample}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-bold text-teal-700 hover:bg-teal-100 shadow-sm transition-colors"
+                  >
+                    <Download className="h-3.5 w-3.5" /> Sample File
+                  </button>
                 </div>
 
                 {errors.questions && <p className="text-xs text-red-500 font-medium">{errors.questions}</p>}
