@@ -272,23 +272,17 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
     } else if (kind === 'link') {
       base.external_url = externalUrl.trim();
     } else if (assetType === 'quiz') {
-      base.config = {
-        questions: questions.map((q) => ({
-          ...q,
-          options: q.options.filter((o) => o.trim()),
-        })),
-        pass_mark_percent: passMark,
-      };
+      base.questions = questions.map((q) => ({
+        ...q,
+        options: q.options.filter((o) => o.trim()),
+      }));
+      base.pass_mark_percent = passMark;
     } else if (assetType === 'assignment') {
-      base.config = {
-        instructions,
-        ...(dueInDays && { due_in_days: Number(dueInDays) }),
-      };
+      base.instructions = instructions;
+      if (dueInDays) base.due_in_days = Number(dueInDays);
     } else if (assetType === 'lab') {
-      base.config = {
-        objective,
-        steps: steps.filter((s) => s.title.trim()),
-      };
+      base.objective = objective;
+      base.steps = steps.filter((s) => s.title.trim());
     }
 
     return base;
