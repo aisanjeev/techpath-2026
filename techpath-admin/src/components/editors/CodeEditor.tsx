@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import Editor from '@monaco-editor/react';
-import { Sun, Moon, AlignLeft, Check, Copy } from 'lucide-react';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import Editor, { type OnMount } from '@monaco-editor/react';
+import { Sun, Moon, AlignLeft, Check, Copy, ImagePlus } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 import { Spinner } from '@/components/ui/Spinner';
+
+export interface CodeEditorHandle {
+  insertAtCursor: (text: string) => void;
+}
 
 interface CodeEditorProps {
   value: string;
@@ -15,21 +19,44 @@ interface CodeEditorProps {
   readOnly?: boolean;
   height?: string;
   showMinimap?: boolean;
+  onInsertImage?: () => void;
 }
 
-export function CodeEditor({
-  value,
-  onChange,
-  language = 'javascript',
-  className,
-  error,
-  readOnly = false,
-  height = '400px',
-  showMinimap = false,
-}: CodeEditorProps) {
+export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function CodeEditor(
+  {
+    value,
+    onChange,
+    language = 'javascript',
+    className,
+    error,
+    readOnly = false,
+    height = '400px',
+    showMinimap = false,
+    onInsertImage,
+  },
+  ref
+) {
   const [editorTheme, setEditorTheme] = useState<'vs-dark' | 'vs-light'>('vs-dark');
   const [wordWrap, setWordWrap] = useState<'on' | 'off'>('on');
   const [copied, setCopied] = useState(false);
+  const monacoEditorRef = useRef<Parameters<OnMount>[0] | null>(null);
+
+  const handleEditorMount: OnMount = (editor) => {
+    monacoEditorRef.current = editor;
+  };
+
+  useImperativeHandle(ref, () => ({
+    insertAtCursor: (text: string) => {
+      const editor = monacoEditorRef.current;
+      if (!editor) return;
+      const selection = editor.getSelection();
+      if (!selection) return;
+      editor.executeEdits('insert-image', [
+        { range: selection, text, forceMoveMarkers: true },
+      ]);
+      editor.focus();
+    },
+  }));
 
   const handleCopy = async () => {
     try {
@@ -107,6 +134,23 @@ export function CodeEditor({
             </button>
           ) : (
             <>
+              {/* Insert Image */}
+              {onInsertImage && (
+                <button
+                  type="button"
+                  onClick={onInsertImage}
+                  className={cn(
+                    'rounded-md p-1.5 transition-colors',
+                    editorTheme === 'vs-dark'
+                      ? 'hover:bg-gray-800 hover:text-gray-100'
+                      : 'hover:bg-gray-200 hover:text-gray-900'
+                  )}
+                  title="Insert Image"
+                >
+                  <ImagePlus className="h-4 w-4" />
+                </button>
+              )}
+
               {/* Word Wrap Toggle */}
               <button
                 type="button"
@@ -155,6 +199,7 @@ export function CodeEditor({
           theme={editorTheme}
           value={value}
           onChange={(val) => onChange?.(val ?? '')}
+          onMount={handleEditorMount}
           options={{
             readOnly,
             minimap: { enabled: showMinimap },
@@ -184,4 +229,4 @@ export function CodeEditor({
       </div>
     </div>
   );
-}
+});
