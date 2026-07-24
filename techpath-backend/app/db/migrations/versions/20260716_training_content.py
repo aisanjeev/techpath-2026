@@ -75,7 +75,6 @@ def upgrade():
         sa.Column('media_file_id', sa.Integer(), nullable=True),
         sa.Column('external_url', sa.String(length=1000), nullable=True),
         sa.Column('config_json', sa.Text(), nullable=True),
-        # Reserved for html_bundle, which is modelled but not yet enabled.
         sa.Column('bundle_path', sa.String(length=500), nullable=True),
         sa.Column('bundle_entry', sa.String(length=255), nullable=True),
         sa.Column('tags_json', sa.Text(), nullable=True),

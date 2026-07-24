@@ -47,6 +47,7 @@ class FileAssetIn(_AssetCommon):
         AssetType.EXCEL,
         AssetType.CSV,
         AssetType.TERMINAL_RECORDING,
+        AssetType.HTML_BUNDLE,
     ]
     media_file_id: int = Field(..., gt=0)
 

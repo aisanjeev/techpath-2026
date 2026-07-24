@@ -138,7 +138,6 @@ class LectureAsset(Base, TimestampMixin):
     external_url: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
     config_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
-    # Reserved for the html_bundle type, which is modelled but not yet enabled.
     bundle_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     bundle_entry: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 

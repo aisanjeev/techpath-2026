@@ -98,11 +98,7 @@ def _module_out(module, asset_count: int = 0) -> TrainingModuleResponse:
 async def list_asset_types(
     current_admin: User = Depends(get_current_admin_user),
 ) -> List[AssetTypeInfo]:
-    """Publish the asset-type registry so the admin UI and the API agree on the rules.
-
-    Only enabled types are returned; html_bundle is withheld until it can be served
-    from an isolated origin.
-    """
+    """Publish the asset-type registry so the admin UI and the API agree on the rules."""
     return [
         AssetTypeInfo(
             value=t.value,

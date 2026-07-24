@@ -171,9 +171,6 @@ ASSET_TYPE_RULES: dict[AssetType, AssetTypeRule] = {
     ),
 }
 
-# html_bundle is modelled but deliberately not offered: authored JS must be served from
-# a dedicated origin before it can be rendered safely, and that origin does not exist
-# yet. Everything else about the type is ready, so enabling it is a one-line change.
 ASSET_TYPES_DISABLED: frozenset[AssetType] = frozenset()
 
 ASSET_TYPES_ENABLED: tuple[AssetType, ...] = tuple(
