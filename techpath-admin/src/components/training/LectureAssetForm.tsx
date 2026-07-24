@@ -39,7 +39,8 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Spinner } from '@/components/ui/Spinner';
 import { AssetFileUpload } from '@/components/training/AssetFileUpload';
-import { CodeEditor } from '@/components/editors/CodeEditor';
+import { CodeEditor, type CodeEditorHandle } from '@/components/editors/CodeEditor';
+import { ImagePickerModal } from '@/components/ui/ImagePickerModal';
 import {
   ASSET_TYPE_META,
   STORAGE_KIND_LABEL,
@@ -152,6 +153,9 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
     }
     return [{ title: '', instructions: '' }];
   });
+
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  const codeEditorRef = useRef<CodeEditorHandle>(null);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -423,6 +427,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="mx-auto max-w-[1600px] space-y-6">
       {/* Visual Header / Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 bg-white p-4 shadow-sm rounded-xl">
@@ -623,11 +628,13 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
                   }
                 >
                   <CodeEditor
+                    ref={assetType !== 'code_snippet' ? codeEditorRef : undefined}
                     value={body}
                     onChange={(val) => setBody(val)}
                     language={assetType === 'code_snippet' ? language : 'markdown'}
                     error={!!errors.body}
                     height="450px"
+                    onInsertImage={assetType !== 'code_snippet' ? () => setShowImagePicker(true) : undefined}
                   />
                 </FormField>
               </div>
@@ -1565,5 +1572,17 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
         </div>
       </div>
     </form>
+
+    <ImagePickerModal
+      isOpen={showImagePicker}
+      onClose={() => setShowImagePicker(false)}
+      onSelect={(url) => {
+        codeEditorRef.current?.insertAtCursor(`![image](${url})`);
+        setShowImagePicker(false);
+      }}
+      folder="assets"
+      entityType="lecture_asset"
+    />
+    </>
   );
 }
