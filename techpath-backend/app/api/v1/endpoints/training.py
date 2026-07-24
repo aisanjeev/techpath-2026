@@ -403,6 +403,7 @@ async def list_assets(
     asset_type: Optional[str] = Query(None),
     status_filter: Optional[str] = Query(None, alias="status"),
     search: Optional[str] = Query(None),
+    program_id: Optional[int] = Query(None),
     db: AsyncSession = Depends(get_db),
     current_admin: User = Depends(get_current_admin_user),
 ) -> JSONResponse:
@@ -413,7 +414,13 @@ async def list_assets(
             raise ValidationError(f"Unknown asset type: {asset_type}")
 
     assets, total = await lecture_asset_crud.search(
-        db, skip=skip, limit=limit, asset_type=asset_type, status=status_filter, search=search
+        db,
+        skip=skip,
+        limit=limit,
+        asset_type=asset_type,
+        status=status_filter,
+        search=search,
+        program_id=program_id,
     )
     data = [(await asset_to_response(db, a)).model_dump(mode="json") for a in assets]
     return JSONResponse(content=data, headers={"X-Total-Count": str(total)})
@@ -466,6 +473,17 @@ async def get_asset_usages(
     if not await lecture_asset_crud.get(db, asset_id):
         raise NotFoundError("Lecture asset")
     return [AssetUsage(**u) for u in await lecture_asset_crud.usages(db, asset_id)]
+
+
+@router.post("/assets/bulk-programs")
+async def bulk_asset_programs(
+    asset_ids: List[int] = Body(..., embed=True),
+    db: AsyncSession = Depends(get_db),
+    current_admin: User = Depends(get_current_admin_user),
+) -> dict:
+    """Return program associations for a batch of asset IDs."""
+    usages = await lecture_asset_crud.bulk_program_usages(db, asset_ids[:100])
+    return {"data": {str(k): v for k, v in usages.items()}}
 
 
 @router.put("/assets/{asset_id}", response_model=LectureAssetResponse)

@@ -400,9 +400,20 @@ class CRUDLectureAsset(CRUDBase[LectureAsset, Any, Any]):
         status: Optional[str] = None,
         search: Optional[str] = None,
         is_active: Optional[bool] = None,
+        program_id: Optional[int] = None,
     ) -> tuple[List[LectureAsset], int]:
         query = select(LectureAsset)
         count_query = select(func.count(LectureAsset.id))
+
+        if program_id is not None:
+            asset_ids_in_program = (
+                select(TrainingModuleAsset.asset_id)
+                .join(TrainingModule, TrainingModuleAsset.module_id == TrainingModule.id)
+                .where(TrainingModule.program_id == program_id)
+                .distinct()
+            )
+            query = query.where(LectureAsset.id.in_(asset_ids_in_program))
+            count_query = count_query.where(LectureAsset.id.in_(asset_ids_in_program))
 
         conditions = []
         if asset_type:
@@ -500,6 +511,29 @@ class CRUDLectureAsset(CRUDBase[LectureAsset, Any, Any]):
             }
             for module_id, module_title, program_id, program_title in result.all()
         ]
+
+    async def bulk_program_usages(
+        self, db: AsyncSession, asset_ids: List[int]
+    ) -> dict[int, List[dict]]:
+        """Return {asset_id: [{program_id, program_title}, ...]} for a batch of assets."""
+        if not asset_ids:
+            return {}
+        result = await db.execute(
+            select(
+                TrainingModuleAsset.asset_id,
+                TrainingProgram.id,
+                TrainingProgram.title,
+            )
+            .join(TrainingModule, TrainingModuleAsset.module_id == TrainingModule.id)
+            .join(TrainingProgram, TrainingModule.program_id == TrainingProgram.id)
+            .where(TrainingModuleAsset.asset_id.in_(asset_ids))
+            .distinct()
+            .order_by(TrainingProgram.title)
+        )
+        out: dict[int, List[dict]] = {aid: [] for aid in asset_ids}
+        for asset_id, program_id, program_title in result.all():
+            out[asset_id].append({"program_id": program_id, "program_title": program_title})
+        return out
 
     async def usage_count(self, db: AsyncSession, asset_id: int) -> int:
         result = await db.execute(
