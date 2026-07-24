@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Search } from 'lucide-react';
+import { ChevronRight, Plus, Search, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable, type Column } from '@/components/tables/DataTable';
@@ -18,10 +18,123 @@ import type {
   AssetTypeInfo,
   ContentStatus,
   LectureAsset,
+  TrainingModule,
   TrainingProgram,
 } from '@/types/training';
 
-type ProgramMap = Record<string, { program_id: number; program_title: string }[]>;
+type ProgramUsage = { program_id: number; program_title: string };
+type ProgramMap = Record<string, ProgramUsage[]>;
+
+/* ------------------------------------------------------------------ */
+/*  Inline assign-to-program popover                                  */
+/* ------------------------------------------------------------------ */
+
+function AssignPopover({
+  assetId,
+  programs,
+  onAttached,
+  onClose,
+}: {
+  assetId: number;
+  programs: TrainingProgram[];
+  onAttached: () => void;
+  onClose: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [selectedProgram, setSelectedProgram] = useState<TrainingProgram | null>(null);
+  const [modules, setModules] = useState<TrainingModule[]>([]);
+  const [loadingModules, setLoadingModules] = useState(false);
+  const [attaching, setAttaching] = useState(false);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose]);
+
+  const pickProgram = async (p: TrainingProgram) => {
+    setSelectedProgram(p);
+    setLoadingModules(true);
+    try {
+      setModules(await trainingService.listModules(p.id));
+    } catch {
+      toast.error('Could not load modules');
+    } finally {
+      setLoadingModules(false);
+    }
+  };
+
+  const attach = async (moduleId: number) => {
+    setAttaching(true);
+    try {
+      await trainingService.attachAsset(moduleId, { asset_id: assetId });
+      toast.success('Asset attached');
+      onAttached();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not attach');
+    } finally {
+      setAttaching(false);
+    }
+  };
+
+  return (
+    <div
+      ref={ref}
+      className="absolute right-0 top-full z-50 mt-1 w-64 rounded-lg border border-gray-200 bg-white shadow-lg"
+    >
+      <div className="flex items-center justify-between border-b px-3 py-2">
+        <span className="text-xs font-semibold text-gray-700">
+          {selectedProgram ? selectedProgram.title : 'Select program'}
+        </span>
+        {selectedProgram ? (
+          <button onClick={() => setSelectedProgram(null)} className="text-gray-400 hover:text-gray-600">
+            <ChevronRight className="h-3 w-3 rotate-180" />
+          </button>
+        ) : (
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <X className="h-3 w-3" />
+          </button>
+        )}
+      </div>
+
+      <div className="max-h-48 overflow-y-auto p-1">
+        {!selectedProgram ? (
+          programs.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => pickProgram(p)}
+              className="flex w-full items-center justify-between rounded px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-50"
+            >
+              <span className="truncate">{p.title}</span>
+              <ChevronRight className="h-3 w-3 shrink-0 text-gray-400" />
+            </button>
+          ))
+        ) : loadingModules ? (
+          <p className="px-3 py-2 text-xs text-gray-400">Loading modules…</p>
+        ) : modules.length === 0 ? (
+          <p className="px-3 py-2 text-xs text-gray-400">No modules in this program</p>
+        ) : (
+          modules.map((m) => (
+            <button
+              key={m.id}
+              disabled={attaching}
+              onClick={() => attach(m.id)}
+              className="flex w-full items-center rounded px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-blue-50 disabled:opacity-50"
+            >
+              <span className="truncate">{m.title}</span>
+            </button>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main page                                                         */
+/* ------------------------------------------------------------------ */
 
 export default function AssetLibraryPage() {
   const router = useRouter();
@@ -34,10 +147,11 @@ export default function AssetLibraryPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<AssetType | ''>('');
-  const [status, setStatus] = useState<ContentStatus | ''>('');
+  const [statusFilter, setStatusFilter] = useState<ContentStatus | ''>('');
   const [programFilter, setProgramFilter] = useState<number | ''>('');
   const [deleting, setDeleting] = useState<LectureAsset | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
+  const [assigningAssetId, setAssigningAssetId] = useState<number | null>(null);
 
   const limit = 20;
 
@@ -49,6 +163,11 @@ export default function AssetLibraryPage() {
       .catch(() => undefined);
   }, []);
 
+  const loadProgramMap = useCallback(async (ids: number[]) => {
+    if (!ids.length) { setProgramMap({}); return; }
+    trainingService.bulkAssetPrograms(ids).then(setProgramMap).catch(() => undefined);
+  }, []);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -57,29 +176,32 @@ export default function AssetLibraryPage() {
         limit,
         search: search || undefined,
         asset_type: typeFilter || undefined,
-        status: status || undefined,
+        status: statusFilter || undefined,
         program_id: programFilter || undefined,
       });
       setAssets(result.items);
       setTotal(result.total);
-
-      const ids = result.items.map((a) => a.id);
-      if (ids.length) {
-        trainingService.bulkAssetPrograms(ids).then(setProgramMap).catch(() => undefined);
-      } else {
-        setProgramMap({});
-      }
+      loadProgramMap(result.items.map((a) => a.id));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not load assets');
     } finally {
       setLoading(false);
     }
-  }, [page, search, typeFilter, status, programFilter]);
+  }, [page, search, typeFilter, statusFilter, programFilter, loadProgramMap]);
 
   useEffect(() => {
     const timer = setTimeout(load, search ? 250 : 0);
     return () => clearTimeout(timer);
   }, [load, search]);
+
+  const handleStatusChange = async (asset: LectureAsset, newStatus: string) => {
+    try {
+      await trainingService.updateAsset(asset.id, { status: newStatus });
+      setAssets((prev) => prev.map((a) => (a.id === asset.id ? { ...a, status: newStatus as ContentStatus } : a)));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not update status');
+    }
+  };
 
   const handleDelete = async () => {
     if (!deleting) return;
@@ -126,18 +248,50 @@ export default function AssetLibraryPage() {
       header: 'Used in',
       render: (a) => {
         const usages = programMap[String(a.id)] || [];
-        if (!usages.length) {
-          return <span className="text-xs text-gray-400">Not used</span>;
-        }
         return (
-          <div className="flex flex-wrap gap-1">
-            {usages.slice(0, 2).map((u) => (
-              <Badge key={u.program_id} variant="info">
-                {u.program_title}
-              </Badge>
-            ))}
-            {usages.length > 2 && (
-              <span className="text-xs text-gray-400">+{usages.length - 2}</span>
+          <div className="relative flex flex-wrap items-center gap-1">
+            {usages.length > 0 ? (
+              <>
+                {usages.slice(0, 2).map((u) => (
+                  <Badge
+                    key={u.program_id}
+                    variant="info"
+                    className="cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/training/${u.program_id}`);
+                    }}
+                  >
+                    {u.program_title}
+                  </Badge>
+                ))}
+                {usages.length > 2 && (
+                  <span className="text-xs text-gray-400">+{usages.length - 2}</span>
+                )}
+              </>
+            ) : (
+              <span className="text-xs text-gray-400">Not used</span>
+            )}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setAssigningAssetId(assigningAssetId === a.id ? null : a.id);
+              }}
+              className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-gray-300 text-gray-400 hover:border-blue-400 hover:text-blue-500"
+              title="Assign to a module"
+            >
+              <Plus className="h-3 w-3" />
+            </button>
+            {assigningAssetId === a.id && (
+              <AssignPopover
+                assetId={a.id}
+                programs={programs}
+                onAttached={() => {
+                  setAssigningAssetId(null);
+                  loadProgramMap(assets.map((x) => x.id));
+                }}
+                onClose={() => setAssigningAssetId(null)}
+              />
             )}
           </div>
         );
@@ -166,9 +320,22 @@ export default function AssetLibraryPage() {
       key: 'status',
       header: 'Status',
       render: (a) => (
-        <Badge variant={a.status === 'published' ? 'success' : a.status === 'draft' ? 'warning' : 'default'}>
-          {a.status}
-        </Badge>
+        <select
+          value={a.status}
+          onClick={(e) => e.stopPropagation()}
+          onChange={(e) => handleStatusChange(a, e.target.value)}
+          className={`cursor-pointer rounded-full border-0 px-2.5 py-0.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-300 ${
+            a.status === 'published'
+              ? 'bg-green-100 text-green-800'
+              : a.status === 'draft'
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'bg-gray-100 text-gray-800'
+          }`}
+        >
+          <option value="draft">Draft</option>
+          <option value="published">Published</option>
+          <option value="archived">Archived</option>
+        </select>
       ),
     },
   ];
@@ -230,9 +397,9 @@ export default function AssetLibraryPage() {
           ))}
         </Select>
         <Select
-          value={status}
+          value={statusFilter}
           onChange={(e) => {
-            setStatus(e.target.value as ContentStatus | '');
+            setStatusFilter(e.target.value as ContentStatus | '');
             setPage(1);
           }}
           className="max-w-[170px]"
