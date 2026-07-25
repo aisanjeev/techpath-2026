@@ -412,6 +412,7 @@ async def list_assets(
     status_filter: Optional[str] = Query(None, alias="status"),
     search: Optional[str] = Query(None),
     program_id: Optional[int] = Query(None),
+    module_id: Optional[int] = Query(None),
     tag: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
     current_admin: User = Depends(get_current_admin_user),
@@ -430,6 +431,7 @@ async def list_assets(
         status=status_filter,
         search=search,
         program_id=program_id,
+        module_id=module_id,
         tag=tag,
     )
     data = [(await asset_to_response(db, a)).model_dump(mode="json") for a in assets]

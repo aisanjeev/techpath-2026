@@ -401,12 +401,21 @@ class CRUDLectureAsset(CRUDBase[LectureAsset, Any, Any]):
         search: Optional[str] = None,
         is_active: Optional[bool] = None,
         program_id: Optional[int] = None,
+        module_id: Optional[int] = None,
         tag: Optional[str] = None,
     ) -> tuple[List[LectureAsset], int]:
         query = select(LectureAsset)
         count_query = select(func.count(LectureAsset.id))
 
-        if program_id is not None:
+        if module_id is not None:
+            asset_ids_in_module = (
+                select(TrainingModuleAsset.asset_id)
+                .where(TrainingModuleAsset.module_id == module_id)
+                .distinct()
+            )
+            query = query.where(LectureAsset.id.in_(asset_ids_in_module))
+            count_query = count_query.where(LectureAsset.id.in_(asset_ids_in_module))
+        elif program_id is not None:
             asset_ids_in_program = (
                 select(TrainingModuleAsset.asset_id)
                 .join(TrainingModule, TrainingModuleAsset.module_id == TrainingModule.id)
