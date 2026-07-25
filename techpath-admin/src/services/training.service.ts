@@ -33,6 +33,7 @@ export interface AssetListParams {
   status?: ContentStatus;
   search?: string;
   program_id?: number;
+  module_id?: number;
   tag?: string;
 }
 
@@ -223,6 +224,7 @@ export const trainingService = {
           status: params.status,
           search: params.search,
           program_id: params.program_id,
+          module_id: params.module_id,
           tag: params.tag,
         },
       });

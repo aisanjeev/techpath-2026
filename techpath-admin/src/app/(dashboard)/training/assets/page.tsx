@@ -149,6 +149,8 @@ export default function AssetLibraryPage() {
   const [typeFilter, setTypeFilter] = useState<AssetType | ''>('');
   const [statusFilter, setStatusFilter] = useState<ContentStatus | ''>('');
   const [programFilter, setProgramFilter] = useState<number | ''>('');
+  const [moduleFilter, setModuleFilter] = useState<number | ''>('');
+  const [filterModules, setFilterModules] = useState<TrainingModule[]>([]);
   const [tagFilter, setTagFilter] = useState('');
   const [allTags, setAllTags] = useState<string[]>([]);
   const [deleting, setDeleting] = useState<LectureAsset | null>(null);
@@ -181,6 +183,7 @@ export default function AssetLibraryPage() {
         asset_type: typeFilter || undefined,
         status: statusFilter || undefined,
         program_id: programFilter || undefined,
+        module_id: moduleFilter || undefined,
         tag: tagFilter || undefined,
       });
       setAssets(result.items);
@@ -191,7 +194,7 @@ export default function AssetLibraryPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, typeFilter, statusFilter, programFilter, tagFilter, loadProgramMap]);
+  }, [page, search, typeFilter, statusFilter, programFilter, moduleFilter, tagFilter, loadProgramMap]);
 
   useEffect(() => {
     const timer = setTimeout(load, search ? 250 : 0);
@@ -354,8 +357,14 @@ export default function AssetLibraryPage() {
         <Select
           value={programFilter}
           onChange={(e) => {
-            setProgramFilter(e.target.value ? Number(e.target.value) : '');
+            const val = e.target.value ? Number(e.target.value) : '';
+            setProgramFilter(val);
+            setModuleFilter('');
+            setFilterModules([]);
             setPage(1);
+            if (val) {
+              trainingService.listModules(val).then(setFilterModules).catch(() => undefined);
+            }
           }}
           className="max-w-[200px]"
         >
@@ -366,6 +375,23 @@ export default function AssetLibraryPage() {
             </option>
           ))}
         </Select>
+        {programFilter && filterModules.length > 0 && (
+          <Select
+            value={moduleFilter}
+            onChange={(e) => {
+              setModuleFilter(e.target.value ? Number(e.target.value) : '');
+              setPage(1);
+            }}
+            className="max-w-[200px]"
+          >
+            <option value="">All modules</option>
+            {filterModules.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.title}
+              </option>
+            ))}
+          </Select>
+        )}
         <Select
           value={typeFilter}
           onChange={(e) => {
