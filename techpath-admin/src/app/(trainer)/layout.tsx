@@ -1,25 +1,38 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { LogOut, Presentation } from 'lucide-react';
+import { LogOut, Presentation, Eye } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { RoleGuard } from '@/components/auth/RoleGuard';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/store/auth.store';
+import { useUIStore } from '@/store/ui.store';
 import { authService } from '@/services/auth.service';
+import { usersService } from '@/services/users.service';
+import type { AdminUser } from '@/types/api';
 
-/**
- * Trainer shell. Deliberately not the admin chrome: a trainer's job is to teach, so
- * this is a narrow surface — their batches and today's sessions — rather than a CMS
- * sidebar full of things they cannot use.
- *
- * Admins are allowed in so they can support and demo the flow.
- */
 export default function TrainerLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
+  const { impersonateEmail, setImpersonateEmail } = useUIStore();
   const isPresenter = pathname.endsWith('/present');
+  const isAdmin = user?.role === 'admin';
+
+  const [trainers, setTrainers] = useState<AdminUser[]>([]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    usersService
+      .list({ role: 'trainer', limit: 50 })
+      .then((r) => setTrainers(r.items))
+      .catch(() => undefined);
+  }, [isAdmin]);
+
+  useEffect(() => {
+    return () => setImpersonateEmail('');
+  }, [setImpersonateEmail]);
 
   const handleLogout = async () => {
     try {
@@ -50,7 +63,24 @@ export default function TrainerLayout({ children }: { children: React.ReactNode 
             </Link>
 
             <div className="flex items-center gap-4">
-              {user?.role === 'admin' && (
+              {isAdmin && (
+                <div className="flex items-center gap-2">
+                  <Eye className="h-4 w-4 text-gray-400" />
+                  <select
+                    value={impersonateEmail}
+                    onChange={(e) => setImpersonateEmail(e.target.value)}
+                    className="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-sm text-gray-700 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                  >
+                    <option value="">All batches (admin)</option>
+                    {trainers.map((t) => (
+                      <option key={t.id} value={t.email}>
+                        {t.name} ({t.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {isAdmin && (
                 <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">
                   Admin panel
                 </Link>

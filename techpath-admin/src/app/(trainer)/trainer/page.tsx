@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { PageLoader } from '@/components/ui/Spinner';
 import { trainerService } from '@/services/trainer.service';
 import { useAuthStore } from '@/store/auth.store';
+import { useUIStore } from '@/store/ui.store';
 import type { TrainerBatchSummary, TrainingSession } from '@/types/training';
 
 function formatTime(iso?: string | null): string {
@@ -27,6 +28,7 @@ function formatTime(iso?: string | null): string {
 
 export default function TrainerHomePage() {
   const { user } = useAuthStore();
+  const { impersonateEmail } = useUIStore();
   const [batches, setBatches] = useState<TrainerBatchSummary[]>([]);
   const [sessions, setSessions] = useState<TrainingSession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,9 +36,10 @@ export default function TrainerHomePage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
+      const email = user?.role === 'admin' ? impersonateEmail || undefined : undefined;
       const [b, s] = await Promise.all([
-        trainerService.myBatches(),
-        trainerService.sessionsToday(),
+        trainerService.myBatches(email),
+        trainerService.sessionsToday(email),
       ]);
       setBatches(b);
       setSessions(s);
@@ -45,7 +48,7 @@ export default function TrainerHomePage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [impersonateEmail, user?.role]);
 
   useEffect(() => {
     void load();

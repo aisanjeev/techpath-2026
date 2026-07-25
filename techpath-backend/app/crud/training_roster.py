@@ -252,33 +252,38 @@ class CRUDTrainingSession(CRUDBase[TrainingSession, Any, Any]):
         return list(result.scalars().all())
 
     async def get_today_for_trainer(
-        self, db: AsyncSession, trainer_email: str, *, on: Optional[date] = None
+        self, db: AsyncSession, trainer_email: Optional[str] = None, *, on: Optional[date] = None
     ) -> List[TrainingSession]:
         """Sessions for this trainer's batches today, plus anything already live.
 
         A session that ran past midnight is still the session they are teaching, so
-        live ones are included regardless of their scheduled date.
+        live ones are included regardless of their scheduled date.  When
+        ``trainer_email`` is falsy all trainers' sessions are returned (admin view).
         """
         day = on or datetime.now(timezone.utc).date()
         start = datetime.combine(day, time.min, tzinfo=timezone.utc)
         end = start + timedelta(days=1)
 
-        result = await db.execute(
+        query = (
             select(TrainingSession)
             .join(TrainingBatch, TrainingSession.batch_id == TrainingBatch.id)
             .where(
-                func.lower(TrainingBatch.trainer_email) == trainer_email.lower(),
                 or_(
                     TrainingSession.scheduled_start.between(start, end),
                     TrainingSession.status == SessionStatus.LIVE.value,
                 ),
             )
-            .order_by(
-                case((TrainingSession.scheduled_start.is_(None), 1), else_=0),
-                TrainingSession.scheduled_start,
-            )
-            .options(selectinload(TrainingSession.batch), selectinload(TrainingSession.module))
         )
+        if trainer_email:
+            query = query.where(
+                func.lower(TrainingBatch.trainer_email) == trainer_email.lower()
+            )
+        query = query.order_by(
+            case((TrainingSession.scheduled_start.is_(None), 1), else_=0),
+            TrainingSession.scheduled_start,
+        ).options(selectinload(TrainingSession.batch), selectinload(TrainingSession.module))
+
+        result = await db.execute(query)
         return list(result.scalars().all())
 
     async def list_published_for_student(
