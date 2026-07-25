@@ -167,6 +167,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
 
   const quizFileInputRef = useRef<HTMLInputElement>(null);
+  const labFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleQuizFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -194,6 +195,61 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
     };
     reader.readAsText(file);
     e.target.value = '';
+  };
+
+  const handleLabFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const json = JSON.parse(ev.target?.result as string);
+        const rawSteps: unknown[] = Array.isArray(json) ? json : json.steps;
+        if (!Array.isArray(rawSteps) || rawSteps.length === 0) {
+          toast.error('No steps found. Ensure file has a "steps" array.');
+          return;
+        }
+        const parsed = rawSteps.map((item: any) => ({
+          title: String(item.title || item || ''),
+          instructions: String(item.instructions || ''),
+        }));
+        setSteps(parsed);
+        if (json.objective) setObjective(String(json.objective));
+        if (json.title && !title) setTitle(String(json.title));
+        if (json.description && !description) setDescription(String(json.description));
+        if (Array.isArray(json.tags) && !tags.trim()) setTags(json.tags.join(', '));
+        toast.success(`Imported ${parsed.length} step${parsed.length > 1 ? 's' : ''} from file`);
+      } catch {
+        toast.error('Invalid JSON file. Check the format and try again.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const downloadLabSample = () => {
+    const sample = {
+      title: "Explore Your Computer's Hardware",
+      description: "Use built-in Windows tools to discover hardware specifications",
+      objective: "Students will use Task Manager and System Information to identify CPU, RAM, storage, and GPU specs",
+      steps: [
+        {
+          title: "Open System Information",
+          instructions: "Press **Win + R**, type `msinfo32`, and press Enter.\n\nFind and write down:\n- **OS Name**\n- **Processor**\n- **Installed Physical Memory (RAM)**\n- **BaseBoard Manufacturer**"
+        },
+        {
+          title: "Explore Task Manager Performance",
+          instructions: "Press **Ctrl + Shift + Esc** to open Task Manager.\n\nClick the **Performance** tab and note:\n1. **CPU** — speed, cores, logical processors\n2. **Memory** — total RAM, in use, available\n3. **Disk** — SSD or HDD, read/write speeds\n4. **GPU** — graphics card name and dedicated memory"
+        }
+      ]
+    };
+    const blob = new Blob([JSON.stringify(sample, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'lab-sample.json';
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const downloadQuizSample = () => {
@@ -911,6 +967,32 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
                     className="text-sm py-2 px-3 bg-gray-50 focus:bg-white"
                   />
                 </FormField>
+
+                <div className="flex items-center gap-2 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-3">
+                  <FileJson className="h-4 w-4 text-gray-500 shrink-0" />
+                  <span className="text-xs text-gray-600 flex-1">Import lab steps from a JSON file</span>
+                  <input
+                    ref={labFileInputRef}
+                    type="file"
+                    accept=".json"
+                    onChange={handleLabFileImport}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => labFileInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-100 shadow-sm transition-colors"
+                  >
+                    <Upload className="h-3.5 w-3.5" /> Fill from File
+                  </button>
+                  <button
+                    type="button"
+                    onClick={downloadLabSample}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-bold text-teal-700 hover:bg-teal-100 shadow-sm transition-colors"
+                  >
+                    <Download className="h-3.5 w-3.5" /> Sample File
+                  </button>
+                </div>
 
                 <FormField label="Steps" required error={errors.steps} description="List instructions in sequence. Click check icon to review progress.">
                   <div className="space-y-3">
