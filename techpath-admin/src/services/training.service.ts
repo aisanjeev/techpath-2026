@@ -33,6 +33,7 @@ export interface AssetListParams {
   status?: ContentStatus;
   search?: string;
   program_id?: number;
+  tag?: string;
 }
 
 function paginate<T>(response: { data: T[]; headers?: Record<string, unknown> }): PaginatedResponse<T> {
@@ -222,9 +223,19 @@ export const trainingService = {
           status: params.status,
           search: params.search,
           program_id: params.program_id,
+          tag: params.tag,
         },
       });
       return paginate(response);
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  async assetTags(): Promise<string[]> {
+    try {
+      const response = await apiClient.get<string[]>('/api/v1/training/assets/tags');
+      return response.data;
     } catch (error) {
       throw handleApiError(error);
     }

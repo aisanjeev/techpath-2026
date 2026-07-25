@@ -396,6 +396,14 @@ async def detach_asset(
 # ============================================
 
 
+@router.get("/assets/tags")
+async def list_asset_tags(
+    db: AsyncSession = Depends(get_db),
+    current_admin: User = Depends(get_current_admin_user),
+) -> List[str]:
+    return await lecture_asset_crud.distinct_tags(db)
+
+
 @router.get("/assets")
 async def list_assets(
     skip: int = Query(0, ge=0),
@@ -404,6 +412,7 @@ async def list_assets(
     status_filter: Optional[str] = Query(None, alias="status"),
     search: Optional[str] = Query(None),
     program_id: Optional[int] = Query(None),
+    tag: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
     current_admin: User = Depends(get_current_admin_user),
 ) -> JSONResponse:
@@ -421,6 +430,7 @@ async def list_assets(
         status=status_filter,
         search=search,
         program_id=program_id,
+        tag=tag,
     )
     data = [(await asset_to_response(db, a)).model_dump(mode="json") for a in assets]
     return JSONResponse(content=data, headers={"X-Total-Count": str(total)})

@@ -401,6 +401,7 @@ class CRUDLectureAsset(CRUDBase[LectureAsset, Any, Any]):
         search: Optional[str] = None,
         is_active: Optional[bool] = None,
         program_id: Optional[int] = None,
+        tag: Optional[str] = None,
     ) -> tuple[List[LectureAsset], int]:
         query = select(LectureAsset)
         count_query = select(func.count(LectureAsset.id))
@@ -427,6 +428,8 @@ class CRUDLectureAsset(CRUDBase[LectureAsset, Any, Any]):
             conditions.append(
                 or_(LectureAsset.title.ilike(term), LectureAsset.description.ilike(term))
             )
+        if tag:
+            conditions.append(LectureAsset.tags_json.ilike(f'%"{tag}"%'))
 
         for cond in conditions:
             query = query.where(cond)
@@ -436,6 +439,20 @@ class CRUDLectureAsset(CRUDBase[LectureAsset, Any, Any]):
         rows = list((await db.execute(query)).scalars().all())
         total = (await db.execute(count_query)).scalar() or 0
         return rows, total
+
+    async def distinct_tags(self, db: AsyncSession) -> List[str]:
+        rows = (
+            await db.execute(
+                select(LectureAsset.tags_json)
+                .where(LectureAsset.tags_json.isnot(None))
+                .where(LectureAsset.tags_json != "")
+            )
+        ).scalars().all()
+        seen: set[str] = set()
+        for raw in rows:
+            for t in load_tags(raw):
+                seen.add(t)
+        return sorted(seen)
 
     async def create_from_union(
         self, db: AsyncSession, *, obj_in, created_by_id: Optional[int] = None
