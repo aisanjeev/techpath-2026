@@ -9,7 +9,7 @@ import logging
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from fastapi import APIRouter, BackgroundTasks, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.dependencies import get_current_trainer_user
@@ -110,10 +110,30 @@ def _session_out(session) -> TrainingSessionResponse:
     )
 
 
-async def _assert_owns_batch(db: AsyncSession, user: User, batch) -> None:
-    """A trainer may only touch their own batches; an admin may touch any."""
+def _effective_email(user: User, impersonate: Optional[str]) -> str:
+    """The trainer email to scope queries to.
+
+    Admins may pass ``X-Impersonate-Email`` to see the portal as a specific
+    trainer.  Without it an admin sees all batches (returns empty string as a
+    sentinel the callers check).  Non-admins always use their own email.
+    """
     if user.role == UserRole.ADMIN.value:
-        return
+        return (impersonate or "").strip().lower()
+    return user.email.lower()
+
+
+async def _assert_owns_batch(
+    db: AsyncSession, user: User, batch, *, impersonate: Optional[str] = None
+) -> None:
+    """A trainer may only touch their own batches; an admin may touch any
+    (or scope to the impersonated trainer)."""
+    if user.role == UserRole.ADMIN.value:
+        email = _effective_email(user, impersonate)
+        if not email:
+            return
+        if batch.trainer_email and batch.trainer_email.lower() == email:
+            return
+        raise ForbiddenError("This batch is not assigned to the impersonated trainer")
     if not batch.trainer_email or batch.trainer_email.lower() != user.email.lower():
         raise ForbiddenError("This batch is not assigned to you")
 
@@ -122,9 +142,14 @@ async def _assert_owns_batch(db: AsyncSession, user: User, batch) -> None:
 async def my_batches(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_trainer_user),
+    x_impersonate_email: Optional[str] = Header(None),
 ) -> List[TrainerBatchSummary]:
-    """Batches assigned to the signed-in trainer."""
-    batches = await training_batch_crud.get_by_trainer_email(db, current_user.email)
+    """Batches assigned to the signed-in trainer (or impersonated trainer for admins)."""
+    email = _effective_email(current_user, x_impersonate_email)
+    if email:
+        batches = await training_batch_crud.get_by_trainer_email(db, email)
+    else:
+        batches = await training_batch_crud.get_multi(db, limit=200)
 
     out: List[TrainerBatchSummary] = []
     for batch in batches:
@@ -159,9 +184,11 @@ async def my_batches(
 async def my_sessions_today(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_trainer_user),
+    x_impersonate_email: Optional[str] = Header(None),
 ) -> List[TrainingSessionResponse]:
     """Today's sessions, plus anything already live."""
-    sessions = await training_session_crud.get_today_for_trainer(db, current_user.email)
+    email = _effective_email(current_user, x_impersonate_email) or None
+    sessions = await training_session_crud.get_today_for_trainer(db, email)
     return [_session_out(s) for s in sessions]
 
 

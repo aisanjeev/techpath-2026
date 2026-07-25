@@ -22,19 +22,23 @@ import type {
 /** Trainer-scoped views. The backend restricts these to the signed-in trainer's own
  *  batches, matched by email; admins are allowed through for support. */
 export const trainerService = {
-  async myBatches(): Promise<TrainerBatchSummary[]> {
+  async myBatches(impersonateEmail?: string): Promise<TrainerBatchSummary[]> {
     try {
-      const response = await apiClient.get<TrainerBatchSummary[]>('/api/v1/trainer/me/batches');
+      const headers: Record<string, string> = {};
+      if (impersonateEmail) headers['X-Impersonate-Email'] = impersonateEmail;
+      const response = await apiClient.get<TrainerBatchSummary[]>('/api/v1/trainer/me/batches', { headers });
       return response.data;
     } catch (error) {
       throw handleApiError(error);
     }
   },
 
-  async sessionsToday(): Promise<TrainingSession[]> {
+  async sessionsToday(impersonateEmail?: string): Promise<TrainingSession[]> {
     try {
+      const headers: Record<string, string> = {};
+      if (impersonateEmail) headers['X-Impersonate-Email'] = impersonateEmail;
       const response = await apiClient.get<TrainingSession[]>(
-        '/api/v1/trainer/me/sessions/today'
+        '/api/v1/trainer/me/sessions/today', { headers }
       );
       return response.data;
     } catch (error) {

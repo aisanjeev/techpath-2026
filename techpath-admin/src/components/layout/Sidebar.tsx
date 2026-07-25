@@ -63,6 +63,7 @@ const navItems: NavItem[] = [
       { href: '/training/students', icon: User, label: 'Students' },
     ],
   },
+  { href: '/trainer', icon: Presentation, label: 'Trainer Portal' },
   { href: '/blog', icon: FileText, label: 'Blog Posts' },
   { href: '/pages', icon: LayoutTemplate, label: 'Pages' },
   { href: '/case-studies', icon: FolderKanban, label: 'Case Studies' },
