@@ -149,6 +149,8 @@ export default function AssetLibraryPage() {
   const [typeFilter, setTypeFilter] = useState<AssetType | ''>('');
   const [statusFilter, setStatusFilter] = useState<ContentStatus | ''>('');
   const [programFilter, setProgramFilter] = useState<number | ''>('');
+  const [tagFilter, setTagFilter] = useState('');
+  const [allTags, setAllTags] = useState<string[]>([]);
   const [deleting, setDeleting] = useState<LectureAsset | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [assigningAssetId, setAssigningAssetId] = useState<number | null>(null);
@@ -161,6 +163,7 @@ export default function AssetLibraryPage() {
       .listPrograms({ limit: 100 })
       .then((r) => setPrograms(r.items))
       .catch(() => undefined);
+    trainingService.assetTags().then(setAllTags).catch(() => undefined);
   }, []);
 
   const loadProgramMap = useCallback(async (ids: number[]) => {
@@ -178,6 +181,7 @@ export default function AssetLibraryPage() {
         asset_type: typeFilter || undefined,
         status: statusFilter || undefined,
         program_id: programFilter || undefined,
+        tag: tagFilter || undefined,
       });
       setAssets(result.items);
       setTotal(result.total);
@@ -187,7 +191,7 @@ export default function AssetLibraryPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, typeFilter, statusFilter, programFilter, loadProgramMap]);
+  }, [page, search, typeFilter, statusFilter, programFilter, tagFilter, loadProgramMap]);
 
   useEffect(() => {
     const timer = setTimeout(load, search ? 250 : 0);
@@ -226,12 +230,12 @@ export default function AssetLibraryPage() {
         const meta = assetMeta(a.asset_type);
         const Icon = meta.icon;
         return (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 max-w-md">
             <Icon className="h-4 w-4 shrink-0 text-gray-400" />
             <div className="min-w-0">
               <p className="truncate font-medium text-gray-900">{a.title}</p>
               {a.description && (
-                <p className="truncate text-xs text-gray-500">{a.description}</p>
+                <p className="truncate text-xs text-gray-500 max-w-xs">{a.description}</p>
               )}
             </div>
           </div>
@@ -296,25 +300,6 @@ export default function AssetLibraryPage() {
           </div>
         );
       },
-    },
-    {
-      key: 'tags',
-      header: 'Tags',
-      render: (a) =>
-        a.tags.length ? (
-          <div className="flex flex-wrap gap-1">
-            {a.tags.slice(0, 3).map((t) => (
-              <Badge key={t} variant="default">
-                {t}
-              </Badge>
-            ))}
-            {a.tags.length > 3 && (
-              <span className="text-xs text-gray-400">+{a.tags.length - 3}</span>
-            )}
-          </div>
-        ) : (
-          <span className="text-xs text-gray-400">—</span>
-        ),
     },
     {
       key: 'status',
@@ -409,6 +394,23 @@ export default function AssetLibraryPage() {
           <option value="published">Published</option>
           <option value="archived">Archived</option>
         </Select>
+        {allTags.length > 0 && (
+          <Select
+            value={tagFilter}
+            onChange={(e) => {
+              setTagFilter(e.target.value);
+              setPage(1);
+            }}
+            className="max-w-[170px]"
+          >
+            <option value="">All tags</option>
+            {allTags.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </Select>
+        )}
       </div>
 
       <DataTable

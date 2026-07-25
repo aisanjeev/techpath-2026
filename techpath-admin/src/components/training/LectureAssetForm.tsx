@@ -27,7 +27,9 @@ import {
   Sun,
   Moon,
   Upload,
-  FileJson
+  FileJson,
+  X,
+  Tag
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { marked } from 'marked';
@@ -111,7 +113,9 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
   const [assetType, setAssetType] = useState<AssetType>(asset?.asset_type ?? 'markdown');
   const [title, setTitle] = useState(asset?.title ?? '');
   const [description, setDescription] = useState(asset?.description ?? '');
-  const [tags, setTags] = useState((asset?.tags ?? []).join(', '));
+  const [tags, setTags] = useState<string[]>(asset?.tags ?? []);
+  const [tagInput, setTagInput] = useState('');
+  const [existingTags, setExistingTags] = useState<string[]>([]);
   const [status, setStatus] = useState(asset?.status ?? 'draft');
 
   // Content Payload State
@@ -217,7 +221,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
         if (json.objective) setObjective(String(json.objective));
         if (json.title && !title) setTitle(String(json.title));
         if (json.description && !description) setDescription(String(json.description));
-        if (Array.isArray(json.tags) && !tags.trim()) setTags(json.tags.join(', '));
+        if (Array.isArray(json.tags) && tags.length === 0) setTags(json.tags.map(String));
         toast.success(`Imported ${parsed.length} step${parsed.length > 1 ? 's' : ''} from file`);
       } catch {
         toast.error('Invalid JSON file. Check the format and try again.');
@@ -294,6 +298,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
       .then(setTypes)
       .catch(() => toast.error('Could not load asset types'))
       .finally(() => setLoadingTypes(false));
+    trainingService.assetTags().then(setExistingTags).catch(() => undefined);
   }, []);
 
   // Reset interactive preview states when asset type or settings change
@@ -379,10 +384,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
       asset_type: assetType,
       title: title.trim(),
       description: description.trim() || undefined,
-      tags: tags
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean),
+      tags,
       status,
     };
 
@@ -616,13 +618,65 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
               </FormField>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <FormField label="Tags" description="Comma separated labels">
-                  <Input
-                    value={tags}
-                    onChange={(e) => setTags(e.target.value)}
-                    placeholder="python, backend, numpy"
-                    className="bg-gray-50 focus:bg-white transition-colors py-2 px-3 text-sm rounded-lg"
-                  />
+                <FormField label="Tags" description="Select existing or type new">
+                  <div className="space-y-2">
+                    {tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {tags.map((t) => (
+                          <span
+                            key={t}
+                            className="inline-flex items-center gap-1 rounded-full bg-teal-50 border border-teal-200 px-2 py-0.5 text-xs font-medium text-teal-700"
+                          >
+                            {t}
+                            <button
+                              type="button"
+                              onClick={() => setTags(tags.filter((x) => x !== t))}
+                              className="rounded-full p-0.5 hover:bg-teal-200 transition-colors"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="relative">
+                      <Tag className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+                      <input
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
+                            e.preventDefault();
+                            const val = tagInput.trim().toLowerCase().replace(/,/g, '');
+                            if (val && !tags.includes(val)) setTags([...tags, val]);
+                            setTagInput('');
+                          }
+                        }}
+                        placeholder="Type & press Enter…"
+                        className="w-full rounded-lg border border-gray-300 bg-gray-50 py-1.5 pl-8 pr-3 text-sm focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+                      />
+                    </div>
+                    {existingTags.filter((t) => !tags.includes(t) && (!tagInput || t.includes(tagInput.toLowerCase()))).length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {existingTags
+                          .filter((t) => !tags.includes(t) && (!tagInput || t.includes(tagInput.toLowerCase())))
+                          .slice(0, 12)
+                          .map((t) => (
+                            <button
+                              key={t}
+                              type="button"
+                              onClick={() => {
+                                setTags([...tags, t]);
+                                setTagInput('');
+                              }}
+                              className="rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[11px] text-gray-600 hover:border-teal-400 hover:bg-teal-50 hover:text-teal-700 transition-colors"
+                            >
+                              + {t}
+                            </button>
+                          ))}
+                      </div>
+                    )}
+                  </div>
                 </FormField>
                 <FormField label="Status" description="Control learner visibility">
                   <Select
@@ -1160,13 +1214,9 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
                   {title || 'Untitled Lecture Asset'}
                 </h2>
                 {description && <p className="mt-1 text-xs text-gray-400">{description}</p>}
-                {tags && (
+                {tags.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1">
-                    {tags
-                      .split(',')
-                      .map((t) => t.trim())
-                      .filter(Boolean)
-                      .map((t, idx) => (
+                    {tags.map((t, idx) => (
                         <span
                           key={idx}
                           className={cn(
