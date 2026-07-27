@@ -20,6 +20,7 @@ import {
   Code2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
+import { marked } from 'marked';
 
 interface MarkdownEditorProps {
   content: string;
@@ -90,44 +91,8 @@ export function MarkdownEditor({
 
   // Simple markdown to HTML converter for preview
   const renderMarkdown = (md: string): string => {
-    let html = md
-      // Escape HTML
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      // Code blocks (before other processing)
-      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
-      // Inline code
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      // Headers
-      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-      // Bold and italic
-      .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/~~(.+?)~~/g, '<del>$1</del>')
-      // Links and images
-      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full rounded-lg" />')
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-teal-600 underline">$1</a>')
-      // Blockquotes
-      .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-gray-300 pl-4 italic">$1</blockquote>')
-      // Horizontal rule
-      .replace(/^---$/gm, '<hr class="my-4 border-gray-300" />')
-      // Lists
-      .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-      .replace(/^- (.+)$/gm, '<li>$1</li>')
-      // Paragraphs (simple version)
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/\n/g, '<br />');
-
-    // Wrap in paragraph if not already wrapped
-    if (!html.startsWith('<')) {
-      html = '<p>' + html + '</p>';
-    }
-
-    return html;
+    const processedText = md ? md.replace(/\\n/g, '\n') : '';
+    return marked.parse(processedText, { async: false }) as string;
   };
 
   return (

@@ -24,7 +24,8 @@ function youtubeId(url: string): string | null {
 }
 
 function renderMarkdown(text: string): string {
-  return marked.parse(text, { async: false }) as string;
+  const processedText = text ? text.replace(/\\n/g, '\n') : '';
+  return marked.parse(processedText, { async: false }) as string;
 }
 
 /** Office Online's viewer fetches the file itself, so this only works for a URL its

@@ -25,6 +25,18 @@
   @apply text-lg font-bold mt-4 mb-2;
 }
 
+.prose h4 {
+  @apply text-base font-bold mt-3 mb-2;
+}
+
+.prose h5 {
+  @apply text-sm font-bold mt-2 mb-1;
+}
+
+.prose h6 {
+  @apply text-xs font-bold mt-2 mb-1;
+}
+
 .prose p {
   @apply my-3;
 }
@@ -47,7 +59,7 @@
 }
 
 .prose blockquote {
-  @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 my-4;
+  @apply border-l-4 border-gray-300 pl-4 italic text-gray-600 my-4 py-1;
 }
 
 .prose pre {
@@ -55,7 +67,7 @@
 }
 
 .prose code {
-  @apply bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm;
+  @apply bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm font-mono;
 }
 
 .prose pre code {
@@ -67,11 +79,28 @@
 }
 
 .prose img {
-  @apply rounded-lg my-4;
+  @apply rounded-lg my-4 max-w-full h-auto;
 }
 
 .prose a {
   @apply text-teal-600 underline;
+}
+
+.prose table {
+  @apply w-full text-left border-collapse my-6 overflow-hidden rounded-lg shadow-sm ring-1 ring-gray-200;
+}
+
+.prose th,
+.prose td {
+  @apply p-3 border-b border-gray-200;
+}
+
+.prose th {
+  @apply bg-gray-100 font-bold text-gray-900;
+}
+
+.prose tbody tr:last-child td {
+  @apply border-0;
 }
 
 /* Dark variant for the presenter view — the base .prose rules above assume a white
@@ -85,6 +114,9 @@
 .prose-dark h1,
 .prose-dark h2,
 .prose-dark h3,
+.prose-dark h4,
+.prose-dark h5,
+.prose-dark h6,
 .prose-dark strong {
   color: #ffffff;
 }
@@ -95,7 +127,7 @@
 }
 
 .prose-dark blockquote {
-  @apply border-teal-500 text-gray-300;
+  @apply border-teal-500 text-gray-300 bg-gray-800/30;
 }
 
 .prose-dark pre {
@@ -118,7 +150,14 @@
   @apply border-gray-700;
 }
 
-.prose-dark table,
+.prose-dark table {
+  @apply ring-gray-700;
+}
+
+.prose-dark th {
+  @apply bg-gray-800 text-white;
+}
+
 .prose-dark th,
 .prose-dark td {
   @apply border-gray-700 text-gray-200;
