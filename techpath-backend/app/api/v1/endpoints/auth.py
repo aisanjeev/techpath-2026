@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import UserRole
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
-from app.core.firebase_admin import create_firebase_user, delete_firebase_user
+from app.core.firebase_admin import create_firebase_user, delete_firebase_user, update_firebase_user_by_email
 from app.crud.user import user_crud
 from app.db.session import get_db
 from app.schemas.user import (
@@ -105,8 +105,7 @@ async def provision_user(
     linked immediately — no manual Firebase console step needed. Without a password,
     only the local record is created (the admin creates the Firebase account manually).
     """
-    if await user_crud.get_by_email(db, email=payload.email):
-        raise ConflictError("A user with this email already exists")
+    user = await user_crud.get_by_email(db, email=payload.email)
 
     firebase_uid = None
     if payload.password:
@@ -119,21 +118,37 @@ async def provision_user(
         except Exception as exc:
             error_msg = str(exc)
             if "EMAIL_EXISTS" in error_msg:
-                raise ConflictError(
-                    "A Firebase account with this email already exists"
-                )
-            logger.error("Firebase user creation failed: %s", exc)
-            raise ValidationError(f"Could not create Firebase account: {error_msg}")
+                try:
+                    firebase_uid = update_firebase_user_by_email(
+                        email=payload.email,
+                        password=payload.password,
+                        display_name=payload.name,
+                    )
+                except Exception as update_exc:
+                    logger.error("Firebase user update failed: %s", update_exc)
+                    raise ValidationError(f"Could not update existing Firebase account: {update_exc}")
+            else:
+                logger.error("Firebase user creation failed: %s", exc)
+                raise ValidationError(f"Could not create Firebase account: {error_msg}")
 
-    user = User(
-        email=payload.email,
-        name=payload.name,
-        password_hash=None,
-        firebase_uid=firebase_uid,
-        role=payload.role,
-        is_active=payload.is_active,
-    )
-    db.add(user)
+    if user:
+        user.name = payload.name
+        user.role = payload.role
+        user.is_active = payload.is_active
+        if firebase_uid:
+            user.firebase_uid = firebase_uid
+        db.add(user)
+    else:
+        user = User(
+            email=payload.email,
+            name=payload.name,
+            password_hash=None,
+            firebase_uid=firebase_uid,
+            role=payload.role,
+            is_active=payload.is_active,
+        )
+        db.add(user)
+        
     await db.flush()
     await db.refresh(user)
     return _admin_out(user)
