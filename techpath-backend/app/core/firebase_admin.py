@@ -110,3 +110,16 @@ def delete_firebase_user(uid: str) -> None:
     _ensure_initialized()
     auth.delete_user(uid)
     logger.info("Deleted Firebase user: uid=%s", uid)
+
+
+def update_firebase_user_by_email(email: str, password: str, display_name: str = "") -> str:
+    """Update an existing Firebase Authentication user and return their UID."""
+    _ensure_initialized()
+    user_record = auth.get_user_by_email(email)
+    updated_user = auth.update_user(
+        user_record.uid,
+        password=password,
+        display_name=display_name or email.split("@")[0],
+    )
+    logger.info("Updated Firebase user: %s (uid=%s)", email, updated_user.uid)
+    return updated_user.uid
