@@ -1,0 +1,38 @@
+{
+  "asset_type": "lab",
+  "title": "Fetch and Analyze Data from a Public API",
+  "description": "Use the requests library to fetch data from a public API, convert to Pandas DataFrame, and create visualizations",
+  "tags": [
+    "python",
+    "api",
+    "requests",
+    "pandas",
+    "json"
+  ],
+  "status": "draft",
+  "objective": "Students will fetch live data from a free public API using the requests library, parse JSON responses, load into Pandas, and create charts from real-world data",
+  "steps": [
+    {
+      "title": "Set Up and Test the API",
+      "instructions": "Install required libraries:\n```\npip install requests pandas matplotlib\n```\n\nCreate `api_analysis.py`:\n```python\nimport requests\n\n# Test with a simple API\nurl = \"https://restcountries.com/v3.1/region/asia\"\nresponse = requests.get(url)\n\nprint(f\"Status Code: {response.status_code}\")\nprint(f\"Content Type: {response.headers['content-type']}\")\n\nif response.status_code == 200:\n    data = response.json()\n    print(f\"Got {len(data)} countries\")\n    print(f\"First country: {data[0]['name']['common']}\")\nelse:\n    print(f\"Error: {response.status_code}\")\n```\n\nRun it — you should see \"Got X countries\" with real data."
+    },
+    {
+      "title": "Parse API Data into Pandas",
+      "instructions": "Extract useful fields from the JSON response:\n```python\nimport pandas as pd\n\ncountries = []\nfor c in data:\n    countries.append({\n        \"name\": c[\"name\"][\"common\"],\n        \"capital\": c.get(\"capital\", [\"N/A\"])[0] if c.get(\"capital\") else \"N/A\",\n        \"population\": c.get(\"population\", 0),\n        \"area\": c.get(\"area\", 0),\n        \"region\": c.get(\"subregion\", \"Unknown\"),\n    })\n\ndf = pd.DataFrame(countries)\nprint(df.head(10))\nprint(f\"\\nTotal countries: {len(df)}\")\nprint(f\"\\nColumns: {list(df.columns)}\")\n```\n\nNotice how we use `.get()` with defaults to handle missing data safely.\n\nAdd a density column:\n```python\ndf[\"density\"] = df[\"population\"] / df[\"area\"].replace(0, float(\"nan\"))\ndf[\"pop_millions\"] = df[\"population\"] / 1_000_000\n```"
+    },
+    {
+      "title": "Analyze the Data",
+      "instructions": "Perform analysis:\n```python\n# Top 10 by population\nprint(\"\\n--- Top 10 Most Populated ---\")\ntop10 = df.nlargest(10, \"population\")\nfor _, row in top10.iterrows():\n    print(f\"  {row['name']:<20} {row['pop_millions']:>8.1f}M\")\n\n# Smallest countries\nprint(\"\\n--- 5 Smallest by Area ---\")\nsmall = df[df[\"area\"] > 0].nsmallest(5, \"area\")\nfor _, row in small.iterrows():\n    print(f\"  {row['name']:<20} {row['area']:>10,.0f} km²\")\n\n# Sub-region stats\nprint(\"\\n--- Countries per Sub-Region ---\")\nregion_stats = df.groupby(\"region\").agg(\n    count=(\"name\", \"count\"),\n    total_pop=(\"population\", \"sum\"),\n).sort_values(\"total_pop\", ascending=False)\nprint(region_stats.to_string())\n```"
+    },
+    {
+      "title": "Create Charts and Save",
+      "instructions": "```python\nimport matplotlib.pyplot as plt\n\n# Chart 1: Top 10 countries by population\nfig, ax = plt.subplots(figsize=(10, 6))\ntop10_sorted = top10.sort_values(\"pop_millions\")\nax.barh(top10_sorted[\"name\"], top10_sorted[\"pop_millions\"], color=\"#6366f1\")\nax.set_xlabel(\"Population (Millions)\")\nax.set_title(\"Top 10 Asian Countries by Population\")\nfor i, v in enumerate(top10_sorted[\"pop_millions\"]):\n    ax.text(v + 5, i, f\"{v:.0f}M\", va=\"center\")\nplt.tight_layout()\nplt.savefig(\"api_chart_population.png\", dpi=150)\nprint(\"Saved: api_chart_population.png\")\n\n# Chart 2: Sub-region pie chart\nfig, ax = plt.subplots(figsize=(8, 8))\nregion_counts = df[\"region\"].value_counts()\nax.pie(region_counts.values, labels=region_counts.index, autopct=\"%1.0f%%\")\nax.set_title(\"Asian Countries by Sub-Region\")\nplt.tight_layout()\nplt.savefig(\"api_chart_regions.png\", dpi=150)\nprint(\"Saved: api_chart_regions.png\")\n\nprint(\"\\nDone! Open the PNG files to see your charts.\")\n```\n\nVerify:\n- Both charts are saved as PNG files\n- Population chart shows India and China as largest\n- Pie chart shows sub-region breakdown\n\nTry changing the region in the API URL to `europe` or `africa` and re-run."
+    },
+    {
+      "title": "Add Error Handling and a Second API",
+      "instructions": "Wrap the API call in error handling:\n```python\nimport sys\n\ndef fetch_data(url):\n    try:\n        response = requests.get(url, timeout=10)\n        response.raise_for_status()\n        return response.json()\n    except requests.exceptions.ConnectionError:\n        print(\"Error: No internet connection\")\n        sys.exit(1)\n    except requests.exceptions.Timeout:\n        print(\"Error: Request timed out\")\n        sys.exit(1)\n    except requests.exceptions.HTTPError as e:\n        print(f\"Error: {e}\")\n        sys.exit(1)\n```\n\nNow try a second API — fetch a random joke and display it:\n```python\ndef fetch_joke():\n    data = fetch_data(\"https://official-joke-api.appspot.com/jokes/programming/random\")\n    if data:\n        joke = data[0]\n        print(f\"\\nJoke: {joke['setup']}\")\n        print(f\"Answer: {joke['punchline']}\")\n```\n\nTest:\n- Run normally — should fetch countries + joke\n- Disconnect WiFi and run — should show \"No internet connection\"\n- Try an invalid URL — should show HTTP error\n\n**Submit:** Your `api_analysis.py` file + 2 chart PNG files + screenshot of error handling working."
+    }
+  ],
+  "starter_code": "import requests\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n# TODO: Fetch data from API\n# TODO: Parse into DataFrame\n# TODO: Analyze\n# TODO: Create charts",
+  "expected_output": "A Python script that fetches country data from a public API, parses JSON into a Pandas DataFrame, performs analysis (top 10, groupby), and generates 2 charts saved as PNG files"
+}

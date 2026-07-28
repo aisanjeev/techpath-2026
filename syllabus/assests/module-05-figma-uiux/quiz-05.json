@@ -1,0 +1,76 @@
+{
+  "questions": [
+    {
+      "question": "What does UI stand for?",
+      "options": ["User Integration", "User Interface", "Universal Internet", "Useful Information"],
+      "correct_index": 1,
+      "explanation": "UI = User Interface — the visual elements users see and interact with (buttons, colors, fonts, icons)."
+    },
+    {
+      "question": "What is the first step in the Design Thinking process?",
+      "options": ["Prototype", "Define", "Empathize", "Test"],
+      "correct_index": 2,
+      "explanation": "Empathize is step 1 — understand the user's needs and problems before designing anything."
+    },
+    {
+      "question": "In Figma, what keyboard shortcut creates a Frame?",
+      "options": ["R", "T", "F", "V"],
+      "correct_index": 2,
+      "explanation": "Press F for the Frame tool. Frames are like artboards that represent screens (mobile, desktop, etc.)."
+    },
+    {
+      "question": "How many main colors should a website design use?",
+      "options": ["1", "2-3", "5-6", "As many as you want"],
+      "correct_index": 1,
+      "explanation": "Best practice is 2-3 colors: one primary, one background, one accent. Too many colors looks messy."
+    },
+    {
+      "question": "What is the difference between a wireframe and a mockup?",
+      "options": ["No difference", "Wireframe is basic layout, mockup has real colors and fonts", "Mockup is on paper, wireframe is digital", "Wireframe is the final product"],
+      "correct_index": 1,
+      "explanation": "A wireframe is a basic skeleton (boxes and lines). A mockup is a realistic design with actual colors, fonts, and images."
+    },
+    {
+      "question": "What does Auto Layout do in Figma?",
+      "options": ["Auto-saves your file", "Automatically arranges elements with equal spacing", "Creates layouts from AI", "Auto-generates code"],
+      "correct_index": 1,
+      "explanation": "Auto Layout (Shift+A) automatically arranges elements in rows or columns with consistent spacing and padding."
+    },
+    {
+      "question": "What is the minimum recommended font size for body text on screens?",
+      "options": ["8px", "12px", "16px", "24px"],
+      "correct_index": 2,
+      "explanation": "16px is the minimum recommended size for body text on screens to ensure readability."
+    },
+    {
+      "question": "What export format should you use for icons and logos?",
+      "options": ["PNG", "JPG", "SVG", "GIF"],
+      "correct_index": 2,
+      "explanation": "SVG (Scalable Vector Graphics) is best for icons and logos — it scales to any size without getting blurry."
+    },
+    {
+      "question": "What does UX focus on?",
+      "options": ["Making things look pretty", "How users feel when using the product", "Writing code", "Choosing colors"],
+      "correct_index": 1,
+      "explanation": "UX = User Experience — focuses on how easy and pleasant the product is to use, not just how it looks."
+    },
+    {
+      "question": "What is a Figma component?",
+      "options": ["A type of export", "A reusable design piece that updates all copies when changed", "A plugin", "A color palette"],
+      "correct_index": 1,
+      "explanation": "A component is a reusable design piece. Change the main component and all instances (copies) update automatically."
+    },
+    {
+      "question": "Why design for mobile first?",
+      "options": ["Mobile phones are cheaper", "Over 60% of internet traffic comes from mobile devices", "Mobile design is easier", "Mobile screens are bigger"],
+      "correct_index": 1,
+      "explanation": "Over 60% of internet traffic is mobile. Designing for the smallest screen first ensures your design works everywhere."
+    },
+    {
+      "question": "What is the WCAG minimum contrast ratio for readable text?",
+      "options": ["2:1", "3:1", "4.5:1", "10:1"],
+      "correct_index": 2,
+      "explanation": "WCAG AA standard requires at least 4.5:1 contrast ratio between text and background for readability."
+    }
+  ]
+}

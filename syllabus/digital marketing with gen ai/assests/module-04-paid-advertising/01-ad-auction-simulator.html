@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Ads Auction Simulator — TechPath Academy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 960px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; padding: 20px 0; border-bottom: 1px solid #1e293b; }
+        .brand { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        h1 { font-size: 1.8rem; color: #f8fafc; margin-bottom: 8px; }
+        .subtitle { color: #94a3b8; font-size: 0.95rem; }
+        .card { background: #1e293b; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid #334155; }
+        .card h2 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 16px; }
+        .formula-box {
+            background: #0f172a; border: 1px solid #334155; border-radius: 8px;
+            padding: 16px; text-align: center; margin-bottom: 20px;
+        }
+        .formula { font-size: 1.1rem; color: #f8fafc; font-family: 'Courier New', monospace; }
+        .formula span { color: #3b82f6; font-weight: 700; }
+        .formula-label { color: #94a3b8; font-size: 0.8rem; margin-top: 6px; }
+        .scenario-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .scenario-tab {
+            padding: 10px 18px; background: #334155; border: 1px solid #475569;
+            border-radius: 8px; color: #cbd5e1; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+        }
+        .scenario-tab:hover { background: #475569; }
+        .scenario-tab.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+        .slider-group { margin-bottom: 20px; }
+        .slider-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+        .slider-label span { color: #94a3b8; }
+        .slider-label strong { color: #3b82f6; font-size: 1.1rem; }
+        input[type="range"] {
+            width: 100%; height: 6px; appearance: none; background: #334155;
+            border-radius: 3px; outline: none; cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none; width: 20px; height: 20px; background: #3b82f6;
+            border-radius: 50%; cursor: pointer; transition: transform 0.1s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px; height: 20px; background: #3b82f6;
+            border-radius: 50%; cursor: pointer; border: none;
+        }
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 20px 0; }
+        .result-box { background: #0f172a; border-radius: 8px; padding: 16px; text-align: center; border: 1px solid #334155; }
+        .result-box .value { font-size: 1.8rem; font-weight: 700; color: #3b82f6; }
+        .result-box .label { font-size: 0.8rem; color: #94a3b8; margin-top: 4px; }
+        .result-box.highlight { border-color: #10b981; }
+        .result-box.highlight .value { color: #10b981; }
+        .result-box.warning { border-color: #f59e0b; }
+        .result-box.warning .value { color: #f59e0b; }
+        .auction-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+        .auction-table th, .auction-table td { padding: 12px 14px; text-align: center; border-bottom: 1px solid #334155; }
+        .auction-table th { color: #94a3b8; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .auction-table tr.you { background: #1e3a5f; }
+        .auction-table .rank-badge {
+            display: inline-block; width: 28px; height: 28px; border-radius: 50%;
+            line-height: 28px; text-align: center; font-weight: 700; font-size: 0.85rem;
+        }
+        .rank-1 { background: #fbbf24; color: #78350f; }
+        .rank-2 { background: #94a3b8; color: #1e293b; }
+        .rank-3 { background: #d97706; color: #fff; }
+        .rank-4 { background: #475569; color: #cbd5e1; }
+        .chart-container { margin: 20px 0; }
+        .bar-chart { display: flex; align-items: flex-end; gap: 16px; height: 200px; padding: 0 10px; }
+        .bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+        .bar {
+            width: 100%; border-radius: 6px 6px 0 0; transition: height 0.5s ease;
+            display: flex; align-items: flex-start; justify-content: center; padding-top: 8px;
+            font-weight: 700; font-size: 0.85rem; min-height: 20px;
+        }
+        .bar-label { margin-top: 10px; text-align: center; font-size: 0.8rem; color: #94a3b8; }
+        .bar-label .name { color: #e2e8f0; font-weight: 500; }
+        .insight-box {
+            background: #0f172a; border-left: 3px solid #3b82f6; padding: 14px 16px;
+            border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 0.9rem; color: #cbd5e1;
+        }
+        .insight-box strong { color: #3b82f6; }
+        .comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 16px; }
+        .compare-card {
+            background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 16px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .compare-card:hover { border-color: #3b82f6; }
+        .compare-card.active { border-color: #3b82f6; background: #1e3a5f; }
+        .compare-card h4 { color: #f1f5f9; margin-bottom: 6px; font-size: 0.95rem; }
+        .compare-card p { color: #94a3b8; font-size: 0.85rem; }
+        .hidden { display: none; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .bar-chart { height: 160px; gap: 8px; }
+            .result-grid { grid-template-columns: 1fr 1fr; }
+            .auction-table { font-size: 0.8rem; }
+            .auction-table th, .auction-table td { padding: 8px 6px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="brand">TechPath Academy</div>
+        <h1>Google Ads Auction Simulator</h1>
+        <p class="subtitle">Understand how Ad Rank, Quality Score, and bidding determine your ad position and actual cost-per-click</p>
+    </div>
+
+    <div class="card">
+        <h2>How the Auction Works</h2>
+        <div class="formula-box">
+            <div class="formula"><span>Ad Rank</span> = Max CPC Bid &times; Quality Score</div>
+            <div class="formula-label">Determines your position in the search results</div>
+        </div>
+        <div class="formula-box">
+            <div class="formula"><span>Actual CPC</span> = (Ad Rank below you &divide; Your Quality Score) + ₹0.01</div>
+            <div class="formula-label">What you actually pay per click — always less than or equal to your max bid</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Explore Scenarios</h2>
+        <div class="scenario-tabs">
+            <button class="scenario-tab active" onclick="loadPreset(0)">Low Bid + High QS</button>
+            <button class="scenario-tab" onclick="loadPreset(1)">High Bid + Low QS</button>
+            <button class="scenario-tab" onclick="loadPreset(2)">Balanced Approach</button>
+        </div>
+        <p style="color:#94a3b8;font-size:0.85rem;margin-top:-10px;margin-bottom:16px;">Keyword: "digital marketing course Bhopal" — Adjust your bid and Quality Score below</p>
+
+        <div class="slider-group">
+            <div class="slider-label"><span>Your Max CPC Bid</span><strong id="bidVal">₹30</strong></div>
+            <input type="range" id="bidSlider" min="5" max="100" value="30" oninput="updateAuction()">
+        </div>
+        <div class="slider-group">
+            <div class="slider-label"><span>Your Quality Score</span><strong id="qsVal">7 / 10</strong></div>
+            <input type="range" id="qsSlider" min="1" max="10" value="7" oninput="updateAuction()">
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Your Auction Results</h2>
+        <div class="result-grid">
+            <div class="result-box highlight" id="rankBox"><div class="value" id="yourRank">210</div><div class="label">Your Ad Rank</div></div>
+            <div class="result-box" id="posBox"><div class="value" id="yourPos">#1</div><div class="label">Ad Position</div></div>
+            <div class="result-box warning" id="cpcBox"><div class="value" id="yourCPC">₹22.87</div><div class="label">Actual CPC You Pay</div></div>
+            <div class="result-box"><div class="value" id="savings">24%</div><div class="label">Savings vs Max Bid</div></div>
+        </div>
+        <div class="insight-box" id="insight">Loading...</div>
+    </div>
+
+    <div class="card">
+        <h2>All Advertisers — Auction Leaderboard</h2>
+        <div style="overflow-x:auto">
+            <table class="auction-table">
+                <thead><tr><th>Position</th><th>Advertiser</th><th>Max CPC</th><th>Quality Score</th><th>Ad Rank</th><th>Actual CPC</th></tr></thead>
+                <tbody id="auctionTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Ad Rank Comparison Chart</h2>
+        <div class="chart-container">
+            <div class="bar-chart" id="barChart"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Key Insights</h2>
+        <div class="comparison-grid">
+            <div class="compare-card" onclick="loadPreset(0)">
+                <h4>Strategy: Quality Focus</h4>
+                <p>Low bid (₹20) + High Quality Score (9) = Ad Rank 180. You pay less per click because Google rewards relevance. Best for long-term campaigns.</p>
+            </div>
+            <div class="compare-card" onclick="loadPreset(1)">
+                <h4>Strategy: Outbid Everyone</h4>
+                <p>High bid (₹80) + Low Quality Score (4) = Ad Rank 320. You can win position but pay premium CPCs. Unsustainable for most budgets.</p>
+            </div>
+            <div class="compare-card" onclick="loadPreset(2)">
+                <h4>Strategy: Balanced</h4>
+                <p>Medium bid (₹45) + Medium Quality Score (7) = Ad Rank 315. Good balance of competitiveness and cost efficiency. Works for most advertisers.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const competitors = [
+    { name: "DigiSkill Institute", bid: 45, qs: 6, color: "#8b5cf6" },
+    { name: "WebGuru Academy", bid: 35, qs: 8, color: "#f59e0b" },
+    { name: "LearnPro Center", bid: 55, qs: 5, color: "#ef4444" }
+];
+
+const presets = [
+    { bid: 20, qs: 9, label: "Low Bid + High QS" },
+    { bid: 80, qs: 4, label: "High Bid + Low QS" },
+    { bid: 45, qs: 7, label: "Balanced Approach" }
+];
+
+function loadPreset(idx) {
+    document.querySelectorAll('.scenario-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+    document.querySelectorAll('.compare-card').forEach((c, i) => c.classList.toggle('active', i === idx));
+    document.getElementById('bidSlider').value = presets[idx].bid;
+    document.getElementById('qsSlider').value = presets[idx].qs;
+    updateAuction();
+}
+
+function updateAuction() {
+    const bid = parseInt(document.getElementById('bidSlider').value);
+    const qs = parseInt(document.getElementById('qsSlider').value);
+
+    document.getElementById('bidVal').textContent = `₹${bid}`;
+    document.getElementById('qsVal').textContent = `${qs} / 10`;
+
+    const you = { name: "You (TechPath)", bid, qs, color: "#3b82f6" };
+    let all = [you, ...competitors];
+
+    // Calculate Ad Rank
+    all.forEach(a => a.adRank = a.bid * a.qs);
+
+    // Sort by Ad Rank descending
+    all.sort((a, b) => b.adRank - a.adRank);
+
+    // Calculate Actual CPC
+    all.forEach((a, i) => {
+        if (i < all.length - 1) {
+            a.actualCPC = (all[i + 1].adRank / a.qs) + 0.01;
+            a.actualCPC = Math.min(a.actualCPC, a.bid); // Can't exceed max bid
+        } else {
+            a.actualCPC = 1.01; // Minimum CPC for last position
+        }
+    });
+
+    const yourPos = all.findIndex(a => a.name.includes("You")) + 1;
+    const yourData = all.find(a => a.name.includes("You"));
+    const savings = ((1 - yourData.actualCPC / yourData.bid) * 100).toFixed(0);
+
+    document.getElementById('yourRank').textContent = yourData.adRank;
+    document.getElementById('yourPos').textContent = `#${yourPos}`;
+    document.getElementById('yourCPC').textContent = `₹${yourData.actualCPC.toFixed(2)}`;
+    document.getElementById('savings').textContent = `${Math.max(0, savings)}%`;
+
+    // Insight
+    let insight = '';
+    if (qs >= 8 && bid <= 30) {
+        insight = `<strong>Smart strategy!</strong> Your high Quality Score (${qs}) means you're getting position #${yourPos} while paying only ₹${yourData.actualCPC.toFixed(2)} — much less than competitors with higher bids but lower QS. Google rewards relevant ads.`;
+    } else if (qs <= 4 && bid >= 60) {
+        insight = `<strong>Expensive approach.</strong> You're compensating for low Quality Score (${qs}) with a high bid. Position #${yourPos} costs you ₹${yourData.actualCPC.toFixed(2)} per click. Improving ad relevance and landing page quality could save you 30-50% while keeping the same position.`;
+    } else if (yourPos === 1) {
+        insight = `<strong>You're at the top!</strong> Position #1 with Ad Rank ${yourData.adRank}. Your actual CPC of ₹${yourData.actualCPC.toFixed(2)} saves you ${Math.max(0, savings)}% compared to your max bid. The second-place advertiser has Ad Rank ${all[1].adRank}.`;
+    } else {
+        insight = `<strong>Position #${yourPos}</strong> with Ad Rank ${yourData.adRank}. To move up to #${yourPos - 1}, you need Ad Rank above ${all[yourPos - 2].adRank}. You could increase your bid to ₹${Math.ceil(all[yourPos - 2].adRank / qs)} or improve Quality Score to ${Math.ceil(all[yourPos - 2].adRank / bid)}.`;
+    }
+    document.getElementById('insight').innerHTML = insight;
+
+    // Table
+    const tbody = document.getElementById('auctionTable');
+    tbody.innerHTML = all.map((a, i) => {
+        const isYou = a.name.includes("You");
+        return `<tr class="${isYou ? 'you' : ''}">
+            <td><span class="rank-badge rank-${i + 1}">${i + 1}</span></td>
+            <td style="font-weight:${isYou ? '700' : '400'}">${a.name}</td>
+            <td>₹${a.bid}</td>
+            <td>${a.qs}/10</td>
+            <td style="font-weight:700">${a.adRank}</td>
+            <td>₹${a.actualCPC.toFixed(2)}</td>
+        </tr>`;
+    }).join('');
+
+    // Bar Chart
+    const maxRank = Math.max(...all.map(a => a.adRank));
+    const chart = document.getElementById('barChart');
+    chart.innerHTML = all.map(a => {
+        const height = (a.adRank / maxRank * 100).toFixed(0);
+        const isYou = a.name.includes("You");
+        return `<div class="bar-wrapper">
+            <div class="bar" style="height:${height}%;background:${a.color};${isYou ? 'box-shadow:0 0 12px ' + a.color : ''}">${a.adRank}</div>
+            <div class="bar-label"><div class="name">${a.name.split(' ')[0]}</div>₹${a.bid} × ${a.qs}QS</div>
+        </div>`;
+    }).join('');
+}
+
+updateAuction();
+</script>
+</body>
+</html>

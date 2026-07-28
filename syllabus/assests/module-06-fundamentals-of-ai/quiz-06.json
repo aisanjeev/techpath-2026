@@ -1,0 +1,76 @@
+{
+  "questions": [
+    {
+      "question": "What is Artificial Intelligence?",
+      "options": ["A robot that looks like a human", "Making computers do tasks that normally need human intelligence", "A type of programming language", "A super-fast computer"],
+      "correct_index": 1,
+      "explanation": "AI means making computers perform tasks that would normally require human intelligence — like understanding language, recognizing images, or making decisions."
+    },
+    {
+      "question": "Which type of AI exists today?",
+      "options": ["General AI", "Super AI", "Narrow AI", "Conscious AI"],
+      "correct_index": 2,
+      "explanation": "All current AI is Narrow AI — good at one specific task. General AI (good at everything like humans) doesn't exist yet."
+    },
+    {
+      "question": "What is Machine Learning?",
+      "options": ["A machine that learns from textbooks", "AI that learns patterns from data instead of being given rules", "A programming language", "A type of computer hardware"],
+      "correct_index": 1,
+      "explanation": "In Machine Learning, instead of programming rules, you give the computer data and examples so it can find the patterns (rules) itself."
+    },
+    {
+      "question": "In supervised learning, training data must have:",
+      "options": ["Only images", "Labels (correct answers)", "No labels at all", "Only numbers"],
+      "correct_index": 1,
+      "explanation": "Supervised learning needs labeled data — examples with the correct answer. Like flash cards with questions AND answers."
+    },
+    {
+      "question": "What does LLM stand for?",
+      "options": ["Long Learning Machine", "Large Language Model", "Linked Logic Module", "Low Latency Memory"],
+      "correct_index": 1,
+      "explanation": "LLM = Large Language Model. ChatGPT and Claude are LLMs — trained on huge amounts of text to understand and generate language."
+    },
+    {
+      "question": "What is an AI hallucination?",
+      "options": ["When AI sees things that aren't there", "When AI confidently gives wrong or made-up information", "When AI shuts down", "When AI runs too slowly"],
+      "correct_index": 1,
+      "explanation": "AI hallucination is when it generates confident-sounding but incorrect or completely made-up information. Always verify important facts."
+    },
+    {
+      "question": "What is Generative AI?",
+      "options": ["AI that generates electricity", "AI that creates new content like text, images, and code", "AI that copies existing content", "AI that deletes data"],
+      "correct_index": 1,
+      "explanation": "Generative AI creates NEW content — text (ChatGPT), images (DALL-E), code (Copilot), music (Suno)."
+    },
+    {
+      "question": "What makes a good AI prompt?",
+      "options": ["One word is enough", "Being specific about what you want, format, and audience", "Using technical jargon", "Making it as long as possible"],
+      "correct_index": 1,
+      "explanation": "Good prompts are specific — include what you want, the format, the audience, and any constraints. Better prompts = better AI responses."
+    },
+    {
+      "question": "What is a neural network inspired by?",
+      "options": ["The internet", "The human brain", "A computer chip", "A phone network"],
+      "correct_index": 1,
+      "explanation": "Neural networks are inspired by the human brain — layers of connected 'neurons' that process information and find patterns."
+    },
+    {
+      "question": "Which is a major ethical concern about AI?",
+      "options": ["AI uses too much electricity", "AI can learn biases from biased training data", "AI is too expensive", "AI is too slow"],
+      "correct_index": 1,
+      "explanation": "AI can learn unfair biases from biased training data. For example, a hiring AI trained mostly on men's resumes might unfairly reject women."
+    },
+    {
+      "question": "What is a token in AI context?",
+      "options": ["A payment coin", "A small piece of text that AI reads and processes", "A security password", "A type of computer memory"],
+      "correct_index": 1,
+      "explanation": "AI reads text as tokens — small word pieces. Models have a context window (max tokens they can process at once)."
+    },
+    {
+      "question": "What should you always do with AI-generated information?",
+      "options": ["Trust it completely", "Share it immediately", "Verify it from a reliable source", "Delete it"],
+      "correct_index": 2,
+      "explanation": "Always verify AI-generated information from reliable sources. AI can hallucinate and give wrong facts confidently."
+    }
+  ]
+}

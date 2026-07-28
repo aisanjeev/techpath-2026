@@ -301,6 +301,16 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
     trainingService.assetTags().then(setExistingTags).catch(() => undefined);
   }, []);
 
+  // Fetch blob content for markdown assets that use media files instead of DB body
+  useEffect(() => {
+    if (isEdit && assetType === 'markdown' && !asset?.body && asset?.file_url) {
+      fetch(asset.file_url)
+        .then(res => res.text())
+        .then(text => setBody(text))
+        .catch(err => console.error('Failed to load markdown blob:', err));
+    }
+  }, [isEdit, assetType, asset?.body, asset?.file_url]);
+
   // Reset interactive preview states when asset type or settings change
   useEffect(() => {
     setQuizAnswers({});
@@ -309,7 +319,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
   }, [assetType]);
 
   const rules = useMemo(() => types.find((t) => t.value === assetType), [types, assetType]);
-  const kind = rules?.storage_kind ?? assetMeta(assetType).kind;
+  const kind = assetType === 'markdown' ? 'inline_text' : (rules?.storage_kind ?? assetMeta(assetType).kind);
 
   const grouped = useMemo(() => {
     const out: Record<string, AssetTypeInfo[]> = {};
@@ -433,6 +443,14 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
     setSaving(true);
     try {
       const payload = buildPayload();
+      
+      if (assetType === 'markdown') {
+        const fileToUpload = new File([new Blob([body], { type: 'text/markdown' })], 'content.md', { type: 'text/markdown' });
+        const res = await trainingService.uploadAssetFile('markdown', fileToUpload);
+        payload.media_file_id = res.data.id;
+        delete payload.body;
+      }
+
       if (isEdit) {
         // asset_type is immutable
         delete payload.asset_type;
@@ -727,6 +745,39 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
                     </FormField>
                   </div>
                 )}
+                
+                {assetType === 'markdown' && (
+                  <div className="flex items-center gap-2 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-3 mb-2">
+                    <FileJson className="h-4 w-4 text-gray-500 shrink-0" />
+                    <span className="text-xs text-gray-600 flex-1">Import content from a .md file</span>
+                    <input
+                      type="file"
+                      accept=".md,.markdown,.txt"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            setBody(ev.target?.result as string);
+                            toast.success('File content loaded successfully');
+                          };
+                          reader.readAsText(file);
+                        }
+                        e.target.value = '';
+                      }}
+                      className="hidden"
+                      id="md-upload-input"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('md-upload-input')?.click()}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-100 shadow-sm transition-colors"
+                    >
+                      <Upload className="h-3.5 w-3.5" /> Import File
+                    </button>
+                  </div>
+                )}
+
                 <FormField
                   label={assetType === 'code_snippet' ? 'Code Editor' : 'Content Markdown'}
                   required

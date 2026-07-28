@@ -20,6 +20,8 @@ from sqlalchemy import (
     Index,
     Integer,
     String,
+    Table,
+    Column,
     Text,
     UniqueConstraint,
 )
@@ -27,6 +29,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.constants import SessionStatus
 from app.models.base import Base, TimestampMixin
+
+batch_programs = Table(
+    "training_batch_programs",
+    Base.metadata,
+    Column("batch_id", Integer, ForeignKey("training_batches.id", ondelete="CASCADE"), primary_key=True),
+    Column("program_id", Integer, ForeignKey("training_programs.id", ondelete="CASCADE"), primary_key=True),
+)
 
 
 class TrainingBatch(Base, TimestampMixin):
@@ -43,10 +52,8 @@ class TrainingBatch(Base, TimestampMixin):
     code: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, index=True)
 
     # Ours, not theirs. Set by an admin to link a batch to its training content; the
-    # sync must never overwrite this.
-    program_id: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("training_programs.id", ondelete="SET NULL"), nullable=True
-    )
+    # sync must never overwrite this. (Legacy column to be dropped in migration)
+    # program_id: Mapped[Optional[int]] = ...
 
     start_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     end_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
@@ -78,7 +85,9 @@ class TrainingBatch(Base, TimestampMixin):
     )
     synced_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    program: Mapped[Optional["TrainingProgram"]] = relationship("TrainingProgram")  # noqa: F821
+    programs: Mapped[List["TrainingProgram"]] = relationship(  # noqa: F821
+        "TrainingProgram", secondary=batch_programs, back_populates="batches", lazy="selectin"
+    )
     memberships: Mapped[List["TrainingBatchStudent"]] = relationship(
         "TrainingBatchStudent", back_populates="batch", cascade="all, delete-orphan"
     )

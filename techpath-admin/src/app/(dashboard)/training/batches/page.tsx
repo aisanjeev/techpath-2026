@@ -126,10 +126,10 @@ export default function BatchesPage() {
       ),
     },
     {
-      key: 'program_id',
+      key: 'programs',
       header: 'Program',
       render: (b) =>
-        b.program_id ? (
+        b.programs && b.programs.length > 0 ? (
           <Badge variant="info">Linked</Badge>
         ) : (
           // Without a linked programme, a trainer has nothing to present.

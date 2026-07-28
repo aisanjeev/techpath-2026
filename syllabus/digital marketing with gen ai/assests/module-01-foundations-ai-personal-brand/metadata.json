@@ -1,0 +1,162 @@
+{
+  "01-7-pillars-of-digital-marketing.md": {
+    "title": "The 7 Pillars of Digital Marketing",
+    "description": "Module 01 \u2014 Foundations, AI Toolkit & Personal Brand | Topic 1 --- Digital marketing is promoting products, services, or brands using digital channels \u2014 websites, social media, search engines, email, and mobile apps. Unlike traditional marketing (newspapers, TV, billboards), digital marketing lets you target the right people, measure everything, and optimize in real time. Think of traditional marketing like shouting through a megaphone in a...",
+    "asset_type": "markdown",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "01-marketing-funnel-interactive.html": {
+    "title": "Marketing Funnel Simulator \u2014 TechPath Academy",
+    "description": "Interactive Marketing Funnel Simulator \u2014 TechPath Academy exercise for Foundations AI Personal Brand",
+    "asset_type": "html_bundle",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "02-marketing-math-and-metrics.md": {
+    "title": "Marketing Math & Metrics",
+    "description": "Module 01 \u2014 Foundations, AI Toolkit & Personal Brand | Topic 2 --- Marketing without measurement is like driving with your eyes closed. Every rupee you spend on marketing should be tracked, measured, and optimized. In this class, you will learn the formulas that every digital marketer uses daily. > Pro Tip: In job interviews, companies will ask you to calculate ROAS or CAC on the spot. Knowing these formulas sets you apart from candidates who...",
+    "asset_type": "markdown",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "02-marketing-math-calculator.html": {
+    "title": "Marketing Math Calculator \u2014 TechPath Academy",
+    "description": "Interactive Marketing Math Calculator \u2014 TechPath Academy exercise for Foundations AI Personal Brand",
+    "asset_type": "html_bundle",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "03-ai-tools-for-marketing.md": {
+    "title": "AI Tools for Marketing",
+    "description": "Module 01 \u2014 Foundations, AI Toolkit & Personal Brand | Topic 3 --- AI tools do not replace marketers \u2014 they make marketers 10x faster. Tasks that used to take hours (writing blog posts, creating ad variations, designing social media graphics) now take minutes. The marketer who knows how to use AI effectively will always beat the one who does everything manually. > Fun Fact: According to a 2025 HubSpot survey, 82% of marketers who use AI say it...",
+    "asset_type": "markdown",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "04-buyer-personas-and-customer-journey.md": {
+    "title": "Buyer Personas & Customer Journey",
+    "description": "Module 01 \u2014 Foundations, AI Toolkit & Personal Brand | Topic 4 --- Marketing to \"everyone\" is marketing to no one. A buyer persona is a detailed, semi-fictional profile of your ideal customer based on real data and research. It helps you answer the most important question in marketing: \"Who exactly am I talking to?\" Think of it like this: if you are selling cricket bats, you would not advertise the same way to a 12-year-old learning to play in a...",
+    "asset_type": "markdown",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "05-personal-branding-strategy.md": {
+    "title": "Personal Branding Strategy",
+    "description": "Module 01 \u2014 Foundations, AI Toolkit & Personal Brand | Topic 5 --- Your personal brand is what people say about you when you are not in the room. In digital marketing, your personal brand IS your resume. Hiring managers check your LinkedIn, Instagram, and portfolio before calling you for an interview. Think of it this way: two candidates apply for the same social media manager role. Candidate A has a basic resume. Candidate B has a LinkedIn with...",
+    "asset_type": "markdown",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "assignment-01.md": {
+    "title": "Module 1: Assignment \u2014 Foundations, AI Toolkit & Personal Brand",
+    "description": "Total Marks: 100 Submission Deadline: End of Week 4 Submission Format: Google Drive folder link (organized by task) OR uploaded to TechPath LMS --- Set up all your professional accounts with consistent branding that positions you as a digital marketing professional. 1. Create/Optimize the following accounts: - Professional Gmail (firstname.lastname format) - LinkedIn Profile (fully optimized) - YouTube Channel (with banner, logo, about section)...",
+    "asset_type": "assignment",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "cheatsheet-01.md": {
+    "title": "Cheatsheet 01",
+    "description": "Learning material for Cheatsheet 01",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "code-landing-page-template.html": {
+    "title": "Rahul Sharma \u2014 Digital Marketing Specialist",
+    "description": "Interactive Rahul Sharma \u2014 Digital Marketing Specialist exercise for Foundations AI Personal Brand",
+    "asset_type": "html_bundle",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "code-prompt-library.md": {
+    "title": "Code Prompt Library",
+    "description": "AI Prompt Library for Digital Marketers (CRAFT Framework)",
+    "asset_type": "code_snippet",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "lab-01-a.json": {
+    "title": "Build Your AI Marketing Assistant",
+    "description": "Create a Custom GPT in ChatGPT that acts as your personal marketing assistant \u2014 trained on your brand voice, business context, and marketing frameworks.",
+    "asset_type": "lab",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "lab-01-b.json": {
+    "title": "Create Your Personal Brand Kit",
+    "description": "Build a complete personal brand identity from scratch \u2014 define your brand voice, create visual assets, optimize your LinkedIn, set up a personal website, and audit your online presence across platforms.",
+    "asset_type": "lab",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "notes-01.md": {
+    "title": "Module 1: Foundations, AI Toolkit & Personal Brand",
+    "description": "TechPath Academy \u2014 Digital Marketing with Generative AI Duration: 26 Days | Mode: Self-Paced Learning Pre-requisites: A laptop/phone, internet connection, and curiosity --- These notes are designed for self-paced learning. Each day has: - Core concepts explained in simple language - Step-by-step instructions you can follow on your own - A \"Try This\" exercise to apply what you learned immediately - Weekly \"Self-Check Questions\" to test your...",
+    "asset_type": "notes",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "quiz-01.json": {
+    "title": "Quiz 01",
+    "description": "Learning material for Quiz 01",
+    "asset_type": "quiz",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "resources-01.md": {
+    "title": "Module 1: Resources & Tools Directory",
+    "description": "> Curated links to help you set up your AI toolkit, build your personal brand, and master marketing foundations. --- --- --- --- --- - Amul \u2014 Topical marketing and social media virality - Zomato \u2014 Notification marketing and witty brand voice - boAt \u2014 Influencer-first D2C strategy - Mamaearth \u2014 Content + community marketing - Nykaa \u2014 Email marketing and personalization - CRED \u2014 Viral video ads with celebrities - Zerodha \u2014 Education-first content...",
+    "asset_type": "notes",
+    "tags": [
+      "foundations-ai-personal-brand",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  }
+}

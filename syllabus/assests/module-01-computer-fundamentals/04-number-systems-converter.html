@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Systems Converter</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:20px;min-height:100vh}
+h1{text-align:center;font-size:20px;color:#fff;margin-bottom:4px}
+.sub{text-align:center;font-size:13px;color:#94a3b8;margin-bottom:28px}
+
+/* Converter Section */
+.converter{max-width:500px;margin:0 auto 36px;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:24px}
+.conv-title{font-size:14px;font-weight:700;color:#60a5fa;margin-bottom:16px;text-transform:uppercase;letter-spacing:.06em}
+.input-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.input-row input{
+  flex:1;min-width:120px;background:#0f172a;border:1.5px solid #334155;border-radius:8px;
+  padding:12px 14px;color:#fff;font-size:16px;font-family:Consolas,monospace;outline:none;
+}
+.input-row input:focus{border-color:#3b82f6}
+.input-row select{
+  background:#0f172a;border:1.5px solid #334155;border-radius:8px;
+  padding:12px;color:#e2e8f0;font-size:14px;outline:none;cursor:pointer;
+}
+.results{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.result-box{background:#0f172a;border-radius:8px;padding:12px 14px}
+.result-box .r-label{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.result-box .r-value{font-size:18px;font-weight:700;font-family:Consolas,monospace;color:#fff;word-break:break-all}
+.result-box.active{border:1px solid #3b82f6}
+.error{color:#ef4444;font-size:13px;margin-top:8px;display:none}
+
+/* How It Works Section */
+.explain{max-width:500px;margin:0 auto 36px;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:24px}
+.explain h3{font-size:15px;color:#fff;margin-bottom:12px}
+.step-box{background:#0f172a;border-radius:8px;padding:14px;margin-bottom:10px;font-size:14px;color:#cbd5e1;line-height:1.7}
+.step-box .step-num{display:inline-block;width:24px;height:24px;border-radius:50%;background:#3b82f6;color:#fff;text-align:center;line-height:24px;font-size:12px;font-weight:700;margin-right:8px}
+.step-box code{background:#1e293b;padding:2px 6px;border-radius:4px;font-family:Consolas,monospace;color:#60a5fa}
+
+/* Practice Section */
+.practice{max-width:500px;margin:0 auto}
+.practice h3{font-size:15px;color:#fff;margin-bottom:12px}
+.practice-card{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:18px;margin-bottom:12px}
+.practice-q{font-size:15px;color:#fff;margin-bottom:12px}
+.practice-q code{background:#0f172a;padding:2px 8px;border-radius:4px;font-family:Consolas,monospace;color:#a78bfa}
+.practice-input{display:flex;gap:8px;align-items:center}
+.practice-input input{
+  background:#0f172a;border:1.5px solid #334155;border-radius:8px;
+  padding:10px 14px;color:#fff;font-size:15px;font-family:Consolas,monospace;
+  outline:none;width:140px;
+}
+.practice-input input:focus{border-color:#3b82f6}
+.check-btn{
+  background:#3b82f6;border:none;color:#fff;padding:10px 18px;
+  border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
+}
+.check-btn:hover{background:#2563eb}
+.practice-fb{font-size:13px;margin-top:8px;min-height:20px}
+.practice-fb.correct{color:#22c55e}
+.practice-fb.wrong{color:#ef4444}
+
+@media(max-width:480px){
+  .results{grid-template-columns:1fr}
+  .input-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<h1>Number Systems Converter</h1>
+<p class="sub">Type a number, choose the system, and see it converted to all other systems instantly.</p>
+
+<!-- Converter -->
+<div class="converter">
+  <div class="conv-title">Convert Any Number</div>
+  <div class="input-row">
+    <input type="text" id="numInput" placeholder="Type a number..." oninput="convert()">
+    <select id="baseSelect" onchange="convert()">
+      <option value="10">Decimal (0-9)</option>
+      <option value="2">Binary (0-1)</option>
+      <option value="8">Octal (0-7)</option>
+      <option value="16">Hexadecimal (0-F)</option>
+    </select>
+  </div>
+  <div class="results">
+    <div class="result-box" id="r-dec"><div class="r-label">Decimal (Base 10)</div><div class="r-value" id="v-dec">—</div></div>
+    <div class="result-box" id="r-bin"><div class="r-label">Binary (Base 2)</div><div class="r-value" id="v-bin">—</div></div>
+    <div class="result-box" id="r-oct"><div class="r-label">Octal (Base 8)</div><div class="r-value" id="v-oct">—</div></div>
+    <div class="result-box" id="r-hex"><div class="r-label">Hexadecimal (Base 16)</div><div class="r-value" id="v-hex">—</div></div>
+  </div>
+  <div class="error" id="convError">Invalid number for the selected system</div>
+</div>
+
+<!-- How Binary Works -->
+<div class="explain">
+  <h3>How Binary Conversion Works</h3>
+  <div class="step-box">
+    <span class="step-num">1</span>
+    Each binary digit has a <strong>place value</strong> (like ones, tens in decimal, but powers of 2):
+    <br><code>8 | 4 | 2 | 1</code>
+  </div>
+  <div class="step-box">
+    <span class="step-num">2</span>
+    Example: Convert <code>1101</code> to decimal
+    <br><code>1</code>×8 + <code>1</code>×4 + <code>0</code>×2 + <code>1</code>×1 = <strong>13</strong>
+  </div>
+  <div class="step-box">
+    <span class="step-num">3</span>
+    Example: Convert decimal <code>10</code> to binary
+    <br>10 ÷ 2 = 5 remainder <code>0</code>
+    <br>5 ÷ 2 = 2 remainder <code>1</code>
+    <br>2 ÷ 2 = 1 remainder <code>0</code>
+    <br>1 ÷ 2 = 0 remainder <code>1</code>
+    <br>Read bottom to top: <strong>1010</strong>
+  </div>
+</div>
+
+<!-- Practice Problems -->
+<div class="practice">
+  <h3>Practice — Try These!</h3>
+
+  <div class="practice-card" data-answer="13">
+    <div class="practice-q">Convert binary <code>1101</code> to decimal:</div>
+    <div class="practice-input">
+      <input type="text" placeholder="Your answer" id="p1">
+      <button class="check-btn" onclick="checkPractice('p1',this)">Check</button>
+    </div>
+    <div class="practice-fb" id="fb-p1"></div>
+  </div>
+
+  <div class="practice-card" data-answer="1010">
+    <div class="practice-q">Convert decimal <code>10</code> to binary:</div>
+    <div class="practice-input">
+      <input type="text" placeholder="Your answer" id="p2">
+      <button class="check-btn" onclick="checkPractice('p2',this)">Check</button>
+    </div>
+    <div class="practice-fb" id="fb-p2"></div>
+  </div>
+
+  <div class="practice-card" data-answer="15">
+    <div class="practice-q">Convert binary <code>1111</code> to decimal:</div>
+    <div class="practice-input">
+      <input type="text" placeholder="Your answer" id="p3">
+      <button class="check-btn" onclick="checkPractice('p3',this)">Check</button>
+    </div>
+    <div class="practice-fb" id="fb-p3"></div>
+  </div>
+
+  <div class="practice-card" data-answer="F">
+    <div class="practice-q">What is decimal <code>15</code> in hexadecimal?</div>
+    <div class="practice-input">
+      <input type="text" placeholder="Your answer" id="p4">
+      <button class="check-btn" onclick="checkPractice('p4',this)">Check</button>
+    </div>
+    <div class="practice-fb" id="fb-p4"></div>
+  </div>
+
+  <div class="practice-card" data-answer="17">
+    <div class="practice-q">Convert octal <code>21</code> to decimal:</div>
+    <div class="practice-input">
+      <input type="text" placeholder="Your answer" id="p5">
+      <button class="check-btn" onclick="checkPractice('p5',this)">Check</button>
+    </div>
+    <div class="practice-fb" id="fb-p5"></div>
+  </div>
+</div>
+
+<script>
+function convert() {
+  const val = document.getElementById('numInput').value.trim();
+  const base = parseInt(document.getElementById('baseSelect').value);
+  const err = document.getElementById('convError');
+  const boxes = ['r-dec','r-bin','r-oct','r-hex'];
+  boxes.forEach(b => document.getElementById(b).classList.remove('active'));
+
+  if (!val) {
+    ['v-dec','v-bin','v-oct','v-hex'].forEach(id => document.getElementById(id).textContent = '—');
+    err.style.display = 'none';
+    return;
+  }
+
+  const num = parseInt(val, base);
+  if (isNaN(num) || num < 0) {
+    err.style.display = 'block';
+    return;
+  }
+  const check = num.toString(base).toUpperCase();
+  if (check !== val.toUpperCase().replace(/^0+/,'') && val !== '0') {
+    err.style.display = 'block';
+    return;
+  }
+  err.style.display = 'none';
+
+  document.getElementById('v-dec').textContent = num.toString(10);
+  document.getElementById('v-bin').textContent = num.toString(2);
+  document.getElementById('v-oct').textContent = num.toString(8);
+  document.getElementById('v-hex').textContent = num.toString(16).toUpperCase();
+
+  const activeMap = {10:'r-dec',2:'r-bin',8:'r-oct',16:'r-hex'};
+  document.getElementById(activeMap[base]).classList.add('active');
+}
+
+function checkPractice(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const card = btn.closest('.practice-card');
+  const answer = card.dataset.answer;
+  const fb = document.getElementById('fb-' + inputId);
+  const userVal = input.value.trim().toUpperCase();
+
+  if (!userVal) return;
+
+  if (userVal === answer.toUpperCase()) {
+    fb.textContent = 'Correct!';
+    fb.className = 'practice-fb correct';
+    input.style.borderColor = '#22c55e';
+  } else {
+    fb.textContent = 'Wrong. Correct answer: ' + answer;
+    fb.className = 'practice-fb wrong';
+    input.style.borderColor = '#ef4444';
+  }
+}
+</script>
+</body>
+</html>

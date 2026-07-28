@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Build a Custom AI Chatbot with System Prompts",
+  "description": "Create specialized AI chatbots for different use cases by mastering system prompts and conversation design",
+  "tags": [
+    "ai",
+    "chatbot",
+    "system-prompt",
+    "chatgpt",
+    "claude"
+  ],
+  "status": "draft",
+  "objective": "Students will design and test 3 specialized AI chatbots by crafting system prompts — a customer support bot, a coding tutor, and a content writer",
+  "steps": [
+    {
+      "title": "Chatbot 1: TechPath Customer Support",
+      "instructions": "Open ChatGPT or Claude. Start a new conversation.\n\nPaste this system prompt:\n```\nYou are TechPath Support Bot — a friendly customer support assistant for TechPath Institute, a computer training center in Pune, India.\n\nCourses offered:\n- ADCA (Advanced Diploma in Computer Applications): 12 months, ₹35,000\n- DCA (Diploma in Computer Applications): 6 months, ₹18,000\n- Tally Pro: 3 months, ₹8,000\n\nBatch timings: Morning (9 AM-12 PM), Afternoon (2 PM-5 PM), Weekend (Sat-Sun 10 AM-4 PM)\nLocation: Tech Park, Hinjewadi, Pune\nContact: +91-20-12345678 | info@techpath.biz\n\nRules:\n- Always be polite and professional\n- If asked about something you don't know, say \"Let me connect you with our admissions team\"\n- Always suggest booking a free demo class\n- Answer in short, clear sentences\n- Use ₹ for prices\n```\n\nNow test with these questions:\n1. \"What courses do you offer?\"\n2. \"How much does ADCA cost?\"\n3. \"Do you have evening batches?\"\n4. \"Is there a placement guarantee?\"\n5. \"Can I pay in installments?\"\n\nNote how the bot stays in character and refers to the system prompt data."
+    },
+    {
+      "title": "Chatbot 2: Python Coding Tutor",
+      "instructions": "Start a new conversation with this system prompt:\n```\nYou are PyMentor — a patient Python coding tutor for absolute beginners.\n\nTeaching style:\n- Explain concepts using real-world analogies\n- Always show code examples with line-by-line comments\n- After explaining, give a small practice exercise\n- When the student makes a mistake, don't give the answer — give hints\n- Use simple English, avoid jargon\n- Celebrate when they get it right\n\nTopics you can teach: variables, data types, strings, lists, loops, functions, dictionaries, file handling, basic OOP\n\nFormat:\n- Start with 📖 Concept\n- Then 💻 Code Example\n- Then ✏️ Practice Exercise\n- Then 💡 Hint (only if asked)\n```\n\nTest with:\n1. \"Teach me about loops\"\n2. Submit an intentionally wrong answer to the practice exercise\n3. Ask for a hint\n4. \"What's the difference between a list and a tuple?\"\n5. \"Write a program to check if a number is prime\" (see if it gives hints or the full answer)\n\nDoes the tutor follow the rules? Does it give hints instead of answers?"
+    },
+    {
+      "title": "Chatbot 3: Content Writer",
+      "instructions": "Start a new conversation:\n```\nYou are ContentPro — a professional content writer specializing in Indian ed-tech marketing.\n\nBrand voice: Professional but approachable, confident but not pushy\nTarget audience: Parents of 18-22 year olds in tier-2 Indian cities\nGoal: Convert readers into enquiries\n\nCapabilities:\n- Blog posts (500-1000 words, SEO-optimized)\n- Social media posts (LinkedIn, Instagram)\n- Email campaigns\n- Landing page copy\n- Ad copy (Google Ads, Facebook Ads)\n\nRules:\n- Always include a call-to-action\n- Use Indian English (not American)\n- Include relevant statistics when possible\n- Keep paragraphs short (3-4 sentences max)\n- Use power words: \"transform\", \"career-ready\", \"industry\", \"hands-on\"\n```\n\nTest:\n1. \"Write a LinkedIn post about why computer courses are important\"\n2. \"Create a Google Ad for our ADCA course (max 30 chars headline, 90 chars description)\"\n3. \"Write an email subject line A/B test — give me 5 options\"\n4. \"Write Instagram caption for a student placement celebration photo\""
+    },
+    {
+      "title": "Compare and Analyze",
+      "instructions": "Create a comparison table:\n\n| Aspect | Support Bot | Coding Tutor | Content Writer |\n|--------|------------|-------------|----------------|\n| Persona | Customer-facing | Teacher | Marketer |\n| Tone | Polite, formal | Patient, encouraging | Persuasive |\n| Knowledge boundary | Course info only | Python only | Ed-tech marketing |\n| When out of scope | Redirects to team | Says \"that's beyond basics\" | Suggests format |\n\nFor each chatbot, answer:\n1. Did it stay in character? (Yes/No + example)\n2. What happened when you asked something outside its scope?\n3. What would you change in the system prompt to improve it?"
+    },
+    {
+      "title": "Design Your Own Chatbot",
+      "instructions": "Now create your OWN specialized chatbot. Choose a use case:\n- Restaurant order-taking bot\n- Fitness coach bot\n- Travel planning assistant\n- Interview preparation coach\n- Or any other idea\n\nWrite a complete system prompt including:\n1. Identity and role\n2. Knowledge/data it should use\n3. Communication style rules\n4. Behavior when asked out-of-scope questions\n5. Response format guidelines\n\nTest it with at least 5 different user messages.\n\n**Submit:** All 4 system prompts, test conversations (screenshots), comparison table, and your original chatbot design."
+    }
+  ],
+  "expected_output": "A document containing 3 tested system prompts with conversation screenshots, a comparison analysis table, and an original chatbot system prompt with test results"
+}

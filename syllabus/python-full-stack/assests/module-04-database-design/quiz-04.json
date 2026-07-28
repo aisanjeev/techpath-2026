@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "question": "What does ACID stand for in database transactions?",
+      "options": [
+        "A) Addition, Calculation, Integration, Deletion",
+        "B) Atomicity, Consistency, Isolation, Durability",
+        "C) Automated, Centralized, Independent, Distributed",
+        "D) Access, Control, Identity, Data"
+      ],
+      "correct_index": 1,
+      "explanation": "ACID stands for Atomicity (all or nothing), Consistency (valid state transitions), Isolation (concurrent transactions don't interfere), and Durability (committed data survives crashes)."
+    },
+    {
+      "question": "Which key type creates a link between two tables in a relational database?",
+      "options": [
+        "A) Primary Key",
+        "B) Candidate Key",
+        "C) Foreign Key",
+        "D) Surrogate Key"
+      ],
+      "correct_index": 2,
+      "explanation": "A Foreign Key references the Primary Key of another table, creating a relationship between the two tables."
+    },
+    {
+      "question": "What does the SQL command `TRUNCATE TABLE students` do?",
+      "options": [
+        "A) Deletes the table structure and all data permanently",
+        "B) Removes all rows but keeps the table structure intact",
+        "C) Deletes only rows where is_active is FALSE",
+        "D) Renames the table to students_backup"
+      ],
+      "correct_index": 1,
+      "explanation": "TRUNCATE removes all rows from a table and resets auto-increment counters, but the table structure (columns, constraints) remains intact. DROP TABLE would remove the structure too."
+    },
+    {
+      "question": "Which JOIN type returns ALL rows from the left table, even if there is no matching row in the right table?",
+      "options": [
+        "A) INNER JOIN",
+        "B) CROSS JOIN",
+        "C) LEFT JOIN",
+        "D) SELF JOIN"
+      ],
+      "correct_index": 2,
+      "explanation": "LEFT JOIN (LEFT OUTER JOIN) returns all rows from the left table. If there is no matching row in the right table, the right-side columns are filled with NULL."
+    },
+    {
+      "question": "In SQL, what is the correct order of clauses in a SELECT statement?",
+      "options": [
+        "A) SELECT, WHERE, FROM, ORDER BY, GROUP BY",
+        "B) FROM, SELECT, WHERE, GROUP BY, ORDER BY",
+        "C) SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY",
+        "D) SELECT, FROM, GROUP BY, WHERE, ORDER BY, HAVING"
+      ],
+      "correct_index": 2,
+      "explanation": "The correct order is SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT. The database executes them in a different order (FROM first), but the written syntax follows this sequence."
+    },
+    {
+      "question": "What is the purpose of an INDEX in a database?",
+      "options": [
+        "A) To enforce unique values in a column",
+        "B) To speed up data retrieval on frequently searched columns",
+        "C) To create a backup of the table",
+        "D) To link two tables together"
+      ],
+      "correct_index": 1,
+      "explanation": "An index creates a data structure that allows the database to find rows quickly without scanning the entire table, similar to an index at the back of a textbook."
+    },
+    {
+      "question": "In MySQL, how do you extract a JSON field value as plain text from a column called `details`?",
+      "options": [
+        "A) details->'$.brand'",
+        "B) details->>'$.brand'",
+        "C) json_extract(details, 'brand')",
+        "D) details['brand']"
+      ],
+      "correct_index": 1,
+      "explanation": "In MySQL, the ->> operator (or JSON_UNQUOTE(JSON_EXTRACT())) returns the JSON field value as unquoted text. The -> operator returns it as a quoted JSON element. For example, details->>'$.brand' returns HP (text), while details->'$.brand' returns \"HP\" (JSON)."
+    },
+    {
+      "question": "In SQLAlchemy 2.0, which is the correct way to query all students from Bhopal?",
+      "options": [
+        "A) db.session.query(Student).filter_by(city='Bhopal').all()",
+        "B) select(Student).where(Student.city == 'Bhopal')",
+        "C) Student.objects.filter(city='Bhopal')",
+        "D) db.find({'city': 'Bhopal'})"
+      ],
+      "correct_index": 1,
+      "explanation": "SQLAlchemy 2.0 uses the select() function with .where() for filtering. The session.query() style (option A) is the older 1.x pattern that is now deprecated."
+    },
+    {
+      "question": "What does `ON DELETE CASCADE` do when applied to a Foreign Key?",
+      "options": [
+        "A) Prevents deletion of the parent row",
+        "B) Sets the foreign key column to NULL when the parent is deleted",
+        "C) Automatically deletes child rows when the parent row is deleted",
+        "D) Logs the deletion in an audit table"
+      ],
+      "correct_index": 2,
+      "explanation": "ON DELETE CASCADE means when the referenced (parent) row is deleted, all rows in the child table that reference it are automatically deleted too."
+    },
+    {
+      "question": "Which MongoDB operator is used to add a value to an array field?",
+      "options": [
+        "A) $set",
+        "B) $inc",
+        "C) $push",
+        "D) $addField"
+      ],
+      "correct_index": 2,
+      "explanation": "$push adds a value to an array field. $set replaces the entire field value, $inc increments a numeric field, and $addField does not exist in MongoDB."
+    },
+    {
+      "question": "What is the purpose of `session.flush()` in SQLAlchemy?",
+      "options": [
+        "A) It permanently saves all changes to the database",
+        "B) It sends SQL to the database but does NOT finalize the transaction",
+        "C) It clears all pending changes without saving",
+        "D) It closes the database connection"
+      ],
+      "correct_index": 1,
+      "explanation": "flush() sends pending SQL operations to the database (so auto-generated values like IDs become available) but does not commit the transaction. You can still rollback after a flush. commit() finalizes changes permanently."
+    },
+    {
+      "question": "In Redis, what happens to a key when its TTL (Time To Live) expires?",
+      "options": [
+        "A) The key's value is set to NULL",
+        "B) The key is automatically deleted from memory",
+        "C) The key is moved to a backup database",
+        "D) An error is raised on the next access"
+      ],
+      "correct_index": 1,
+      "explanation": "When a Redis key's TTL expires, it is automatically removed from memory. Any subsequent GET on that key returns None (null). This is the foundation of Redis caching — data expires and must be re-fetched from the primary database."
+    },
+    {
+      "question": "Which Alembic command generates a new migration file by comparing your models to the database?",
+      "options": [
+        "A) alembic upgrade head",
+        "B) alembic revision --autogenerate -m \"description\"",
+        "C) alembic downgrade -1",
+        "D) alembic init migrations"
+      ],
+      "correct_index": 1,
+      "explanation": "alembic revision --autogenerate compares your SQLAlchemy models to the actual database schema and generates a migration file with the differences. alembic upgrade head applies migrations, downgrade -1 rolls back, and init sets up Alembic for the first time."
+    },
+    {
+      "question": "In a MongoDB aggregation pipeline, which stage is equivalent to SQL's GROUP BY?",
+      "options": [
+        "A) $match",
+        "B) $project",
+        "C) $group",
+        "D) $sort"
+      ],
+      "correct_index": 2,
+      "explanation": "$group groups documents by a specified field and can apply accumulator operations like $sum, $avg, $count. It is the MongoDB equivalent of SQL's GROUP BY clause."
+    },
+    {
+      "question": "Which Redis data structure is best suited for implementing a real-time leaderboard?",
+      "options": [
+        "A) String",
+        "B) Hash",
+        "C) List",
+        "D) Sorted Set"
+      ],
+      "correct_index": 3,
+      "explanation": "Sorted Sets store members with a numeric score and keep them automatically ordered. This makes them perfect for leaderboards — you can get top N players, find a player's rank, and update scores, all in O(log n) time."
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM Manipulation — Practice</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, sans-serif; background: #f1f5f9; padding: 32px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { margin-bottom: 24px; color: #0f172a; }
+        .demo-section { background: white; padding: 24px; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        h3 { margin-bottom: 12px; color: #334155; }
+        input { padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 15px; width: 200px; }
+        button { padding: 10px 18px; background: #6366f1; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; margin: 4px; }
+        button:hover { background: #4f46e5; }
+        button.danger { background: #ef4444; }
+        button.danger:hover { background: #dc2626; }
+        button.success { background: #10b981; }
+        #color-box { width: 150px; height: 150px; background: #6366f1; border-radius: 12px; margin: 16px 0; transition: background 0.3s; }
+        #output { padding: 12px 16px; background: #f8fafc; border-radius: 8px; color: #334155; min-height: 40px; margin-top: 12px; border: 1px solid #e2e8f0; }
+        .todo-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #f8fafc; border-radius: 8px; margin-top: 8px; }
+        .todo-item.done { text-decoration: line-through; opacity: 0.5; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DOM Manipulation Practice</h1>
+
+        <!-- Demo 1: Change Text -->
+        <div class="demo-section">
+            <h3>1. Change Text Content</h3>
+            <p id="greeting">Hello, welcome to JavaScript!</p>
+            <input type="text" id="name-input" placeholder="Type your name...">
+            <button onclick="changeName()">Update Greeting</button>
+        </div>
+
+        <!-- Demo 2: Toggle Color -->
+        <div class="demo-section">
+            <h3>2. Change Colors (classList)</h3>
+            <div id="color-box"></div>
+            <button onclick="changeColor('#ef4444')">Red</button>
+            <button onclick="changeColor('#10b981')">Green</button>
+            <button onclick="changeColor('#3b82f6')">Blue</button>
+            <button onclick="changeColor('#f59e0b')">Yellow</button>
+        </div>
+
+        <!-- Demo 3: Counter -->
+        <div class="demo-section">
+            <h3>3. Counter (Events + State)</h3>
+            <p>Count: <strong id="count">0</strong></p>
+            <button class="success" onclick="updateCount(1)">+ Add</button>
+            <button class="danger" onclick="updateCount(-1)">- Minus</button>
+            <button onclick="updateCount(0)">Reset</button>
+        </div>
+
+        <!-- Demo 4: Dynamic List -->
+        <div class="demo-section">
+            <h3>4. Todo List (createElement + remove)</h3>
+            <input type="text" id="todo-input" placeholder="Add a task...">
+            <button onclick="addTodo()">Add</button>
+            <div id="todo-list"></div>
+        </div>
+
+        <!-- Demo 5: Event Info -->
+        <div class="demo-section">
+            <h3>5. Event Object</h3>
+            <p>Move mouse or press keys anywhere on this page</p>
+            <div id="output">Waiting for events...</div>
+        </div>
+    </div>
+
+    <script>
+        // --- Demo 1: Change Text ---
+        function changeName() {
+            const input = document.getElementById("name-input");
+            const greeting = document.getElementById("greeting");
+
+            if (input.value.trim() === "") {
+                greeting.textContent = "Please type your name first!";
+                return;
+            }
+            greeting.textContent = `Hello ${input.value}, welcome to JavaScript!`;
+            input.value = "";
+        }
+
+        // --- Demo 2: Change Color ---
+        function changeColor(color) {
+            document.getElementById("color-box").style.background = color;
+        }
+
+        // --- Demo 3: Counter ---
+        let count = 0;
+        function updateCount(change) {
+            if (change === 0) {
+                count = 0;
+            } else {
+                count += change;
+            }
+            document.getElementById("count").textContent = count;
+        }
+
+        // --- Demo 4: Todo List ---
+        function addTodo() {
+            const input = document.getElementById("todo-input");
+            const text = input.value.trim();
+            if (!text) return;
+
+            const todoList = document.getElementById("todo-list");
+
+            const item = document.createElement("div");
+            item.className = "todo-item";
+
+            const span = document.createElement("span");
+            span.textContent = text;
+            span.style.cursor = "pointer";
+            span.addEventListener("click", () => {
+                item.classList.toggle("done");
+            });
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "Delete";
+            deleteBtn.className = "danger";
+            deleteBtn.style.padding = "4px 10px";
+            deleteBtn.style.fontSize = "12px";
+            deleteBtn.addEventListener("click", () => {
+                todoList.removeChild(item);
+            });
+
+            item.appendChild(span);
+            item.appendChild(deleteBtn);
+            todoList.appendChild(item);
+
+            input.value = "";
+            input.focus();
+        }
+
+        // Allow Enter key to add todo
+        document.getElementById("todo-input").addEventListener("keydown", (e) => {
+            if (e.key === "Enter") addTodo();
+        });
+
+        // --- Demo 5: Event Info ---
+        const output = document.getElementById("output");
+
+        document.addEventListener("mousemove", (e) => {
+            output.textContent = `Mouse: X=${e.clientX}, Y=${e.clientY}`;
+        });
+
+        document.addEventListener("keydown", (e) => {
+            output.textContent = `Key pressed: "${e.key}" | Code: ${e.code} | Ctrl: ${e.ctrlKey}`;
+        });
+    </script>
+</body>
+</html>

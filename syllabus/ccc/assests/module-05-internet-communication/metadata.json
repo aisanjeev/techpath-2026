@@ -1,0 +1,146 @@
+{
+  "01-networking-basics.md": {
+    "title": "Networking Basics",
+    "description": "Module 05 \u2014 CCC Exam Preparation | Topic 1 --- A computer network is a group of two or more computers that are connected together so they can share data, files, and resources (like printers and internet connections). Think of it like this: In your home, you have one WiFi router. Your phone, laptop, and smart TV are all connected to the same router. They can share the internet connection and even share files with each other. This is a computer...",
+    "asset_type": "markdown",
+    "tags": [
+      "internet-communication",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "02-internet-fundamentals.md": {
+    "title": "Internet Fundamentals",
+    "description": "Module 05 \u2014 CCC Exam Preparation | Topic 2 --- The Internet is a global network of millions of computers connected together across the world. It allows people to share information, communicate, and access services from anywhere. Simple Definition: The Internet is a worldwide network of networks \u2014 it connects LANs, MANs, and WANs all over the world into one giant network. Think of it like this: Each city has its own road network. But highways...",
+    "asset_type": "markdown",
+    "tags": [
+      "internet-communication",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "03-internet-services.md": {
+    "title": "Internet Services",
+    "description": "Module 05 \u2014 CCC Exam Preparation | Topic 3 --- The Internet is not just about opening websites. It provides many useful services that we use every day \u2014 from sending emails to attending online classes. In this topic, we will learn about the most important internet services that are covered in the CCC exam. --- The World Wide Web (or simply the Web) is a system of interlinked web pages and websites that you can access using the internet and a web...",
+    "asset_type": "markdown",
+    "tags": [
+      "internet-communication",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "04-internet-connectivity.md": {
+    "title": "Internet Connectivity",
+    "description": "Module 05 \u2014 CCC Exam Preparation | Topic 4 --- To connect your computer or phone to the internet, you need three things: 1. A device \u2014 Computer, laptop, smartphone, or tablet 2. A connection medium \u2014 Cable (Ethernet, fiber optic) or wireless (WiFi, 4G/5G) 3. An ISP (Internet Service Provider) \u2014 A company that provides internet access Without an ISP, your computer has no way to reach the internet, just like without a road, your car cannot reach...",
+    "asset_type": "markdown",
+    "tags": [
+      "internet-communication",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "05-internet-security-basics.md": {
+    "title": "Internet Security Basics",
+    "description": "Module 05 \u2014 CCC Exam Preparation | Topic 5 --- The internet is a wonderful tool, but it also has dangers. Just like you lock your home to keep it safe, you need to protect your computer and personal information on the internet. Every day, lakhs of Indians fall victim to online fraud, fake websites, and data theft. Understanding internet security helps you stay safe online and is an important topic in the CCC exam. --- A computer virus is a...",
+    "asset_type": "markdown",
+    "tags": [
+      "internet-communication",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "06-network-topology-explorer.html": {
+    "title": "Network Topology Explorer \u2014 TechPath CCC",
+    "description": "Interactive Network Topology Explorer \u2014 TechPath CCC exercise for Internet Communication",
+    "asset_type": "html_bundle",
+    "tags": [
+      "internet-communication",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "assignment-05.md": {
+    "title": "Assignment: Computer Communication and Internet",
+    "description": "Module 05 \u2014 CCC Exam Preparation --- Complete all four tasks below. For each task, write down your observations and take screenshots where indicated. Submit your completed assignment to your trainer. --- Objective: Learn how to connect to a WiFi network and find your device's IP address. 1. Connect to WiFi: - On your computer, click the WiFi icon in the taskbar (bottom-right corner) - Find the WiFi network name (SSID) of the classroom/lab WiFi -...",
+    "asset_type": "assignment",
+    "tags": [
+      "internet-communication",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "cheatsheet-05.md": {
+    "title": "Cheatsheet 05",
+    "description": "Learning material for Cheatsheet 05",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "internet-communication",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "lab-05-a.json": {
+    "title": "Exploring Network Settings and Internet Connectivity",
+    "description": "Discover your computer's network configuration using built-in tools and command prompt",
+    "asset_type": "lab",
+    "tags": [
+      "networking",
+      "ip-address",
+      "connectivity",
+      "dns",
+      "ccc-exam"
+    ]
+  },
+  "lab-05-b.json": {
+    "title": "Understanding Internet Services and URL Structure",
+    "description": "Explore internet services like email, web browsing, and e-governance while learning URL anatomy",
+    "asset_type": "lab",
+    "tags": [
+      "internet-services",
+      "url",
+      "email",
+      "e-governance",
+      "ccc-exam"
+    ]
+  },
+  "notes-05.md": {
+    "title": "Comprehensive Notes: Computer Communication and Internet",
+    "description": "Module 05 \u2014 CCC Exam Preparation --- A computer network is a collection of two or more computers connected together to share data, resources, and information. Networks allow computers to communicate with each other and share resources like printers, scanners, and internet connections. PAN (Personal Area Network) - Smallest type of network - Covers area around one person (up to 10 meters) - Examples: Bluetooth connection between phone and...",
+    "asset_type": "notes",
+    "tags": [
+      "internet-communication",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-05.json": {
+    "title": "Quiz 05",
+    "description": "Learning material for Quiz 05",
+    "asset_type": "quiz",
+    "tags": [
+      "internet-communication",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-05.md": {
+    "title": "Quiz: Computer Communication and Internet",
+    "description": "Module 05 \u2014 CCC Exam Preparation --- - A) An entire country - B) A single building or office \u2705 - C) A city or metropolitan area - D) The entire world > Explanation: LAN (Local Area Network) covers a small area such as a single building, office, school lab, or campus. It is the most common type of network you use daily. --- - A) Data Network System - B) Domain Name System \u2705 - C) Digital Network Service - D) Direct Name Server > Explanation: DNS...",
+    "asset_type": "markdown",
+    "tags": [
+      "internet-communication",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "resources-05.md": {
+    "title": "Resources: Computer Communication and Internet",
+    "description": "Module 05 \u2014 CCC Exam Preparation --- 1. NIELIT Official Website \u2014 https://www.nielit.gov.in - CCC syllabus, exam schedule, sample papers - Download the official CCC study material PDF 2. NIELIT CCC Exam Portal \u2014 https://student.nielit.gov.in - Register for CCC exam, check results, download certificates 3. Digital India Portal \u2014 https://www.digitalindia.gov.in - Information about all Digital India initiatives --- 4. Computer Networking Basics...",
+    "asset_type": "notes",
+    "tags": [
+      "internet-communication",
+      "ccc",
+      "computer-concepts"
+    ]
+  }
+}

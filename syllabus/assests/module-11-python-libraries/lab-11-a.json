@@ -1,0 +1,38 @@
+{
+  "asset_type": "lab",
+  "title": "Pandas Data Analysis — Student Marks Dataset",
+  "description": "Load, clean, analyze, and visualize a student marks dataset using Pandas and Matplotlib",
+  "tags": [
+    "python",
+    "pandas",
+    "matplotlib",
+    "data-analysis",
+    "csv"
+  ],
+  "status": "draft",
+  "objective": "Students will create a CSV dataset, load it with Pandas, perform groupby aggregations, and generate 3 charts — practicing the complete data analysis workflow",
+  "steps": [
+    {
+      "title": "Create the Dataset",
+      "instructions": "Create a file called `students.csv` with this data (at least 20 rows):\n\n```csv\nname,roll,course,hindi,english,maths,science,computer,city\nRahul Sharma,101,ADCA,78,82,70,75,88,Bhopal\nPriya Patel,102,DCA,85,90,88,82,95,Indore\nAmit Kumar,103,ADCA,45,50,35,40,60,Delhi\nSneha Gupta,104,ADCA,92,88,85,90,94,Bhopal\nVikram Singh,105,DCA,38,42,30,35,45,Jaipur\n```\n\nAdd at least 15 more students with varied marks, courses, and cities.\n\nNow create `analysis.py`:\n```python\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\ndf = pd.read_csv(\"students.csv\")\nprint(f\"Loaded {len(df)} students\")\nprint(df.head())\nprint(df.info())\n```\n\nRun: `python analysis.py` — verify the data loads correctly."
+    },
+    {
+      "title": "Calculate Results and Explore",
+      "instructions": "Add calculated columns:\n```python\nsubjects = [\"hindi\", \"english\", \"maths\", \"science\", \"computer\"]\ndf[\"total\"] = df[subjects].sum(axis=1)\ndf[\"percentage\"] = (df[\"total\"] / 500) * 100\ndf[\"grade\"] = df[\"percentage\"].apply(\n    lambda p: \"A+\" if p >= 90 else \"A\" if p >= 75 else \"B\" if p >= 60 else \"C\" if p >= 45 else \"F\"\n)\n```\n\nExplore the data:\n```python\n# Basic statistics\nprint(df[\"percentage\"].describe())\n\n# Top 5 students\nprint(df.nlargest(5, \"percentage\")[[\"name\", \"course\", \"percentage\", \"grade\"]])\n\n# Students who failed any subject (below 33)\nfor sub in subjects:\n    failed = df[df[sub] < 33]\n    if len(failed) > 0:\n        print(f\"\\nFailed in {sub}: {list(failed['name'])}\")\n\n# Course-wise average\nprint(df.groupby(\"course\")[\"percentage\"].mean())\n\n# City-wise count\nprint(df[\"city\"].value_counts())\n```\n\nRead each output and understand what it tells you."
+    },
+    {
+      "title": "Create Charts",
+      "instructions": "Chart 1 — Subject averages (bar chart):\n```python\nfig, ax = plt.subplots(figsize=(8, 5))\navgs = df[subjects].mean()\navgs.plot(kind=\"bar\", ax=ax, color=[\"#ef4444\", \"#f59e0b\", \"#3b82f6\", \"#10b981\", \"#6366f1\"])\nax.set_title(\"Average Marks by Subject\")\nax.set_ylabel(\"Average Marks\")\nax.set_xticklabels([s.capitalize() for s in subjects], rotation=0)\nplt.tight_layout()\nplt.savefig(\"chart_subjects.png\", dpi=150)\nplt.show()\n```\n\nChart 2 — Grade distribution (pie chart):\n```python\nfig, ax = plt.subplots(figsize=(6, 6))\ndf[\"grade\"].value_counts().plot(kind=\"pie\", ax=ax, autopct=\"%1.0f%%\")\nax.set_title(\"Grade Distribution\")\nax.set_ylabel(\"\")\nplt.tight_layout()\nplt.savefig(\"chart_grades.png\", dpi=150)\nplt.show()\n```\n\nChart 3 — Course-wise box plot:\n```python\nfig, ax = plt.subplots(figsize=(8, 5))\ndf.boxplot(column=\"percentage\", by=\"course\", ax=ax)\nax.set_title(\"Marks Distribution by Course\")\nax.set_ylabel(\"Percentage\")\nplt.suptitle(\"\")  # remove auto-title\nplt.tight_layout()\nplt.savefig(\"chart_boxplot.png\", dpi=150)\nplt.show()\n```"
+    },
+    {
+      "title": "Generate a Summary Report",
+      "instructions": "Add a summary at the end:\n```python\nprint(\"\\n\" + \"=\" * 50)\nprint(\"  ANALYSIS SUMMARY\")\nprint(\"=\" * 50)\nprint(f\"Total Students: {len(df)}\")\nprint(f\"Pass Rate: {len(df[df['percentage'] >= 33]) / len(df) * 100:.0f}%\")\nprint(f\"Class Average: {df['percentage'].mean():.1f}%\")\nprint(f\"Topper: {df.loc[df['percentage'].idxmax(), 'name']} ({df['percentage'].max():.1f}%)\")\nprint(f\"\\nGrade Breakdown:\")\nfor grade, count in df['grade'].value_counts().items():\n    print(f\"  {grade}: {count} students\")\n\nprint(f\"\\nCharts saved: chart_subjects.png, chart_grades.png, chart_boxplot.png\")\n```\n\nVerify:\n- All 3 charts are saved as PNG files\n- Charts have proper titles and labels\n- Summary numbers match your data"
+    },
+    {
+      "title": "Export Results to Excel",
+      "instructions": "Save the full results to an Excel file:\n```python\n# Add grade to each student and save\ndf_result = df[[\"name\", \"roll\", \"course\", \"total\", \"percentage\", \"grade\", \"city\"]].copy()\ndf_result = df_result.sort_values(\"percentage\", ascending=False)\ndf_result.to_excel(\"student_results.xlsx\", index=False)\nprint(\"Saved: student_results.xlsx\")\n\n# Also create a course-wise summary sheet\nwith pd.ExcelWriter(\"full_report.xlsx\") as writer:\n    df_result.to_excel(writer, sheet_name=\"All Students\", index=False)\n    course_summary = df.groupby(\"course\").agg(\n        students=(\"name\", \"count\"),\n        avg_pct=(\"percentage\", \"mean\"),\n        pass_rate=(\"percentage\", lambda x: (x >= 33).sum() / len(x) * 100),\n    ).round(1)\n    course_summary.to_excel(writer, sheet_name=\"Course Summary\")\nprint(\"Saved: full_report.xlsx (2 sheets)\")\n```\n\n(Install openpyxl if needed: `pip install openpyxl`)\n\nOpen `full_report.xlsx` in Excel — verify both sheets have correct data.\n\n**Submit:** Your `analysis.py`, `students.csv`, 3 chart PNG files, and `full_report.xlsx`."
+    }
+  ],
+  "starter_code": "import pandas as pd\nimport matplotlib.pyplot as plt\n\n# Load data\ndf = pd.read_csv(\"students.csv\")\n\n# TODO: Calculate total, percentage, grade\n# TODO: Print summary statistics\n# TODO: Create 3 charts",
+  "expected_output": "A Python script that loads student data from CSV, calculates grades, prints statistics, and generates 3 professional charts (bar, pie, boxplot) saved as PNG files"
+}

@@ -1,0 +1,47 @@
+{
+  "title": "Complete On-Page SEO Optimization",
+  "module": 3,
+  "duration": "90 minutes",
+  "difficulty": "Intermediate",
+  "description": "In this lab, you will optimize a real webpage from scratch — from keyword research to schema markup. You will apply on-page SEO best practices to make the page rank-ready.",
+  "prerequisites": [
+    "Basic understanding of HTML",
+    "Access to Google Keyword Planner or Ubersuggest",
+    "A webpage to optimize (your own blog/portfolio or a practice site)"
+  ],
+  "steps": [
+    {
+      "title": "Keyword Research for Target Page",
+      "instructions": "Choose one page you want to optimize (your portfolio, blog post, or a practice page). Using Google Keyword Planner or Ubersuggest, research keywords for that page. Find: 1 primary keyword (volume 100-5000, KD below 30), 3-5 secondary keywords (related terms), and 2-3 LSI keywords (synonyms or contextual terms). Create a simple table in Google Sheets with columns: Keyword, Volume, KD, Intent. Pick your primary keyword — this will guide all optimizations in the next steps. Example: If your page is about a coaching class, your primary keyword might be 'IIT coaching in Varanasi' with secondary keywords like 'JEE preparation Varanasi' and 'best IIT coaching UP'."
+    },
+    {
+      "title": "Optimize Title Tag, Meta Description & URL",
+      "instructions": "Now optimize the three most critical on-page elements. TITLE TAG: Write a title tag using the formula 'Primary Keyword | Secondary Keyword | Brand Name'. Keep it between 50-60 characters. Check character count at lettercount.com. META DESCRIPTION: Write a meta description (150-155 characters) that includes your primary keyword, a key benefit, and a call-to-action. Example: 'Join the top-rated IIT coaching in Varanasi. 95% selection rate, expert faculty. Limited seats for 2026 batch — Register now!' URL: Suggest a clean URL structure. Use lowercase, hyphens between words, include primary keyword, keep it under 5 words. Example: /iit-coaching-varanasi. Document the BEFORE (current) and AFTER (optimized) versions for all three elements."
+    },
+    {
+      "title": "Restructure Headings (H1-H6) and Content",
+      "instructions": "Analyze the current heading structure of your page using the browser extension 'SEO Meta in 1 Click' or by viewing page source. Document the current H1-H6 hierarchy. Now restructure it following these rules: (1) Only ONE H1 tag containing your primary keyword, (2) 3-5 H2 tags for major sections using secondary keywords, (3) H3 tags for subsections where needed, (4) Never skip levels (H1 to H3 without H2). Write out the new heading structure. For content optimization: ensure your primary keyword appears in the first 100 words, use it 3-5 times naturally throughout (1-2% density for 1500-word content), include all LSI keywords at least once, and add a FAQ section with 3 questions using 'People Also Ask' data from Google."
+    },
+    {
+      "title": "Add Schema Markup (FAQ + Article JSON-LD)",
+      "instructions": "Create two schema markup scripts for your page. SCHEMA 1 — Article/BlogPosting: Create a JSON-LD script with @type Article (or BlogPosting), headline (your optimized title), author name, datePublished (today's date), dateModified, publisher (organization name + logo URL), image URL, and description. SCHEMA 2 — FAQ: Take the 3 FAQ questions you added to your content in the previous step. Create a FAQPage JSON-LD with each question and answer. Validate both schemas using Google's Rich Results Test (search.google.com/test/rich-results). Paste your JSON-LD code into the tool and check for errors. Fix any validation errors. Document the final, validated JSON-LD code for both schemas. Place the script tags in the <head> section of your HTML."
+    },
+    {
+      "title": "Optimize Images (Alt Text, Compression, File Names)",
+      "instructions": "Audit all images on your target page. For each image, document: current file name, current alt text (if any), current file size. Now optimize: (1) RENAME files descriptively — change 'IMG_2847.jpg' to 'iit-coaching-classroom-varanasi.jpg' (include keyword if relevant, use hyphens). (2) Write ALT TEXT for every image — describe what the image shows in 5-15 words, include keyword naturally in at least one image alt. Example: 'Students attending IIT coaching class at Gupta Academy Varanasi'. (3) COMPRESS all images using TinyPNG (tinypng.com) or Squoosh (squoosh.app) — target under 200KB per image. Convert to WebP format if possible. (4) Add width and height attributes to each img tag to prevent CLS. (5) Add loading='lazy' to all images below the fold. Create a before/after table showing original file name, size, alt text vs optimized versions."
+    }
+  ],
+  "deliverables": [
+    "Keyword research table (Google Sheet)",
+    "Before/After comparison document for title, meta, URL, headings",
+    "Validated JSON-LD schema code (both Article and FAQ)",
+    "Image optimization report (before/after table)"
+  ],
+  "assessment_criteria": [
+    "Primary keyword selected appropriately (relevant, achievable KD)",
+    "Title tag and meta description follow best practices and character limits",
+    "Heading structure is logical with proper hierarchy",
+    "Schema markup validates without errors in Rich Results Test",
+    "All images optimized with descriptive names, alt text, and compression"
+  ]
+}

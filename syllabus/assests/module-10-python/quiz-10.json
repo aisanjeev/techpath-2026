@@ -1,0 +1,76 @@
+{
+  "questions": [
+    {
+      "question": "What is the correct way to print text in Python?",
+      "options": ["echo('Hello')", "System.out.println('Hello')", "print('Hello')", "console.log('Hello')"],
+      "correct_index": 2,
+      "explanation": "Python uses print() to output text. echo is PHP, System.out.println is Java, console.log is JavaScript."
+    },
+    {
+      "question": "What is the output of: print(type(3.14))?",
+      "options": ["<class 'int'>", "<class 'float'>", "<class 'str'>", "<class 'double'>"],
+      "correct_index": 1,
+      "explanation": "3.14 is a decimal number, which is 'float' type in Python. Python has no 'double' type."
+    },
+    {
+      "question": "Which keyword creates a variable that should not change?",
+      "options": ["const", "final", "Python has no constant keyword", "let"],
+      "correct_index": 2,
+      "explanation": "Python has no const or final keyword. By convention, use ALL_CAPS for constants: MAX_SIZE = 100. But Python won't prevent changes."
+    },
+    {
+      "question": "What does 10 // 3 give in Python?",
+      "options": ["3.33", "3", "4", "Error"],
+      "correct_index": 1,
+      "explanation": "// is integer division (floor division). 10 // 3 = 3 (drops the decimal part). Regular / gives 3.333..."
+    },
+    {
+      "question": "How do you create a list in Python?",
+      "options": ["list = (1, 2, 3)", "list = [1, 2, 3]", "list = {1, 2, 3}", "list = <1, 2, 3>"],
+      "correct_index": 1,
+      "explanation": "Lists use square brackets []. Parentheses () are for tuples. Curly braces {} are for sets or dicts."
+    },
+    {
+      "question": "What does the append() method do?",
+      "options": ["Removes last item", "Adds item to the end of a list", "Sorts the list", "Reverses the list"],
+      "correct_index": 1,
+      "explanation": "list.append(item) adds an item to the end of the list. It modifies the original list."
+    },
+    {
+      "question": "What is an f-string in Python?",
+      "options": ["A file string", "A formatted string with variables inside {}", "A frozen string", "A function string"],
+      "correct_index": 1,
+      "explanation": "f-strings let you put variables directly in strings: f\"Hello {name}, age {age}\". Much easier than concatenation."
+    },
+    {
+      "question": "What is a dictionary in Python?",
+      "options": ["A list of words", "Key-value pairs like {\"name\": \"Rahul\"}", "A sorted array", "A type of function"],
+      "correct_index": 1,
+      "explanation": "A dictionary stores key-value pairs: {\"name\": \"Rahul\", \"age\": 20}. Access values by key: student[\"name\"]."
+    },
+    {
+      "question": "What does 'with open()' do?",
+      "options": ["Opens a web browser", "Opens a file and auto-closes when done", "Opens a new window", "Opens a database"],
+      "correct_index": 1,
+      "explanation": "with open('file.txt', 'r') as f: opens a file and automatically closes it when the block ends — safe and clean."
+    },
+    {
+      "question": "What is a list comprehension?",
+      "options": ["A way to understand lists", "A short way to create lists: [x**2 for x in range(5)]", "A list sorting method", "A list documentation"],
+      "correct_index": 1,
+      "explanation": "List comprehension creates lists in one line: [x**2 for x in range(5)] gives [0, 1, 4, 9, 16]."
+    },
+    {
+      "question": "What keyword defines a function in Python?",
+      "options": ["function", "func", "def", "fn"],
+      "correct_index": 2,
+      "explanation": "Python uses 'def' to define functions: def greet(name): return f'Hello, {name}!'"
+    },
+    {
+      "question": "What does try/except do in Python?",
+      "options": ["Tries to run code, runs except block if an error occurs", "Tests code speed", "Tries two solutions", "Exports code"],
+      "correct_index": 0,
+      "explanation": "try/except handles errors gracefully. Code in 'try' runs first. If it fails, 'except' runs instead of crashing."
+    }
+  ]
+}

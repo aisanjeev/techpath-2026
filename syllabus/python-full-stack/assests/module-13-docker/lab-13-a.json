@@ -1,0 +1,32 @@
+{
+  "asset_type": "lab",
+  "title": "Dockerize a FastAPI Student API",
+  "description": "Build a Docker image for a FastAPI app and run it in a container",
+  "tags": ["docker", "fastapi", "dockerfile", "containerization"],
+  "status": "draft",
+  "objective": "Students will write a Dockerfile for a FastAPI Student API, build a Docker image, run it as a container, and verify the API works inside Docker",
+  "steps": [
+    {
+      "title": "Create the FastAPI Project",
+      "instructions": "First, create a project folder and the FastAPI application.\n\n```bash\nmkdir techpath-docker-lab\ncd techpath-docker-lab\n```\n\nCreate `requirements.txt`:\n```\nfastapi==0.115.0\nuvicorn[standard]==0.30.0\n```\n\nCreate `main.py`:\n```python\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\nfrom typing import Optional\n\napp = FastAPI(title=\"TechPath Student API\", version=\"1.0\")\n\n# Sample data — TechPath Institute students\nstudents = [\n    {\"id\": 1, \"name\": \"Rahul Sharma\", \"city\": \"Bhopal\", \"course\": \"Python Full Stack\", \"marks\": 85},\n    {\"id\": 2, \"name\": \"Priya Patel\", \"city\": \"Indore\", \"course\": \"Python Full Stack\", \"marks\": 92},\n    {\"id\": 3, \"name\": \"Vikram Singh\", \"city\": \"Delhi\", \"course\": \"Data Science\", \"marks\": 78},\n]\n\n@app.get(\"/health\")\ndef health():\n    return {\"status\": \"healthy\", \"app\": \"TechPath Student API\"}\n\n@app.get(\"/api/students\")\ndef list_students():\n    return {\"success\": True, \"total\": len(students), \"data\": students}\n\n@app.get(\"/api/students/{student_id}\")\ndef get_student(student_id: int):\n    for s in students:\n        if s[\"id\"] == student_id:\n            return {\"success\": True, \"data\": s}\n    raise HTTPException(status_code=404, detail=\"Student not found\")\n```\n\n**Test locally first (without Docker):**\n```bash\npip install -r requirements.txt\nuvicorn main:app --reload\n```\nOpen http://localhost:8000/docs and verify the API works."
+    },
+    {
+      "title": "Write the Dockerfile",
+      "instructions": "Create a file named `Dockerfile` (no extension) in your project root:\n\n```dockerfile\n# Use Python 3.12 slim as base image (small and fast)\nFROM python:3.12-slim\n\n# Prevent Python from writing .pyc files and buffer output\nENV PYTHONDONTWRITEBYTECODE=1\nENV PYTHONUNBUFFERED=1\n\n# Set the working directory inside the container\nWORKDIR /app\n\n# Copy requirements first (Docker caches this layer)\nCOPY requirements.txt .\n\n# Install Python dependencies\nRUN pip install --no-cache-dir -r requirements.txt\n\n# Copy the rest of the application code\nCOPY . .\n\n# Tell Docker the app uses port 8000\nEXPOSE 8000\n\n# Start the FastAPI server\nCMD [\"uvicorn\", \"main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\n```\n\nAlso create a `.dockerignore` file:\n```\n__pycache__\n*.pyc\n.git\n.env\n*.md\n.venv\nvenv\n```\n\nYour project should now have:\n```\ntechpath-docker-lab/\n  Dockerfile\n  .dockerignore\n  requirements.txt\n  main.py\n```"
+    },
+    {
+      "title": "Build the Docker Image",
+      "instructions": "Open a terminal in your project folder and build the image:\n\n```bash\ndocker build -t techpath-student-api .\n```\n\nWatch the output — you will see each step executing:\n- `Step 1/7 : FROM python:3.12-slim` — downloads base image\n- `Step 4/7 : RUN pip install...` — installs FastAPI and uvicorn\n- `Successfully built` — your image is ready!\n\n**Verify the image was created:**\n```bash\ndocker images\n```\n\nYou should see:\n```\nREPOSITORY             TAG       SIZE\ntechpath-student-api   latest    ~180 MB\n```\n\n**Try building again** — notice how fast it is the second time! Docker uses cached layers since nothing changed."
+    },
+    {
+      "title": "Run the Container and Test",
+      "instructions": "Run your Docker image as a container:\n\n```bash\ndocker run -d -p 8000:8000 --name student-api techpath-student-api\n```\n\nFlags explained:\n- `-d` — run in background (detached mode)\n- `-p 8000:8000` — map port 8000 on your machine to port 8000 in the container\n- `--name student-api` — give the container a name\n\n**Verify it is running:**\n```bash\ndocker ps\n```\n\n**Test the API:**\n1. Open http://localhost:8000/health — should show `{\"status\": \"healthy\"}`\n2. Open http://localhost:8000/docs — Swagger UI should load\n3. Open http://localhost:8000/api/students — should show 3 students\n\n**Check logs:**\n```bash\ndocker logs student-api\n```\n\n**Open a shell inside the container:**\n```bash\ndocker exec -it student-api bash\nls       # See your files inside the container\nexit     # Leave the container shell\n```\n\nTake a screenshot of the Swagger UI showing your API running inside Docker."
+    },
+    {
+      "title": "Manage and Clean Up",
+      "instructions": "Practice container management commands:\n\n**Stop the container:**\n```bash\ndocker stop student-api\ndocker ps        # Should not appear in running containers\ndocker ps -a     # Appears as 'Exited'\n```\n\n**Start it again:**\n```bash\ndocker start student-api\ndocker ps        # Running again\n```\n\n**Remove the container:**\n```bash\ndocker stop student-api\ndocker rm student-api\n```\n\n**Run with environment variables:**\n```bash\ndocker run -d -p 8000:8000 --name student-api \\n  -e APP_ENV=production \\n  -e INSTITUTE=TechPath \\n  techpath-student-api\n```\n\n**Clean up everything:**\n```bash\ndocker stop student-api\ndocker rm student-api\ndocker rmi techpath-student-api   # Remove the image\ndocker system prune               # Clean unused resources\n```\n\n**Submit:**\n1. Your `Dockerfile` and `.dockerignore`\n2. Screenshot of `docker ps` showing your running container\n3. Screenshot of Swagger UI at http://localhost:8000/docs\n4. Screenshot of `docker images` showing your image size"
+    }
+  ],
+  "starter_code": "# main.py — TechPath Student API\nfrom fastapi import FastAPI\n\napp = FastAPI(title=\"TechPath Student API\")\n\n@app.get(\"/\")\ndef home():\n    return {\"message\": \"TechPath Student API is running!\"}\n\n# TODO: Add student data\n# TODO: Add CRUD endpoints\n# TODO: Create Dockerfile to containerize this app",
+  "expected_output": "A running Docker container serving the FastAPI Student API on port 8000, accessible via Swagger UI at http://localhost:8000/docs with all endpoints responding correctly"
+}

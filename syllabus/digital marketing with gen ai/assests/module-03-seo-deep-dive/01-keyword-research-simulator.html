@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyword Research Simulator — TechPath Academy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 960px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 1px solid #1e293b;
+        }
+        .brand { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        h1 { font-size: 1.8rem; color: #f8fafc; margin-bottom: 8px; }
+        .subtitle { color: #94a3b8; font-size: 0.95rem; }
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+            transition: box-shadow 0.3s;
+        }
+        .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .card h2 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 16px; }
+        .scenario-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .scenario-tab {
+            padding: 10px 18px;
+            background: #334155;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .scenario-tab:hover { background: #475569; }
+        .scenario-tab.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-box input:focus { border-color: #3b82f6; }
+        .btn {
+            padding: 12px 24px;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn:hover { background: #2563eb; }
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled { background: #475569; cursor: not-allowed; }
+        .btn-sm { padding: 8px 16px; font-size: 0.85rem; }
+        .btn-success { background: #10b981; }
+        .btn-success:hover { background: #059669; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        th { color: #94a3b8; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr { transition: background 0.2s; cursor: pointer; }
+        tr:hover { background: #334155; }
+        tr.selected { background: #1e3a5f; border-left: 3px solid #3b82f6; }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-info { background: #1e40af; color: #93c5fd; }
+        .badge-commercial { background: #7c2d12; color: #fdba74; }
+        .badge-transactional { background: #14532d; color: #86efac; }
+        .badge-navigational { background: #4c1d95; color: #c4b5fd; }
+        .kd-bar {
+            width: 60px;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        .kd-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+        .selection-counter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #0f172a;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .counter-text { color: #94a3b8; }
+        .counter-num { color: #3b82f6; font-weight: 700; font-size: 1.2rem; }
+        .result-card {
+            padding: 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+            animation: slideIn 0.3s ease;
+        }
+        .result-good { background: #14532d; border: 1px solid #16a34a; }
+        .result-ok { background: #713f12; border: 1px solid #ca8a04; }
+        .result-bad { background: #7f1d1d; border: 1px solid #dc2626; }
+        .criteria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .criteria-item {
+            padding: 16px;
+            background: #0f172a;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+        .criteria-item h4 { color: #3b82f6; margin-bottom: 6px; font-size: 0.9rem; }
+        .criteria-item p { color: #94a3b8; font-size: 0.85rem; }
+        .score-display {
+            text-align: center;
+            padding: 20px;
+            margin: 16px 0;
+            background: #0f172a;
+            border-radius: 12px;
+        }
+        .score-num { font-size: 3rem; font-weight: 700; }
+        .score-label { color: #94a3b8; margin-top: 4px; }
+        .hidden { display: none; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .search-box { flex-direction: column; }
+            table { font-size: 0.8rem; }
+            th, td { padding: 8px 6px; }
+            .scenario-tabs { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="brand">TechPath Academy</div>
+        <h1>Keyword Research Simulator</h1>
+        <p class="subtitle">Practice evaluating keywords by volume, difficulty, and intent — choose wisely for your content strategy</p>
+    </div>
+
+    <div class="card">
+        <h2>Select a Scenario</h2>
+        <div class="scenario-tabs">
+            <button class="scenario-tab active" onclick="loadScenario(0)">Digital Marketing Course</button>
+            <button class="scenario-tab" onclick="loadScenario(1)">Chai Franchise</button>
+            <button class="scenario-tab" onclick="loadScenario(2)">Yoga Classes</button>
+        </div>
+        <div class="search-box">
+            <input type="text" id="seedKeyword" placeholder="Enter seed keyword..." />
+            <button class="btn" onclick="runResearch()">Research</button>
+        </div>
+    </div>
+
+    <div id="resultsSection" class="hidden">
+        <div class="card">
+            <h2>Keyword Suggestions</h2>
+            <div class="selection-counter">
+                <span class="counter-text">Select the <strong>3 best keywords</strong> for a blog post</span>
+                <span><span class="counter-num" id="selCount">0</span> / 3 selected</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr><th>Keyword</th><th>Volume</th><th>KD</th><th>CPC (₹)</th><th>Intent</th></tr>
+                    </thead>
+                    <tbody id="kwTable"></tbody>
+                </table>
+            </div>
+            <div style="text-align:center; margin-top:16px;">
+                <button class="btn btn-success" id="submitBtn" onclick="evaluateSelection()" disabled>Evaluate My Picks</button>
+            </div>
+        </div>
+
+        <div id="feedbackSection" class="hidden">
+            <div class="card">
+                <h2>Evaluation Results</h2>
+                <div class="score-display">
+                    <div class="score-num" id="scoreNum">0</div>
+                    <div class="score-label">out of 30 points</div>
+                </div>
+                <div id="feedbackList"></div>
+                <div style="text-align:center; margin-top:16px;">
+                    <button class="btn btn-sm" onclick="resetSelection()">Try Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Keyword Selection Criteria Guide</h2>
+        <div class="criteria-grid">
+            <div class="criteria-item">
+                <h4>Volume Sweet Spot</h4>
+                <p>For new blogs, target 100-1,000 monthly searches. High enough for traffic, low enough to rank.</p>
+            </div>
+            <div class="criteria-item">
+                <h4>KD Under 40</h4>
+                <p>Keywords with difficulty below 40 are achievable without massive backlink profiles. Below 20 = easy wins.</p>
+            </div>
+            <div class="criteria-item">
+                <h4>Intent Match</h4>
+                <p>Blog posts work best with Informational intent. Commercial intent keywords suit comparison/review posts.</p>
+            </div>
+            <div class="criteria-item">
+                <h4>CPC as Value Signal</h4>
+                <p>Higher CPC means advertisers pay more — the keyword has commercial value even for organic content.</p>
+            </div>
+            <div class="criteria-item">
+                <h4>Long-tail Advantage</h4>
+                <p>3-5 word phrases are easier to rank for, have clearer intent, and convert better than head terms.</p>
+            </div>
+            <div class="criteria-item">
+                <h4>Relevance First</h4>
+                <p>A perfect-metric keyword is worthless if it doesn't match your content. Relevance trumps numbers.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const scenarios = [
+    {
+        seed: "digital marketing course Bhopal",
+        keywords: [
+            { kw: "digital marketing course Bhopal", vol: 880, kd: 35, cpc: 42, intent: "Commercial" },
+            { kw: "digital marketing institute Bhopal fees", vol: 320, kd: 22, cpc: 55, intent: "Commercial" },
+            { kw: "best digital marketing course in MP", vol: 590, kd: 45, cpc: 38, intent: "Commercial" },
+            { kw: "what is digital marketing", vol: 12500, kd: 72, cpc: 18, intent: "Informational" },
+            { kw: "digital marketing salary in India", vol: 4400, kd: 58, cpc: 12, intent: "Informational" },
+            { kw: "free digital marketing course with certificate", vol: 6600, kd: 65, cpc: 8, intent: "Transactional" },
+            { kw: "digital marketing course fees", vol: 1900, kd: 48, cpc: 45, intent: "Commercial" },
+            { kw: "learn digital marketing step by step", vol: 720, kd: 28, cpc: 15, intent: "Informational" },
+            { kw: "digital marketing scope in 2026", vol: 480, kd: 18, cpc: 22, intent: "Informational" },
+            { kw: "SEO vs SEM difference", vol: 1200, kd: 32, cpc: 28, intent: "Informational" },
+            { kw: "digital marketing jobs Bhopal fresher", vol: 210, kd: 12, cpc: 30, intent: "Transactional" },
+            { kw: "Google Ads certification free", vol: 3500, kd: 55, cpc: 35, intent: "Navigational" },
+            { kw: "digital marketing course online", vol: 8100, kd: 75, cpc: 62, intent: "Commercial" }
+        ]
+    },
+    {
+        seed: "chai franchise India",
+        keywords: [
+            { kw: "chai franchise India", vol: 2400, kd: 42, cpc: 35, intent: "Commercial" },
+            { kw: "chai franchise under 5 lakh", vol: 1100, kd: 28, cpc: 48, intent: "Commercial" },
+            { kw: "best chai franchise in India 2026", vol: 680, kd: 22, cpc: 52, intent: "Commercial" },
+            { kw: "how to start chai business", vol: 1800, kd: 35, cpc: 18, intent: "Informational" },
+            { kw: "chai point franchise cost", vol: 1400, kd: 55, cpc: 42, intent: "Navigational" },
+            { kw: "tea stall business plan PDF", vol: 520, kd: 15, cpc: 8, intent: "Informational" },
+            { kw: "MBA chai wala franchise", vol: 4200, kd: 68, cpc: 38, intent: "Navigational" },
+            { kw: "chai thela profit margin", vol: 390, kd: 12, cpc: 15, intent: "Informational" },
+            { kw: "low investment franchise India", vol: 3200, kd: 62, cpc: 55, intent: "Commercial" },
+            { kw: "chai franchise agreement format", vol: 170, kd: 8, cpc: 22, intent: "Transactional" },
+            { kw: "roadside chai business income", vol: 440, kd: 18, cpc: 12, intent: "Informational" },
+            { kw: "chai cafe interior design low budget", vol: 260, kd: 14, cpc: 10, intent: "Informational" },
+            { kw: "franchise business opportunities India", vol: 5500, kd: 72, cpc: 65, intent: "Commercial" }
+        ]
+    },
+    {
+        seed: "yoga classes near me",
+        keywords: [
+            { kw: "yoga classes near me", vol: 14800, kd: 68, cpc: 25, intent: "Transactional" },
+            { kw: "yoga classes Bhopal fees", vol: 480, kd: 18, cpc: 32, intent: "Commercial" },
+            { kw: "online yoga classes for beginners", vol: 2200, kd: 38, cpc: 20, intent: "Commercial" },
+            { kw: "yoga for weight loss at home", vol: 5400, kd: 52, cpc: 15, intent: "Informational" },
+            { kw: "morning yoga routine 20 minutes", vol: 880, kd: 25, cpc: 8, intent: "Informational" },
+            { kw: "power yoga vs hatha yoga", vol: 320, kd: 15, cpc: 12, intent: "Informational" },
+            { kw: "yoga teacher training India cost", vol: 720, kd: 32, cpc: 45, intent: "Commercial" },
+            { kw: "benefits of yoga for students", vol: 1100, kd: 22, cpc: 5, intent: "Informational" },
+            { kw: "yoga certification course online", vol: 1500, kd: 45, cpc: 55, intent: "Commercial" },
+            { kw: "pranayama techniques for anxiety", vol: 640, kd: 20, cpc: 10, intent: "Informational" },
+            { kw: "best time to do yoga morning or evening", vol: 390, kd: 10, cpc: 4, intent: "Informational" },
+            { kw: "yoga mat price Amazon", vol: 2800, kd: 58, cpc: 18, intent: "Transactional" },
+            { kw: "yoga for back pain office workers", vol: 520, kd: 16, cpc: 12, intent: "Informational" }
+        ]
+    }
+];
+
+let currentScenario = 0;
+let selectedKeywords = [];
+
+function loadScenario(idx) {
+    currentScenario = idx;
+    document.querySelectorAll('.scenario-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+    document.getElementById('seedKeyword').value = scenarios[idx].seed;
+    document.getElementById('resultsSection').classList.add('hidden');
+    document.getElementById('feedbackSection').classList.add('hidden');
+    selectedKeywords = [];
+    updateCounter();
+}
+
+function runResearch() {
+    const data = scenarios[currentScenario].keywords;
+    const tbody = document.getElementById('kwTable');
+    tbody.innerHTML = '';
+    selectedKeywords = [];
+    updateCounter();
+    document.getElementById('feedbackSection').classList.add('hidden');
+
+    data.forEach((kw, i) => {
+        const tr = document.createElement('tr');
+        tr.dataset.index = i;
+        tr.onclick = () => toggleSelect(i, tr);
+
+        const kdColor = kw.kd < 30 ? '#10b981' : kw.kd < 50 ? '#f59e0b' : '#ef4444';
+        const intentClass = kw.intent === 'Informational' ? 'badge-info' :
+                           kw.intent === 'Commercial' ? 'badge-commercial' :
+                           kw.intent === 'Transactional' ? 'badge-transactional' : 'badge-navigational';
+
+        tr.innerHTML = `
+            <td style="font-weight:500">${kw.kw}</td>
+            <td>${kw.vol.toLocaleString()}</td>
+            <td><span class="kd-bar"><span class="kd-fill" style="width:${kw.kd}%;background:${kdColor}"></span></span>${kw.kd}</td>
+            <td>₹${kw.cpc}</td>
+            <td><span class="badge ${intentClass}">${kw.intent}</span></td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    document.getElementById('resultsSection').classList.remove('hidden');
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function toggleSelect(idx, tr) {
+    const pos = selectedKeywords.indexOf(idx);
+    if (pos > -1) {
+        selectedKeywords.splice(pos, 1);
+        tr.classList.remove('selected');
+    } else if (selectedKeywords.length < 3) {
+        selectedKeywords.push(idx);
+        tr.classList.add('selected');
+    }
+    updateCounter();
+}
+
+function updateCounter() {
+    document.getElementById('selCount').textContent = selectedKeywords.length;
+    document.getElementById('submitBtn').disabled = selectedKeywords.length !== 3;
+}
+
+function evaluateSelection() {
+    const data = scenarios[currentScenario].keywords;
+    let totalScore = 0;
+    const feedbacks = [];
+
+    selectedKeywords.forEach(idx => {
+        const kw = data[idx];
+        let score = 0;
+        let msg = '';
+        let level = '';
+
+        // Score volume (0-4)
+        if (kw.vol >= 200 && kw.vol <= 2000) score += 4;
+        else if (kw.vol > 2000 && kw.vol <= 5000) score += 3;
+        else if (kw.vol < 200) score += 1;
+        else score += 1;
+
+        // Score KD (0-4)
+        if (kw.kd <= 20) score += 4;
+        else if (kw.kd <= 35) score += 3;
+        else if (kw.kd <= 50) score += 2;
+        else score += 0;
+
+        // Score intent for blog (0-2)
+        if (kw.intent === 'Informational') score += 2;
+        else if (kw.intent === 'Commercial') score += 1;
+        else score += 0;
+
+        if (score >= 8) {
+            level = 'result-good';
+            msg = `Excellent pick! "${kw.kw}" — Low KD (${kw.kd}) + solid volume (${kw.vol}) = easy ranking opportunity. ${kw.intent} intent is perfect for blog content.`;
+        } else if (score >= 5) {
+            level = 'result-ok';
+            msg = `Decent choice. "${kw.kw}" — Volume ${kw.vol} is workable, but KD ${kw.kd} means you'll need quality content and some backlinks to compete.`;
+        } else {
+            level = 'result-bad';
+            msg = `Risky pick. "${kw.kw}" — KD ${kw.kd} is tough${kw.vol > 5000 ? ' and high-volume head terms are dominated by authority sites' : ''}. You'd need 50+ backlinks and domain authority above 40 to rank.`;
+        }
+
+        totalScore += score;
+        feedbacks.push({ msg, level, score });
+    });
+
+    const feedbackDiv = document.getElementById('feedbackList');
+    feedbackDiv.innerHTML = feedbacks.map(f =>
+        `<div class="result-card ${f.level}"><strong>${f.score}/10 points</strong><br>${f.msg}</div>`
+    ).join('');
+
+    const scoreEl = document.getElementById('scoreNum');
+    scoreEl.textContent = totalScore;
+    scoreEl.style.color = totalScore >= 24 ? '#10b981' : totalScore >= 15 ? '#f59e0b' : '#ef4444';
+
+    document.getElementById('feedbackSection').classList.remove('hidden');
+    document.getElementById('feedbackSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetSelection() {
+    selectedKeywords = [];
+    document.querySelectorAll('tr.selected').forEach(tr => tr.classList.remove('selected'));
+    updateCounter();
+    document.getElementById('feedbackSection').classList.add('hidden');
+}
+
+// Initialize
+loadScenario(0);
+</script>
+</body>
+</html>

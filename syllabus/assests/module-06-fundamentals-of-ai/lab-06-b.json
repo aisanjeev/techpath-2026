@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "AI Ethics Debate and Scenario Analysis",
+  "description": "Analyze real-world AI ethics scenarios, identify stakeholders and impacts, and propose solutions",
+  "tags": [
+    "ai",
+    "ethics",
+    "critical-thinking",
+    "discussion",
+    "scenarios"
+  ],
+  "status": "draft",
+  "objective": "Students will analyze 4 AI ethics scenarios, identify affected stakeholders, evaluate risks and benefits, and propose ethical guidelines",
+  "steps": [
+    {
+      "title": "Scenario 1: AI in Hiring",
+      "instructions": "A company uses an AI tool to screen resumes. The AI was trained on 10 years of hiring data. The company notices that the AI rates male candidates higher than equally qualified female candidates.\n\n**Analyze:**\n1. Why did this happen? (Think about the training data)\n2. Who is affected? List all stakeholders.\n3. Is the company responsible or is the AI at fault?\n4. How could this be fixed technically?\n5. Should companies be required to audit their AI hiring tools? Why?\n\nWrite your analysis in 150-200 words."
+    },
+    {
+      "title": "Scenario 2: AI-Generated Content in Education",
+      "instructions": "A student submits an assignment that was entirely written by ChatGPT. The teacher can't tell the difference from human writing.\n\n**Debate both sides:**\n\n**FOR using AI:**\n- List 3 arguments why AI tools should be allowed in education\n- What skills does using AI effectively demonstrate?\n\n**AGAINST using AI:**\n- List 3 arguments why AI-generated submissions are problematic\n- What learning opportunities are lost?\n\n**Your position:**\n- Where do you draw the line? (Full AI = cheating? AI-assisted = OK?)\n- Propose a fair AI usage policy for your classroom (5 rules)\n\nWrite your analysis in 200 words."
+    },
+    {
+      "title": "Scenario 3: Deepfakes and Misinformation",
+      "instructions": "AI can now generate realistic fake videos of real people saying things they never said. A deepfake video of a politician goes viral during election season.\n\n**Analyze:**\n1. What are the potential consequences of this specific scenario?\n2. Who benefits from deepfakes? Who is harmed?\n3. Should creating deepfakes be illegal? Under what circumstances?\n4. How can people identify deepfakes? (List 3-4 detection methods)\n5. What responsibility do platforms (YouTube, Instagram) have?\n\nRelate to India: How could deepfakes affect Indian elections or social media?\n\nWrite your analysis in 150-200 words."
+    },
+    {
+      "title": "Scenario 4: AI Replacing Jobs",
+      "instructions": "A data entry company in Pune employs 200 workers. They implement an AI system that can do the same work 10x faster with 5 operators. 195 employees will lose their jobs.\n\n**Analyze:**\n1. Calculate the financial impact:\n   - Current: 200 workers × ₹15,000/month = ?\n   - After AI: 5 operators × ₹30,000/month + AI cost ₹2,00,000/month = ?\n   - Monthly savings for the company = ?\n2. What happens to the 195 workers?\n3. What new jobs might AI create? (List at least 5)\n4. What should the company do for displaced workers?\n5. What should the government do?\n\nResearch: Which Indian industries are most at risk of AI automation? List 5 with reasoning.\n\nWrite your analysis in 200 words."
+    },
+    {
+      "title": "Create Your AI Ethics Framework",
+      "instructions": "Based on your analysis of all 4 scenarios, create a personal **\"AI Ethics Guidelines\"** document:\n\n1. **5 Principles** — What rules should guide AI development and use?\n   Example: \"AI systems must be transparent about how they make decisions\"\n\n2. **For Companies** — 3 things companies using AI must do\n\n3. **For Users** — 3 responsibilities for people using AI tools\n\n4. **For Governments** — 3 regulations you recommend\n\n5. **For Students/Developers** — 3 personal commitments you're making as a future IT professional\n\nFormat this as a clean, professional document.\n\n**Submit:** All 4 scenario analyses + your AI Ethics Guidelines document."
+    }
+  ],
+  "expected_output": "A comprehensive ethics analysis document covering 4 AI scenarios with stakeholder analysis and a personal AI Ethics Guidelines framework with principles for companies, users, governments, and developers"
+}

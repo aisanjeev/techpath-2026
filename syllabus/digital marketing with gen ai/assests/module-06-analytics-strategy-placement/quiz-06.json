@@ -1,0 +1,124 @@
+{
+  "questions": [
+    {
+      "question": "What replaced Universal Analytics as Google's primary analytics platform?",
+      "options": ["Google Analytics 360", "Google Analytics 4 (GA4)", "Google Search Console", "Google Data Studio"],
+      "correct_index": 1,
+      "explanation": "GA4 replaced Universal Analytics in July 2023. It uses an event-based model instead of session-based, tracks across web and app, and has built-in machine learning."
+    },
+    {
+      "question": "In GA4, what is an 'event'?",
+      "options": ["A scheduled marketing campaign", "Any user interaction tracked on your website or app (page view, click, purchase, scroll)", "A calendar reminder", "A server error log"],
+      "correct_index": 1,
+      "explanation": "GA4 tracks everything as events — page_view, scroll, click, purchase, form_submit, etc. Custom events can be created for any specific interaction you want to measure."
+    },
+    {
+      "question": "Which attribution model gives 100% credit to the last touchpoint before conversion?",
+      "options": ["First-click attribution", "Last-click attribution", "Linear attribution", "Time-decay attribution"],
+      "correct_index": 1,
+      "explanation": "Last-click attribution assigns all conversion credit to the final interaction before purchase. It's simple but ignores the role of earlier touchpoints in the customer journey."
+    },
+    {
+      "question": "A customer's journey: saw Instagram ad (Day 1) → clicked Google ad (Day 5) → clicked email link (Day 10) → purchased. In linear attribution, how is credit distributed?",
+      "options": ["100% to email", "100% to Instagram ad", "33.3% to each touchpoint equally", "50% to Google ad, 25% each to others"],
+      "correct_index": 2,
+      "explanation": "Linear attribution distributes credit equally across all touchpoints. With 3 touchpoints, each gets 33.3% credit — useful when every interaction matters equally."
+    },
+    {
+      "question": "What is a UTM parameter?",
+      "options": ["A type of email encryption", "Tags added to URLs to track the source, medium, and campaign of traffic in analytics", "A Google Ads bidding strategy", "A website loading speed metric"],
+      "correct_index": 1,
+      "explanation": "UTM parameters (utm_source, utm_medium, utm_campaign, utm_content, utm_term) are added to URLs so analytics tools can identify exactly where traffic comes from."
+    },
+    {
+      "question": "Which UTM parameter identifies the platform sending traffic (e.g., google, facebook, newsletter)?",
+      "options": ["utm_medium", "utm_source", "utm_campaign", "utm_content"],
+      "correct_index": 1,
+      "explanation": "utm_source identifies the traffic source (google, facebook, linkedin). utm_medium identifies the type (cpc, email, social). They work together for full tracking."
+    },
+    {
+      "question": "What does Microsoft Clarity or Hotjar's heatmap show you?",
+      "options": ["Your website's loading speed", "Where users click, scroll, and move their mouse on your pages", "How many backlinks you have", "Your domain authority score"],
+      "correct_index": 1,
+      "explanation": "Heatmaps visualize user behavior — click maps show where people click, scroll maps show how far they scroll, and move maps show cursor movement patterns."
+    },
+    {
+      "question": "What is Looker Studio (formerly Google Data Studio) used for?",
+      "options": ["Running Google Ads campaigns", "Creating visual dashboards and reports by connecting multiple data sources", "Building websites", "Managing social media posts"],
+      "correct_index": 1,
+      "explanation": "Looker Studio connects to GA4, Google Ads, Sheets, BigQuery, etc. to create interactive visual dashboards that update automatically — essential for client reporting."
+    },
+    {
+      "question": "In time-decay attribution, which touchpoint gets the MOST credit?",
+      "options": ["The first touchpoint", "All touchpoints equally", "The touchpoint closest to the conversion", "The touchpoint with the highest cost"],
+      "correct_index": 2,
+      "explanation": "Time-decay gives increasing credit to touchpoints closer to conversion. The logic: recent interactions had more influence on the final purchase decision."
+    },
+    {
+      "question": "A digital marketing freelancer charges ₹25,000/month retainer for managing social media and ads for a local restaurant. What pricing model is this?",
+      "options": ["Hourly billing", "Project-based pricing", "Retainer model", "Performance-based pricing"],
+      "correct_index": 2,
+      "explanation": "Retainer pricing charges a fixed monthly fee for ongoing services. It provides predictable income for the freelancer and consistent support for the client."
+    },
+    {
+      "question": "What is a marketing pitch deck?",
+      "options": ["A social media content calendar", "A presentation that communicates your marketing strategy, capabilities, and proposed plan to a client or stakeholder", "A keyword research report", "An analytics dashboard"],
+      "correct_index": 1,
+      "explanation": "A pitch deck (10-15 slides) presents your understanding of the client's problem, proposed strategy, expected results, timeline, and pricing to win business."
+    },
+    {
+      "question": "Which data-driven attribution model uses machine learning to assign credit based on actual conversion data?",
+      "options": ["First-click", "Last-click", "Linear", "Data-driven attribution (DDA)"],
+      "correct_index": 3,
+      "explanation": "Data-driven attribution uses machine learning algorithms to analyze your actual conversion paths and assign credit based on which touchpoints truly influenced conversions."
+    },
+    {
+      "question": "What is competitive intelligence in digital marketing?",
+      "options": ["Copying competitor ads exactly", "Systematically gathering and analyzing information about competitors' strategies, keywords, and positioning", "Reporting competitors to Google for policy violations", "Buying competitor brand names as keywords"],
+      "correct_index": 1,
+      "explanation": "Competitive intelligence involves using tools (SEMrush, SimilarWeb, SpyFu) to analyze competitor keywords, ad spend, traffic sources, and content strategy to find opportunities."
+    },
+    {
+      "question": "A startup has ₹3,00,000 monthly marketing budget. They allocate 50% to paid ads, 30% to content, and 20% to tools. How much goes to content?",
+      "options": ["₹60,000", "₹90,000", "₹1,50,000", "₹1,00,000"],
+      "correct_index": 1,
+      "explanation": "Content budget = 30% of ₹3,00,000 = ₹90,000. Budget allocation should align with business goals — startups often spend more on paid ads for quick results."
+    },
+    {
+      "question": "What should an ATS-optimized resume for a digital marketing role include?",
+      "options": ["Fancy graphics and creative fonts", "Relevant keywords from the job description, quantified achievements, and a clean format", "Only a one-paragraph summary", "Personal hobbies and a photo"],
+      "correct_index": 1,
+      "explanation": "ATS (Applicant Tracking Systems) scan resumes for keywords. Use terms from the JD, quantify results ('increased leads by 40%'), and keep formatting simple — no columns or graphics."
+    },
+    {
+      "question": "Which GA4 metric shows the percentage of sessions that had no meaningful engagement?",
+      "options": ["Conversion rate", "Bounce rate (non-engaged sessions)", "Pages per session", "Average session duration"],
+      "correct_index": 1,
+      "explanation": "In GA4, bounce rate = sessions that were not 'engaged sessions.' An engaged session lasts 10+ seconds, has 2+ page views, or has a conversion event."
+    },
+    {
+      "question": "What is the advantage of hourly billing vs retainer for a freelance digital marketer?",
+      "options": ["Hourly billing always earns more money", "Hourly billing is fair for unpredictable scope work; retainer provides stable monthly income", "Retainer means working unlimited hours", "There is no difference between the two"],
+      "correct_index": 1,
+      "explanation": "Hourly works when scope is unclear (consulting, audits). Retainers suit ongoing work (monthly ads/SEO management) and give both sides predictability."
+    },
+    {
+      "question": "A client asks how your proposed campaign will perform. What forecasting method uses historical data from similar past campaigns?",
+      "options": ["Guessing based on industry averages only", "Using past campaign data and trend analysis to project future results", "Promising guaranteed results", "Copying competitor numbers"],
+      "correct_index": 1,
+      "explanation": "Forecasting uses historical performance data, seasonality trends, and industry benchmarks to project realistic results. Never guarantee exact outcomes — provide ranges."
+    },
+    {
+      "question": "Which AI tool can help marketers generate ad copy variations quickly?",
+      "options": ["Google Search Console", "ChatGPT / Claude / Jasper AI", "Google Tag Manager", "Microsoft Clarity"],
+      "correct_index": 1,
+      "explanation": "AI tools like ChatGPT, Claude, and Jasper can generate multiple ad copy variants, email subject lines, and content ideas — saving time while requiring human review and editing."
+    },
+    {
+      "question": "What is the key difference between freelancing and agency employment for a digital marketer?",
+      "options": ["Freelancers earn less always", "Freelancers manage their own clients, income, and schedule; employees get stability, benefits, and team support", "There is no difference in work type", "Agency employees never interact with clients"],
+      "correct_index": 1,
+      "explanation": "Freelancing offers flexibility and higher earning potential but requires self-discipline, client acquisition, and no benefits. Employment provides stability, team learning, and fixed income."
+    }
+  ]
+}

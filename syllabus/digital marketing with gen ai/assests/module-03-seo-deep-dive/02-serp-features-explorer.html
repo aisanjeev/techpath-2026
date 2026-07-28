@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SERP Features Explorer — TechPath Academy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 960px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; padding: 20px 0; border-bottom: 1px solid #1e293b; }
+        .brand { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        h1 { font-size: 1.8rem; color: #f8fafc; margin-bottom: 8px; }
+        .subtitle { color: #94a3b8; font-size: 0.95rem; }
+        .card { background: #1e293b; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid #334155; }
+        .card h2 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 16px; }
+        .serp-container { background: #f8f9fa; border-radius: 12px; padding: 20px; color: #202124; position: relative; }
+        .serp-searchbar {
+            background: #fff; border: 1px solid #dfe1e5; border-radius: 24px;
+            padding: 12px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+        }
+        .serp-searchbar .icon { color: #4285f4; font-size: 1.1rem; }
+        .serp-searchbar span { color: #202124; font-size: 0.95rem; }
+        .serp-element {
+            border: 2px solid transparent; border-radius: 8px; padding: 12px;
+            margin-bottom: 12px; cursor: pointer; transition: all 0.2s; position: relative;
+        }
+        .serp-element:hover { border-color: #4285f4; background: #e8f0fe; }
+        .serp-element.active { border-color: #4285f4; background: #e8f0fe; box-shadow: 0 2px 12px rgba(66,133,244,0.2); }
+        .serp-label {
+            position: absolute; top: -8px; right: 12px; background: #4285f4;
+            color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .serp-element:hover .serp-label, .serp-element.active .serp-label { opacity: 1; }
+        .ad-label { background: #202124; color: #fff; font-size: 0.7rem; padding: 1px 6px; border-radius: 3px; margin-right: 6px; }
+        .serp-title { color: #1a0dab; font-size: 1.05rem; margin-bottom: 2px; text-decoration: underline; }
+        .serp-url { color: #006621; font-size: 0.8rem; margin-bottom: 4px; }
+        .serp-desc { color: #545454; font-size: 0.85rem; }
+        .featured-snippet { background: #fff; border: 1px solid #dfe1e5; border-radius: 8px; padding: 16px; }
+        .featured-snippet .snippet-text { color: #202124; font-size: 0.9rem; margin-bottom: 8px; }
+        .paa-box { background: #fff; border: 1px solid #dfe1e5; border-radius: 8px; overflow: hidden; }
+        .paa-item { padding: 12px 16px; border-bottom: 1px solid #e8eaed; color: #202124; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
+        .paa-item:last-child { border-bottom: none; }
+        .local-pack { background: #fff; border: 1px solid #dfe1e5; border-radius: 8px; padding: 12px; }
+        .local-item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f1f3f4; }
+        .local-item:last-child { border-bottom: none; }
+        .local-num { color: #70757a; font-weight: 600; font-size: 0.9rem; }
+        .local-name { color: #202124; font-size: 0.9rem; font-weight: 500; }
+        .local-detail { color: #70757a; font-size: 0.8rem; }
+        .knowledge-panel { background: #fff; border: 1px solid #dfe1e5; border-radius: 8px; padding: 16px; }
+        .kp-title { color: #202124; font-size: 1.2rem; font-weight: 600; margin-bottom: 4px; }
+        .kp-type { color: #70757a; font-size: 0.85rem; margin-bottom: 10px; }
+        .kp-fact { color: #202124; font-size: 0.85rem; padding: 4px 0; }
+        .image-pack { display: flex; gap: 8px; background: #fff; border: 1px solid #dfe1e5; border-radius: 8px; padding: 12px; overflow-x: auto; }
+        .img-placeholder { width: 100px; height: 80px; background: #e8eaed; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #70757a; font-size: 0.7rem; }
+        .video-result { display: flex; gap: 12px; padding: 10px; background: #fff; border: 1px solid #dfe1e5; border-radius: 8px; }
+        .video-thumb { width: 120px; height: 70px; background: #202124; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+        .shopping-pack { display: flex; gap: 10px; background: #fff; border: 1px solid #dfe1e5; border-radius: 8px; padding: 12px; overflow-x: auto; }
+        .shop-item { width: 120px; flex-shrink: 0; text-align: center; }
+        .shop-img { width: 80px; height: 80px; background: #f1f3f4; border-radius: 6px; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; color: #70757a; font-size: 0.65rem; }
+        .shop-price { color: #202124; font-weight: 600; font-size: 0.85rem; }
+        .shop-name { color: #70757a; font-size: 0.75rem; }
+        .related-box { background: #fff; border: 1px solid #dfe1e5; border-radius: 8px; padding: 12px; }
+        .related-item { padding: 8px 12px; color: #1a0dab; font-size: 0.9rem; border-bottom: 1px solid #f1f3f4; }
+        .related-item:last-child { border-bottom: none; }
+        .info-panel {
+            background: #1e293b; border: 1px solid #3b82f6; border-radius: 12px;
+            padding: 24px; margin-top: 20px; animation: slideIn 0.3s ease;
+        }
+        .info-panel h3 { color: #3b82f6; margin-bottom: 12px; font-size: 1.1rem; }
+        .info-panel p { color: #cbd5e1; margin-bottom: 10px; font-size: 0.9rem; }
+        .info-panel .tip { background: #0f172a; padding: 12px; border-radius: 8px; border-left: 3px solid #10b981; margin-top: 12px; }
+        .info-panel .tip strong { color: #10b981; }
+        .quiz-section { margin-top: 24px; }
+        .quiz-q { background: #0f172a; border-radius: 8px; padding: 16px; margin-bottom: 12px; border: 1px solid #334155; }
+        .quiz-q p { margin-bottom: 12px; color: #f1f5f9; font-weight: 500; }
+        .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-opt {
+            padding: 10px 14px; background: #1e293b; border: 1px solid #475569;
+            border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.9rem;
+        }
+        .quiz-opt:hover { border-color: #3b82f6; background: #334155; }
+        .quiz-opt.correct { background: #14532d; border-color: #10b981; }
+        .quiz-opt.wrong { background: #7f1d1d; border-color: #ef4444; }
+        .quiz-opt.disabled { pointer-events: none; opacity: 0.7; }
+        .quiz-feedback { margin-top: 8px; padding: 10px; border-radius: 6px; font-size: 0.85rem; animation: slideIn 0.3s; }
+        .score-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #0f172a; border-radius: 8px; margin-bottom: 16px; }
+        .hidden { display: none; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .serp-container { padding: 12px; }
+            .image-pack, .shopping-pack { flex-wrap: nowrap; }
+            .video-result { flex-direction: column; }
+            .video-thumb { width: 100%; height: 100px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="brand">TechPath Academy</div>
+        <h1>SERP Features Explorer</h1>
+        <p class="subtitle">Click on any element in the mock search results to learn what it is and how to optimize for it</p>
+    </div>
+
+    <div class="card">
+        <h2>Google Search Results Page — "best digital marketing course Bhopal"</h2>
+        <div class="serp-container">
+            <div class="serp-searchbar">
+                <span class="icon">&#128269;</span>
+                <span>best digital marketing course Bhopal</span>
+            </div>
+
+            <!-- Ads -->
+            <div class="serp-element" data-feature="ads" onclick="showInfo('ads')">
+                <span class="serp-label">Sponsored Ads</span>
+                <div style="margin-bottom:8px">
+                    <span class="ad-label">Ad</span>
+                    <span class="serp-url">www.example-institute.com</span>
+                </div>
+                <div class="serp-title">Top Digital Marketing Course in Bhopal — Enroll Now</div>
+                <div class="serp-desc">Join 5000+ students. Certified trainers, live projects, placement support. Limited seats for July batch.</div>
+            </div>
+
+            <!-- Featured Snippet -->
+            <div class="serp-element" data-feature="snippet" onclick="showInfo('snippet')">
+                <span class="serp-label">Featured Snippet</span>
+                <div class="featured-snippet">
+                    <div class="snippet-text"><strong>The best digital marketing courses in Bhopal for 2026</strong> include TechPath Academy (rated 4.8/5), DigiSkill Institute, and WebGuru Training Center. Key factors: hands-on projects, Google certification, and placement support.</div>
+                    <div class="serp-url">www.techpath.biz/blog/best-courses-bhopal</div>
+                </div>
+            </div>
+
+            <!-- People Also Ask -->
+            <div class="serp-element" data-feature="paa" onclick="showInfo('paa')">
+                <span class="serp-label">People Also Ask</span>
+                <div class="paa-box">
+                    <div class="paa-item">What is the fees for digital marketing course in Bhopal? <span>&#9660;</span></div>
+                    <div class="paa-item">Is digital marketing a good career in 2026? <span>&#9660;</span></div>
+                    <div class="paa-item">Which institute is best for digital marketing in MP? <span>&#9660;</span></div>
+                    <div class="paa-item">Can I learn digital marketing in 3 months? <span>&#9660;</span></div>
+                </div>
+            </div>
+
+            <!-- Local Pack -->
+            <div class="serp-element" data-feature="local" onclick="showInfo('local')">
+                <span class="serp-label">Local Pack</span>
+                <div class="local-pack">
+                    <div style="color:#202124;font-weight:600;margin-bottom:8px;">Digital Marketing Courses near Bhopal</div>
+                    <div class="local-item"><span class="local-num">A</span><div><div class="local-name">TechPath Academy</div><div class="local-detail">4.8 ★★★★★ (128) · MP Nagar</div></div></div>
+                    <div class="local-item"><span class="local-num">B</span><div><div class="local-name">DigiSkill Institute</div><div class="local-detail">4.2 ★★★★☆ (67) · Arera Colony</div></div></div>
+                    <div class="local-item"><span class="local-num">C</span><div><div class="local-name">WebGuru Training</div><div class="local-detail">3.9 ★★★★☆ (45) · New Market</div></div></div>
+                </div>
+            </div>
+
+            <!-- Organic Results -->
+            <div class="serp-element" data-feature="organic" onclick="showInfo('organic')">
+                <span class="serp-label">Organic Results</span>
+                <div><div class="serp-url">www.techpath.biz/digital-marketing-course</div>
+                <div class="serp-title">Digital Marketing Course in Bhopal — TechPath Academy</div>
+                <div class="serp-desc">Comprehensive 6-month program with 12+ certifications, live projects with real clients, and guaranteed internship. Batch starting August 2026.</div></div>
+                <div style="margin-top:12px"><div class="serp-url">www.example-blog.com/top-10-courses</div>
+                <div class="serp-title">Top 10 Digital Marketing Courses in Bhopal [2026 Updated]</div>
+                <div class="serp-desc">We reviewed and compared the best digital marketing institutes in Bhopal based on curriculum, faculty, fees, and student reviews...</div></div>
+            </div>
+
+            <!-- Image Pack -->
+            <div class="serp-element" data-feature="images" onclick="showInfo('images')">
+                <span class="serp-label">Image Pack</span>
+                <div class="image-pack">
+                    <div class="img-placeholder">Classroom</div>
+                    <div class="img-placeholder">Certificate</div>
+                    <div class="img-placeholder">Students</div>
+                    <div class="img-placeholder">Campus</div>
+                    <div class="img-placeholder">Workshop</div>
+                </div>
+            </div>
+
+            <!-- Video Results -->
+            <div class="serp-element" data-feature="video" onclick="showInfo('video')">
+                <span class="serp-label">Video Results</span>
+                <div class="video-result">
+                    <div class="video-thumb">&#9654; 12:34</div>
+                    <div><div class="serp-title" style="font-size:0.9rem">Digital Marketing Full Course for Beginners — Hindi</div><div class="serp-url">YouTube · TechPath Academy · 2.3L views · 3 months ago</div></div>
+                </div>
+            </div>
+
+            <!-- Shopping Results -->
+            <div class="serp-element" data-feature="shopping" onclick="showInfo('shopping')">
+                <span class="serp-label">Shopping Results</span>
+                <div class="shopping-pack">
+                    <div class="shop-item"><div class="shop-img">Book Cover</div><div class="shop-price">₹499</div><div class="shop-name">DM Handbook 2026</div></div>
+                    <div class="shop-item"><div class="shop-img">Book Cover</div><div class="shop-price">₹349</div><div class="shop-name">SEO Made Simple</div></div>
+                    <div class="shop-item"><div class="shop-img">Book Cover</div><div class="shop-price">₹599</div><div class="shop-name">Social Media Pro</div></div>
+                </div>
+            </div>
+
+            <!-- Knowledge Panel -->
+            <div class="serp-element" data-feature="knowledge" onclick="showInfo('knowledge')">
+                <span class="serp-label">Knowledge Panel</span>
+                <div class="knowledge-panel">
+                    <div class="kp-title">Digital Marketing</div>
+                    <div class="kp-type">Field of marketing</div>
+                    <div class="kp-fact"><strong>Also known as:</strong> Online marketing, Internet marketing</div>
+                    <div class="kp-fact"><strong>Key channels:</strong> SEO, SEM, Social Media, Email, Content</div>
+                </div>
+            </div>
+
+            <!-- Related Searches -->
+            <div class="serp-element" data-feature="related" onclick="showInfo('related')">
+                <span class="serp-label">Related Searches</span>
+                <div class="related-box">
+                    <div class="related-item">&#128269; digital marketing course fees in Bhopal</div>
+                    <div class="related-item">&#128269; digital marketing jobs Bhopal</div>
+                    <div class="related-item">&#128269; free digital marketing course</div>
+                    <div class="related-item">&#128269; digital marketing scope 2026</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div id="infoPanel" class="info-panel hidden"></div>
+
+    <!-- Quiz Section -->
+    <div class="card">
+        <h2>SERP Features Quiz</h2>
+        <div class="score-bar">
+            <span style="color:#94a3b8">Test your understanding</span>
+            <span style="color:#3b82f6;font-weight:700" id="quizScore">0 / 5</span>
+        </div>
+        <div class="quiz-section" id="quizContainer"></div>
+    </div>
+</div>
+
+<script>
+const featureInfo = {
+    ads: {
+        title: "Sponsored Ads (Google Ads)",
+        what: "Paid placements that appear at the top (and sometimes bottom) of search results. Marked with 'Ad' or 'Sponsored' label.",
+        how: "Set up Google Ads campaigns targeting relevant keywords. Write compelling ad copy with clear CTA. Use ad extensions (sitelinks, callouts, structured snippets) to increase ad real estate.",
+        schema: "No schema needed — these are paid placements through Google Ads platform. Quality Score + bid determines position.",
+        example: "A Bhopal coaching institute can bid on 'digital marketing course Bhopal' at ₹30-50 CPC, showing admission ad with phone number extension during enrollment season."
+    },
+    snippet: {
+        title: "Featured Snippet (Position Zero)",
+        what: "A highlighted answer box that appears above organic results, pulled directly from a webpage. Shows a direct answer to the search query.",
+        how: "Structure content with clear H2/H3 headings matching common questions. Use concise paragraph answers (40-60 words), numbered lists, or comparison tables. Target question-based keywords.",
+        schema: "No specific schema required, but FAQ schema can help. Focus on content structure — use <ol>, <ul>, <table> HTML and answer the query in the first paragraph after the heading.",
+        example: "Write a blog post titled 'Best Digital Marketing Courses in Bhopal' with a summary paragraph listing top 3 institutes with ratings — Google may pull this as the featured snippet."
+    },
+    paa: {
+        title: "People Also Ask (PAA)",
+        what: "An expandable accordion showing related questions users commonly search for. Clicking one reveals an answer snippet and generates more questions.",
+        how: "Research PAA questions using tools like AlsoAsked.com. Create content that directly answers these questions. Use the exact question as an H2 heading, followed by a concise answer.",
+        schema: "Implement FAQ Schema (FAQPage) with @type: Question and acceptedAnswer. This increases chances of appearing in PAA boxes.",
+        example: "Add an FAQ section to your course page answering: 'What is the fees for digital marketing course in Bhopal?' with a clear ₹X-₹Y range answer."
+    },
+    local: {
+        title: "Local Pack (Map Pack)",
+        what: "A map with 3 local business listings showing name, rating, address, and hours. Appears for searches with local intent.",
+        how: "Claim and optimize Google Business Profile. Get reviews (aim for 4.5+ stars). Ensure NAP (Name, Address, Phone) consistency across web. Add photos weekly. Post updates regularly.",
+        schema: "Use LocalBusiness schema with geo coordinates, openingHours, address, and aggregateRating. Also implement Organization schema on your homepage.",
+        example: "TechPath Academy claiming Google Business Profile with category 'Educational Institution', adding classroom photos, collecting student reviews, and posting batch updates monthly."
+    },
+    organic: {
+        title: "Organic Search Results",
+        what: "The traditional blue-link results earned through SEO. Shows title tag, URL, and meta description. The core of search results.",
+        how: "On-page SEO: optimize title tags (60 chars), meta descriptions (155 chars), headers, and content for target keyword. Off-page: build quality backlinks. Technical: fast load speed, mobile-friendly, clean URLs.",
+        schema: "Implement Article, WebPage, or Course schema with proper headline, description, and author. Breadcrumb schema helps with URL display.",
+        example: "Optimize your course page with title 'Digital Marketing Course in Bhopal | 6-Month Program — TechPath', a compelling meta description mentioning certifications and placement."
+    },
+    images: {
+        title: "Image Pack",
+        what: "A horizontal row of images from Google Images, embedded directly in the search results. Clicking opens the full image search.",
+        how: "Use descriptive filenames (digital-marketing-classroom-bhopal.jpg not IMG_001.jpg). Add alt text. Compress images for speed. Create original images rather than stock photos. Use proper image dimensions.",
+        schema: "ImageObject schema with contentUrl, description, and name. If images are of products, use Product schema with image property.",
+        example: "Upload original photos of your classroom, student projects, certificate ceremonies with alt text like 'Digital marketing training session at TechPath Academy Bhopal'."
+    },
+    video: {
+        title: "Video Results",
+        what: "Video thumbnails (usually from YouTube) embedded in search results with title, channel, views, and upload date. May include key moments.",
+        how: "Create YouTube videos targeting the keyword. Optimize: keyword in title, first 2 lines of description, tags, and filename. Add timestamps in description for Key Moments. Create custom thumbnails.",
+        schema: "VideoObject schema with name, description, thumbnailUrl, uploadDate, duration, and contentUrl. Add Clip schema for key moments/chapters.",
+        example: "Create a video 'Digital Marketing Course Review — Bhopal 2026' with chapters: 0:00 Intro, 2:30 Curriculum, 5:00 Faculty, 8:00 Placements, 10:00 Fees."
+    },
+    shopping: {
+        title: "Shopping Results (Product Listings)",
+        what: "Product cards with images, prices, and merchant names. Appear for product-related queries. Also called Product Listing Ads (PLAs).",
+        how: "For paid: Set up Google Merchant Center, create product feed, run Shopping campaigns. For free: Submit products to Google Merchant Center for free listings. Optimize product titles and images.",
+        schema: "Product schema with name, image, price, priceCurrency, availability, and aggregateRating. Offer schema for price details.",
+        example: "A bookstore in Bhopal selling digital marketing books can list on Merchant Center with proper product data — title, MRP, images, and availability."
+    },
+    knowledge: {
+        title: "Knowledge Panel",
+        what: "A large information box on the right side (desktop) showing entity information pulled from Google's Knowledge Graph. Shows facts, links, and related entities.",
+        how: "Get listed on Wikipedia/Wikidata. Claim your Knowledge Panel via Google Search Console. Maintain consistent entity information across authoritative sources. Use structured data extensively.",
+        schema: "Organization or Person schema with name, url, logo, foundingDate, sameAs (social profiles). The more structured data across your web presence, the better.",
+        example: "TechPath Academy can work toward a Knowledge Panel by getting a Wikipedia page, consistent branding across platforms, and Organization schema on the website."
+    },
+    related: {
+        title: "Related Searches",
+        what: "A list of related queries at the bottom of the SERP that users commonly search for after or instead of the current query.",
+        how: "You can't directly optimize to appear here — these are generated by Google. But use them for keyword research! Target these as separate content pieces to build topical authority.",
+        schema: "No schema applies. Use related searches as a content strategy tool — each related search is a potential blog post or page to create.",
+        example: "Seeing 'digital marketing course fees in Bhopal' as a related search? Create a detailed pricing comparison page targeting that exact keyword."
+    }
+};
+
+function showInfo(feature) {
+    document.querySelectorAll('.serp-element').forEach(el => el.classList.remove('active'));
+    document.querySelector(`[data-feature="${feature}"]`).classList.add('active');
+
+    const info = featureInfo[feature];
+    const panel = document.getElementById('infoPanel');
+    panel.innerHTML = `
+        <h3>${info.title}</h3>
+        <p><strong>What it is:</strong> ${info.what}</p>
+        <p><strong>How to get there:</strong> ${info.how}</p>
+        <p><strong>Schema/Structured Data:</strong> ${info.schema}</p>
+        <div class="tip"><strong>Indian Business Example:</strong> ${info.example}</div>
+    `;
+    panel.classList.remove('hidden');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Quiz
+const quizData = [
+    {
+        q: "A local bakery in Indore wants their shop to appear when people search 'best cakes near me'. Which SERP feature should they optimize for?",
+        opts: ["Featured Snippet", "Local Pack", "Knowledge Panel", "Shopping Results"],
+        correct: 1,
+        explain: "Local Pack shows nearby businesses with ratings and address — perfect for 'near me' searches with local intent."
+    },
+    {
+        q: "A blogger writing 'How to start freelancing in India' wants their article to appear above all organic results. Which feature should they target?",
+        opts: ["Sponsored Ads", "Featured Snippet", "Video Results", "Related Searches"],
+        correct: 1,
+        explain: "Featured Snippets appear at Position Zero above organic results. Structure your content to directly answer the question concisely."
+    },
+    {
+        q: "An e-commerce store selling kurtis online wants product images with prices to show in search results. What do they need?",
+        opts: ["Image Pack optimization", "Google Merchant Center + Shopping", "Knowledge Panel", "People Also Ask"],
+        correct: 1,
+        explain: "Shopping Results (Product Listing Ads) require Google Merchant Center setup with proper product feed including prices, images, and availability."
+    },
+    {
+        q: "A yoga instructor creates YouTube tutorials. Which SERP feature could bring them visibility directly in Google search results?",
+        opts: ["Related Searches", "Featured Snippet", "Video Results", "Organic Results"],
+        correct: 2,
+        explain: "Video Results embed YouTube thumbnails in search results. Optimize video title, description, and add timestamps for Key Moments schema."
+    },
+    {
+        q: "A coaching institute wants to show a FAQ on Google with expandable answers for 'What is the fees?' type questions. What schema do they need?",
+        opts: ["Article Schema", "FAQ Schema (FAQPage)", "LocalBusiness Schema", "Course Schema"],
+        correct: 1,
+        explain: "FAQPage schema marks up question-answer pairs and can trigger the People Also Ask appearance or rich FAQ results under your listing."
+    }
+];
+
+let quizAnswered = 0;
+let quizCorrect = 0;
+
+function renderQuiz() {
+    const container = document.getElementById('quizContainer');
+    container.innerHTML = quizData.map((q, qi) => `
+        <div class="quiz-q">
+            <p><strong>Q${qi + 1}.</strong> ${q.q}</p>
+            <div class="quiz-options" id="q${qi}">
+                ${q.opts.map((opt, oi) => `<div class="quiz-opt" onclick="answerQuiz(${qi}, ${oi})">${opt}</div>`).join('')}
+            </div>
+            <div id="fb${qi}" class="quiz-feedback hidden"></div>
+        </div>
+    `).join('');
+}
+
+function answerQuiz(qi, oi) {
+    const opts = document.querySelectorAll(`#q${qi} .quiz-opt`);
+    if (opts[0].classList.contains('disabled')) return;
+
+    opts.forEach((o, i) => {
+        o.classList.add('disabled');
+        if (i === quizData[qi].correct) o.classList.add('correct');
+        else if (i === oi && i !== quizData[qi].correct) o.classList.add('wrong');
+    });
+
+    quizAnswered++;
+    if (oi === quizData[qi].correct) quizCorrect++;
+
+    const fb = document.getElementById(`fb${qi}`);
+    fb.innerHTML = oi === quizData[qi].correct
+        ? `<div style="background:#14532d;padding:10px;border-radius:6px;color:#86efac;">Correct! ${quizData[qi].explain}</div>`
+        : `<div style="background:#7f1d1d;padding:10px;border-radius:6px;color:#fca5a5;">Incorrect. ${quizData[qi].explain}</div>`;
+    fb.classList.remove('hidden');
+
+    document.getElementById('quizScore').textContent = `${quizCorrect} / ${quizAnswered}`;
+}
+
+renderQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+{
+  "questions": [
+    {
+      "question": "What does HTML stand for?",
+      "options": ["Hyper Text Markup Language", "High Tech Modern Language", "Home Tool Markup Language", "Hyper Transfer Method Language"],
+      "correct_index": 0,
+      "explanation": "HTML = HyperText Markup Language — the standard language for creating web pages."
+    },
+    {
+      "question": "Which HTML tag creates the largest heading?",
+      "options": ["<h6>", "<heading>", "<h1>", "<head>"],
+      "correct_index": 2,
+      "explanation": "<h1> is the largest heading. Headings go from <h1> (biggest) to <h6> (smallest)."
+    },
+    {
+      "question": "What does CSS stand for?",
+      "options": ["Computer Style Sheets", "Cascading Style Sheets", "Creative Style System", "Coded Style Syntax"],
+      "correct_index": 1,
+      "explanation": "CSS = Cascading Style Sheets — controls how HTML elements look (colors, fonts, layout)."
+    },
+    {
+      "question": "Which CSS property changes text color?",
+      "options": ["text-color", "font-color", "color", "text-style"],
+      "correct_index": 2,
+      "explanation": "The 'color' property changes text color. Example: color: blue; or color: #3b82f6;"
+    },
+    {
+      "question": "What is the CSS Box Model order from inside to outside?",
+      "options": ["Margin → Border → Padding → Content", "Content → Padding → Border → Margin", "Border → Margin → Content → Padding", "Padding → Content → Margin → Border"],
+      "correct_index": 1,
+      "explanation": "Box Model (inside to outside): Content → Padding → Border → Margin."
+    },
+    {
+      "question": "Which CSS display value is used for modern layouts?",
+      "options": ["block", "inline", "flex", "hidden"],
+      "correct_index": 2,
+      "explanation": "display: flex (Flexbox) is the modern way to create layouts — easy alignment and spacing."
+    },
+    {
+      "question": "What does the <a> tag create in HTML?",
+      "options": ["An image", "A heading", "A hyperlink", "A paragraph"],
+      "correct_index": 2,
+      "explanation": "<a href='url'>Link text</a> creates a clickable hyperlink to another page or section."
+    },
+    {
+      "question": "Which attribute makes an image accessible for screen readers?",
+      "options": ["src", "title", "alt", "name"],
+      "correct_index": 2,
+      "explanation": "The 'alt' attribute provides text description of an image for screen readers and when image fails to load."
+    },
+    {
+      "question": "How do you select an element with class 'card' in CSS?",
+      "options": ["card { }", "#card { }", ".card { }", "*card { }"],
+      "correct_index": 2,
+      "explanation": "Use a dot (.) for classes: .card { }. Use # for IDs: #card { }."
+    },
+    {
+      "question": "What CSS property adds space between flex items?",
+      "options": ["margin", "spacing", "gap", "padding"],
+      "correct_index": 2,
+      "explanation": "The 'gap' property adds space between flex items. Example: gap: 16px;"
+    },
+    {
+      "question": "Which unit is relative to the root font size?",
+      "options": ["px", "em", "rem", "%"],
+      "correct_index": 2,
+      "explanation": "rem = relative to root element font size. If root = 16px, then 1.5rem = 24px. Better for responsive design."
+    },
+    {
+      "question": "What is the purpose of @media queries in CSS?",
+      "options": ["Add images", "Play videos", "Make designs responsive for different screen sizes", "Import fonts"],
+      "correct_index": 2,
+      "explanation": "@media queries apply different CSS rules based on screen size — essential for responsive design."
+    }
+  ]
+}

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketing Funnel Simulator — TechPath Academy</title>
+<style>
+:root {
+  --bg: #0f172a; --card: #1e293b; --card-hover: #334155;
+  --text: #e2e8f0; --text-dim: #94a3b8; --accent: #38bdf8;
+  --accent2: #a78bfa; --success: #4ade80; --warning: #fbbf24; --danger: #f87171;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; }
+.container { max-width: 960px; margin: 0 auto; }
+.brand { text-align: center; font-size: 0.7rem; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+h1 { text-align: center; font-size: 1.5rem; margin-bottom: 4px; }
+.subtitle { text-align: center; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 24px; }
+.tabs { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn { padding: 8px 18px; border: 2px solid var(--card-hover); background: var(--card); color: var(--text-dim); border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
+.tab-btn:hover { border-color: var(--accent); color: var(--text); }
+.tab-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+.section { display: none; } .section.active { display: block; }
+
+/* Funnel Visual */
+.funnel { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 20px; }
+.funnel-stage { padding: 18px; text-align: center; cursor: pointer; border-radius: 8px; font-weight: 600; transition: 0.3s; border: 2px solid transparent; position: relative; }
+.funnel-stage:hover { transform: scale(1.03); }
+.funnel-stage.selected { border-color: #fff; box-shadow: 0 0 20px rgba(56,189,248,0.3); }
+.stage-tofu { background: linear-gradient(135deg, #3b82f6, #2563eb); width: 90%; }
+.stage-mofu { background: linear-gradient(135deg, #8b5cf6, #7c3aed); width: 70%; }
+.stage-bofu { background: linear-gradient(135deg, #f59e0b, #d97706); width: 50%; color: var(--bg); }
+.stage-info { background: var(--card); border-radius: 12px; padding: 20px; margin-top: 16px; animation: fadeIn 0.3s; }
+.stage-info h3 { color: var(--accent); margin-bottom: 10px; }
+.stage-info p { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 8px; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.info-card { background: var(--bg); border-radius: 8px; padding: 12px; }
+.info-card h4 { font-size: 0.8rem; color: var(--accent2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+.info-card ul { list-style: none; font-size: 0.85rem; color: var(--text-dim); }
+.info-card ul li { padding: 3px 0; }
+.info-card ul li::before { content: "- "; color: var(--accent); }
+.example-box { background: rgba(56,189,248,0.08); border-left: 3px solid var(--accent); padding: 12px; border-radius: 0 8px 8px 0; margin-top: 12px; font-size: 0.85rem; font-style: italic; color: var(--text-dim); }
+
+/* Drag and Drop */
+.dnd-area { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.dnd-items { background: var(--card); border-radius: 12px; padding: 16px; }
+.dnd-items h3 { font-size: 0.95rem; color: var(--accent); margin-bottom: 12px; }
+.drag-item { padding: 10px 14px; background: var(--bg); border: 1px solid var(--card-hover); border-radius: 8px; margin-bottom: 8px; cursor: grab; font-size: 0.85rem; transition: 0.2s; user-select: none; }
+.drag-item:hover { border-color: var(--accent); background: var(--card-hover); }
+.drag-item.dragging { opacity: 0.5; transform: scale(0.95); }
+.drag-item.placed { opacity: 0.4; cursor: default; }
+.drop-zones { display: flex; flex-direction: column; gap: 12px; }
+.drop-zone { background: var(--card); border-radius: 12px; padding: 14px; min-height: 100px; border: 2px dashed var(--card-hover); transition: 0.2s; }
+.drop-zone.over { border-color: var(--accent); background: rgba(56,189,248,0.05); }
+.drop-zone h4 { font-size: 0.85rem; margin-bottom: 8px; }
+.zone-tofu h4 { color: #3b82f6; } .zone-mofu h4 { color: #8b5cf6; } .zone-bofu h4 { color: #f59e0b; }
+.dropped-item { display: inline-block; padding: 6px 12px; margin: 4px; border-radius: 6px; font-size: 0.8rem; background: var(--bg); border: 1px solid var(--card-hover); }
+.dropped-item.correct { border-color: var(--success); color: var(--success); }
+.dropped-item.incorrect { border-color: var(--danger); color: var(--danger); }
+.btn { padding: 10px 24px; background: var(--accent); color: var(--bg); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; margin-top: 16px; }
+.btn:hover { opacity: 0.85; }
+.btn-reset { background: var(--card-hover); color: var(--text); margin-left: 8px; }
+.score-box { margin-top: 16px; padding: 16px; background: var(--card); border-radius: 10px; }
+.score-box h3 { margin-bottom: 10px; }
+.score-item { padding: 8px 0; border-bottom: 1px solid var(--card-hover); font-size: 0.85rem; display: flex; gap: 8px; align-items: flex-start; }
+.score-item:last-child { border-bottom: none; }
+.score-icon { font-size: 1rem; flex-shrink: 0; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 700px) {
+  .dnd-area { grid-template-columns: 1fr; }
+  .info-grid { grid-template-columns: 1fr; }
+  .funnel-stage { font-size: 0.85rem; padding: 14px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="brand">TechPath Academy</div>
+  <h1>Marketing Funnel Simulator</h1>
+  <p class="subtitle">Click funnel stages to explore, then test your knowledge with drag-and-drop</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('explore')">Explore Funnel</button>
+    <button class="tab-btn" onclick="showTab('exercise')">Drag &amp; Drop Exercise</button>
+  </div>
+
+  <div id="sec-explore" class="section active">
+    <div class="funnel">
+      <div class="funnel-stage stage-tofu" onclick="showStage('tofu')">TOFU — Top of Funnel (Awareness)</div>
+      <div class="funnel-stage stage-mofu" onclick="showStage('mofu')">MOFU — Middle of Funnel (Consideration)</div>
+      <div class="funnel-stage stage-bofu" onclick="showStage('bofu')">BOFU — Bottom of Funnel (Decision)</div>
+    </div>
+    <div id="stage-detail"></div>
+  </div>
+
+  <div id="sec-exercise" class="section">
+    <div class="dnd-area">
+      <div class="dnd-items">
+        <h3>Drag activities to the correct stage</h3>
+        <div id="items-container"></div>
+      </div>
+      <div class="drop-zones">
+        <div class="drop-zone zone-tofu" data-zone="tofu"><h4>TOFU (Awareness)</h4><div class="zone-items"></div></div>
+        <div class="drop-zone zone-mofu" data-zone="mofu"><h4>MOFU (Consideration)</h4><div class="zone-items"></div></div>
+        <div class="drop-zone zone-bofu" data-zone="bofu"><h4>BOFU (Decision)</h4><div class="zone-items"></div></div>
+      </div>
+    </div>
+    <button class="btn" onclick="checkAnswers()">Check Answers</button>
+    <button class="btn btn-reset" onclick="resetExercise()">Reset</button>
+    <div id="score-results"></div>
+  </div>
+</div>
+
+<script>
+const stageData = {
+  tofu: {
+    title: 'TOFU — Top of Funnel (Awareness)',
+    desc: 'Strangers discover your brand. The goal is maximum reach and visibility. You are answering: "Does this brand/product exist?"',
+    content: ['Blog posts & SEO articles','Social media posts & Reels','Google/YouTube Ads','Infographics','Podcasts','Free tools & quizzes'],
+    metrics: ['Impressions','Reach','Website traffic','Social engagement','Video views','Cost per impression (CPM)'],
+    conversion: '2-5% move to MOFU',
+    example: 'Priya sees your Instagram Reel about "5 web design trends for 2026" while scrolling at lunch. She taps your profile and follows you.'
+  },
+  mofu: {
+    title: 'MOFU — Middle of Funnel (Consideration)',
+    desc: 'Warm leads are evaluating options. The goal is nurturing trust and demonstrating expertise. You are answering: "Is this brand right for me?"',
+    content: ['Email nurture sequences','Free webinars','Case studies','Comparison guides','Retargeting ads','Lead magnets (eBooks, templates)'],
+    metrics: ['Email open rates','Webinar signups','Lead quality score','Pages per session','Email click-through rate','Cost per lead (CPL)'],
+    conversion: '10-20% move to BOFU',
+    example: 'Priya signs up for your free webinar "How to build a portfolio site in 2 hours". She receives 3 follow-up emails with case studies of past students.'
+  },
+  bofu: {
+    title: 'BOFU — Bottom of Funnel (Decision)',
+    desc: 'Hot leads are ready to buy. The goal is removing final objections and closing the deal. You are answering: "Should I buy NOW?"',
+    content: ['Product demos','Free trials','Sales calls','WhatsApp follow-ups','Testimonials','Limited-time offers'],
+    metrics: ['Conversion rate','Cost per acquisition (CPA)','Average order value','Sales cycle length','Close rate','Customer acquisition cost (CAC)'],
+    conversion: '20-40% convert to customers',
+    example: 'Priya books a free 15-minute counselling call. The advisor shares a student success story and offers a limited-time early-bird discount. Priya enrols via WhatsApp payment link.'
+  }
+};
+
+const activities = [
+  { name: 'Blog post', correct: 'tofu', why: 'Blog posts attract new visitors through SEO — they discover you via search.' },
+  { name: 'Google Ad', correct: 'tofu', why: 'Paid search ads create awareness among people searching for solutions.' },
+  { name: 'Email nurture', correct: 'mofu', why: 'Email sequences build trust with warm leads over time.' },
+  { name: 'Free webinar', correct: 'mofu', why: 'Webinars educate and demonstrate expertise to leads evaluating options.' },
+  { name: 'Product demo', correct: 'bofu', why: 'Demos address final questions and push leads toward purchase.' },
+  { name: 'Case study', correct: 'mofu', why: 'Case studies help warm leads see real results before deciding.' },
+  { name: 'Social media post', correct: 'tofu', why: 'Social posts build awareness and reach new audiences organically.' },
+  { name: 'Retargeting ad', correct: 'mofu', why: 'Retargeting keeps your brand visible to people who already visited your site.' },
+  { name: 'Sales call', correct: 'bofu', why: 'Direct calls close deals with hot leads ready to buy.' },
+  { name: 'WhatsApp follow-up', correct: 'bofu', why: 'Personal follow-ups on WhatsApp handle last objections and close sales.' }
+];
+
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showStage(stage) {
+  document.querySelectorAll('.funnel-stage').forEach(s => s.classList.remove('selected'));
+  event.target.classList.add('selected');
+  const d = stageData[stage];
+  document.getElementById('stage-detail').innerHTML = `
+    <div class="stage-info">
+      <h3>${d.title}</h3>
+      <p>${d.desc}</p>
+      <div class="info-grid">
+        <div class="info-card"><h4>Content Types</h4><ul>${d.content.map(c => '<li>' + c + '</li>').join('')}</ul></div>
+        <div class="info-card"><h4>Metrics Tracked</h4><ul>${d.metrics.map(m => '<li>' + m + '</li>').join('')}</ul></div>
+      </div>
+      <p style="margin-top:12px;color:var(--accent);font-weight:600;">Conversion: ${d.conversion}</p>
+      <div class="example-box"><strong>Example:</strong> ${d.example}</div>
+    </div>`;
+}
+
+let placements = {};
+function initExercise() {
+  const container = document.getElementById('items-container');
+  const shuffled = [...activities].sort(() => Math.random() - 0.5);
+  container.innerHTML = shuffled.map((a, i) =>
+    `<div class="drag-item" draggable="true" data-id="${i}" data-name="${a.name}">${a.name}</div>`
+  ).join('');
+  placements = {};
+  document.querySelectorAll('.zone-items').forEach(z => z.innerHTML = '');
+  document.getElementById('score-results').innerHTML = '';
+  setupDragDrop();
+}
+
+function setupDragDrop() {
+  let dragId = null;
+  document.querySelectorAll('.drag-item').forEach(item => {
+    item.addEventListener('dragstart', e => { dragId = e.target.dataset.id; e.target.classList.add('dragging'); });
+    item.addEventListener('dragend', e => { e.target.classList.remove('dragging'); });
+  });
+  document.querySelectorAll('.drop-zone').forEach(zone => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('over');
+      if (dragId === null) return;
+      const item = document.querySelector(`.drag-item[data-id="${dragId}"]`);
+      const name = item.dataset.name;
+      const zoneType = zone.dataset.zone;
+      placements[name] = zoneType;
+      item.classList.add('placed'); item.setAttribute('draggable', 'false');
+      zone.querySelector('.zone-items').innerHTML += `<span class="dropped-item">${name}</span>`;
+      dragId = null;
+    });
+  });
+}
+
+function checkAnswers() {
+  if (Object.keys(placements).length < activities.length) { alert('Place all activities first!'); return; }
+  let correct = 0;
+  let html = '<div class="score-box"><h3>Results</h3>';
+  activities.forEach(a => {
+    const placed = placements[a.name];
+    const isCorrect = placed === a.correct;
+    if (isCorrect) correct++;
+    html += `<div class="score-item"><span class="score-icon">${isCorrect ? '&#10004;' : '&#10008;'}</span><span><strong style="color:${isCorrect ? 'var(--success)' : 'var(--danger)'}">${a.name}</strong> &mdash; ${a.why}</span></div>`;
+  });
+  html += `<p style="margin-top:14px;font-weight:700;color:var(--accent);">Score: ${correct}/${activities.length}</p></div>`;
+  document.getElementById('score-results').innerHTML = html;
+  document.querySelectorAll('.dropped-item').forEach(el => {
+    const name = el.textContent;
+    const act = activities.find(a => a.name === name);
+    const zone = el.closest('.drop-zone').dataset.zone;
+    el.classList.add(zone === act.correct ? 'correct' : 'incorrect');
+  });
+}
+
+function resetExercise() { initExercise(); }
+initExercise();
+</script>
+</body>
+</html>

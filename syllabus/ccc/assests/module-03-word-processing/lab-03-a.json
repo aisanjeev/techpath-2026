@@ -1,0 +1,30 @@
+{
+  "asset_type": "lab",
+  "title": "Create and Format a Professional Letter",
+  "description": "Create a formal application letter with proper formatting, alignment, headers, and footers in MS Word.",
+  "tags": ["word-processing", "formatting", "letter", "alignment", "headers"],
+  "status": "draft",
+  "objective": "Students will create a professionally formatted letter in MS Word, applying font formatting (Bold, Italic, Underline), text alignment, headers and footers, page setup, and proper document saving techniques.",
+  "steps": [
+    {
+      "title": "Create the Document and Set Page Layout",
+      "instructions": "1. Open Microsoft Word (Start Menu → Microsoft Word, or press **Win + R**, type `winword`, press Enter).\n2. Create a new blank document by pressing **Ctrl + N**.\n3. Set the page margins:\n   - Go to **Layout** tab → **Margins** → **Custom Margins**\n   - Set all four margins (Top, Bottom, Left, Right) to **1.5 inches**\n   - Click **OK**\n4. Set the paper orientation to **Portrait** (Layout → Orientation → Portrait).\n5. Verify the paper size is set to **A4** (Layout → Size → A4).\n\n**CCC Exam Connection:** Default margins are 1 inch. Default orientation is Portrait. Default paper size in India is A4."
+    },
+    {
+      "title": "Type the Letter Content",
+      "instructions": "Type the following letter content:\n\n```\nRahul Sharma\n45, MG Road, Arera Colony\nBhopal - 462016\n26 July 2026\n\nThe Director\nTechPath Institute\nMP Nagar, Zone-II\nBhopal - 462011\n\nSubject: Application for Admission to CCC Course\n\nRespected Sir/Madam,\n\nI am writing to apply for admission to the CCC (Course on Computer Concepts) program at TechPath Institute. I have completed my graduation from Barkatullah University and wish to enhance my computer skills.\n\nI understand that the CCC course covers word processing, spreadsheets, internet, and email. The NIELIT certification will help me qualify for government job requirements. I am ready to pay the course fee of Rs. 3,000 and can join the August 2026 batch.\n\nKindly consider my application and confirm my admission.\n\nThanking you,\nYours faithfully,\n\nRahul Sharma\n```\n\n**Tips:**\n- Press **Enter** only to start a new paragraph or blank line.\n- Let Word wrap text automatically at the end of lines.\n- Use **Shift + Enter** if you need a line break without a paragraph gap (e.g., in the address)."
+    },
+    {
+      "title": "Apply Text Formatting",
+      "instructions": "Now format the letter using these techniques:\n\n**Sender's Name (Rahul Sharma at top):**\n- Select the name → change font to **Arial**, size **14pt**\n- Press **Ctrl + B** to make it Bold\n\n**Subject Line:**\n- Select the entire subject line\n- Press **Ctrl + B** for Bold\n- Press **Ctrl + U** for Underline\n\n**\"Respected Sir/Madam\":**\n- Select it → press **Ctrl + I** for Italic\n\n**Body Text (all paragraphs):**\n- Select all body paragraphs\n- Change font to **Times New Roman**, size **12pt**\n- Press **Ctrl + J** to Justify the text\n\n**\"TechPath Institute\" (wherever it appears):**\n- Use **Ctrl + H** (Find and Replace) is not needed here — just select each occurrence and press **Ctrl + B**\n\n**\"Rs. 3,000\":**\n- Select it → press **Ctrl + B** for Bold\n- Change the font colour to **Red** (Home tab → Font Color dropdown → Red)\n\n**Date and Closing:**\n- Select the date line → press **Ctrl + R** (Right align)\n- Select \"Yours faithfully\" and the signature name → press **Ctrl + R**\n\n**CCC Exam Connection:** Ctrl+B = Bold, Ctrl+I = Italic, Ctrl+U = Underline, Ctrl+J = Justify, Ctrl+R = Right align."
+    },
+    {
+      "title": "Add Header, Footer, and Page Number",
+      "instructions": "**Add a Header:**\n1. Go to **Insert** tab → **Header** → choose **Blank** style\n2. Type: **Application Letter — TechPath Institute**\n3. Make it Italic and font size 10pt\n4. Click **Close Header and Footer** (or double-click in the document area)\n\n**Add a Footer with Page Number:**\n1. Go to **Insert** tab → **Footer** → choose **Blank** style\n2. Go to **Insert** tab → **Page Number** → **Current Position** → choose a simple number format\n3. Center-align the page number in the footer\n4. Click **Close Header and Footer**\n\n**Add a Page Border:**\n1. Go to **Design** tab → **Page Borders**\n2. Select **Box** under Setting\n3. Choose a solid line style with **1.5 pt** width\n4. Click **OK**\n\n**CCC Exam Connection:** Headers/Footers are in the Insert tab. Page Borders are in the Design tab. Page numbers can be placed in headers or footers."
+    },
+    {
+      "title": "Spell Check, Preview, and Save",
+      "instructions": "**Run Spelling and Grammar Check:**\n1. Press **F7** to start the spell checker\n2. Review each flagged word — click **Change** to accept corrections or **Ignore** to skip\n3. Verify no red or blue wavy underlines remain\n\n**Preview the Document:**\n1. Press **Ctrl + P** to open Print Preview\n2. Check that the letter looks professional — margins are correct, header/footer visible, formatting is clean\n3. Press **Esc** to close the preview\n\n**Save the Document:**\n1. Press **Ctrl + S** to save\n2. Choose a location (e.g., Desktop or Documents folder)\n3. Name the file: **Letter_CCC_Application.docx**\n4. Click **Save**\n\n**Save as PDF:**\n1. Press **F12** (Save As)\n2. Change \"Save as type\" to **PDF**\n3. Name it: **Letter_CCC_Application.pdf**\n4. Click **Save**\n\n**CCC Exam Connection:** F7 = Spell Check. Ctrl+P = Print/Preview. Ctrl+S = Save. F12 = Save As. Default format is .docx."
+    }
+  ]
+}

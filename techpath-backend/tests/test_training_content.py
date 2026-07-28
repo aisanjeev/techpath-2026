@@ -251,6 +251,22 @@ class TestAssetReuse:
         assert await lecture_asset_crud.get(test_db, asset.id) is not None
         assert await lecture_asset_crud.usage_count(test_db, asset.id) == 0
 
+    async def test_search_unassigned_assets(self, test_db: AsyncSession) -> None:
+        _, m1, _, attached_asset = await self._fixture(test_db)
+        await module_asset_crud.attach(test_db, module_id=m1.id, asset_id=attached_asset.id)
+
+        unassigned_asset = await lecture_asset_crud.create_from_union(
+            test_db,
+            obj_in=asset_adapter.validate_python(
+                {"asset_type": "notes", "title": "Unassigned Asset", "body": "Free asset"}
+            ),
+        )
+
+        unassigned_rows, count = await lecture_asset_crud.search(test_db, unassigned=True)
+        unassigned_ids = [a.id for a in unassigned_rows]
+        assert unassigned_asset.id in unassigned_ids
+        assert attached_asset.id not in unassigned_ids
+
 
 class TestProgramCourseLink:
     async def test_course_id_is_optional(self, test_db: AsyncSession) -> None:

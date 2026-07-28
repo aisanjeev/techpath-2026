@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS Word Shortcut Trainer — TechPath Institute</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 700px;
+    width: 100%;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .header h1 {
+    font-size: 1.8rem;
+    color: #3b82f6;
+    margin-bottom: 5px;
+  }
+
+  .header p {
+    color: #94a3b8;
+    font-size: 0.95rem;
+  }
+
+  .brand {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 8px;
+  }
+
+  /* Progress bar */
+  .progress-bar-container {
+    background: #1e293b;
+    border-radius: 12px;
+    height: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    background: linear-gradient(90deg, #3b82f6, #22c55e);
+    height: 100%;
+    border-radius: 12px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* Stats row */
+  .stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    gap: 10px;
+  }
+
+  .stat-box {
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 12px 16px;
+    flex: 1;
+    text-align: center;
+  }
+
+  .stat-box .label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-box .value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  .stat-box .value.score { color: #22c55e; }
+  .stat-box .value.wrong { color: #ef4444; }
+  .stat-box .value.remaining { color: #3b82f6; }
+
+  /* Question card */
+  .question-card {
+    background: #1e293b;
+    border-radius: 14px;
+    padding: 30px;
+    margin-bottom: 20px;
+    border: 1px solid #334155;
+  }
+
+  .question-number {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 8px;
+  }
+
+  .question-text {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin-bottom: 8px;
+  }
+
+  .question-hint {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: #0f172a;
+    border: 2px solid #334155;
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: #e2e8f0;
+    font-size: 1rem;
+    font-family: Consolas, 'Courier New', monospace;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .option-btn:hover:not(.disabled) {
+    border-color: #3b82f6;
+    background: #172035;
+  }
+
+  .option-btn .key-label {
+    background: #334155;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-width: 30px;
+    text-align: center;
+  }
+
+  .option-btn.correct {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.15);
+  }
+
+  .option-btn.correct .key-label {
+    background: #22c55e;
+    color: #0f172a;
+  }
+
+  .option-btn.wrong {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.15);
+  }
+
+  .option-btn.wrong .key-label {
+    background: #ef4444;
+    color: #0f172a;
+  }
+
+  .option-btn.disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    display: none;
+  }
+
+  .feedback.correct {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid #22c55e;
+    color: #86efac;
+    display: block;
+  }
+
+  .feedback.wrong {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    color: #fca5a5;
+    display: block;
+  }
+
+  .next-btn {
+    background: #3b82f6;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 28px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+    width: 100%;
+    transition: background 0.2s;
+    display: none;
+  }
+
+  .next-btn:hover { background: #2563eb; }
+
+  /* Start screen */
+  .start-screen {
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .start-screen h2 {
+    font-size: 1.6rem;
+    color: #f1f5f9;
+    margin-bottom: 16px;
+  }
+
+  .start-screen p {
+    color: #94a3b8;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .start-btn {
+    background: #22c55e;
+    border: none;
+    border-radius: 10px;
+    padding: 16px 40px;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 25px;
+    transition: background 0.2s;
+  }
+
+  .start-btn:hover { background: #16a34a; }
+
+  /* Results screen */
+  .results-screen {
+    text-align: center;
+    display: none;
+  }
+
+  .results-screen h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+
+  .results-score {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 20px 0;
+  }
+
+  .results-score.excellent { color: #22c55e; }
+  .results-score.good { color: #3b82f6; }
+  .results-score.average { color: #eab308; }
+  .results-score.poor { color: #ef4444; }
+
+  .results-message {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    margin-bottom: 25px;
+    line-height: 1.6;
+  }
+
+  .results-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 30px;
+  }
+
+  .results-breakdown .item {
+    text-align: center;
+  }
+
+  .results-breakdown .item .num {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+
+  .results-breakdown .item .lbl {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 4px;
+  }
+
+  .review-section {
+    text-align: left;
+    margin-top: 30px;
+    background: #1e293b;
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .review-section h3 {
+    color: #f1f5f9;
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+  }
+
+  .review-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .review-item:last-child { border-bottom: none; }
+
+  .review-item .action {
+    font-size: 0.95rem;
+    color: #cbd5e1;
+    flex: 1;
+  }
+
+  .review-item .answer {
+    font-family: Consolas, monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .review-item .answer.right {
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+  }
+
+  .review-item .answer.missed {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .review-item .correct-answer {
+    font-family: Consolas, monospace;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-left: 4px;
+  }
+
+  .restart-btn {
+    background: #3b82f6;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 36px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s;
+  }
+
+  .restart-btn:hover { background: #2563eb; }
+
+  .category-tag {
+    display: inline-block;
+    background: #334155;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  @media (max-width: 500px) {
+    .header h1 { font-size: 1.4rem; }
+    .question-text { font-size: 1.1rem; }
+    .stats { flex-wrap: wrap; }
+    .stat-box { min-width: 80px; }
+    .option-btn { font-size: 0.9rem; padding: 12px 14px; }
+    .results-breakdown { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>MS Word Shortcut Trainer</h1>
+    <p>Master the keyboard shortcuts for CCC Exam success</p>
+    <div class="brand">TechPath Institute — CCC Exam Preparation</div>
+  </div>
+
+  <!-- Start Screen -->
+  <div id="startScreen" class="question-card start-screen">
+    <h2>Ready to Test Your Shortcuts?</h2>
+    <p>This trainer covers <strong>25 essential MS Word keyboard shortcuts</strong> that are frequently asked in the CCC exam.</p>
+    <p>You will see an action and need to pick the correct shortcut. Each question has 4 options.</p>
+    <p>Unit 3 (Word Processing) carries <strong>16-18 marks</strong> in the CCC exam. Shortcuts are the most commonly asked questions!</p>
+    <button class="start-btn" onclick="startQuiz()">Start Training</button>
+  </div>
+
+  <!-- Quiz Screen -->
+  <div id="quizScreen" style="display:none;">
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-box">
+        <div class="label">Correct</div>
+        <div class="value score" id="scoreDisplay">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Wrong</div>
+        <div class="value wrong" id="wrongDisplay">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Remaining</div>
+        <div class="value remaining" id="remainingDisplay">25</div>
+      </div>
+    </div>
+
+    <div class="question-card" id="questionCard">
+      <div class="category-tag" id="categoryTag"></div>
+      <div class="question-number" id="questionNumber"></div>
+      <div class="question-text" id="questionText"></div>
+      <div class="question-hint" id="questionHint"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question</button>
+    </div>
+  </div>
+
+  <!-- Results Screen -->
+  <div id="resultsScreen" class="results-screen"></div>
+</div>
+
+<script>
+const allQuestions = [
+  // File Operations
+  { action: "Create a new document", answer: "Ctrl + N", category: "File Operations", options: ["Ctrl + N", "Ctrl + M", "Alt + N", "Ctrl + Shift + N"] },
+  { action: "Open an existing document", answer: "Ctrl + O", category: "File Operations", options: ["Ctrl + O", "Ctrl + D", "Alt + O", "Ctrl + Shift + O"] },
+  { action: "Save the current document", answer: "Ctrl + S", category: "File Operations", options: ["Ctrl + S", "Ctrl + Shift + S", "F12", "Alt + S"] },
+  { action: "Save As (new name or format)", answer: "F12", category: "File Operations", options: ["Ctrl + S", "F12", "Ctrl + Shift + S", "F2"] },
+  { action: "Print the document", answer: "Ctrl + P", category: "File Operations", options: ["Ctrl + P", "Ctrl + Shift + P", "Alt + P", "F4"] },
+  { action: "Close the document", answer: "Ctrl + W", category: "File Operations", options: ["Ctrl + W", "Alt + F4", "Ctrl + Q", "Ctrl + F4"] },
+  // Text Editing
+  { action: "Copy selected text", answer: "Ctrl + C", category: "Text Editing", options: ["Ctrl + C", "Ctrl + X", "Ctrl + V", "Ctrl + D"] },
+  { action: "Cut selected text", answer: "Ctrl + X", category: "Text Editing", options: ["Ctrl + C", "Ctrl + X", "Ctrl + V", "Ctrl + D"] },
+  { action: "Paste from clipboard", answer: "Ctrl + V", category: "Text Editing", options: ["Ctrl + C", "Ctrl + X", "Ctrl + V", "Ctrl + P"] },
+  { action: "Undo the last action", answer: "Ctrl + Z", category: "Text Editing", options: ["Ctrl + Z", "Ctrl + Y", "Ctrl + U", "Alt + Z"] },
+  { action: "Redo (reverse an undo)", answer: "Ctrl + Y", category: "Text Editing", options: ["Ctrl + Z", "Ctrl + Y", "Ctrl + R", "Alt + Y"] },
+  { action: "Select the entire document", answer: "Ctrl + A", category: "Text Editing", options: ["Ctrl + A", "Ctrl + E", "Ctrl + Shift + A", "Alt + A"] },
+  { action: "Find text in the document", answer: "Ctrl + F", category: "Text Editing", options: ["Ctrl + F", "Ctrl + H", "Ctrl + G", "F3"] },
+  { action: "Find and Replace text", answer: "Ctrl + H", category: "Text Editing", options: ["Ctrl + F", "Ctrl + H", "Ctrl + R", "Ctrl + G"] },
+  // Formatting
+  { action: "Make text Bold", answer: "Ctrl + B", category: "Formatting", options: ["Ctrl + B", "Ctrl + D", "Ctrl + G", "Alt + B"] },
+  { action: "Make text Italic", answer: "Ctrl + I", category: "Formatting", options: ["Ctrl + I", "Ctrl + T", "Alt + I", "Ctrl + Shift + I"] },
+  { action: "Underline text", answer: "Ctrl + U", category: "Formatting", options: ["Ctrl + U", "Ctrl + L", "Alt + U", "Ctrl + Shift + U"] },
+  { action: "Open Font dialog box", answer: "Ctrl + D", category: "Formatting", options: ["Ctrl + F", "Ctrl + D", "Ctrl + T", "Alt + F"] },
+  { action: "Change text case (cycle)", answer: "Shift + F3", category: "Formatting", options: ["Shift + F3", "Ctrl + F3", "Alt + F3", "Ctrl + Shift + C"] },
+  // Alignment
+  { action: "Left align text", answer: "Ctrl + L", category: "Alignment", options: ["Ctrl + L", "Ctrl + E", "Ctrl + R", "Ctrl + J"] },
+  { action: "Center align text", answer: "Ctrl + E", category: "Alignment", options: ["Ctrl + C", "Ctrl + E", "Ctrl + M", "Alt + C"] },
+  { action: "Right align text", answer: "Ctrl + R", category: "Alignment", options: ["Ctrl + R", "Ctrl + L", "Ctrl + J", "Alt + R"] },
+  { action: "Justify text (both margins)", answer: "Ctrl + J", category: "Alignment", options: ["Ctrl + J", "Ctrl + E", "Ctrl + R", "Ctrl + K"] },
+  // Spacing & Other
+  { action: "Set double line spacing", answer: "Ctrl + 2", category: "Spacing", options: ["Ctrl + 2", "Ctrl + D", "Ctrl + 5", "Ctrl + 1"] },
+  { action: "Check Spelling and Grammar", answer: "F7", category: "Other", options: ["F5", "F7", "F9", "F12"] },
+];
+
+let questions = [];
+let currentIndex = 0;
+let score = 0;
+let wrongCount = 0;
+let answered = [];
+let userAnswers = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  questions = shuffle(allQuestions);
+  currentIndex = 0;
+  score = 0;
+  wrongCount = 0;
+  answered = [];
+  userAnswers = [];
+
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('quizScreen').style.display = 'block';
+  document.getElementById('resultsScreen').style.display = 'none';
+
+  updateStats();
+  showQuestion();
+}
+
+function updateStats() {
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('wrongDisplay').textContent = wrongCount;
+  document.getElementById('remainingDisplay').textContent = questions.length - currentIndex;
+  document.getElementById('progressBar').style.width = ((currentIndex / questions.length) * 100) + '%';
+}
+
+function showQuestion() {
+  const q = questions[currentIndex];
+  const opts = shuffle(q.options);
+
+  document.getElementById('categoryTag').textContent = q.category;
+  document.getElementById('questionNumber').textContent = 'Question ' + (currentIndex + 1) + ' of ' + questions.length;
+  document.getElementById('questionText').textContent = 'What is the shortcut for: ' + q.action + '?';
+  document.getElementById('questionHint').textContent = 'Select the correct keyboard shortcut below.';
+
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+
+  const labels = ['A', 'B', 'C', 'D'];
+  opts.forEach(function(opt, i) {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = '<span class="key-label">' + labels[i] + '</span>' + opt;
+    btn.onclick = function() { handleAnswer(opt, q.answer, btn); };
+    container.appendChild(btn);
+  });
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
+}
+
+function handleAnswer(selected, correct, clickedBtn) {
+  if (answered.includes(currentIndex)) return;
+  answered.push(currentIndex);
+
+  const isCorrect = selected === correct;
+  userAnswers.push({ question: questions[currentIndex], selected: selected, correct: isCorrect });
+
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach(function(btn) {
+    btn.classList.add('disabled');
+    const btnText = btn.textContent.substring(1);
+    if (btnText === correct) {
+      btn.classList.add('correct');
+    }
+  });
+
+  if (isCorrect) {
+    score++;
+    clickedBtn.classList.add('correct');
+    document.getElementById('feedback').className = 'feedback correct';
+    document.getElementById('feedback').textContent = 'Correct! ' + correct + ' is the right shortcut.';
+  } else {
+    wrongCount++;
+    clickedBtn.classList.add('wrong');
+    document.getElementById('feedback').className = 'feedback wrong';
+    document.getElementById('feedback').textContent = 'Incorrect. The correct answer is ' + correct + '.';
+  }
+
+  document.getElementById('feedback').style.display = 'block';
+  updateStats();
+
+  if (currentIndex < questions.length - 1) {
+    document.getElementById('nextBtn').textContent = 'Next Question';
+  } else {
+    document.getElementById('nextBtn').textContent = 'See Results';
+  }
+  document.getElementById('nextBtn').style.display = 'block';
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= questions.length) {
+    showResults();
+  } else {
+    updateStats();
+    showQuestion();
+  }
+}
+
+function showResults() {
+  document.getElementById('quizScreen').style.display = 'none';
+  const results = document.getElementById('resultsScreen');
+  results.style.display = 'block';
+
+  const pct = Math.round((score / questions.length) * 100);
+  let grade, gradeClass, message;
+
+  if (pct >= 90) {
+    grade = 'Excellent!';
+    gradeClass = 'excellent';
+    message = 'Outstanding performance! You have mastered MS Word shortcuts. You are well prepared for the CCC exam.';
+  } else if (pct >= 70) {
+    grade = 'Good Job!';
+    gradeClass = 'good';
+    message = 'Good work! You know most shortcuts. Review the ones you missed and try again to score even higher.';
+  } else if (pct >= 50) {
+    grade = 'Keep Practicing';
+    gradeClass = 'average';
+    message = 'You are getting there! Practice the shortcuts you missed. Try using them while working in MS Word.';
+  } else {
+    grade = 'Needs More Practice';
+    gradeClass = 'poor';
+    message = 'Do not worry! Review the cheatsheet and practice each shortcut. Repeat this trainer daily until you score above 80%.';
+  }
+
+  let reviewHTML = '';
+  userAnswers.forEach(function(ua) {
+    const statusClass = ua.correct ? 'right' : 'missed';
+    const statusText = ua.correct ? ua.selected : ua.selected;
+    let extra = '';
+    if (!ua.correct) {
+      extra = '<span class="correct-answer">(Correct: ' + ua.question.answer + ')</span>';
+    }
+    reviewHTML += '<div class="review-item">' +
+      '<span class="action">' + ua.question.action + '</span>' +
+      '<span class="answer ' + statusClass + '">' + statusText + extra + '</span>' +
+      '</div>';
+  });
+
+  results.innerHTML =
+    '<h2>' + grade + '</h2>' +
+    '<div class="results-score ' + gradeClass + '">' + score + '/' + questions.length + '</div>' +
+    '<div class="results-message">' + message + '</div>' +
+    '<div class="results-breakdown">' +
+      '<div class="item"><div class="num" style="color:#22c55e">' + score + '</div><div class="lbl">Correct</div></div>' +
+      '<div class="item"><div class="num" style="color:#ef4444">' + wrongCount + '</div><div class="lbl">Wrong</div></div>' +
+      '<div class="item"><div class="num" style="color:#3b82f6">' + pct + '%</div><div class="lbl">Accuracy</div></div>' +
+    '</div>' +
+    '<div class="review-section">' +
+      '<h3>Review Your Answers</h3>' +
+      reviewHTML +
+    '</div>' +
+    '<br><button class="restart-btn" onclick="startQuiz()">Try Again</button>' +
+    '<p class="brand" style="margin-top:20px;">TechPath Institute — CCC Exam Preparation</p>';
+}
+</script>
+
+</body>
+</html>

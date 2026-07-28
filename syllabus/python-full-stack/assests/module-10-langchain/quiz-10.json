@@ -1,0 +1,94 @@
+{
+  "questions": [
+    {
+      "question": "What is LangChain?",
+      "options": ["A JavaScript framework for web apps", "A Python framework for building LLM-powered applications", "A database management tool", "A CSS library for styling"],
+      "correct_index": 1,
+      "explanation": "LangChain is a Python framework that provides reusable components (prompts, chains, memory, retrievers) for building applications powered by Large Language Models."
+    },
+    {
+      "question": "What does the pipe operator (|) do in LCEL?",
+      "options": ["Adds two numbers together", "Connects components so output of one becomes input of the next", "Creates a new file on disk", "Splits text into chunks"],
+      "correct_index": 1,
+      "explanation": "In LangChain Expression Language (LCEL), the pipe operator connects components in sequence -- the output of the left side flows as input to the right side, like prompt | llm | parser."
+    },
+    {
+      "question": "What does a Prompt Template do?",
+      "options": ["Stores data in a database", "Formats a question with variables before sending to the LLM", "Converts text to numbers", "Searches for similar documents"],
+      "correct_index": 1,
+      "explanation": "A Prompt Template is like a fill-in-the-blank form. You define the structure once with variables like {topic}, then fill in different values each time."
+    },
+    {
+      "question": "What does temperature=0.0 mean when configuring an LLM?",
+      "options": ["The model runs faster", "The model gives creative, random responses", "The model gives focused, deterministic responses", "The model uses less memory"],
+      "correct_index": 2,
+      "explanation": "Temperature 0.0 makes the LLM deterministic -- it gives the same focused answer every time. Higher temperature (closer to 1.0) makes responses more creative and varied."
+    },
+    {
+      "question": "What is the purpose of an Output Parser?",
+      "options": ["To send prompts to the LLM", "To convert raw LLM text into structured Python data", "To load PDF files", "To store conversation history"],
+      "correct_index": 1,
+      "explanation": "Output Parsers convert the LLM's plain text response into structured data like JSON objects, Python dictionaries, or lists that your code can easily use."
+    },
+    {
+      "question": "Which document loader would you use to load a PDF file?",
+      "options": ["TextLoader", "CSVLoader", "PyPDFLoader", "WebBaseLoader"],
+      "correct_index": 2,
+      "explanation": "PyPDFLoader is designed for PDF files. It loads each page as a separate Document object with metadata including the page number."
+    },
+    {
+      "question": "Why do text splitters use chunk_overlap?",
+      "options": ["To make files larger", "To prevent information loss at chunk boundaries", "To speed up processing", "To reduce the number of chunks"],
+      "correct_index": 1,
+      "explanation": "Overlap ensures that text at the boundary between two chunks is included in both, so important information that spans a split point is not lost."
+    },
+    {
+      "question": "What are embeddings?",
+      "options": ["HTML elements embedded in a page", "Number vectors that represent the meaning of text", "Images inserted into documents", "Database table relationships"],
+      "correct_index": 1,
+      "explanation": "Embeddings convert text into lists of numbers (vectors) that capture meaning. Similar text gets similar vectors, enabling semantic search."
+    },
+    {
+      "question": "What does cosine similarity measure?",
+      "options": ["The length of a text", "How similar two embedding vectors are", "The speed of an API call", "The cost of an LLM query"],
+      "correct_index": 1,
+      "explanation": "Cosine similarity measures how similar two vectors are, returning a value between -1 and 1. A score close to 1 means the texts have very similar meaning."
+    },
+    {
+      "question": "Which vector store is best for learning and small projects?",
+      "options": ["Pinecone", "Weaviate", "FAISS", "MongoDB"],
+      "correct_index": 2,
+      "explanation": "FAISS (Facebook AI Similarity Search) is free, runs locally without any server setup, and is the simplest option for learning and small projects."
+    },
+    {
+      "question": "What does RAG stand for?",
+      "options": ["Random Access Generation", "Retrieval-Augmented Generation", "Real-time API Gateway", "Recursive Algorithm Graph"],
+      "correct_index": 1,
+      "explanation": "RAG = Retrieval-Augmented Generation. It retrieves relevant documents first, then augments the prompt with that context so the LLM generates accurate answers."
+    },
+    {
+      "question": "In a RAG pipeline, what does the retriever do?",
+      "options": ["Generates the final answer", "Searches the vector store for relevant document chunks", "Formats the prompt template", "Converts text to embeddings"],
+      "correct_index": 1,
+      "explanation": "The retriever takes the user's question, searches the vector store for the most similar document chunks, and returns them for the LLM to use as context."
+    },
+    {
+      "question": "What is the recommended starting chunk_size for text splitting?",
+      "options": ["50 characters", "500 characters", "5000 characters", "50000 characters"],
+      "correct_index": 1,
+      "explanation": "500 characters is a good starting point for most applications. It balances precision (not too large) with context (not too small). Adjust based on results."
+    },
+    {
+      "question": "What is Multi-Query Retrieval?",
+      "options": ["Searching multiple databases at once", "Generating multiple versions of a question for better search coverage", "Running multiple LLMs in parallel", "Loading multiple documents at once"],
+      "correct_index": 1,
+      "explanation": "Multi-Query Retrieval uses an LLM to generate multiple phrasings of the user's question, searches with each one, and combines the results for better coverage."
+    },
+    {
+      "question": "What does hybrid search combine?",
+      "options": ["Two different LLMs", "Keyword search (BM25) and semantic search (embeddings)", "PDF loading and web scraping", "Memory and prompt templates"],
+      "correct_index": 1,
+      "explanation": "Hybrid search combines keyword-based search (BM25, exact word matching) with semantic search (embeddings, meaning matching) for more comprehensive results."
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "01-operating-system-basics.md": {
+    "title": "Operating System Basics",
+    "description": "Module 02 \u2014 CCC Exam Preparation | Topic 1 --- An Operating System (OS) is system software that manages all the hardware and software resources of a computer. It acts as a bridge (interface) between the user and the computer hardware. Without an operating system, a computer is just a collection of useless electronic parts. The OS makes it possible for you to use the computer \u2014 open programs, save files, print documents, and connect to the...",
+    "asset_type": "markdown",
+    "tags": [
+      "operating-system",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "02-windows-gui-components.md": {
+    "title": "Windows GUI Components",
+    "description": "Module 02 \u2014 CCC Exam Preparation | Topic 2 --- GUI stands for Graphical User Interface. It allows users to interact with the computer using visual elements like windows, icons, buttons, and menus \u2014 instead of typing text commands. Before GUI, users had to type commands in a text-based interface (like DOS). GUI made computers easy enough for anyone to use \u2014 even absolute beginners. CCC Exam Tip: GUI = Graphical User Interface. WIMP = Windows,...",
+    "asset_type": "markdown",
+    "tags": [
+      "operating-system",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "03-file-directory-management.md": {
+    "title": "File and Directory Management",
+    "description": "Module 02 \u2014 CCC Exam Preparation | Topic 3 --- A file is a collection of related data stored on a computer with a unique name. Every document, photo, song, video, or program on your computer is a file. Examples: - resume.docx \u2014 a Word document file - photo.jpg \u2014 an image file - song.mp3 \u2014 a music file - budget.xlsx \u2014 an Excel spreadsheet file Every file has two parts in its name: - File Name: The name you give it (e.g., resume) - File Extension:...",
+    "asset_type": "markdown",
+    "tags": [
+      "operating-system",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "04-os-settings-configuration.md": {
+    "title": "OS Settings and Configuration",
+    "description": "Module 02 \u2014 CCC Exam Preparation | Topic 4 --- Windows allows you to customize and configure many settings to suit your needs. These settings are available through two main locations: 1. Settings App (Modern \u2014 Windows 10/11) 2. Control Panel (Classic \u2014 available in all Windows versions) Both let you change system settings, but the Settings app is newer and more visual, while the Control Panel is the traditional way with more detailed options....",
+    "asset_type": "markdown",
+    "tags": [
+      "operating-system",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "05-file-types-extensions.md": {
+    "title": "File Types and Extensions",
+    "description": "Module 02 \u2014 CCC Exam Preparation | Topic 5 --- A file extension is the part of a file name that comes after the last dot (.). It tells the computer (and you) what type of file it is and which program should open it. Example: resume.docx - resume = file name - .docx = file extension (tells us it is a Microsoft Word document) When you double-click a file, Windows looks at the extension to decide which program to use. For example: - .docx files...",
+    "asset_type": "markdown",
+    "tags": [
+      "operating-system",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "06-windows-shortcut-explorer.html": {
+    "title": "Windows Shortcut Explorer \u2014 TechPath CCC Module 02",
+    "description": "Interactive Windows Shortcut Explorer \u2014 TechPath CCC Module 02 exercise for Operating System",
+    "asset_type": "html_bundle",
+    "tags": [
+      "operating-system",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "assignment-02.md": {
+    "title": "Module 02: GUI Based Operating System \u2014 Assignment",
+    "description": "CCC Exam Preparation | TechPath Institute --- Complete all 4 tasks below. Each task is hands-on and requires you to work on a Windows computer. Take screenshots or write down your observations as instructed. Submit your work to your trainer at the next class. --- Objective: Practice creating, organizing, and managing files and folders. What to Do: 1. Open File Explorer (Windows + E) 2. Go to the Desktop folder 3. Create the following folder...",
+    "asset_type": "assignment",
+    "tags": [
+      "operating-system",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "cheatsheet-02.md": {
+    "title": "Cheatsheet 02",
+    "description": "Learning material for Cheatsheet 02",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "operating-system",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "lab-02-a.json": {
+    "title": "File and Folder Management in Windows",
+    "description": "Hands-on practice with creating, copying, moving, renaming, and deleting files and folders",
+    "asset_type": "lab",
+    "tags": [
+      "file-management",
+      "folders",
+      "windows",
+      "file-explorer",
+      "beginner"
+    ]
+  },
+  "lab-02-b.json": {
+    "title": "Windows Settings and System Configuration",
+    "description": "Explore Control Panel, Task Manager, display settings, and power options in Windows",
+    "asset_type": "lab",
+    "tags": [
+      "windows-settings",
+      "control-panel",
+      "task-manager",
+      "configuration",
+      "beginner"
+    ]
+  },
+  "notes-02.md": {
+    "title": "Module 02: Introduction to GUI Based Operating System \u2014 Comprehensive Notes",
+    "description": "CCC Exam Preparation | TechPath Institute --- An Operating System (OS) is system software that manages all hardware and software resources of a computer. It acts as an interface between the user and the hardware. Key Functions: - Process Management \u2014 runs and manages multiple programs - Memory Management \u2014 allocates and frees RAM - File Management \u2014 organizes files and folders on storage - Device Management \u2014 controls input/output devices via...",
+    "asset_type": "notes",
+    "tags": [
+      "operating-system",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-02.json": {
+    "title": "Quiz 02",
+    "description": "Learning material for Quiz 02",
+    "asset_type": "quiz",
+    "tags": [
+      "operating-system",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-02.md": {
+    "title": "Quiz: Introduction to GUI Based Operating System",
+    "description": "Module 02 \u2014 CCC Exam Preparation --- - A) General User Interface - B) Graphical Unified Interface - C) Graphical User Interface \u2705 - D) General Utility Interface > Explanation: GUI stands for Graphical User Interface. It allows users to interact with the computer using visual elements like windows, icons, menus, and a pointer (WIMP) instead of typing text commands. --- - A) File goes to Recycle Bin - B) File is permanently deleted \u2705 - C) File is...",
+    "asset_type": "markdown",
+    "tags": [
+      "operating-system",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "resources-02.md": {
+    "title": "Module 02: GUI Based Operating System \u2014 Resources",
+    "description": "CCC Exam Preparation | TechPath Institute --- - Microsoft Windows Support \u2014 https://support.microsoft.com/en-us/windows - Official tutorials, troubleshooting guides, and how-to articles for Windows - Microsoft Learn \u2014 https://learn.microsoft.com/ - Free learning paths including Windows fundamentals - NIELIT Official Website \u2014 https://www.nielit.gov.in/ - CCC syllabus, exam schedule, and study material --- - GCFGlobal (GCF LearnFree) \u2014...",
+    "asset_type": "notes",
+    "tags": [
+      "operating-system",
+      "ccc",
+      "computer-concepts"
+    ]
+  }
+}

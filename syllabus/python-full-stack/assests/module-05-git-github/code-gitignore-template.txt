@@ -1,0 +1,248 @@
+# ============================================
+# .gitignore — Python Full-Stack Project
+# TechPath Institute
+# ============================================
+# This file tells Git which files and folders
+# to ignore. These are files that should NOT
+# be uploaded to GitHub because they are either:
+# - Generated automatically (can be recreated)
+# - Contain secrets (passwords, API keys)
+# - Specific to your computer (OS/IDE files)
+# - Too large or unnecessary for the repo
+# ============================================
+
+
+# -----------------------------------------------
+# PYTHON BYTECODE
+# -----------------------------------------------
+# When Python runs your code, it creates compiled
+# versions (.pyc files) in __pycache__ folders.
+# These are auto-generated and machine-specific —
+# never commit them.
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+
+# -----------------------------------------------
+# VIRTUAL ENVIRONMENTS
+# -----------------------------------------------
+# Virtual environments contain installed packages
+# for your project. They can be huge (100+ MB)
+# and can be recreated with: pip install -r requirements.txt
+# Never commit these — share requirements.txt instead.
+
+.venv/
+venv/
+env/
+ENV/
+.env.py
+
+
+# -----------------------------------------------
+# ENVIRONMENT / SECRET FILES
+# -----------------------------------------------
+# These files contain sensitive data like database
+# passwords, API keys, and secret tokens.
+# NEVER commit these — if a secret leaks to GitHub,
+# consider it compromised and rotate it immediately.
+
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.test
+*.env
+
+
+# -----------------------------------------------
+# IDE AND EDITOR FILES
+# -----------------------------------------------
+# These are settings specific to YOUR editor.
+# Other developers may use different editors,
+# so these should not be in the repo.
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains (PyCharm, IntelliJ)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Cursor AI Editor
+.cursor/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+
+# -----------------------------------------------
+# OPERATING SYSTEM FILES
+# -----------------------------------------------
+# macOS and Windows create hidden files for folder
+# settings. These are useless in a code repo.
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+
+
+# -----------------------------------------------
+# BUILD AND DISTRIBUTION
+# -----------------------------------------------
+# These folders are created when you build or
+# package your project. They can always be
+# regenerated from source code.
+
+build/
+dist/
+*.egg-info/
+*.egg
+*.whl
+*.tar.gz
+sdist/
+wheels/
+
+
+# -----------------------------------------------
+# DATABASE FILES
+# -----------------------------------------------
+# Local database files should not be committed.
+# Each developer has their own local database.
+# Use migrations (Alembic) to share schema changes.
+
+*.db
+*.sqlite3
+*.sqlite
+data/*.db
+
+
+# -----------------------------------------------
+# LOG FILES
+# -----------------------------------------------
+# Log files are generated during runtime and can
+# grow very large. They are specific to each
+# environment and should not be shared.
+
+*.log
+logs/
+log/
+
+
+# -----------------------------------------------
+# NODE.JS / FRONTEND
+# -----------------------------------------------
+# If your full-stack project has a frontend with
+# npm/yarn, these folders contain installed packages
+# and lock files that can be regenerated.
+
+node_modules/
+.next/
+.nuxt/
+.output/
+.astro/
+
+# Package manager lock files
+# Note: In frontend projects you DO want to commit
+# package-lock.json. But in a Python project that
+# only occasionally uses npm, you might ignore it.
+# Uncomment if needed:
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+
+# -----------------------------------------------
+# TESTING AND COVERAGE
+# -----------------------------------------------
+# Test coverage reports are generated locally.
+# They can be regenerated with: pytest --cov
+
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.pytest_cache/
+.tox/
+.nox/
+
+
+# -----------------------------------------------
+# TYPE CHECKING
+# -----------------------------------------------
+# mypy cache — regenerated on each run
+
+.mypy_cache/
+.pytype/
+
+
+# -----------------------------------------------
+# DOCKER (files that shouldn't be tracked)
+# -----------------------------------------------
+# Docker can generate temporary files. The actual
+# Dockerfile and docker-compose.yml SHOULD be
+# committed — only ignore generated/temp files.
+
+# Docker Compose override (local customizations)
+docker-compose.override.yml
+
+# Docker volumes data
+docker-data/
+
+
+# -----------------------------------------------
+# MISCELLANEOUS
+# -----------------------------------------------
+# Temporary files, backups, and other junk that
+# doesn't belong in version control.
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+
+# Archives
+*.zip
+*.rar
+*.7z
+
+# Media files (if large — use Git LFS instead)
+# *.mp4
+# *.mp3
+# *.mov
+
+# Secrets and certificates
+*.pem
+*.key
+*.crt
+*.p12
+service-account*.json

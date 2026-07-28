@@ -1,0 +1,224 @@
+{
+  "questions": [
+    {
+      "question": "A D2C skincare brand spends ₹50,000 on ads and acquires 100 new customers. What is their Customer Acquisition Cost (CAC)?",
+      "options": [
+        "₹5,000",
+        "₹500",
+        "₹50",
+        "₹5"
+      ],
+      "correct_index": 1,
+      "explanation": "CAC = Total Marketing Spend / Number of Customers Acquired. ₹50,000 ÷ 100 = ₹500 per customer."
+    },
+    {
+      "question": "Which of the following is NOT one of the 7 Pillars of Digital Marketing?",
+      "options": [
+        "SEO",
+        "Content Marketing",
+        "Television Advertising",
+        "Email Marketing"
+      ],
+      "correct_index": 2,
+      "explanation": "Television advertising is a traditional marketing channel, not one of the 7 pillars of digital marketing which include SEO, Content, Social Media, Email, PPC, Affiliate, and Analytics."
+    },
+    {
+      "question": "If a campaign generates ₹3,00,000 revenue from ₹1,00,000 ad spend, what is the ROAS?",
+      "options": [
+        "3x",
+        "30x",
+        "0.3x",
+        "300x"
+      ],
+      "correct_index": 0,
+      "explanation": "ROAS (Return on Ad Spend) = Revenue / Ad Spend. ₹3,00,000 ÷ ₹1,00,000 = 3x, meaning every ₹1 spent earned ₹3 back."
+    },
+    {
+      "question": "What does CTR stand for in digital marketing?",
+      "options": [
+        "Cost To Revenue",
+        "Click Through Rate",
+        "Customer Tracking Ratio",
+        "Conversion Timing Report"
+      ],
+      "correct_index": 1,
+      "explanation": "CTR (Click Through Rate) measures the percentage of people who clicked your ad or link out of the total who saw it. Formula: Clicks ÷ Impressions × 100."
+    },
+    {
+      "question": "An ad gets 500 clicks from 25,000 impressions. What is the CTR?",
+      "options": [
+        "0.2%",
+        "2%",
+        "5%",
+        "20%"
+      ],
+      "correct_index": 1,
+      "explanation": "CTR = (Clicks ÷ Impressions) × 100 = (500 ÷ 25,000) × 100 = 2%."
+    },
+    {
+      "question": "Which AI tool is developed by Anthropic?",
+      "options": [
+        "ChatGPT",
+        "Gemini",
+        "Claude",
+        "Copilot"
+      ],
+      "correct_index": 2,
+      "explanation": "Claude is developed by Anthropic. ChatGPT is by OpenAI, Gemini is by Google, and Copilot is by Microsoft."
+    },
+    {
+      "question": "In the CRAFT Framework for writing prompts, what does the 'C' stand for?",
+      "options": [
+        "Content",
+        "Context",
+        "Creativity",
+        "Conversion"
+      ],
+      "correct_index": 1,
+      "explanation": "In the CRAFT framework, C = Context, R = Role, A = Action, F = Format, T = Tone. Providing context helps the AI understand your situation better."
+    },
+    {
+      "question": "A buyer persona for a coding bootcamp includes: 'Rahul, 22, BCA graduate from Lucknow, wants a job in IT.' Which element is this describing?",
+      "options": [
+        "Marketing funnel stage",
+        "Ideal customer profile with demographics and goals",
+        "Competitor analysis",
+        "Content calendar entry"
+      ],
+      "correct_index": 1,
+      "explanation": "A buyer persona is a semi-fictional representation of your ideal customer including demographics, goals, pain points, and motivations."
+    },
+    {
+      "question": "Which stage of the customer journey comes right after Awareness?",
+      "options": [
+        "Purchase",
+        "Loyalty",
+        "Consideration",
+        "Advocacy"
+      ],
+      "correct_index": 2,
+      "explanation": "The customer journey stages are: Awareness → Consideration → Decision/Purchase → Retention → Advocacy. After becoming aware, customers consider their options."
+    },
+    {
+      "question": "TOFU in the marketing funnel refers to:",
+      "options": [
+        "Top of Funnel — attracting a wide audience",
+        "Total Online Followers United",
+        "Tools for Funnel Upgrades",
+        "Tracking of Final Users"
+      ],
+      "correct_index": 0,
+      "explanation": "TOFU = Top of Funnel, where you attract maximum eyeballs through blogs, social media, and awareness content. MOFU = Middle, BOFU = Bottom."
+    },
+    {
+      "question": "Which SMART goal component ensures you can track progress?",
+      "options": [
+        "Specific",
+        "Measurable",
+        "Achievable",
+        "Time-bound"
+      ],
+      "correct_index": 1,
+      "explanation": "The 'M' in SMART stands for Measurable — your goal must have numbers or metrics so you can track if you're making progress (e.g., 'increase followers by 500')."
+    },
+    {
+      "question": "What is the primary purpose of competitor analysis in digital marketing?",
+      "options": [
+        "To copy exactly what competitors are doing",
+        "To understand market gaps, benchmark performance, and find differentiation opportunities",
+        "To report competitors to Google",
+        "To reduce your own marketing budget"
+      ],
+      "correct_index": 1,
+      "explanation": "Competitor analysis helps you identify what's working in your market, find gaps competitors are missing, and differentiate your own positioning."
+    },
+    {
+      "question": "A fresher wants to build their personal brand on LinkedIn. Which action should come FIRST?",
+      "options": [
+        "Post viral memes daily",
+        "Optimize profile with clear headline, about section, and professional photo",
+        "Send connection requests to 500 random people",
+        "Share controversial opinions for engagement"
+      ],
+      "correct_index": 1,
+      "explanation": "Before creating content, you must optimize your LinkedIn profile — it's your digital resume. A clear headline, detailed about section, and professional photo build credibility."
+    },
+    {
+      "question": "If CPC is ₹8 and you have a budget of ₹4,000, approximately how many clicks will you get?",
+      "options": [
+        "50 clicks",
+        "500 clicks",
+        "5,000 clicks",
+        "320 clicks"
+      ],
+      "correct_index": 1,
+      "explanation": "Number of Clicks = Budget ÷ CPC = ₹4,000 ÷ ₹8 = 500 clicks."
+    },
+    {
+      "question": "CPM in advertising means:",
+      "options": [
+        "Cost Per Minute",
+        "Clicks Per Month",
+        "Cost Per Mille (cost per 1,000 impressions)",
+        "Customer Purchase Metric"
+      ],
+      "correct_index": 2,
+      "explanation": "CPM = Cost Per Mille, meaning the cost to show your ad 1,000 times. 'Mille' is Latin for thousand. It measures brand visibility cost."
+    },
+    {
+      "question": "Which of the following is a MOFU (Middle of Funnel) content type?",
+      "options": [
+        "A viral Instagram Reel about a trending topic",
+        "A detailed comparison guide between your product and competitors",
+        "A general blog post about industry trends",
+        "A customer testimonial video"
+      ],
+      "correct_index": 1,
+      "explanation": "MOFU content helps prospects evaluate options — comparison guides, case studies, and webinars nurture leads who are already aware of their problem."
+    },
+    {
+      "question": "LTV (Lifetime Value) of a customer is ₹12,000 and CAC is ₹3,000. What does the LTV:CAC ratio tell you?",
+      "options": [
+        "The business is losing money (ratio too low)",
+        "The business earns 4x what it spends to acquire each customer — healthy ratio",
+        "The business should stop all marketing immediately",
+        "The customer will buy exactly 4 products"
+      ],
+      "correct_index": 1,
+      "explanation": "LTV:CAC = ₹12,000:₹3,000 = 4:1. A ratio of 3:1 or higher is considered healthy, meaning you earn significantly more from a customer than you spend to acquire them."
+    },
+    {
+      "question": "What is the best YouTube content strategy for a beginner building a personal brand?",
+      "options": [
+        "Upload one long video per month on random topics",
+        "Create consistent niche content, optimize titles and thumbnails, and engage with comments",
+        "Buy subscribers to look popular quickly",
+        "Only do YouTube Shorts — long videos are dead"
+      ],
+      "correct_index": 1,
+      "explanation": "Successful YouTube personal branding requires consistency, niche focus, searchable titles, click-worthy thumbnails, and community engagement through comments."
+    },
+    {
+      "question": "When writing a prompt for an AI tool, which approach will give the BEST output?",
+      "options": [
+        "Write a single word like 'marketing'",
+        "Give context, specify role, define the action, mention format, and set tone",
+        "Ask the AI to guess what you want",
+        "Copy-paste someone else's prompt without modification"
+      ],
+      "correct_index": 1,
+      "explanation": "The CRAFT framework (Context, Role, Action, Format, Tone) produces the best AI outputs because it gives the model clear boundaries and expectations."
+    },
+    {
+      "question": "Which metric would you track to measure brand awareness at the TOFU stage?",
+      "options": [
+        "Purchase conversion rate",
+        "Impressions, reach, and website traffic",
+        "Customer retention rate",
+        "Average order value"
+      ],
+      "correct_index": 1,
+      "explanation": "TOFU metrics focus on visibility — impressions (how many times your content was shown), reach (unique people who saw it), and traffic (visitors to your site)."
+    }
+  ]
+}

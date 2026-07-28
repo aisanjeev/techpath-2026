@@ -30,7 +30,7 @@ class _AssetCommon(BaseModel):
 
 class InlineTextAssetIn(_AssetCommon):
     asset_type: Literal[
-        AssetType.MARKDOWN, AssetType.NOTES, AssetType.CHEAT_SHEET, AssetType.CODE_SNIPPET
+        AssetType.NOTES, AssetType.CHEAT_SHEET, AssetType.CODE_SNIPPET
     ]
     body: str = Field(..., min_length=1)
     # Only meaningful for code_snippet; harmless elsewhere.
@@ -39,6 +39,7 @@ class InlineTextAssetIn(_AssetCommon):
 
 class FileAssetIn(_AssetCommon):
     asset_type: Literal[
+        AssetType.MARKDOWN,
         AssetType.PDF,
         AssetType.PPT,
         AssetType.VIDEO,

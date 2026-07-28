@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Flexbox &amp; Grid Playground — TechPath Institute</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* --- Header --- */
+        .site-header {
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+            padding: 16px 24px;
+            text-align: center;
+        }
+
+        .site-header h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .site-header p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* --- Tabs --- */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            background: #1e293b;
+            border-bottom: 2px solid #334155;
+        }
+
+        .tab-btn {
+            padding: 12px 32px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #e2e8f0;
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .tab-btn.active {
+            color: #38bdf8;
+            border-bottom-color: #38bdf8;
+        }
+
+        .tab-panel {
+            display: none;
+            padding: 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* --- Controls --- */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-group label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-group select,
+        .control-group input {
+            padding: 8px 12px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            border-color: #38bdf8;
+        }
+
+        /* --- Action Buttons --- */
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-accent {
+            background: #38bdf8;
+            color: #0f172a;
+        }
+
+        .btn-accent:hover {
+            background: #7dd3fc;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #475569;
+            color: #94a3b8;
+        }
+
+        .btn-outline:hover {
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+
+        .btn-danger {
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .btn-success {
+            background: transparent;
+            border: 1px solid #22c55e;
+            color: #22c55e;
+        }
+
+        .btn-success:hover {
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        /* --- Preview Area --- */
+        .preview-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .preview-area {
+            background: #1e293b;
+            border: 2px dashed #334155;
+            border-radius: 10px;
+            padding: 24px;
+            min-height: 200px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            overflow: auto;
+        }
+
+        /* --- Flex / Grid Items --- */
+        .box {
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0f172a;
+            min-width: 60px;
+            min-height: 60px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .box-1 { background: #38bdf8; }
+        .box-2 { background: #a78bfa; }
+        .box-3 { background: #34d399; }
+        .box-4 { background: #fb923c; }
+        .box-5 { background: #f472b6; }
+        .box-6 { background: #facc15; }
+        .box-7 { background: #2dd4bf; }
+        .box-8 { background: #c084fc; }
+        .box-9 { background: #f87171; }
+        .box-10 { background: #4ade80; }
+
+        /* --- Code Display --- */
+        .code-section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background: #334155;
+        }
+
+        .code-header span {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .code-block {
+            padding: 16px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            word-break: break-all;
+            overflow-x: auto;
+            line-height: 1.8;
+        }
+
+        .code-block .prop {
+            color: #38bdf8;
+        }
+
+        .code-block .val {
+            color: #a78bfa;
+        }
+
+        .code-block .sel {
+            color: #34d399;
+        }
+
+        .code-block .punc {
+            color: #64748b;
+        }
+
+        /* --- Toast --- */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #22c55e;
+            color: #0f172a;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 600px) {
+            .site-header h1 {
+                font-size: 1.1rem;
+            }
+
+            .tab-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .tab-panel {
+                padding: 16px;
+            }
+
+            .controls {
+                grid-template-columns: 1fr 1fr;
+                padding: 14px;
+                gap: 12px;
+            }
+
+            .preview-area {
+                padding: 16px;
+                min-height: 150px;
+            }
+
+            .action-bar {
+                gap: 6px;
+            }
+
+            .btn {
+                padding: 7px 14px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+    <h1>CSS Flexbox &amp; Grid Playground</h1>
+    <p>TechPath Institute — Module 08: Front-End for Python Developers</p>
+</header>
+
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('flexbox')">Flexbox</button>
+    <button class="tab-btn" onclick="switchTab('grid')">Grid</button>
+</div>
+
+<!-- ==================== FLEXBOX PANEL ==================== -->
+<div id="flexbox-panel" class="tab-panel active">
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="control-group">
+            <label for="flex-direction">flex-direction</label>
+            <select id="flex-direction" onchange="updateFlex()">
+                <option value="row">row</option>
+                <option value="column">column</option>
+                <option value="row-reverse">row-reverse</option>
+                <option value="column-reverse">column-reverse</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="justify-content">justify-content</label>
+            <select id="justify-content" onchange="updateFlex()">
+                <option value="flex-start">flex-start</option>
+                <option value="center">center</option>
+                <option value="flex-end">flex-end</option>
+                <option value="space-between">space-between</option>
+                <option value="space-around">space-around</option>
+                <option value="space-evenly">space-evenly</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="align-items">align-items</label>
+            <select id="align-items" onchange="updateFlex()">
+                <option value="stretch">stretch</option>
+                <option value="flex-start">flex-start</option>
+                <option value="center">center</option>
+                <option value="flex-end">flex-end</option>
+                <option value="baseline">baseline</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="flex-wrap">flex-wrap</label>
+            <select id="flex-wrap" onchange="updateFlex()">
+                <option value="nowrap">nowrap</option>
+                <option value="wrap">wrap</option>
+                <option value="wrap-reverse">wrap-reverse</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="flex-gap">gap</label>
+            <select id="flex-gap" onchange="updateFlex()">
+                <option value="0px">0</option>
+                <option value="8px">8px</option>
+                <option value="16px" selected>16px</option>
+                <option value="24px">24px</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-bar">
+        <button class="btn btn-success" onclick="addFlexBox()">+ Add Box</button>
+        <button class="btn btn-danger" onclick="removeFlexBox()">- Remove Box</button>
+        <button class="btn btn-outline" onclick="resetFlex()">Reset</button>
+        <button class="btn btn-accent" onclick="copyCode('flex-code')">Copy CSS</button>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-label">Live Preview</div>
+    <div class="preview-area" id="flex-preview"></div>
+
+    <!-- Generated CSS -->
+    <div class="code-section">
+        <div class="code-header">
+            <span>Generated CSS</span>
+        </div>
+        <div class="code-block" id="flex-code"></div>
+    </div>
+</div>
+
+<!-- ==================== GRID PANEL ==================== -->
+<div id="grid-panel" class="tab-panel">
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="control-group">
+            <label for="grid-cols">columns</label>
+            <select id="grid-cols" onchange="updateGrid()">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3" selected>3</option>
+                <option value="4">4</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="grid-rows">rows</label>
+            <select id="grid-rows" onchange="updateGrid()">
+                <option value="auto" selected>auto</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="grid-gap">gap</label>
+            <select id="grid-gap" onchange="updateGrid()">
+                <option value="0px">0</option>
+                <option value="8px">8px</option>
+                <option value="16px" selected>16px</option>
+                <option value="24px">24px</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="grid-template">grid-template-columns</label>
+            <select id="grid-template-preset" onchange="applyGridPreset()">
+                <option value="">Use column count</option>
+                <option value="1fr 1fr">1fr 1fr</option>
+                <option value="repeat(3, 1fr)">repeat(3, 1fr)</option>
+                <option value="200px 1fr 200px">200px 1fr 200px</option>
+                <option value="repeat(auto-fit, minmax(150px, 1fr))">auto-fit minmax(150px, 1fr)</option>
+                <option value="custom">Custom...</option>
+            </select>
+        </div>
+        <div class="control-group" id="custom-template-group" style="display:none;">
+            <label for="grid-template-custom">Custom Template</label>
+            <input type="text" id="grid-template-custom" placeholder="e.g. 1fr 2fr 1fr" onchange="updateGrid()">
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-bar">
+        <button class="btn btn-success" onclick="addGridBox()">+ Add Box</button>
+        <button class="btn btn-danger" onclick="removeGridBox()">- Remove Box</button>
+        <button class="btn btn-outline" onclick="resetGrid()">Reset</button>
+        <button class="btn btn-accent" onclick="copyCode('grid-code')">Copy CSS</button>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-label">Live Preview</div>
+    <div class="preview-area" id="grid-preview"></div>
+
+    <!-- Generated CSS -->
+    <div class="code-section">
+        <div class="code-header">
+            <span>Generated CSS</span>
+        </div>
+        <div class="code-block" id="grid-code"></div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<script>
+    /* ==================== TAB SWITCHING ==================== */
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(function(btn) {
+            btn.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-panel').forEach(function(panel) {
+            panel.classList.remove('active');
+        });
+
+        if (tab === 'flexbox') {
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            document.getElementById('flexbox-panel').classList.add('active');
+        } else {
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            document.getElementById('grid-panel').classList.add('active');
+        }
+    }
+
+    /* ==================== FLEXBOX ==================== */
+    var flexBoxCount = 5;
+
+    var FLEX_DEFAULTS = {
+        direction: 'row',
+        justify: 'flex-start',
+        align: 'stretch',
+        wrap: 'nowrap',
+        gap: '16px'
+    };
+
+    function renderFlexBoxes() {
+        var preview = document.getElementById('flex-preview');
+        preview.innerHTML = '';
+        for (var i = 1; i <= flexBoxCount; i++) {
+            var box = document.createElement('div');
+            var cls = 'box box-' + ((i - 1) % 10 + 1);
+            box.className = cls;
+            box.textContent = i;
+            // Vary heights for align-items demonstration
+            if (i === 2) box.style.height = '80px';
+            if (i === 4) box.style.height = '100px';
+            preview.appendChild(box);
+        }
+    }
+
+    function updateFlex() {
+        var direction = document.getElementById('flex-direction').value;
+        var justify = document.getElementById('justify-content').value;
+        var align = document.getElementById('align-items').value;
+        var wrap = document.getElementById('flex-wrap').value;
+        var gap = document.getElementById('flex-gap').value;
+
+        var preview = document.getElementById('flex-preview');
+        preview.style.display = 'flex';
+        preview.style.flexDirection = direction;
+        preview.style.justifyContent = justify;
+        preview.style.alignItems = align;
+        preview.style.flexWrap = wrap;
+        preview.style.gap = gap;
+
+        // Generate code display
+        var codeEl = document.getElementById('flex-code');
+        var lines = [];
+        lines.push('<span class="sel">.container</span> <span class="punc">{</span>');
+        lines.push('  <span class="prop">display</span><span class="punc">:</span> <span class="val">flex</span><span class="punc">;</span>');
+        if (direction !== 'row') {
+            lines.push('  <span class="prop">flex-direction</span><span class="punc">:</span> <span class="val">' + direction + '</span><span class="punc">;</span>');
+        }
+        if (justify !== 'flex-start') {
+            lines.push('  <span class="prop">justify-content</span><span class="punc">:</span> <span class="val">' + justify + '</span><span class="punc">;</span>');
+        }
+        if (align !== 'stretch') {
+            lines.push('  <span class="prop">align-items</span><span class="punc">:</span> <span class="val">' + align + '</span><span class="punc">;</span>');
+        }
+        if (wrap !== 'nowrap') {
+            lines.push('  <span class="prop">flex-wrap</span><span class="punc">:</span> <span class="val">' + wrap + '</span><span class="punc">;</span>');
+        }
+        if (gap !== '0px') {
+            lines.push('  <span class="prop">gap</span><span class="punc">:</span> <span class="val">' + gap + '</span><span class="punc">;</span>');
+        }
+        lines.push('<span class="punc">}</span>');
+        codeEl.innerHTML = lines.join('\n');
+    }
+
+    function addFlexBox() {
+        if (flexBoxCount >= 10) return;
+        flexBoxCount++;
+        renderFlexBoxes();
+        updateFlex();
+    }
+
+    function removeFlexBox() {
+        if (flexBoxCount <= 1) return;
+        flexBoxCount--;
+        renderFlexBoxes();
+        updateFlex();
+    }
+
+    function resetFlex() {
+        flexBoxCount = 5;
+        document.getElementById('flex-direction').value = FLEX_DEFAULTS.direction;
+        document.getElementById('justify-content').value = FLEX_DEFAULTS.justify;
+        document.getElementById('align-items').value = FLEX_DEFAULTS.align;
+        document.getElementById('flex-wrap').value = FLEX_DEFAULTS.wrap;
+        document.getElementById('flex-gap').value = FLEX_DEFAULTS.gap;
+        renderFlexBoxes();
+        updateFlex();
+    }
+
+    /* ==================== GRID ==================== */
+    var gridBoxCount = 6;
+
+    var GRID_DEFAULTS = {
+        cols: '3',
+        rows: 'auto',
+        gap: '16px',
+        preset: '',
+        custom: ''
+    };
+
+    function renderGridBoxes() {
+        var preview = document.getElementById('grid-preview');
+        preview.innerHTML = '';
+        for (var i = 1; i <= gridBoxCount; i++) {
+            var box = document.createElement('div');
+            var cls = 'box box-' + ((i - 1) % 10 + 1);
+            box.className = cls;
+            box.textContent = i;
+            preview.appendChild(box);
+        }
+    }
+
+    function getGridTemplateCols() {
+        var preset = document.getElementById('grid-template-preset').value;
+        var custom = document.getElementById('grid-template-custom').value.trim();
+
+        if (preset === 'custom' && custom) {
+            return custom;
+        }
+        if (preset && preset !== 'custom') {
+            return preset;
+        }
+        // Fall back to column count
+        var cols = parseInt(document.getElementById('grid-cols').value);
+        return 'repeat(' + cols + ', 1fr)';
+    }
+
+    function applyGridPreset() {
+        var preset = document.getElementById('grid-template-preset').value;
+        var customGroup = document.getElementById('custom-template-group');
+
+        if (preset === 'custom') {
+            customGroup.style.display = 'flex';
+        } else {
+            customGroup.style.display = 'none';
+            document.getElementById('grid-template-custom').value = '';
+        }
+
+        updateGrid();
+    }
+
+    function updateGrid() {
+        var templateCols = getGridTemplateCols();
+        var rows = document.getElementById('grid-rows').value;
+        var gap = document.getElementById('grid-gap').value;
+
+        var preview = document.getElementById('grid-preview');
+        preview.style.display = 'grid';
+        preview.style.gridTemplateColumns = templateCols;
+        preview.style.gap = gap;
+        preview.style.flexDirection = '';
+        preview.style.justifyContent = '';
+        preview.style.alignItems = '';
+        preview.style.flexWrap = '';
+
+        if (rows !== 'auto') {
+            preview.style.gridTemplateRows = 'repeat(' + rows + ', 1fr)';
+        } else {
+            preview.style.gridTemplateRows = '';
+        }
+
+        // Generate code display
+        var codeEl = document.getElementById('grid-code');
+        var lines = [];
+        lines.push('<span class="sel">.container</span> <span class="punc">{</span>');
+        lines.push('  <span class="prop">display</span><span class="punc">:</span> <span class="val">grid</span><span class="punc">;</span>');
+        lines.push('  <span class="prop">grid-template-columns</span><span class="punc">:</span> <span class="val">' + escapeHtml(templateCols) + '</span><span class="punc">;</span>');
+        if (rows !== 'auto') {
+            lines.push('  <span class="prop">grid-template-rows</span><span class="punc">:</span> <span class="val">repeat(' + rows + ', 1fr)</span><span class="punc">;</span>');
+        }
+        if (gap !== '0px') {
+            lines.push('  <span class="prop">gap</span><span class="punc">:</span> <span class="val">' + gap + '</span><span class="punc">;</span>');
+        }
+        lines.push('<span class="punc">}</span>');
+        codeEl.innerHTML = lines.join('\n');
+    }
+
+    function addGridBox() {
+        if (gridBoxCount >= 10) return;
+        gridBoxCount++;
+        renderGridBoxes();
+        updateGrid();
+    }
+
+    function removeGridBox() {
+        if (gridBoxCount <= 1) return;
+        gridBoxCount--;
+        renderGridBoxes();
+        updateGrid();
+    }
+
+    function resetGrid() {
+        gridBoxCount = 6;
+        document.getElementById('grid-cols').value = GRID_DEFAULTS.cols;
+        document.getElementById('grid-rows').value = GRID_DEFAULTS.rows;
+        document.getElementById('grid-gap').value = GRID_DEFAULTS.gap;
+        document.getElementById('grid-template-preset').value = GRID_DEFAULTS.preset;
+        document.getElementById('grid-template-custom').value = GRID_DEFAULTS.custom;
+        document.getElementById('custom-template-group').style.display = 'none';
+        renderGridBoxes();
+        updateGrid();
+    }
+
+    /* ==================== UTILITIES ==================== */
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function getPlainCode(elementId) {
+        var el = document.getElementById(elementId);
+        return el.textContent || el.innerText;
+    }
+
+    function copyCode(elementId) {
+        var code = getPlainCode(elementId);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(code).then(function() {
+                showToast('Copied to clipboard!');
+            });
+        } else {
+            // Fallback for older browsers
+            var textarea = document.createElement('textarea');
+            textarea.value = code;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('Copied to clipboard!');
+        }
+    }
+
+    function showToast(message) {
+        var toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(function() {
+            toast.classList.remove('show');
+        }, 2000);
+    }
+
+    /* ==================== INIT ==================== */
+    renderFlexBoxes();
+    updateFlex();
+    renderGridBoxes();
+    updateGrid();
+</script>
+
+</body>
+</html>

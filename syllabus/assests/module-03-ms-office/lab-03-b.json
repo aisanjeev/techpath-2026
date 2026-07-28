@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Word Mail Merge — Generate Offer Letters",
+  "description": "Use Word Mail Merge to generate personalized offer letters from an Excel data source",
+  "tags": [
+    "word",
+    "mail-merge",
+    "office",
+    "automation",
+    "documents"
+  ],
+  "status": "draft",
+  "objective": "Students will create an offer letter template in Word, connect it to an Excel data source, and generate personalized letters for multiple candidates",
+  "steps": [
+    {
+      "title": "Create the Data Source in Excel",
+      "instructions": "Open Excel and create a new workbook. Save it as **\"candidates.xlsx\"**.\n\nCreate these columns in Row 1 and fill 5 rows of data:\n\n| Name | Position | Department | Salary | Start_Date | Manager |\n|------|----------|------------|--------|------------|--------|\n| Rahul Sharma | Junior Developer | Engineering | 25000 | 01-Aug-2026 | Priya Patel |\n| Anita Singh | UI Designer | Design | 22000 | 01-Aug-2026 | Amit Kumar |\n| Deepak Verma | Data Analyst | Analytics | 28000 | 15-Aug-2026 | Sneha Rao |\n| Meera Nair | QA Tester | Engineering | 23000 | 01-Sep-2026 | Priya Patel |\n| Karan Joshi | Content Writer | Marketing | 20000 | 01-Aug-2026 | Rohit Gupta |\n\nFormat Salary as Number (no decimals) and Start_Date as DD-MMM-YYYY.\n\nSave and close the file."
+    },
+    {
+      "title": "Create the Letter Template in Word",
+      "instructions": "Open Word → create a new blank document.\n\nType the offer letter template:\n\n```\nTechPath Institute Pvt. Ltd.\n123 Tech Park, Pune, Maharashtra 411001\nPhone: +91-20-12345678 | Email: hr@techpath.biz\n\n[Today's Date]\n\nDear [Name],\n\nSub: Offer of Employment — [Position]\n\nWe are pleased to offer you the position of [Position] in the [Department] department at TechPath Institute.\n\nPlease find the details of your offer below:\n\nPosition: [Position]\nDepartment: [Department]\nMonthly CTC: ₹[Salary]\nStart Date: [Start_Date]\nReporting Manager: [Manager]\n\nPlease confirm your acceptance by signing and returning this letter by [date + 7 days].\n\nWe look forward to welcoming you to the TechPath team.\n\nSincerely,\n\nHR Department\nTechPath Institute Pvt. Ltd.\n```\n\nFormat it professionally:\n- Company name: 16pt, Bold\n- Body: 12pt, Times New Roman\n- 1.5 line spacing\n- Proper margins (Normal)"
+    },
+    {
+      "title": "Connect Mail Merge",
+      "instructions": "Go to **Mailings** tab → **Start Mail Merge** → **Letters**.\n\nClick **Select Recipients** → **Use an Existing List** → browse to your **candidates.xlsx** file → select Sheet1.\n\nNow replace the placeholder text with merge fields:\n1. Select `[Name]` → click **Insert Merge Field** → choose **Name**\n2. Select `[Position]` → Insert Merge Field → **Position**\n3. Select `[Department]` → Insert Merge Field → **Department**\n4. Select `[Salary]` → Insert Merge Field → **Salary**\n5. Select `[Start_Date]` → Insert Merge Field → **Start_Date**\n6. Select `[Manager]` → Insert Merge Field → **Manager**\n\nThe placeholders should now show as: «Name», «Position», etc.\n\nFor the date at the top, type today's date manually or use Insert → Date & Time."
+    },
+    {
+      "title": "Preview and Generate Letters",
+      "instructions": "Click **Preview Results** in the Mailings tab.\n\nYou should see the first letter filled with Rahul Sharma's details.\n\nUse the **arrows** (◄ ►) to preview each candidate's letter. Check:\n- Are all fields populated correctly?\n- Is the salary showing properly?\n- Is the date formatted right?\n\nIf something looks wrong → go back to the Excel file, fix the data, save, and preview again.\n\n**Generate all letters:**\nClick **Finish & Merge** → **Edit Individual Documents** → **All**.\n\nA new document opens with ALL 5 letters, each on its own page. Save this as **\"Offer_Letters_Aug2026.docx\"**."
+    },
+    {
+      "title": "Add Conditional Content (Bonus)",
+      "instructions": "Go back to your template document.\n\nAdd a conditional paragraph that changes based on department:\n\nMailings → **Rules** → **If...Then...Else**\n- Field: Department\n- Comparison: Equal to\n- Compare to: Engineering\n- Insert this text: \"You will be assigned a company laptop on your first day.\"\n- Otherwise: \"Please bring your own laptop for the first week.\"\n\nPreview again — Engineering candidates see the laptop line, others see the BYOL line.\n\n**Submit:**\n1. The Excel data source file\n2. The Word template with merge fields\n3. The generated letters document (all 5 in one file)\n4. Screenshot showing the conditional content working"
+    }
+  ],
+  "expected_output": "A Word mail merge template connected to Excel data that generates 5 personalized offer letters with conditional content based on department"
+}

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Visualization Playground — TechPath Institute</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;padding:20px}
+.container{max-width:1000px;margin:0 auto}
+h1{text-align:center;font-size:1.7rem;margin-bottom:4px;background:linear-gradient(135deg,#38bdf8,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:#94a3b8;font-size:.85rem;margin-bottom:20px}
+.panel{background:#1e293b;border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid #334155}
+.panel h2{font-size:1.1rem;color:#38bdf8;margin-bottom:12px}
+label{display:block;font-size:.8rem;color:#94a3b8;margin-bottom:4px;font-weight:500}
+select,input[type="text"],input[type="number"]{padding:8px 12px;background:#0f172a;border:1px solid #475569;border-radius:6px;color:#e2e8f0;font-size:.9rem;outline:none;font-family:monospace}
+select:focus,input:focus{border-color:#38bdf8}
+button{padding:8px 16px;border:none;border-radius:6px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,#38bdf8,#34d399);color:#0f172a}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(56,189,248,.3)}
+.btn-secondary{background:#334155;color:#e2e8f0}
+.btn-secondary:hover{background:#475569}
+.controls{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px}
+.controls>div{flex:1;min-width:120px}
+.table-wrap{overflow-x:auto;margin-bottom:16px}
+table{border-collapse:collapse;width:100%;font-size:.85rem;font-family:monospace}
+th{background:#0f172a;padding:8px 10px;text-align:left;color:#94a3b8;border-bottom:1px solid #334155;position:sticky;top:0}
+td{padding:6px 10px;border-bottom:1px solid #1e293b}
+td input{width:100%;background:transparent;border:1px solid transparent;color:#e2e8f0;padding:4px;font-family:monospace;font-size:.85rem;border-radius:4px}
+td input:focus{border-color:#38bdf8;background:#0f172a}
+tr:hover td{background:#1a2744}
+.chart-area{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:16px;min-height:350px;display:flex;align-items:center;justify-content:center}
+canvas{max-width:100%;max-height:400px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.color-pills{display:flex;gap:4px;margin-top:8px}
+.color-pill{width:18px;height:18px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+.color-pill.active{border-color:#fff}
+.legend{display:flex;gap:16px;justify-content:center;margin-top:12px;flex-wrap:wrap;font-size:.8rem}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-swatch{width:12px;height:12px;border-radius:3px}
+@media(max-width:600px){.controls{flex-direction:column}.controls>div{min-width:100%}}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Data Visualization Playground</h1>
+<p class="subtitle">TechPath Institute — Module 03: Python Libraries</p>
+
+<div class="panel">
+  <h2>1. Data Table</h2>
+  <p style="color:#94a3b8;font-size:.8rem;margin-bottom:10px">Edit cells directly. Use the buttons to load sample data or add/remove rows.</p>
+  <div class="btn-row">
+    <button class="btn-secondary" onclick="loadSample('enrollment')">Enrollment Data</button>
+    <button class="btn-secondary" onclick="loadSample('revenue')">Revenue Data</button>
+    <button class="btn-secondary" onclick="loadSample('marks')">Student Marks</button>
+    <button class="btn-secondary" onclick="addRow()">+ Add Row</button>
+    <button class="btn-secondary" onclick="removeRow()">- Remove Row</button>
+  </div>
+  <div class="table-wrap">
+    <table id="dataTable">
+      <thead><tr><th>Category</th><th>Value</th></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>2. Chart Settings</h2>
+  <div class="controls">
+    <div>
+      <label>Chart Type</label>
+      <select id="chartType" onchange="renderChart()">
+        <option value="bar">Bar Chart</option>
+        <option value="hbar">Horizontal Bar</option>
+        <option value="line">Line Chart</option>
+        <option value="pie">Pie Chart</option>
+        <option value="doughnut">Doughnut Chart</option>
+      </select>
+    </div>
+    <div>
+      <label>Chart Title</label>
+      <input type="text" id="chartTitle" value="TechPath — Course Enrollment" oninput="renderChart()" style="width:100%"/>
+    </div>
+    <div style="flex:0">
+      <label>&nbsp;</label>
+      <button class="btn-primary" onclick="renderChart()">Draw Chart</button>
+    </div>
+  </div>
+  <label>Color Palette</label>
+  <div class="btn-row" style="margin-top:6px">
+    <button class="btn-secondary" onclick="setPalette('vibrant')" id="pal-vibrant">Vibrant</button>
+    <button class="btn-secondary" onclick="setPalette('cool')" id="pal-cool">Cool</button>
+    <button class="btn-secondary" onclick="setPalette('warm')" id="pal-warm">Warm</button>
+    <button class="btn-secondary" onclick="setPalette('pastel')" id="pal-pastel">Pastel</button>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>3. Chart Output</h2>
+  <div class="chart-area">
+    <canvas id="chartCanvas" width="900" height="400"></canvas>
+  </div>
+  <div class="legend" id="legend"></div>
+</div>
+</div>
+
+<script>
+const palettes = {
+  vibrant: ['#3498db','#2ecc71','#e74c3c','#f39c12','#9b59b6','#1abc9c','#e67e22','#34495e','#16a085','#c0392b'],
+  cool: ['#38bdf8','#818cf8','#34d399','#22d3ee','#a78bfa','#2dd4bf','#60a5fa','#6366f1','#4ade80','#14b8a6'],
+  warm: ['#f97316','#ef4444','#f59e0b','#ec4899','#f43f5e','#fb923c','#fbbf24','#e11d48','#d946ef','#a855f7'],
+  pastel: ['#93c5fd','#86efac','#fca5a5','#fcd34d','#c4b5fd','#67e8f9','#fdba74','#f9a8d4','#a5f3fc','#d8b4fe'],
+};
+let currentPalette = 'vibrant';
+let tableData = [];
+
+function setPalette(name) {
+  currentPalette = name;
+  document.querySelectorAll('.btn-row button[id^="pal-"]').forEach(b => b.style.borderColor = 'transparent');
+  const el = document.getElementById('pal-' + name);
+  if (el) el.style.borderColor = '#38bdf8';
+  renderChart();
+}
+
+function loadSample(type) {
+  if (type === 'enrollment') {
+    tableData = [
+      {label:'Python Full Stack',value:45},
+      {label:'Web Development',value:30},
+      {label:'Data Science',value:25},
+      {label:'AI/ML',value:20},
+      {label:'DevOps',value:15},
+    ];
+    document.getElementById('chartTitle').value = 'TechPath — Course Enrollment 2026';
+  } else if (type === 'revenue') {
+    tableData = [
+      {label:'January',value:450000},
+      {label:'February',value:520000},
+      {label:'March',value:480000},
+      {label:'April',value:610000},
+      {label:'May',value:580000},
+      {label:'June',value:720000},
+    ];
+    document.getElementById('chartTitle').value = 'TechPath — Monthly Revenue (₹)';
+  } else if (type === 'marks') {
+    tableData = [
+      {label:'Rahul',value:85},
+      {label:'Priya',value:92},
+      {label:'Amit',value:78},
+      {label:'Sneha',value:88},
+      {label:'Vikram',value:65},
+      {label:'Ananya',value:95},
+    ];
+    document.getElementById('chartTitle').value = 'Student Marks Comparison';
+  }
+  renderTable();
+  renderChart();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = tableData.map((row, i) =>
+    `<tr>
+      <td><input value="${row.label}" onchange="tableData[${i}].label=this.value;renderChart()"/></td>
+      <td><input type="number" value="${row.value}" onchange="tableData[${i}].value=Number(this.value);renderChart()"/></td>
+    </tr>`
+  ).join('');
+}
+
+function addRow() {
+  tableData.push({label:'New Item', value:0});
+  renderTable();
+}
+
+function removeRow() {
+  if (tableData.length > 1) { tableData.pop(); renderTable(); renderChart(); }
+}
+
+function readTableData() {
+  return tableData.filter(r => r.label.trim() !== '');
+}
+
+// ===== CHART RENDERING =====
+function renderChart() {
+  const canvas = document.getElementById('chartCanvas');
+  const ctx = canvas.getContext('2d');
+  const data = readTableData();
+  const type = document.getElementById('chartType').value;
+  const title = document.getElementById('chartTitle').value;
+  const colors = palettes[currentPalette];
+
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr - 32 * dpr;
+  canvas.height = 400 * dpr;
+  canvas.style.width = (rect.width - 32) + 'px';
+  canvas.style.height = '400px';
+  ctx.scale(dpr, dpr);
+
+  const W = canvas.width / dpr;
+  const H = canvas.height / dpr;
+  ctx.clearRect(0, 0, W, H);
+
+  if (data.length === 0) {
+    ctx.fillStyle = '#64748b';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Load sample data or add rows to see a chart', W/2, H/2);
+    document.getElementById('legend').innerHTML = '';
+    return;
+  }
+
+  // Title
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(title, W/2, 22);
+
+  if (type === 'bar') drawBarChart(ctx, data, colors, W, H);
+  else if (type === 'hbar') drawHBarChart(ctx, data, colors, W, H);
+  else if (type === 'line') drawLineChart(ctx, data, colors, W, H);
+  else if (type === 'pie' || type === 'doughnut') drawPieChart(ctx, data, colors, W, H, type === 'doughnut');
+
+  // Legend
+  document.getElementById('legend').innerHTML = data.map((d, i) =>
+    `<div class="legend-item"><div class="legend-swatch" style="background:${colors[i % colors.length]}"></div>${d.label}</div>`
+  ).join('');
+}
+
+function drawBarChart(ctx, data, colors, W, H) {
+  const margin = {top:45, right:20, bottom:50, left:70};
+  const cW = W - margin.left - margin.right;
+  const cH = H - margin.top - margin.bottom;
+  const maxVal = Math.max(...data.map(d=>d.value)) * 1.15;
+  const barW = Math.min(60, cW / data.length * 0.7);
+  const gap = cW / data.length;
+
+  // Y axis lines
+  const ticks = 5;
+  for (let i = 0; i <= ticks; i++) {
+    const y = margin.top + cH - (i / ticks) * cH;
+    const val = (maxVal * i / ticks);
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(margin.left, y); ctx.lineTo(W - margin.right, y); ctx.stroke();
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(formatNum(val), margin.left - 8, y + 4);
+  }
+
+  // Bars
+  data.forEach((d, i) => {
+    const x = margin.left + i * gap + (gap - barW) / 2;
+    const barH = (d.value / maxVal) * cH;
+    const y = margin.top + cH - barH;
+
+    ctx.fillStyle = colors[i % colors.length];
+    roundRect(ctx, x, y, barW, barH, 4);
+    ctx.fill();
+
+    // Value on top
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(formatNum(d.value), x + barW/2, y - 6);
+
+    // Label
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px sans-serif';
+    ctx.save();
+    ctx.translate(x + barW/2, margin.top + cH + 14);
+    if (data.length > 6) { ctx.rotate(-0.5); ctx.textAlign = 'right'; }
+    ctx.fillText(d.label, 0, 0);
+    ctx.restore();
+  });
+}
+
+function drawHBarChart(ctx, data, colors, W, H) {
+  const margin = {top:45, right:30, bottom:20, left:100};
+  const cW = W - margin.left - margin.right;
+  const cH = H - margin.top - margin.bottom;
+  const maxVal = Math.max(...data.map(d=>d.value)) * 1.15;
+  const barH = Math.min(30, cH / data.length * 0.7);
+  const gap = cH / data.length;
+
+  data.forEach((d, i) => {
+    const y = margin.top + i * gap + (gap - barH) / 2;
+    const barW = (d.value / maxVal) * cW;
+
+    ctx.fillStyle = colors[i % colors.length];
+    roundRect(ctx, margin.left, y, barW, barH, 4);
+    ctx.fill();
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(formatNum(d.value), margin.left + barW + 8, y + barH/2 + 4);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(d.label, margin.left - 8, y + barH/2 + 4);
+  });
+}
+
+function drawLineChart(ctx, data, colors, W, H) {
+  const margin = {top:45, right:20, bottom:50, left:70};
+  const cW = W - margin.left - margin.right;
+  const cH = H - margin.top - margin.bottom;
+  const maxVal = Math.max(...data.map(d=>d.value)) * 1.15;
+  const minVal = Math.min(...data.map(d=>d.value)) * 0.85;
+  const range = maxVal - minVal;
+
+  // Grid
+  const ticks = 5;
+  for (let i = 0; i <= ticks; i++) {
+    const y = margin.top + cH - (i / ticks) * cH;
+    const val = minVal + (range * i / ticks);
+    ctx.strokeStyle = '#334155'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(margin.left, y); ctx.lineTo(W - margin.right, y); ctx.stroke();
+    ctx.fillStyle = '#94a3b8'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(formatNum(val), margin.left - 8, y + 4);
+  }
+
+  // Area fill
+  const points = data.map((d, i) => ({
+    x: margin.left + (i / (data.length - 1)) * cW,
+    y: margin.top + cH - ((d.value - minVal) / range) * cH,
+  }));
+
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, margin.top + cH);
+  points.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(points[points.length-1].x, margin.top + cH);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, margin.top, 0, margin.top + cH);
+  grad.addColorStop(0, colors[0] + '40');
+  grad.addColorStop(1, colors[0] + '05');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  points.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.strokeStyle = colors[0];
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // Points + labels
+  points.forEach((p, i) => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = colors[0];
+    ctx.fill();
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = '#e2e8f0'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(formatNum(data[i].value), p.x, p.y - 12);
+
+    ctx.fillStyle = '#94a3b8'; ctx.font = '11px sans-serif';
+    ctx.fillText(data[i].label, p.x, margin.top + cH + 16);
+  });
+}
+
+function drawPieChart(ctx, data, colors, W, H, isDoughnut) {
+  const cx = W / 2;
+  const cy = H / 2 + 10;
+  const radius = Math.min(W, H) / 2 - 60;
+  const total = data.reduce((s, d) => s + d.value, 0);
+  let startAngle = -Math.PI / 2;
+
+  data.forEach((d, i) => {
+    const sliceAngle = (d.value / total) * Math.PI * 2;
+    const midAngle = startAngle + sliceAngle / 2;
+
+    // Slice
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, radius, startAngle, startAngle + sliceAngle);
+    ctx.closePath();
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Label
+    const labelR = radius * 0.7;
+    const lx = cx + Math.cos(midAngle) * labelR;
+    const ly = cy + Math.sin(midAngle) * labelR;
+    const pct = ((d.value / total) * 100).toFixed(1);
+    if (sliceAngle > 0.3) {
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(pct + '%', lx, ly + 4);
+    }
+
+    startAngle += sliceAngle;
+  });
+
+  // Doughnut hole
+  if (isDoughnut) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius * 0.55, 0, Math.PI * 2);
+    ctx.fillStyle = '#0f172a';
+    ctx.fill();
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(formatNum(total), cx, cy - 2);
+    ctx.font = '11px sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('Total', cx, cy + 16);
+  }
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h);
+  ctx.lineTo(x, y + h);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function formatNum(n) {
+  if (n >= 100000) return '₹' + (n/100000).toFixed(1) + 'L';
+  if (n >= 1000) return n >= 10000 ? '₹' + (n/1000).toFixed(0) + 'K' : n.toLocaleString('en-IN');
+  return Math.round(n).toString();
+}
+
+// Init
+loadSample('enrollment');
+setPalette('vibrant');
+</script>
+</body>
+</html>

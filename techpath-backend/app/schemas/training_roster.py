@@ -7,13 +7,22 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.schemas.classroom import MediaView
 
 
+class BatchProgramSummary(BaseModel):
+    id: int
+    title: str
+    summary: Optional[str] = None
+    level: Optional[str] = None
+    module_count: int = 0
+    asset_count: int = 0
+    model_config = ConfigDict(from_attributes=True)
+
+
 class TrainingBatchResponse(BaseModel):
     id: int
     external_id: str
     name: str
     code: Optional[str] = None
-    program_id: Optional[int] = None
-    program_title: Optional[str] = None
+    programs: List[BatchProgramSummary] = Field(default_factory=list)
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     timezone: Optional[str] = None
@@ -48,8 +57,8 @@ class TrainingStudentResponse(BaseModel):
 
 
 class LinkProgramRequest(BaseModel):
-    program_id: Optional[int] = Field(
-        None, description="Training programme to teach for this batch; null to unlink"
+    program_ids: List[int] = Field(
+        default_factory=list, description="List of Training programme IDs to teach for this batch; empty to unlink all"
     )
 
 
@@ -168,8 +177,9 @@ class TrainerBatchSummary(BaseModel):
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     student_count: int = 0
-    program_id: Optional[int] = None
-    program_title: Optional[str] = None
+    programs: List[BatchProgramSummary] = Field(default_factory=list)
     module_count: int = 0
+    asset_count: int = 0
+    completed_module_count: int = 0
 
     model_config = ConfigDict(from_attributes=True)

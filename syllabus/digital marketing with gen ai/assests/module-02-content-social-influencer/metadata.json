@@ -1,0 +1,152 @@
+{
+  "01-content-marketing-strategy.md": {
+    "title": "Content Marketing Strategy",
+    "description": "Module 02 \u2014 Content Marketing, Social Media & Influencer Strategy | Topic 1 --- Content marketing is creating and sharing valuable, relevant content to attract and retain a specific audience \u2014 and ultimately drive profitable action. The key difference from advertising: you are NOT selling directly. You are earning trust first, then selling. Think of it like a chai stall owner who gives free samples. People taste the chai, like it, and come back...",
+    "asset_type": "markdown",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "01-content-type-matcher.html": {
+    "title": "Content-Type Matcher \u2014 TechPath Academy",
+    "description": "Interactive Content-Type Matcher \u2014 TechPath Academy exercise for Content Social Influencer",
+    "asset_type": "html_bundle",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "02-copywriting-frameworks.md": {
+    "title": "Copywriting Frameworks",
+    "description": "Module 02 \u2014 Content Marketing, Social Media & Influencer Strategy | Topic 2 --- Copywriting is writing words that make people take action \u2014 click a button, buy a product, sign up for a newsletter, or download an app. It is different from content writing (which educates or entertains). Copywriting has one job: conversion. Think of copywriting like a salesperson in written form. A great salesperson at a Reliance Digital store does not just list...",
+    "asset_type": "markdown",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "02-copywriting-playground.html": {
+    "title": "Copywriting Playground \u2014 TechPath Academy",
+    "description": "Interactive Copywriting Playground \u2014 TechPath Academy exercise for Content Social Influencer",
+    "asset_type": "html_bundle",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "03-social-media-platform-strategies.md": {
+    "title": "Social Media Platform Strategies",
+    "description": "Module 02 \u2014 Content Marketing, Social Media & Influencer Strategy | Topic 3 --- Not all social media platforms are equal. Each one has a different audience, algorithm, content format, and purpose. A carousel that works on Instagram will flop on YouTube. A thread that trends on X will get zero reach on Facebook. Your job as a social media marketer is to understand where your audience lives and what content format works on that platform. > Fun...",
+    "asset_type": "markdown",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "04-influencer-marketing.md": {
+    "title": "Influencer Marketing",
+    "description": "Module 02 \u2014 Content Marketing, Social Media & Influencer Strategy | Topic 4 --- Influencer marketing is partnering with people who have a loyal, engaged audience to promote your brand. Instead of the brand telling you \"buy our product,\" someone you already follow and trust says \"I use this product and I love it.\" Think of it like word-of-mouth marketing at scale. When your friend recommends a restaurant, you trust them more than a TV ad....",
+    "asset_type": "markdown",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "assignment-02.md": {
+    "title": "Module 2: Assignment \u2014 Content Marketing, Social Media & Influencer Strategy",
+    "description": "Total Marks: 100 Submission Deadline: End of Week 10 Submission Format: Google Drive folder link (organized by task) OR uploaded to TechPath LMS --- Take one pillar blog post and repurpose it into 10 different content pieces across multiple platforms \u2014 proving you understand platform-native content adaptation. 1. Write (or use AI to draft) one pillar blog post: - Topic: Choose from your niche (minimum 1200 words) - Must follow E-E-A-T guidelines...",
+    "asset_type": "assignment",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "cheatsheet-02.md": {
+    "title": "Cheatsheet 02",
+    "description": "Learning material for Cheatsheet 02",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "code-email-subject-line-tester.html": {
+    "title": "Email Subject Line Tester \u2014 TechPath Academy",
+    "description": "Interactive Email Subject Line Tester \u2014 TechPath Academy exercise for Content Social Influencer",
+    "asset_type": "html_bundle",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "code-social-media-calendar.html": {
+    "title": "30-Day Social Media Calendar Generator \u2014 TechPath Academy",
+    "description": "Interactive 30-Day Social Media Calendar Generator \u2014 TechPath Academy exercise for Content Social Influencer",
+    "asset_type": "html_bundle",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "lab-02-a.json": {
+    "title": "Create a Content Repurposing Machine",
+    "description": "Transform one pillar blog post into 10+ content pieces across platforms. You will write, extract, design, and organize \u2014 building a reusable workflow that saves hours of content creation time every week.",
+    "asset_type": "lab",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "lab-02-b.json": {
+    "title": "Run a 7-Day Instagram Growth Experiment",
+    "description": "Run a structured 7-day experiment on your Instagram account \u2014 plan content, create and post daily, track metrics, and analyze what works. This is your first real social media campaign with data-driven decisions.",
+    "asset_type": "lab",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "notes-02.md": {
+    "title": "Module 2: Content Marketing, Social Media & Influencer Strategy",
+    "description": "> TechPath Academy \u2014 Digital Marketing with Generative AI > Module Duration: Day 27 to Day 54 (4 weeks + capstone) > Self-Paced Learning Notes --- Content marketing is creating and distributing valuable, relevant content to attract a specific audience and drive profitable action. You do NOT sell directly. You earn trust first, then sell. Content Marketing vs Advertising: Why Indian D2C brands are investing heavily in content: - Mamaearth grew to...",
+    "asset_type": "notes",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "quiz-02.json": {
+    "title": "Quiz 02",
+    "description": "Learning material for Quiz 02",
+    "asset_type": "quiz",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "resources-02.md": {
+    "title": "Module 2: Resources & Tools Directory",
+    "description": "> Curated tools and links for content creation, social media management, influencer marketing, and multimedia production. --- --- --- --- --- --- --- --- --- Key Rules: - All paid partnerships require visible disclosure (#Ad, #Sponsored, #PaidPartnership) - Disclosure must be in the first line or clearly visible (not hidden in hashtags) - Both the brand and influencer are responsible for compliance --- - [ ] Install CapCut (phone + desktop) - [...",
+    "asset_type": "notes",
+    "tags": [
+      "content-social-influencer",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  }
+}

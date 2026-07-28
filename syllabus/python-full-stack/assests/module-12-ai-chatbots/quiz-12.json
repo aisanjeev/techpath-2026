@@ -1,0 +1,94 @@
+{
+  "questions": [
+    {
+      "question": "What are the three layers of a production chatbot?",
+      "options": ["HTML, CSS, JavaScript", "Frontend, Backend, Data Layer", "Client, Server, CDN", "React, Node, MongoDB"],
+      "correct_index": 1,
+      "explanation": "A production chatbot has three layers: Frontend (chat UI), Backend (FastAPI server with LLM integration), and Data Layer (vector DB for documents + SQL for chat history)."
+    },
+    {
+      "question": "What does SSE stand for in the context of streaming responses?",
+      "options": ["Secure Socket Extension", "Server-Sent Events", "Simple Stream Encoding", "Standard System Exchange"],
+      "correct_index": 1,
+      "explanation": "SSE = Server-Sent Events. It is a one-way streaming protocol where the server pushes data (text chunks) to the client in real-time, creating the word-by-word effect."
+    },
+    {
+      "question": "What is RAG?",
+      "options": ["Random Access Generation", "Retrieval-Augmented Generation", "Real-time Agent Graph", "Response Analysis Gateway"],
+      "correct_index": 1,
+      "explanation": "RAG = Retrieval-Augmented Generation. It retrieves relevant documents from a knowledge base, then uses them as context for the LLM to generate accurate, grounded answers."
+    },
+    {
+      "question": "Why use a layered approach (intent detection -> FAQ -> LLM) for a support bot?",
+      "options": ["To make the code more complex", "To save money by avoiding LLM calls for simple queries", "To slow down responses", "LLMs cannot answer simple questions"],
+      "correct_index": 1,
+      "explanation": "A layered approach saves 50-75% on LLM costs. Simple queries (greetings, FAQs) are handled without an LLM call. Only complex questions go to the expensive LLM."
+    },
+    {
+      "question": "What is intent detection?",
+      "options": ["Detecting the user's location", "Identifying what the user wants based on keywords", "Checking if the user is logged in", "Measuring response speed"],
+      "correct_index": 1,
+      "explanation": "Intent detection identifies the user's goal from their message using keyword matching. 'What is the fee?' maps to 'fee_inquiry' intent, 'Hello' maps to 'greeting'."
+    },
+    {
+      "question": "When should a chatbot escalate to a human agent?",
+      "options": ["For every question", "Only for greetings", "When the user asks for a human, requests refunds, or the bot fails 3 times", "Never -- bots should handle everything"],
+      "correct_index": 2,
+      "explanation": "Escalate when the user explicitly requests a human, for sensitive issues like refunds/complaints, or after the bot fails to help after multiple attempts."
+    },
+    {
+      "question": "What does Whisper do?",
+      "options": ["Generates images from text", "Converts speech to text (STT)", "Converts text to speech (TTS)", "Encrypts messages"],
+      "correct_index": 1,
+      "explanation": "Whisper is OpenAI's speech-to-text model. It converts audio recordings into text, supporting many languages including Hindi and English."
+    },
+    {
+      "question": "What is multimodal AI?",
+      "options": ["AI that only processes text", "AI that can process multiple types of input like text, images, and audio", "AI with multiple language support", "AI with multiple output formats"],
+      "correct_index": 1,
+      "explanation": "Multimodal AI can understand and process multiple types of input -- text, images, audio -- allowing chatbots to analyze screenshots, read documents, and more."
+    },
+    {
+      "question": "What does the Faithfulness metric in RAGAS measure?",
+      "options": ["How fast the chatbot responds", "Whether the answer is supported by the retrieved context (no hallucination)", "How many users like the chatbot", "The number of tokens used"],
+      "correct_index": 1,
+      "explanation": "Faithfulness measures whether the chatbot's answer is actually supported by the retrieved documents. A high faithfulness score means no hallucination -- the bot sticks to its sources."
+    },
+    {
+      "question": "What is rate limiting?",
+      "options": ["Limiting the length of responses", "Controlling how many requests a user can make per minute", "Limiting the number of documents uploaded", "Restricting which models can be used"],
+      "correct_index": 1,
+      "explanation": "Rate limiting caps the number of requests a user can make in a time window (e.g., 20 per minute). This prevents abuse and controls API costs."
+    },
+    {
+      "question": "What is the purpose of caching AI responses?",
+      "options": ["To make the chatbot slower", "To store frequent answers so the LLM is not called for the same question twice", "To encrypt user data", "To backup the database"],
+      "correct_index": 1,
+      "explanation": "Caching stores answers to frequently asked questions. When the same question is asked again, the cached answer is returned instantly without calling the LLM, saving 30-50% on costs."
+    },
+    {
+      "question": "What is model routing?",
+      "options": ["Sending all queries to the most expensive model", "Using different LLM models based on query complexity", "Routing queries to different servers", "Switching between databases"],
+      "correct_index": 1,
+      "explanation": "Model routing uses cheap models (Haiku/GPT-4o-mini) for simple queries and expensive models (Sonnet/GPT-4o) for complex ones. This can reduce costs by 40-60%."
+    },
+    {
+      "question": "What should a chatbot do when the LLM API is down?",
+      "options": ["Crash and show an error page", "Retry with exponential backoff, then return a fallback response", "Ignore the user's message", "Keep calling the API indefinitely"],
+      "correct_index": 1,
+      "explanation": "Retry with increasing wait times (1s, 2s, 4s). If all retries fail, return a friendly fallback message like 'Our service is temporarily unavailable. Please try again.'"
+    },
+    {
+      "question": "Why is logging important for a production chatbot?",
+      "options": ["To make the code longer", "To track conversations, costs, errors, and debug issues", "Logging is not important", "To slow down the application"],
+      "correct_index": 1,
+      "explanation": "Logging tracks every question, response, cost, and error. This data helps you debug problems, monitor costs, and understand how users interact with the chatbot."
+    },
+    {
+      "question": "What is the recommended target score for RAGAS Faithfulness?",
+      "options": ["Above 0.3", "Above 0.5", "Above 0.8", "Exactly 1.0"],
+      "correct_index": 2,
+      "explanation": "A faithfulness score above 0.8 indicates that the chatbot's answers are well-grounded in the retrieved context with minimal hallucination. Below 0.8 suggests the bot may be making up information."
+    }
+  ]
+}

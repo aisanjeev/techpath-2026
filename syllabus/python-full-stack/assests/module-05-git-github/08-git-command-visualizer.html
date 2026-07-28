@@ -1,0 +1,460 @@
+<title>Git Command Visualizer — TechPath Institute</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 20px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 1.8rem; color: #38bdf8; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 20px; font-size: 0.95rem; }
+
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+  .btn { padding: 10px 18px; border: 1px solid #475569; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; background: #1e293b; color: #e2e8f0; transition: all 0.15s; }
+  .btn:hover { border-color: #38bdf8; color: #38bdf8; }
+  .btn.active { background: #2563eb; border-color: #2563eb; color: white; }
+  .btn-commit { border-color: #22c55e; color: #22c55e; }
+  .btn-commit:hover { background: #22c55e22; }
+  .btn-branch { border-color: #a855f7; color: #a855f7; }
+  .btn-branch:hover { background: #a855f722; }
+  .btn-merge { border-color: #f59e0b; color: #f59e0b; }
+  .btn-merge:hover { background: #f59e0b22; }
+  .btn-reset { border-color: #ef4444; color: #ef4444; }
+  .btn-reset:hover { background: #ef444422; }
+  .btn-checkout { border-color: #06b6d4; color: #06b6d4; }
+  .btn-checkout:hover { background: #06b6d422; }
+
+  .main-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+  @media (max-width: 800px) { .main-layout { grid-template-columns: 1fr; } }
+
+  .panel { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 16px; }
+  .panel h2 { font-size: 0.95rem; color: #38bdf8; margin-bottom: 12px; }
+
+  .canvas-wrap { position: relative; overflow: hidden; min-height: 400px; background: #0f172a; border-radius: 8px; border: 1px solid #334155; }
+  canvas { display: block; width: 100%; }
+
+  .log-panel { max-height: 440px; overflow-y: auto; }
+  .log-entry { padding: 8px 10px; border-bottom: 1px solid #1e293b; font-size: 0.8rem; font-family: 'Cascadia Code', monospace; }
+  .log-entry .cmd { color: #a5f3fc; font-weight: 600; }
+  .log-entry .msg { color: #94a3b8; }
+  .log-entry .hash { color: #fbbf24; }
+
+  .branch-list { margin-top: 12px; }
+  .branch-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; font-size: 0.82rem; cursor: pointer; margin-bottom: 4px; }
+  .branch-item:hover { background: #334155; }
+  .branch-item.current { background: #1e3a5f; border: 1px solid #38bdf8; }
+  .branch-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .info-bar { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.82rem; color: #94a3b8; text-align: center; min-height: 40px; display: flex; align-items: center; justify-content: center; }
+  .info-bar .highlight { color: #38bdf8; font-weight: 600; }
+
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: #1e293b; border: 1px solid #475569; border-radius: 12px; padding: 24px; width: 350px; max-width: 90vw; }
+  .modal h3 { color: #38bdf8; margin-bottom: 12px; font-size: 1rem; }
+  .modal input { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: #e2e8f0; font-size: 0.9rem; margin-bottom: 12px; outline: none; }
+  .modal input:focus { border-color: #38bdf8; }
+  .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+  .modal-btns .btn { padding: 8px 16px; }
+  .btn-ok { background: #2563eb; border-color: #2563eb; color: white; }
+</style>
+
+<div class="container">
+  <h1>Git Command Visualizer</h1>
+  <p class="subtitle">Click buttons to see how Git operations change the commit tree — TechPath Institute</p>
+
+  <div class="controls">
+    <button class="btn btn-commit" onclick="doCommit()">Commit</button>
+    <button class="btn btn-branch" onclick="showBranchModal()">Branch</button>
+    <button class="btn btn-checkout" onclick="showCheckoutModal()">Checkout</button>
+    <button class="btn btn-merge" onclick="doMerge()">Merge</button>
+    <button class="btn btn-reset" onclick="doReset()">Reset</button>
+  </div>
+
+  <div class="info-bar" id="info-bar">
+    Click <span class="highlight">&nbsp;Commit&nbsp;</span> to create your first commit on the <span class="highlight">&nbsp;main&nbsp;</span> branch.
+  </div>
+
+  <div class="main-layout">
+    <div class="panel">
+      <h2>Commit Graph</h2>
+      <div class="canvas-wrap">
+        <canvas id="graph" width="750" height="400"></canvas>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel" style="margin-bottom: 16px;">
+        <h2>Branches</h2>
+        <div id="branch-list" class="branch-list"></div>
+      </div>
+      <div class="panel log-panel">
+        <h2>Command Log</h2>
+        <div id="cmd-log"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="branch-modal">
+  <div class="modal">
+    <h3>Create New Branch</h3>
+    <input type="text" id="branch-name-input" placeholder="e.g. feature/login" onkeydown="if(event.key==='Enter')createBranch()">
+    <div class="modal-btns">
+      <button class="btn" onclick="closeBranchModal()">Cancel</button>
+      <button class="btn btn-ok" onclick="createBranch()">Create</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="checkout-modal">
+  <div class="modal">
+    <h3>Checkout Branch</h3>
+    <select id="checkout-select" style="width:100%;padding:10px;background:#0f172a;border:1px solid #475569;border-radius:6px;color:#e2e8f0;font-size:0.9rem;margin-bottom:12px;"></select>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeCheckoutModal()">Cancel</button>
+      <button class="btn btn-ok" onclick="doCheckout()">Switch</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const branchColors = ['#22c55e','#a855f7','#f59e0b','#06b6d4','#ef4444','#ec4899','#14b8a6','#f97316'];
+let commitCounter = 0;
+let branches = { 'main': { commits: [], color: branchColors[0], parent: null } };
+let currentBranch = 'main';
+let allCommits = [];
+let logEntries = [];
+
+function genHash() {
+  return Math.random().toString(16).substring(2, 9);
+}
+
+function addLog(cmd, msg) {
+  logEntries.unshift({ cmd, msg });
+  renderLog();
+}
+
+function renderLog() {
+  const container = document.getElementById('cmd-log');
+  container.innerHTML = logEntries.slice(0, 30).map(e =>
+    `<div class="log-entry"><span class="cmd">${e.cmd}</span> <span class="msg">${e.msg}</span></div>`
+  ).join('');
+}
+
+function renderBranches() {
+  const container = document.getElementById('branch-list');
+  container.innerHTML = Object.entries(branches).map(([name, b]) =>
+    `<div class="branch-item ${name===currentBranch?'current':''}" onclick="switchBranch('${name}')">
+      <span class="branch-dot" style="background:${b.color}"></span>
+      <span>${name}</span>
+      <span style="color:#64748b;font-size:0.72rem;margin-left:auto;">${b.commits.length} commits</span>
+    </div>`
+  ).join('');
+}
+
+function setInfo(html) {
+  document.getElementById('info-bar').innerHTML = html;
+}
+
+function doCommit() {
+  commitCounter++;
+  const hash = genHash();
+  const commit = {
+    id: commitCounter,
+    hash: hash,
+    branch: currentBranch,
+    message: `Commit ${commitCounter}`,
+    parent: branches[currentBranch].commits.length > 0
+      ? branches[currentBranch].commits[branches[currentBranch].commits.length - 1].hash
+      : (branches[currentBranch].parent ? getLastCommitOf(branches[currentBranch].parent) : null),
+    isMerge: false
+  };
+  branches[currentBranch].commits.push(commit);
+  allCommits.push(commit);
+  addLog(`git commit -m "C${commitCounter}"`, `<span class="hash">${hash}</span> on ${currentBranch}`);
+  setInfo(`Created commit <span class="highlight">C${commitCounter}</span> (<span class="highlight">${hash}</span>) on branch <span class="highlight">${currentBranch}</span>`);
+  renderBranches();
+  drawGraph();
+}
+
+function getLastCommitOf(branchName) {
+  if (!branches[branchName] || branches[branchName].commits.length === 0) return null;
+  return branches[branchName].commits[branches[branchName].commits.length - 1].hash;
+}
+
+function showBranchModal() {
+  document.getElementById('branch-modal').classList.add('show');
+  document.getElementById('branch-name-input').value = '';
+  document.getElementById('branch-name-input').focus();
+}
+function closeBranchModal() {
+  document.getElementById('branch-modal').classList.remove('show');
+}
+
+function createBranch() {
+  const name = document.getElementById('branch-name-input').value.trim().replace(/\s+/g, '-');
+  if (!name || branches[name]) {
+    closeBranchModal();
+    return;
+  }
+  const colorIdx = Object.keys(branches).length % branchColors.length;
+  branches[name] = { commits: [], color: branchColors[colorIdx], parent: currentBranch };
+  addLog(`git checkout -b ${name}`, `from ${currentBranch}`);
+  currentBranch = name;
+  setInfo(`Created and switched to branch <span class="highlight">${name}</span> from <span class="highlight">${branches[name].parent}</span>`);
+  closeBranchModal();
+  renderBranches();
+  drawGraph();
+}
+
+function showCheckoutModal() {
+  const select = document.getElementById('checkout-select');
+  select.innerHTML = Object.keys(branches)
+    .filter(b => b !== currentBranch)
+    .map(b => `<option value="${b}">${b}</option>`).join('');
+  if (select.options.length === 0) {
+    setInfo('No other branches to checkout. Create a branch first.');
+    return;
+  }
+  document.getElementById('checkout-modal').classList.add('show');
+}
+function closeCheckoutModal() {
+  document.getElementById('checkout-modal').classList.remove('show');
+}
+
+function doCheckout() {
+  const name = document.getElementById('checkout-select').value;
+  if (name && branches[name]) {
+    currentBranch = name;
+    addLog(`git checkout ${name}`, '');
+    setInfo(`Switched to branch <span class="highlight">${name}</span>`);
+    renderBranches();
+    drawGraph();
+  }
+  closeCheckoutModal();
+}
+
+function switchBranch(name) {
+  if (name !== currentBranch) {
+    currentBranch = name;
+    addLog(`git checkout ${name}`, '');
+    setInfo(`Switched to branch <span class="highlight">${name}</span>`);
+    renderBranches();
+    drawGraph();
+  }
+}
+
+function doMerge() {
+  const otherBranches = Object.keys(branches).filter(b => b !== currentBranch && branches[b].commits.length > 0);
+  if (otherBranches.length === 0) {
+    setInfo('No branches with commits to merge. Create a branch and add commits first.');
+    return;
+  }
+  const source = otherBranches[0];
+  commitCounter++;
+  const hash = genHash();
+  const commit = {
+    id: commitCounter,
+    hash: hash,
+    branch: currentBranch,
+    message: `Merge ${source}`,
+    parent: getLastCommitOf(currentBranch),
+    mergeFrom: source,
+    mergeParent: getLastCommitOf(source),
+    isMerge: true
+  };
+  branches[currentBranch].commits.push(commit);
+  allCommits.push(commit);
+  addLog(`git merge ${source}`, `<span class="hash">${hash}</span> merge commit on ${currentBranch}`);
+  setInfo(`Merged <span class="highlight">${source}</span> into <span class="highlight">${currentBranch}</span> (commit <span class="highlight">${hash}</span>)`);
+  renderBranches();
+  drawGraph();
+}
+
+function doReset() {
+  branches = { 'main': { commits: [], color: branchColors[0], parent: null } };
+  currentBranch = 'main';
+  allCommits = [];
+  commitCounter = 0;
+  logEntries = [];
+  addLog('git reset', 'Graph cleared');
+  setInfo('Graph reset. Click <span class="highlight">Commit</span> to start again.');
+  renderBranches();
+  drawGraph();
+}
+
+function drawGraph() {
+  const canvas = document.getElementById('graph');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+
+  const branchNames = Object.keys(branches);
+  const maxCommits = Math.max(...branchNames.map(b => {
+    let count = branches[b].commits.length;
+    if (branches[b].parent) {
+      const parentBranch = branches[b].parent;
+      count += branches[parentBranch] ? branches[parentBranch].commits.length : 0;
+    }
+    return count;
+  }), 1);
+
+  const W = Math.max(750, maxCommits * 90 + 120);
+  const H = Math.max(400, branchNames.length * 80 + 80);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+
+  ctx.clearRect(0, 0, W, H);
+
+  const laneHeight = 70;
+  const startX = 60;
+  const commitSpacing = 80;
+  const nodeRadius = 16;
+
+  const branchLane = {};
+  branchNames.forEach((b, i) => { branchLane[b] = 50 + i * laneHeight; });
+
+  // Map hash to position
+  const hashPos = {};
+
+  // Draw branch labels
+  branchNames.forEach((b) => {
+    const y = branchLane[b];
+    ctx.fillStyle = branches[b].color;
+    ctx.font = '600 12px "Segoe UI", sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(b, startX - 14, y + 4);
+
+    // Dashed lane line
+    ctx.beginPath();
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1;
+    ctx.moveTo(startX, y);
+    ctx.lineTo(W - 20, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // Position all commits
+  const branchCommitIndex = {};
+  branchNames.forEach(b => { branchCommitIndex[b] = 0; });
+
+  // First pass: position commits per branch
+  branchNames.forEach(b => {
+    let xOffset = 0;
+    if (branches[b].parent && branches[branches[b].parent]) {
+      xOffset = branches[branches[b].parent].commits.length;
+    }
+    branches[b].commits.forEach((c, i) => {
+      const x = startX + (xOffset + i) * commitSpacing;
+      const y = branchLane[b];
+      hashPos[c.hash] = { x, y, branch: b, color: branches[b].color };
+    });
+  });
+
+  // Draw connections
+  branchNames.forEach(b => {
+    const color = branches[b].color;
+    branches[b].commits.forEach((c, i) => {
+      const pos = hashPos[c.hash];
+      if (!pos) return;
+
+      // Connection to parent commit
+      if (i > 0) {
+        const prevHash = branches[b].commits[i - 1].hash;
+        const prevPos = hashPos[prevHash];
+        if (prevPos) {
+          ctx.beginPath();
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 3;
+          ctx.moveTo(prevPos.x, prevPos.y);
+          ctx.lineTo(pos.x, pos.y);
+          ctx.stroke();
+        }
+      } else if (branches[b].parent) {
+        // First commit on a branch — connect to parent branch's last commit at branch time
+        const parentBranch = branches[b].parent;
+        if (branches[parentBranch] && branches[parentBranch].commits.length > 0) {
+          const parentLast = branches[parentBranch].commits[branches[parentBranch].commits.length - 1];
+          const fromPos = hashPos[parentLast.hash] || hashPos[getLastCommitOf(parentBranch)];
+          if (fromPos) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 3]);
+            const cpX = (fromPos.x + pos.x) / 2;
+            ctx.moveTo(fromPos.x, fromPos.y);
+            ctx.bezierCurveTo(cpX, fromPos.y, cpX, pos.y, pos.x, pos.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+        }
+      }
+
+      // Merge line
+      if (c.isMerge && c.mergeParent && hashPos[c.mergeParent]) {
+        const fromPos = hashPos[c.mergeParent];
+        ctx.beginPath();
+        ctx.strokeStyle = branches[c.mergeFrom]?.color || '#f59e0b';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 3]);
+        const cpX = (fromPos.x + pos.x) / 2;
+        ctx.moveTo(fromPos.x, fromPos.y);
+        ctx.bezierCurveTo(cpX, fromPos.y, cpX, pos.y, pos.x, pos.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    });
+  });
+
+  // Draw commit nodes
+  branchNames.forEach(b => {
+    branches[b].commits.forEach(c => {
+      const pos = hashPos[c.hash];
+      if (!pos) return;
+      const color = pos.color;
+      const isHead = (b === currentBranch && c === branches[b].commits[branches[b].commits.length - 1]);
+
+      // Node
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, nodeRadius, 0, Math.PI * 2);
+      ctx.fillStyle = c.isMerge ? '#1e293b' : color;
+      ctx.fill();
+      ctx.strokeStyle = isHead ? '#f1f5f9' : color;
+      ctx.lineWidth = isHead ? 3 : 2;
+      ctx.stroke();
+
+      // Label inside
+      ctx.fillStyle = c.isMerge ? color : '#0f172a';
+      ctx.font = 'bold 11px "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`C${c.id}`, pos.x, pos.y);
+
+      // Hash below
+      ctx.fillStyle = '#64748b';
+      ctx.font = '10px monospace';
+      ctx.fillText(c.hash.substring(0, 7), pos.x, pos.y + nodeRadius + 12);
+
+      // HEAD label
+      if (isHead) {
+        ctx.fillStyle = '#fbbf24';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillText('HEAD', pos.x, pos.y - nodeRadius - 8);
+      }
+
+      // Merge label
+      if (c.isMerge) {
+        ctx.fillStyle = '#f59e0b';
+        ctx.font = '9px sans-serif';
+        ctx.fillText('merge', pos.x, pos.y - nodeRadius - 8);
+      }
+    });
+  });
+}
+
+// Initialize
+renderBranches();
+drawGraph();
+</script>

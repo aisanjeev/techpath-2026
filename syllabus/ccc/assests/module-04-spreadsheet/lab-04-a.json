@@ -1,0 +1,30 @@
+{
+  "asset_type": "lab",
+  "title": "Create a Student Marksheet with Formulas",
+  "description": "Build a complete student marksheet using SUM, AVERAGE, MAX, MIN, COUNT functions and cell formatting in Excel.",
+  "tags": ["excel", "formulas", "marksheet"],
+  "status": "draft",
+  "objective": "Students will create a formatted student marksheet in Excel, use essential functions (SUM, AVERAGE, MAX, MIN, COUNT, IF) to calculate totals, averages, and pass/fail results, and apply cell formatting to present the data professionally.",
+  "steps": [
+    {
+      "title": "Set Up the Marksheet Structure",
+      "instructions": "Open Microsoft Excel and create a new blank workbook.\n\n1. In cell **A1**, type the title: **TechPath Institute — Student Marksheet 2026**\n2. Select cells A1 to J1, then click **Merge & Center** (Home tab > Alignment group). Make the title **Bold**, font size **14**, and apply a **dark blue background** with **white text**.\n3. In **Row 3**, enter the following headers:\n   - A3: `Roll No.`\n   - B3: `Student Name`\n   - C3: `Hindi`\n   - D3: `English`\n   - E3: `Mathematics`\n   - F3: `Science`\n   - G3: `Computer`\n   - H3: `Total`\n   - I3: `Average`\n   - J3: `Result`\n4. Format the header row: **Bold**, **Center-aligned**, light blue background color.\n5. Adjust column widths so all headers are fully visible (double-click the column border to auto-fit)."
+    },
+    {
+      "title": "Enter Student Data",
+      "instructions": "Enter marks for 6 students starting from Row 4. Use marks between 25 and 98 for each subject.\n\n| Roll No. | Name | Hindi | English | Maths | Science | Computer |\n|----------|------|-------|---------|-------|---------|----------|\n| 2601 | Rahul Sharma | 72 | 85 | 68 | 78 | 90 |\n| 2602 | Priya Verma | 88 | 92 | 95 | 91 | 87 |\n| 2603 | Amit Patel | 45 | 52 | 38 | 41 | 55 |\n| 2604 | Sneha Gupta | 78 | 80 | 82 | 85 | 88 |\n| 2605 | Ananya Singh | 92 | 88 | 90 | 94 | 96 |\n| 2606 | Vikram Joshi | 30 | 28 | 25 | 32 | 35 |\n\nAfter entering the data:\n- Apply **borders** to all data cells (Home > Borders > All Borders).\n- Apply **Number format** to all mark cells (no decimal places).\n- Center-align the Roll No. column."
+    },
+    {
+      "title": "Add Formulas for Total, Average, and Result",
+      "instructions": "Now write the formulas to calculate results.\n\n**Total Marks (Column H):**\n1. Click on cell **H4**.\n2. Type: `=SUM(C4:G4)` and press Enter.\n3. This adds all 5 subject marks for Rahul.\n4. Select H4, grab the **Fill Handle** (small black cross at bottom-right corner), and drag down to H9 to fill the formula for all students.\n\n**Average Marks (Column I):**\n1. Click on cell **I4**.\n2. Type: `=AVERAGE(C4:G4)` and press Enter.\n3. Drag the Fill Handle down to I9.\n4. Format column I to show **1 decimal place** (right-click > Format Cells > Number > 1 decimal place).\n\n**Result (Column J):**\n1. Click on cell **J4**.\n2. Type: `=IF(I4>=33,\"Pass\",\"Fail\")` and press Enter.\n3. Drag the Fill Handle down to J9.\n4. Manually apply **green background** to cells showing \"Pass\" and **red background** to cells showing \"Fail\"."
+    },
+    {
+      "title": "Add Summary Statistics",
+      "instructions": "Below the student data, add summary calculations.\n\n1. In cell **A11**, type: `Highest Marks`\n2. In cell **A12**, type: `Lowest Marks`\n3. In cell **A13**, type: `Class Average`\n4. In cell **A14**, type: `Total Students`\n5. Make all four labels **Bold**.\n\nNow enter the formulas:\n\n**Highest Marks (Row 11):**\n- Cell C11: `=MAX(C4:C9)`\n- Copy this formula to D11, E11, F11, G11 (or drag the Fill Handle across).\n\n**Lowest Marks (Row 12):**\n- Cell C12: `=MIN(C4:C9)`\n- Copy across to D12 through G12.\n\n**Class Average (Row 13):**\n- Cell C13: `=AVERAGE(C4:C9)`\n- Copy across to D13 through G13.\n- Format Row 13 with 1 decimal place.\n\n**Total Students (Row 14):**\n- Cell C14: `=COUNT(C4:C9)`\n- This should return 6.\n\nApply borders and a **light yellow background** to the summary section."
+    },
+    {
+      "title": "Final Formatting and Save",
+      "instructions": "Apply finishing touches to make the marksheet look professional.\n\n1. **Select all data** (A1 to J14) and apply **outer thick border** (Home > Borders > Thick Box Border).\n2. **Freeze the header row:** Go to View > Freeze Panes > Freeze Top Row (or click on cell A4 first, then View > Freeze Panes > Freeze Panes to freeze rows 1-3).\n3. **Adjust column widths** one final time so everything is neatly visible.\n4. **Add a footer:** Go to Insert > Header & Footer. In the center footer section, type: `TechPath Institute — CCC Batch 2026`\n5. **Set Print Area:** Select A1:J14, go to Page Layout > Print Area > Set Print Area.\n6. **Print Preview:** Press Ctrl + P to verify the marksheet looks correct.\n7. **Save** the file as `Student_Marksheet.xlsx` (Ctrl + S).\n\nVerify your work:\n- Click on formula cells to confirm they reference the correct ranges.\n- Check that Vikram Joshi shows \"Fail\" (his average should be below 33).\n- Confirm that MAX, MIN, AVERAGE, and COUNT show correct values."
+    }
+  ]
+}

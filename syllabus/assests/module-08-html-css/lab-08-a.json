@@ -1,0 +1,38 @@
+{
+  "asset_type": "lab",
+  "title": "Build a Responsive Product Card Grid",
+  "description": "Create a responsive card layout using CSS Grid that automatically adjusts columns based on screen width",
+  "tags": [
+    "html",
+    "css",
+    "grid",
+    "responsive",
+    "cards"
+  ],
+  "status": "draft",
+  "objective": "Students will build a responsive product card grid using CSS Grid's auto-fit, create hover effects, and verify responsiveness across screen sizes using Chrome DevTools",
+  "steps": [
+    {
+      "title": "Set Up the Project",
+      "instructions": "Create a new folder called `card-grid`.\n\nCreate two files:\n- `index.html`\n- `style.css`\n\nOpen the folder in VS Code. Install the **Live Server** extension if you haven't already.\n\nIn `index.html`, set up the basic structure:\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Course Cards</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n    <h1>Our Courses</h1>\n    <div class=\"card-grid\">\n        <!-- Cards will go here -->\n    </div>\n</body>\n</html>\n```\n\nRight-click `index.html` → **Open with Live Server**."
+    },
+    {
+      "title": "Create the Card HTML",
+      "instructions": "Inside the `.card-grid` div, add 6 course cards:\n\n```html\n<div class=\"card\">\n    <div class=\"card-image\" style=\"background: #818cf8;\">ADCA</div>\n    <div class=\"card-body\">\n        <span class=\"card-tag\">12 Months</span>\n        <h3>Advanced Diploma in Computer Applications</h3>\n        <p>Master Python, Web Dev, AI Tools, and get placement support.</p>\n        <div class=\"card-footer\">\n            <span class=\"card-price\">₹35,000</span>\n            <a href=\"#\" class=\"card-btn\">Enroll Now</a>\n        </div>\n    </div>\n</div>\n```\n\nDuplicate this card 5 more times with different courses:\n- DCA (6 Months, ₹18,000, color #34d399)\n- Tally Pro (3 Months, ₹8,000, color #fbbf24)\n- Python Mastery (4 Months, ₹12,000, color #3b82f6)\n- Web Development (6 Months, ₹20,000, color #f472b6)\n- AI & Data Science (6 Months, ₹25,000, color #a78bfa)\n\nChange the background color on each `.card-image` div."
+    },
+    {
+      "title": "Style with CSS Grid",
+      "instructions": "In `style.css`:\n\n```css\n* { box-sizing: border-box; margin: 0; padding: 0; }\n\nbody {\n    font-family: system-ui, -apple-system, sans-serif;\n    background: #f1f5f9;\n    padding: 48px 24px;\n}\n\nh1 {\n    text-align: center;\n    font-size: 2rem;\n    margin-bottom: 32px;\n    color: #0f172a;\n}\n\n.card-grid {\n    display: grid;\n    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));\n    gap: 24px;\n    max-width: 1200px;\n    margin: 0 auto;\n}\n```\n\nSave and check your browser — the cards should automatically arrange in columns!\n\nResize the browser window:\n- Wide screen → 3 columns\n- Medium → 2 columns\n- Narrow → 1 column\n\nThis is the magic of `auto-fit` + `minmax()` — no media queries needed for the grid!"
+    },
+    {
+      "title": "Style the Cards",
+      "instructions": "Add card styles:\n\n```css\n.card {\n    background: white;\n    border-radius: 16px;\n    overflow: hidden;\n    box-shadow: 0 1px 3px rgba(0,0,0,0.08);\n    transition: transform 0.2s, box-shadow 0.2s;\n}\n\n.card:hover {\n    transform: translateY(-4px);\n    box-shadow: 0 12px 24px rgba(0,0,0,0.12);\n}\n\n.card-image {\n    height: 160px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    color: white;\n    font-size: 2rem;\n    font-weight: 800;\n}\n\n.card-body { padding: 20px; }\n\n.card-tag {\n    display: inline-block;\n    padding: 4px 12px;\n    background: #f1f5f9;\n    border-radius: 12px;\n    font-size: 12px;\n    font-weight: 600;\n    color: #64748b;\n    margin-bottom: 8px;\n}\n\n.card h3 {\n    font-size: 1.125rem;\n    margin-bottom: 8px;\n    color: #0f172a;\n}\n\n.card p {\n    font-size: 0.875rem;\n    color: #64748b;\n    margin-bottom: 16px;\n    line-height: 1.5;\n}\n\n.card-footer {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n}\n\n.card-price {\n    font-size: 1.25rem;\n    font-weight: 700;\n    color: #0f172a;\n}\n\n.card-btn {\n    padding: 8px 16px;\n    background: #6366f1;\n    color: white;\n    border-radius: 8px;\n    font-size: 14px;\n    font-weight: 600;\n    transition: background 0.2s;\n}\n\n.card-btn:hover { background: #4f46e5; }\n```\n\nCheck: Hover over a card — does it lift up with a shadow?"
+    },
+    {
+      "title": "Test Responsiveness",
+      "instructions": "Open Chrome DevTools (F12) → click the **device toggle** icon (Ctrl+Shift+M).\n\nTest on:\n- **iPhone SE** (375px) → Should show 1 column\n- **iPad** (768px) → Should show 2 columns\n- **Desktop** (1280px) → Should show 3 columns\n\nIf the cards look too wide on mobile, add:\n```css\n@media (max-width: 360px) {\n    .card-grid {\n        grid-template-columns: 1fr;\n    }\n}\n```\n\nAlso check:\n- Text is readable on all sizes\n- No horizontal scrolling\n- Card images scale properly\n- Hover effects work (only on devices with mouse)\n\nScreenshot each device size.\n\n**Submit:** The complete `index.html` and `style.css` files + responsive screenshots."
+    }
+  ],
+  "starter_code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Course Cards</title>\n    <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n    <h1>Our Courses</h1>\n    <div class=\"card-grid\">\n        <!-- Add your cards here -->\n    </div>\n</body>\n</html>",
+  "expected_output": "A responsive card grid that shows 3 columns on desktop, 2 on tablet, and 1 on mobile — with hover effects, consistent styling, and no media queries for the grid layout"
+}

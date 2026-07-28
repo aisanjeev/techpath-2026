@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Audit Checklist — TechPath Academy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #1a1a2e;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+            font-size: 1.8rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+        .progress-bar-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .progress-header h3 { font-size: 1rem; color: #444; }
+        .progress-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .progress-stats span { font-weight: 600; }
+        .progress-track {
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+        .progress-percent {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 8px;
+            color: #1a1a2e;
+        }
+        .category {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .category-header {
+            padding: 18px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+        .category-header:hover { background: #f9fafb; }
+        .category-header h2 {
+            font-size: 1.1rem;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .category-badge {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .badge-onpage { background: #dbeafe; color: #1d4ed8; }
+        .badge-technical { background: #fef3c7; color: #92400e; }
+        .badge-offpage { background: #d1fae5; color: #065f46; }
+        .category-progress {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 500;
+        }
+        .category-items {
+            padding: 15px 25px;
+        }
+        .category-items.collapsed { display: none; }
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+            gap: 12px;
+        }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: #10b981;
+            flex-shrink: 0;
+        }
+        .item-content { flex: 1; }
+        .item-content label {
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .item-content label.checked {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+        .item-content .item-desc {
+            font-size: 0.82rem;
+            color: #6b7280;
+        }
+        .notes-input {
+            width: 100%;
+            margin-top: 8px;
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            color: #374151;
+            display: none;
+        }
+        .notes-input.visible { display: block; }
+        .notes-input:focus { outline: none; border-color: #4361ee; }
+        .notes-toggle {
+            font-size: 0.78rem;
+            color: #4361ee;
+            cursor: pointer;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        .notes-toggle:hover { text-decoration: underline; }
+        .arrow {
+            transition: transform 0.2s;
+            font-size: 1.2rem;
+            color: #9ca3af;
+        }
+        .arrow.rotated { transform: rotate(180deg); }
+        .summary-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-top: 20px;
+        }
+        .summary-section h2 { margin-bottom: 15px; font-size: 1.2rem; }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        .summary-card {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .summary-card.onpage { background: #dbeafe; }
+        .summary-card.technical { background: #fef3c7; }
+        .summary-card.offpage { background: #d1fae5; }
+        .summary-card h4 { font-size: 0.85rem; color: #444; margin-bottom: 5px; }
+        .summary-card .score { font-size: 1.8rem; font-weight: 700; }
+        .website-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .website-input input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        .website-input input:focus { outline: none; border-color: #4361ee; }
+        .reset-btn {
+            padding: 10px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .reset-btn:hover { background: #dc2626; }
+        @media (max-width: 600px) {
+            .summary-grid { grid-template-columns: 1fr; }
+            .progress-stats { flex-direction: column; gap: 5px; }
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SEO Audit Checklist</h1>
+        <p class="subtitle">TechPath Academy — 50-Point Technical SEO Audit Tool</p>
+
+        <div class="website-input">
+            <input type="text" id="website-url" placeholder="Enter website URL being audited (e.g., techpath.biz)">
+            <button class="reset-btn" onclick="resetAll()">Reset All</button>
+        </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-header">
+                <h3>Overall Audit Progress</h3>
+                <div class="progress-stats">
+                    <div>Checked: <span id="checked-count">0</span>/50</div>
+                    <div>On-Page: <span id="onpage-score">0</span>/18</div>
+                    <div>Technical: <span id="tech-score">0</span>/20</div>
+                    <div>Off-Page: <span id="offpage-score">0</span>/12</div>
+                </div>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-percent" id="progress-percent">0%</div>
+        </div>
+
+        <div id="categories-container"></div>
+
+        <div class="summary-section">
+            <h2>Category Scores</h2>
+            <div class="summary-grid">
+                <div class="summary-card onpage">
+                    <h4>On-Page SEO</h4>
+                    <div class="score" id="summary-onpage">0%</div>
+                </div>
+                <div class="summary-card technical">
+                    <h4>Technical SEO</h4>
+                    <div class="score" id="summary-tech">0%</div>
+                </div>
+                <div class="summary-card offpage">
+                    <h4>Off-Page SEO</h4>
+                    <div class="score" id="summary-offpage">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const auditData = [
+            {
+                name: "On-Page SEO",
+                badge: "badge-onpage",
+                items: [
+                    { label: "Title tag present and unique (50-60 characters)", desc: "Every page should have a unique, keyword-rich title tag within character limits." },
+                    { label: "Meta description present and unique (150-155 characters)", desc: "Compelling meta descriptions with primary keyword and CTA." },
+                    { label: "Only one H1 tag per page", desc: "Each page should have exactly one H1 containing the primary keyword." },
+                    { label: "Proper heading hierarchy (H1 > H2 > H3)", desc: "No skipped heading levels. Logical structure throughout." },
+                    { label: "All images have descriptive alt text", desc: "Every image has alt text describing the image content." },
+                    { label: "Images compressed and in modern format (WebP)", desc: "All images under 200KB, using WebP where possible." },
+                    { label: "Image file names are descriptive (not IMG_1234.jpg)", desc: "Use keyword-rich, hyphenated file names." },
+                    { label: "Internal links present (3-5 per page minimum)", desc: "Each page links to other relevant pages with descriptive anchor text." },
+                    { label: "No orphan pages (all pages reachable via internal links)", desc: "Every page can be reached from at least one other page." },
+                    { label: "Clean URL structure (short, lowercase, hyphenated)", desc: "URLs are readable, keyword-rich, and use hyphens." },
+                    { label: "Primary keyword in first 100 words of content", desc: "Main keyword appears naturally early in the content." },
+                    { label: "Content length appropriate for keyword competition", desc: "Competitive keywords need 1500+ words of comprehensive content." },
+                    { label: "No keyword stuffing (density 1-2%)", desc: "Keywords used naturally without over-repetition." },
+                    { label: "External links to authoritative sources (1-2 per page)", desc: "Link to trusted, relevant external resources." },
+                    { label: "Schema markup implemented (relevant type)", desc: "JSON-LD schema added for content type (Article, FAQ, Product, etc.)." },
+                    { label: "Open Graph tags present for social sharing", desc: "og:title, og:description, og:image set for all pages." },
+                    { label: "Content answers user search intent", desc: "Page content matches what the user expects to find." },
+                    { label: "No keyword cannibalization (one keyword per page)", desc: "Multiple pages don't compete for the same keyword." }
+                ]
+            },
+            {
+                name: "Technical SEO",
+                badge: "badge-technical",
+                items: [
+                    { label: "robots.txt exists and is correctly configured", desc: "Check at /robots.txt — no important pages accidentally blocked." },
+                    { label: "XML sitemap exists and submitted to GSC", desc: "Sitemap at /sitemap.xml with all indexable pages listed." },
+                    { label: "HTTPS active with valid SSL certificate", desc: "Site uses HTTPS, certificate is valid and not expired." },
+                    { label: "HTTP redirects to HTTPS (301 redirect)", desc: "All HTTP URLs redirect permanently to HTTPS versions." },
+                    { label: "No mixed content warnings", desc: "No HTTP resources (images, scripts) loaded on HTTPS pages." },
+                    { label: "Core Web Vitals — LCP under 2.5 seconds", desc: "Largest Contentful Paint loads within 2.5s on mobile." },
+                    { label: "Core Web Vitals — INP under 200ms", desc: "Interaction to Next Paint responds within 200ms." },
+                    { label: "Core Web Vitals — CLS under 0.1", desc: "Cumulative Layout Shift score below 0.1." },
+                    { label: "Mobile responsive design (passes mobile-friendly test)", desc: "Site works perfectly on all screen sizes." },
+                    { label: "Tap targets large enough (48px minimum)", desc: "Buttons and links are easy to tap on mobile devices." },
+                    { label: "No intrusive interstitials (popups) on mobile", desc: "No full-screen popups that block content on mobile." },
+                    { label: "Canonical tags properly configured", desc: "Self-referencing canonicals on all pages, cross-domain if needed." },
+                    { label: "No redirect chains (max 1 redirect hop)", desc: "All redirects go directly to final destination." },
+                    { label: "No 404 errors on internal links", desc: "All internal links point to live pages." },
+                    { label: "Server response time under 500ms (TTFB)", desc: "Time to First Byte is under 500ms for all pages." },
+                    { label: "CSS and JavaScript minified", desc: "All CSS/JS files are minified for production." },
+                    { label: "Browser caching configured", desc: "Static assets have appropriate cache headers set." },
+                    { label: "GZIP or Brotli compression enabled", desc: "Text-based resources are compressed for faster transfer." },
+                    { label: "Lazy loading on below-fold images", desc: "Images not in viewport use loading='lazy' attribute." },
+                    { label: "No JavaScript rendering issues for important content", desc: "Critical content is available without JavaScript or uses SSR." }
+                ]
+            },
+            {
+                name: "Off-Page SEO",
+                badge: "badge-offpage",
+                items: [
+                    { label: "Backlink profile reviewed (no toxic/spammy links)", desc: "Check backlinks in Ahrefs/GSC — disavow toxic links if needed." },
+                    { label: "Referring domains growing month-over-month", desc: "New unique websites linking to you each month." },
+                    { label: "Backlinks from relevant, authoritative domains", desc: "Links come from sites related to your industry with decent DA." },
+                    { label: "Anchor text distribution is natural", desc: "Mix of branded, naked URL, generic, and keyword anchors." },
+                    { label: "No manual action penalties in Google Search Console", desc: "Check GSC > Security & Manual Actions for any penalties." },
+                    { label: "Google Business Profile claimed and optimized", desc: "GBP listing is verified with complete information." },
+                    { label: "NAP consistent across all directories", desc: "Name, Address, Phone identical on website, GBP, and all listings." },
+                    { label: "Listed on relevant local directories", desc: "Present on Justdial, Sulekha, IndiaMART (where applicable)." },
+                    { label: "Google reviews actively managed (responding to all)", desc: "Regular reviews coming in, all reviews get a response." },
+                    { label: "Social media profiles linked and active", desc: "Active social profiles linked from website." },
+                    { label: "Brand mentions growing (linked and unlinked)", desc: "People mentioning your brand online — some with links." },
+                    { label: "Competitor backlink gap identified", desc: "Know which sites link to competitors but not to you." }
+                ]
+            }
+        ];
+
+        function renderCategories() {
+            const container = document.getElementById('categories-container');
+            let html = '';
+
+            auditData.forEach((cat, catIdx) => {
+                html += `
+                    <div class="category">
+                        <div class="category-header" onclick="toggleCategory(${catIdx})">
+                            <h2><span class="category-badge ${cat.badge}">${cat.name}</span> (${cat.items.length} items)</h2>
+                            <span class="arrow" id="arrow-${catIdx}">&#9660;</span>
+                        </div>
+                        <div class="category-items" id="cat-items-${catIdx}">
+                            ${cat.items.map((item, itemIdx) => `
+                                <div class="checklist-item">
+                                    <input type="checkbox" id="check-${catIdx}-${itemIdx}" onchange="updateProgress()">
+                                    <div class="item-content">
+                                        <label for="check-${catIdx}-${itemIdx}" id="label-${catIdx}-${itemIdx}">${item.label}</label>
+                                        <div class="item-desc">${item.desc}</div>
+                                        <span class="notes-toggle" onclick="toggleNotes(${catIdx}, ${itemIdx})">+ Add notes</span>
+                                        <input type="text" class="notes-input" id="notes-${catIdx}-${itemIdx}" placeholder="Add your audit notes here...">
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function toggleCategory(idx) {
+            const items = document.getElementById(`cat-items-${idx}`);
+            const arrow = document.getElementById(`arrow-${idx}`);
+            items.classList.toggle('collapsed');
+            arrow.classList.toggle('rotated');
+        }
+
+        function toggleNotes(catIdx, itemIdx) {
+            const notes = document.getElementById(`notes-${catIdx}-${itemIdx}`);
+            notes.classList.toggle('visible');
+            if (notes.classList.contains('visible')) notes.focus();
+        }
+
+        function updateProgress() {
+            let total = 0;
+            let checked = 0;
+            let catChecked = [0, 0, 0];
+
+            auditData.forEach((cat, catIdx) => {
+                cat.items.forEach((item, itemIdx) => {
+                    total++;
+                    const cb = document.getElementById(`check-${catIdx}-${itemIdx}`);
+                    const label = document.getElementById(`label-${catIdx}-${itemIdx}`);
+                    if (cb.checked) {
+                        checked++;
+                        catChecked[catIdx]++;
+                        label.classList.add('checked');
+                    } else {
+                        label.classList.remove('checked');
+                    }
+                });
+            });
+
+            const percent = Math.round((checked / total) * 100);
+            document.getElementById('progress-fill').style.width = percent + '%';
+            document.getElementById('progress-percent').textContent = percent + '%';
+            document.getElementById('checked-count').textContent = checked;
+            document.getElementById('onpage-score').textContent = catChecked[0];
+            document.getElementById('tech-score').textContent = catChecked[1];
+            document.getElementById('offpage-score').textContent = catChecked[2];
+
+            document.getElementById('summary-onpage').textContent = Math.round((catChecked[0] / auditData[0].items.length) * 100) + '%';
+            document.getElementById('summary-tech').textContent = Math.round((catChecked[1] / auditData[1].items.length) * 100) + '%';
+            document.getElementById('summary-offpage').textContent = Math.round((catChecked[2] / auditData[2].items.length) * 100) + '%';
+        }
+
+        function resetAll() {
+            if (confirm('Are you sure you want to reset all checkboxes and notes?')) {
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                document.querySelectorAll('.notes-input').forEach(n => { n.value = ''; n.classList.remove('visible'); });
+                document.querySelectorAll('label.checked').forEach(l => l.classList.remove('checked'));
+                document.getElementById('website-url').value = '';
+                updateProgress();
+            }
+        }
+
+        renderCategories();
+    </script>
+</body>
+</html>

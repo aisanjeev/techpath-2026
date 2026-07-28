@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Build an Institute Database with SQL",
+  "description": "Design tables, insert data, and write queries for a training institute database using SQLite",
+  "tags": [
+    "sql",
+    "sqlite",
+    "database",
+    "queries",
+    "joins"
+  ],
+  "status": "draft",
+  "objective": "Students will design a relational database with proper constraints, insert realistic data, and write SELECT queries with JOINs, GROUP BY, and subqueries",
+  "steps": [
+    {
+      "title": "Create the Database and Tables",
+      "instructions": "Open **DB Browser for SQLite** (download from sqlitebrowser.org) or use **sqliteonline.com**.\n\nCreate a new database called `institute.db`.\n\nRun these CREATE TABLE statements:\n```sql\nCREATE TABLE courses (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT NOT NULL UNIQUE,\n    duration_months INTEGER NOT NULL,\n    fee INTEGER NOT NULL\n);\n\nCREATE TABLE students (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    name TEXT NOT NULL,\n    email TEXT UNIQUE NOT NULL,\n    phone TEXT,\n    course_id INTEGER NOT NULL,\n    city TEXT,\n    enrolled_date DATE DEFAULT CURRENT_DATE,\n    FOREIGN KEY (course_id) REFERENCES courses(id)\n);\n\nCREATE TABLE marks (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n    student_id INTEGER NOT NULL,\n    subject TEXT NOT NULL,\n    marks INTEGER CHECK(marks >= 0 AND marks <= 100),\n    FOREIGN KEY (student_id) REFERENCES students(id)\n);\n```\n\nVerify: Click \"Browse Data\" — you should see 3 empty tables."
+    },
+    {
+      "title": "Insert Sample Data",
+      "instructions": "```sql\nINSERT INTO courses (name, duration_months, fee) VALUES\n    ('ADCA', 12, 35000),\n    ('DCA', 6, 18000),\n    ('Tally Pro', 3, 8000);\n\nINSERT INTO students (name, email, phone, course_id, city) VALUES\n    ('Rahul Sharma', 'rahul@email.com', '9876543210', 1, 'Bhopal'),\n    ('Priya Patel', 'priya@email.com', '9876543211', 2, 'Indore'),\n    ('Amit Kumar', 'amit@email.com', '9876543212', 1, 'Delhi'),\n    ('Sneha Gupta', 'sneha@email.com', '9876543213', 1, 'Bhopal'),\n    ('Vikram Singh', 'vikram@email.com', '9876543214', 2, 'Jaipur'),\n    ('Ananya Reddy', 'ananya@email.com', '9876543215', 1, 'Hyderabad'),\n    ('Karan Verma', 'karan@email.com', '9876543216', 3, 'Bhopal'),\n    ('Neha Joshi', 'neha@email.com', '9876543217', 1, 'Pune');\n\nINSERT INTO marks (student_id, subject, marks) VALUES\n    (1, 'Hindi', 78), (1, 'English', 82), (1, 'Computer', 88),\n    (2, 'Hindi', 85), (2, 'English', 90), (2, 'Computer', 95),\n    (3, 'Hindi', 45), (3, 'English', 50), (3, 'Computer', 60),\n    (4, 'Hindi', 92), (4, 'English', 88), (4, 'Computer', 94),\n    (5, 'Hindi', 38), (5, 'English', 42), (5, 'Computer', 45),\n    (6, 'Hindi', 95), (6, 'English', 98), (6, 'Computer', 99),\n    (7, 'Hindi', 52), (7, 'English', 60), (7, 'Computer', 65),\n    (8, 'Hindi', 88), (8, 'English', 75), (8, 'Computer', 90);\n```\n\nVerify: Browse each table — students should show 8 rows, marks should show 24 rows."
+    },
+    {
+      "title": "Write Basic Queries",
+      "instructions": "Try each query and check the result:\n\n```sql\n-- 1. All students sorted by name\nSELECT * FROM students ORDER BY name;\n\n-- 2. Students from Bhopal\nSELECT name, email, city FROM students WHERE city = 'Bhopal';\n\n-- 3. Count students per city\nSELECT city, COUNT(*) AS total FROM students GROUP BY city ORDER BY total DESC;\n\n-- 4. Average marks per subject\nSELECT subject, ROUND(AVG(marks), 1) AS avg_marks FROM marks GROUP BY subject;\n\n-- 5. Students with course name (JOIN)\nSELECT s.name, c.name AS course, c.fee\nFROM students s\nJOIN courses c ON s.course_id = c.id;\n\n-- 6. Top 3 students by total marks\nSELECT s.name, SUM(m.marks) AS total\nFROM students s\nJOIN marks m ON s.id = m.student_id\nGROUP BY s.id\nORDER BY total DESC\nLIMIT 3;\n\n-- 7. Students who scored above average in Computer\nSELECT s.name, m.marks\nFROM students s\nJOIN marks m ON s.id = m.student_id\nWHERE m.subject = 'Computer'\nAND m.marks > (SELECT AVG(marks) FROM marks WHERE subject = 'Computer');\n\n-- 8. Course-wise revenue\nSELECT c.name, COUNT(s.id) AS students, c.fee * COUNT(s.id) AS revenue\nFROM courses c\nLEFT JOIN students s ON c.id = s.course_id\nGROUP BY c.id;\n```\n\nFor each query, understand what it returns and why."
+    },
+    {
+      "title": "Write Advanced Queries",
+      "instructions": "Now try these challenging queries:\n\n```sql\n-- 9. Complete student report card\nSELECT\n    s.name,\n    c.name AS course,\n    SUM(m.marks) AS total,\n    ROUND(AVG(m.marks), 1) AS percentage,\n    CASE\n        WHEN AVG(m.marks) >= 90 THEN 'A+'\n        WHEN AVG(m.marks) >= 75 THEN 'A'\n        WHEN AVG(m.marks) >= 60 THEN 'B'\n        WHEN AVG(m.marks) >= 33 THEN 'C'\n        ELSE 'F'\n    END AS grade\nFROM students s\nJOIN marks m ON s.id = m.student_id\nJOIN courses c ON s.course_id = c.id\nGROUP BY s.id\nORDER BY total DESC;\n\n-- 10. Students who failed any subject (marks < 33)\nSELECT DISTINCT s.name, m.subject, m.marks\nFROM students s\nJOIN marks m ON s.id = m.student_id\nWHERE m.marks < 33;\n```\n\nVerify:\n- Query 9 should show all students with grades\n- The top student should be Ananya with A+\n- Query 10 should show Vikram (failed in Maths if added)\n\n**Submit:** Your `institute.db` file + a `.sql` file with all your queries."
+    },
+    {
+      "title": "Add UPDATE, DELETE, and ALTER Queries",
+      "instructions": "Practice data modification:\n\n```sql\n-- Update a student's marks\nUPDATE marks SET marks = 90 WHERE student_id = 1 AND subject = 'Computer';\n\n-- Verify the update\nSELECT s.name, m.subject, m.marks\nFROM students s JOIN marks m ON s.id = m.student_id\nWHERE s.id = 1;\n\n-- Delete a student (first remove related marks)\nDELETE FROM marks WHERE student_id = 5;\nDELETE FROM students WHERE id = 5;\n\n-- Add a new column\nALTER TABLE students ADD COLUMN batch TEXT DEFAULT '2026-A';\n\n-- Update batch for some students\nUPDATE students SET batch = '2026-B' WHERE city = 'Delhi';\n\n-- Create an index for faster searches\nCREATE INDEX idx_student_email ON students(email);\nCREATE INDEX idx_marks_student ON marks(student_id);\n\n-- Check indexes\nSELECT * FROM sqlite_master WHERE type = 'index';\n```\n\nVerify:\n- After UPDATE, marks changed for student 1\n- After DELETE, student 5 and their marks are gone\n- New `batch` column exists in the students table\n- Indexes are listed in sqlite_master\n\nSave all queries to your `.sql` file."
+    }
+  ],
+  "expected_output": "A working SQLite database with 3 related tables, realistic data, and 10 SQL queries covering SELECT, JOIN, GROUP BY, subqueries, and CASE statements"
+}

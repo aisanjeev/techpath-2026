@@ -1,0 +1,124 @@
+{
+  "questions": [
+    {
+      "question": "What does DKIM do in email marketing?",
+      "options": ["Blocks spam emails from being sent", "Adds a digital signature to verify the email was sent from an authorized server", "Encrypts email content end-to-end", "Automatically unsubscribes inactive users"],
+      "correct_index": 1,
+      "explanation": "DKIM (DomainKeys Identified Mail) adds a cryptographic signature to outgoing emails, proving they weren't altered in transit and came from your authorized domain."
+    },
+    {
+      "question": "What is the purpose of SPF in email authentication?",
+      "options": ["Styling emails with custom fonts", "Specifying which mail servers are allowed to send emails on behalf of your domain", "Filtering spam in inbox", "Scheduling emails for later delivery"],
+      "correct_index": 1,
+      "explanation": "SPF (Sender Policy Framework) is a DNS record listing authorized mail servers for your domain. Receiving servers check SPF to prevent spoofing."
+    },
+    {
+      "question": "What is a lead magnet?",
+      "options": ["A paid advertisement for lead generation", "A free valuable resource offered in exchange for a visitor's email address", "A CRM software feature", "A social media hashtag strategy"],
+      "correct_index": 1,
+      "explanation": "A lead magnet (free ebook, checklist, webinar, template) gives visitors a reason to share their email. It must solve a specific problem for your target audience."
+    },
+    {
+      "question": "Which email sequence is sent immediately after someone subscribes to your list?",
+      "options": ["Re-engagement sequence", "Welcome sequence", "Abandoned cart sequence", "Win-back sequence"],
+      "correct_index": 1,
+      "explanation": "Welcome sequences (3-5 emails) are triggered on signup. They introduce your brand, set expectations, and often have the highest open rates (50-80%)."
+    },
+    {
+      "question": "What does DMARC tell receiving email servers to do?",
+      "options": ["Compress email attachments", "How to handle emails that fail SPF or DKIM checks (none/quarantine/reject)", "Automatically forward emails", "Add read receipts to emails"],
+      "correct_index": 1,
+      "explanation": "DMARC (Domain-based Message Authentication, Reporting & Conformance) tells receivers what to do with unauthenticated emails: let them through, quarantine, or reject."
+    },
+    {
+      "question": "Your email campaign has 5,000 subscribers. 2,000 opened the email and 300 clicked a link. What is the click-through rate (CTR)?",
+      "options": ["4%", "6%", "15%", "60%"],
+      "correct_index": 1,
+      "explanation": "Email CTR = (Clicks ÷ Delivered) × 100 = (300 ÷ 5,000) × 100 = 6%. Note: Click-to-Open Rate (CTOR) would be 300/2,000 = 15%."
+    },
+    {
+      "question": "What is DLT registration required for in India?",
+      "options": ["Running Google Ads", "Sending commercial SMS messages", "Creating WhatsApp Business accounts", "Publishing email newsletters"],
+      "correct_index": 1,
+      "explanation": "DLT (Distributed Ledger Technology) registration with TRAI is mandatory in India for businesses sending commercial or transactional SMS to prevent spam."
+    },
+    {
+      "question": "Which is the best practice for email subject lines to improve open rates?",
+      "options": ["Write 100+ character subject lines with full details", "Use ALL CAPS and multiple exclamation marks!!!", "Keep it under 50 characters, create curiosity, and personalize with the recipient's name", "Always start with 'URGENT' or 'ACT NOW'"],
+      "correct_index": 2,
+      "explanation": "Short, personalized subject lines with curiosity gaps outperform long or spammy ones. Example: 'Rahul, your marketing report is ready' beats 'URGENT OFFER!!!'"
+    },
+    {
+      "question": "What is the WhatsApp Business API primarily used for?",
+      "options": ["Personal messaging between friends", "Sending bulk promotional messages and automated customer communications at scale", "Making video calls", "Sharing status updates"],
+      "correct_index": 1,
+      "explanation": "WhatsApp Business API lets businesses send automated notifications, support messages, and approved marketing templates at scale — unlike the free app which is limited."
+    },
+    {
+      "question": "In email marketing, what is segmentation?",
+      "options": ["Splitting one email into multiple parts", "Dividing your subscriber list into groups based on shared characteristics for targeted messaging", "Removing all unsubscribed users", "Breaking a long email into a series"],
+      "correct_index": 1,
+      "explanation": "Segmentation groups subscribers by behavior, demographics, or interests so you send relevant content to each group — segmented campaigns get 14% higher open rates."
+    },
+    {
+      "question": "What does Zapier/Make.com help marketers do?",
+      "options": ["Design email templates", "Connect different apps and automate workflows without coding", "Buy email lists", "Create social media posts"],
+      "correct_index": 1,
+      "explanation": "Zapier and Make.com are no-code automation tools that connect apps (e.g., when a form is submitted > add to CRM > send welcome email > notify sales on Slack)."
+    },
+    {
+      "question": "What is lead scoring?",
+      "options": ["Rating your ad creatives from 1-10", "Assigning numerical values to leads based on their actions and profile to prioritize sales follow-up", "Counting total number of leads", "Scoring email deliverability"],
+      "correct_index": 1,
+      "explanation": "Lead scoring assigns points based on actions (opened email +5, visited pricing page +20, downloaded brochure +10) so sales teams focus on the hottest leads first."
+    },
+    {
+      "question": "In the AARRR (Pirate Metrics) framework, what does the second 'R' stand for?",
+      "options": ["Reach", "Revenue", "Retention", "Remarketing"],
+      "correct_index": 1,
+      "explanation": "AARRR = Acquisition, Activation, Retention, Revenue, Referral. Revenue is the stage where users become paying customers."
+    },
+    {
+      "question": "A/B testing in email marketing means:",
+      "options": ["Sending emails to lists A and B on different days", "Sending two versions of an email (with one difference) to small groups, then sending the winner to the rest", "Comparing email marketing with SMS marketing", "Testing emails across different devices"],
+      "correct_index": 1,
+      "explanation": "Email A/B testing sends variant A and B to a small percentage (e.g., 10% each), waits for results, then automatically sends the winning version to the remaining 80%."
+    },
+    {
+      "question": "What is the primary function of a CRM like HubSpot?",
+      "options": ["Designing websites", "Managing customer relationships, tracking interactions, and organizing sales pipelines", "Running paid advertisements", "Hosting email servers"],
+      "correct_index": 1,
+      "explanation": "A CRM (Customer Relationship Management) tool centralizes all customer data, tracks every interaction, manages deals through pipeline stages, and helps teams collaborate."
+    },
+    {
+      "question": "What is a chatbot's primary benefit for a business?",
+      "options": ["Replacing the entire customer support team permanently", "Providing instant 24/7 responses to common queries and qualifying leads automatically", "Increasing email open rates", "Designing marketing campaigns"],
+      "correct_index": 1,
+      "explanation": "Chatbots handle repetitive queries instantly (FAQs, order status, appointment booking) 24/7, freeing human agents for complex issues and qualifying leads automatically."
+    },
+    {
+      "question": "Which metric indicates the percentage of emails that could not be delivered to recipients?",
+      "options": ["Unsubscribe rate", "Bounce rate", "Spam rate", "Churn rate"],
+      "correct_index": 1,
+      "explanation": "Bounce rate measures undelivered emails. Hard bounces (invalid addresses) should be removed immediately; soft bounces (full inbox) may resolve. Keep bounce rate under 2%."
+    },
+    {
+      "question": "An online course creator wants to re-engage subscribers who haven't opened emails in 90 days. Which sequence should they use?",
+      "options": ["Welcome sequence", "Nurture sequence", "Re-engagement (win-back) sequence", "Onboarding sequence"],
+      "correct_index": 2,
+      "explanation": "Re-engagement sequences target inactive subscribers with special offers, 'we miss you' messages, or asking if they want to stay subscribed — cleaning your list improves deliverability."
+    },
+    {
+      "question": "In WhatsApp Business API, what are template messages?",
+      "options": ["Any message you type manually", "Pre-approved message formats that businesses must get approved by Meta before sending to customers", "Auto-generated AI responses", "Group broadcast messages"],
+      "correct_index": 1,
+      "explanation": "Template messages must be pre-approved by Meta before use. They are required for initiating conversations and sending notifications (order updates, reminders, etc.)."
+    },
+    {
+      "question": "What is a loyalty program's main goal?",
+      "options": ["Acquiring new customers only", "Increasing repeat purchases and customer lifetime value by rewarding existing customers", "Reducing product prices permanently", "Getting more social media followers"],
+      "correct_index": 1,
+      "explanation": "Loyalty programs (points, tiers, rewards) incentivize repeat purchases. Retaining existing customers costs 5-7x less than acquiring new ones, making loyalty programs highly profitable."
+    }
+  ]
+}

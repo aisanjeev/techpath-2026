@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Copywriting Playground — TechPath Academy</title>
+<style>
+:root {
+  --bg: #0f172a; --card: #1e293b; --card-hover: #334155;
+  --text: #e2e8f0; --text-dim: #94a3b8; --accent: #38bdf8;
+  --accent2: #a78bfa; --success: #4ade80; --warning: #fbbf24; --danger: #f87171;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; }
+.container { max-width: 900px; margin: 0 auto; }
+.brand { text-align: center; font-size: 0.7rem; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+h1 { text-align: center; font-size: 1.5rem; margin-bottom: 4px; }
+.subtitle { text-align: center; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 24px; }
+.tabs { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn { padding: 8px 16px; border: 2px solid var(--card-hover); background: var(--card); color: var(--text-dim); border-radius: 8px; cursor: pointer; font-size: 0.82rem; transition: 0.2s; }
+.tab-btn:hover { border-color: var(--accent); color: var(--text); }
+.tab-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+.section { display: none; } .section.active { display: block; }
+
+/* Builder common */
+.builder { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.builder h3 { color: var(--accent); font-size: 1rem; margin-bottom: 4px; }
+.builder .desc { color: var(--text-dim); font-size: 0.8rem; margin-bottom: 16px; }
+.field-group { margin-bottom: 14px; }
+.field-group label { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 4px; }
+.field-group label .charcount { color: var(--accent2); }
+.field-group textarea { width: 100%; padding: 10px 12px; background: var(--bg); border: 1.5px solid var(--card-hover); border-radius: 8px; color: var(--text); font-size: 0.9rem; font-family: inherit; resize: vertical; min-height: 60px; line-height: 1.5; }
+.field-group textarea:focus { outline: none; border-color: var(--accent); }
+.tip { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; padding: 6px 10px; background: rgba(56,189,248,0.06); border-radius: 6px; border-left: 3px solid var(--accent); }
+.preview-box { background: var(--bg); border-radius: 10px; padding: 16px; margin-top: 14px; }
+.preview-box h4 { color: var(--accent2); font-size: 0.8rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+.preview-box .copy-text { font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; min-height: 40px; }
+
+/* Headline Analyzer */
+.analyzer { background: var(--card); border-radius: 12px; padding: 20px; }
+.analyzer h3 { color: var(--accent); margin-bottom: 12px; }
+.analyzer input { width: 100%; padding: 12px 14px; background: var(--bg); border: 1.5px solid var(--card-hover); border-radius: 8px; color: var(--text); font-size: 1rem; }
+.analyzer input:focus { outline: none; border-color: var(--accent); }
+.btn { padding: 10px 20px; background: var(--accent); color: var(--bg); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem; margin-top: 12px; }
+.btn:hover { opacity: 0.85; }
+.score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+.score-card { background: var(--bg); border-radius: 8px; padding: 12px; text-align: center; }
+.score-card .val { font-size: 1.4rem; font-weight: 700; }
+.score-card .lbl { font-size: 0.72rem; color: var(--text-dim); margin-top: 4px; }
+.overall-score { text-align: center; margin-top: 16px; padding: 16px; border-radius: 10px; }
+.overall-score .big { font-size: 2rem; font-weight: 700; }
+.overall-score .grade { font-size: 0.9rem; margin-top: 4px; }
+.overall-score.good { background: rgba(74,222,128,0.1); color: var(--success); }
+.overall-score.avg { background: rgba(251,191,36,0.1); color: var(--warning); }
+.overall-score.bad { background: rgba(248,113,113,0.1); color: var(--danger); }
+.tips-list { margin-top: 12px; }
+.tips-list li { font-size: 0.82rem; color: var(--text-dim); padding: 3px 0; }
+
+/* Fix This Copy */
+.fix-card { background: var(--card); border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+.fix-card h4 { color: var(--danger); font-size: 0.85rem; margin-bottom: 6px; }
+.fix-card .bad-copy { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); border-radius: 8px; padding: 12px; font-size: 0.9rem; margin-bottom: 10px; color: var(--text-dim); font-style: italic; }
+.fix-card .context { font-size: 0.78rem; color: var(--text-dim); margin-bottom: 8px; }
+.fix-card textarea { width: 100%; padding: 10px; background: var(--bg); border: 1.5px solid var(--card-hover); border-radius: 8px; color: var(--text); font-size: 0.9rem; font-family: inherit; min-height: 60px; resize: vertical; }
+.fix-card textarea:focus { outline: none; border-color: var(--accent); }
+.reveal-btn { padding: 7px 14px; background: var(--card-hover); color: var(--text-dim); border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-top: 8px; }
+.reveal-btn:hover { color: var(--text); }
+.pro-version { display: none; margin-top: 10px; padding: 12px; background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.2); border-radius: 8px; font-size: 0.88rem; color: var(--success); }
+.pro-version strong { display: block; margin-bottom: 4px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1px; }
+.pro-version .pro-why { font-size: 0.78rem; color: var(--text-dim); margin-top: 6px; font-style: normal; }
+
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+@media (max-width: 700px) { .score-grid { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="brand">TechPath Academy</div>
+  <h1>Copywriting Playground</h1>
+  <p class="subtitle">Practice copywriting formulas, analyze headlines, and fix bad copy</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('aida')">AIDA Builder</button>
+    <button class="tab-btn" onclick="showTab('pas')">PAS Builder</button>
+    <button class="tab-btn" onclick="showTab('headline')">Headline Analyzer</button>
+    <button class="tab-btn" onclick="showTab('fix')">Fix This Copy</button>
+  </div>
+
+  <!-- AIDA -->
+  <div id="sec-aida" class="section active">
+    <div class="builder">
+      <h3>AIDA Formula Builder</h3>
+      <p class="desc">Attention &rarr; Interest &rarr; Desire &rarr; Action. Write copy for an Indian coaching class.</p>
+      <div class="field-group">
+        <label>Attention <span class="charcount" id="aida-a-count">0 chars</span></label>
+        <textarea id="aida-a" oninput="updateAIDA()" placeholder="Hook them! E.g., 'Tired of spending lakhs on coaching with zero results?'"></textarea>
+        <div class="tip">Start with a bold question, shocking stat, or pain point. Keep under 15 words.</div>
+      </div>
+      <div class="field-group">
+        <label>Interest <span class="charcount" id="aida-i-count">0 chars</span></label>
+        <textarea id="aida-i" oninput="updateAIDA()" placeholder="Build curiosity. E.g., 'Our students cracked UPSC in their first attempt...'"></textarea>
+        <div class="tip">Share a surprising fact, case study, or unique angle that makes them want to read more.</div>
+      </div>
+      <div class="field-group">
+        <label>Desire <span class="charcount" id="aida-d-count">0 chars</span></label>
+        <textarea id="aida-d" oninput="updateAIDA()" placeholder="Make them want it. E.g., 'Imagine seeing your name on the merit list...'"></textarea>
+        <div class="tip">Paint the outcome. Use sensory language and social proof. What will their life look like?</div>
+      </div>
+      <div class="field-group">
+        <label>Action <span class="charcount" id="aida-act-count">0 chars</span></label>
+        <textarea id="aida-act" oninput="updateAIDA()" placeholder="Tell them what to do. E.g., 'Book your free demo class today — only 20 seats!'"></textarea>
+        <div class="tip">Clear CTA with urgency or scarcity. One specific action only.</div>
+      </div>
+      <div class="preview-box">
+        <h4>Live Preview</h4>
+        <div class="copy-text" id="aida-preview">Start typing above to see your copy come together...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAS -->
+  <div id="sec-pas" class="section">
+    <div class="builder">
+      <h3>PAS Formula Builder</h3>
+      <p class="desc">Problem &rarr; Agitate &rarr; Solution. Write copy for an online saree shop.</p>
+      <div class="field-group">
+        <label>Problem <span class="charcount" id="pas-p-count">0 chars</span></label>
+        <textarea id="pas-p" oninput="updatePAS()" placeholder="E.g., 'Finding authentic Banarasi sarees online feels impossible...'"></textarea>
+        <div class="tip">State the problem your customer faces. Be specific — generic problems get ignored.</div>
+      </div>
+      <div class="field-group">
+        <label>Agitate <span class="charcount" id="pas-ag-count">0 chars</span></label>
+        <textarea id="pas-ag" oninput="updatePAS()" placeholder="E.g., 'You order online, the colour looks different, the fabric feels cheap...'"></textarea>
+        <div class="tip">Twist the knife. Make the problem feel worse. What happens if they do nothing?</div>
+      </div>
+      <div class="field-group">
+        <label>Solution <span class="charcount" id="pas-s-count">0 chars</span></label>
+        <textarea id="pas-s" oninput="updatePAS()" placeholder="E.g., 'At SilkRoute, every saree comes with a video of the actual product...'"></textarea>
+        <div class="tip">Present your product as the relief. Include proof and a clear next step.</div>
+      </div>
+      <div class="preview-box">
+        <h4>Live Preview</h4>
+        <div class="copy-text" id="pas-preview">Start typing above to see your copy come together...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Headline Analyzer -->
+  <div id="sec-headline" class="section">
+    <div class="analyzer">
+      <h3>Headline Analyzer</h3>
+      <p class="desc" style="margin-bottom:12px;">Type a headline and get scored on word count, power words, emotion, numbers, and clarity.</p>
+      <input type="text" id="hl-input" placeholder="E.g., '7 Proven Ways to Double Your Chai Cafe Revenue in 90 Days'">
+      <button class="btn" onclick="analyzeHeadline()">Analyze</button>
+      <div id="hl-results"></div>
+    </div>
+  </div>
+
+  <!-- Fix This Copy -->
+  <div id="sec-fix" class="section">
+    <div id="fix-exercises"></div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function countChars(id) {
+  const el = document.getElementById(id);
+  return el.value.length;
+}
+
+function updateAIDA() {
+  ['aida-a','aida-i','aida-d','aida-act'].forEach(id => {
+    const countEl = document.getElementById(id + '-count') || document.getElementById(id.replace('aida-','aida-') + '-count');
+    if (document.getElementById(id + '-count')) document.getElementById(id + '-count').textContent = document.getElementById(id).value.length + ' chars';
+  });
+  document.getElementById('aida-a-count').textContent = document.getElementById('aida-a').value.length + ' chars';
+  document.getElementById('aida-i-count').textContent = document.getElementById('aida-i').value.length + ' chars';
+  document.getElementById('aida-d-count').textContent = document.getElementById('aida-d').value.length + ' chars';
+  document.getElementById('aida-act-count').textContent = document.getElementById('aida-act').value.length + ' chars';
+
+  const parts = [document.getElementById('aida-a').value, document.getElementById('aida-i').value, document.getElementById('aida-d').value, document.getElementById('aida-act').value].filter(Boolean);
+  document.getElementById('aida-preview').textContent = parts.length ? parts.join('\n\n') : 'Start typing above to see your copy come together...';
+}
+
+function updatePAS() {
+  document.getElementById('pas-p-count').textContent = document.getElementById('pas-p').value.length + ' chars';
+  document.getElementById('pas-ag-count').textContent = document.getElementById('pas-ag').value.length + ' chars';
+  document.getElementById('pas-s-count').textContent = document.getElementById('pas-s').value.length + ' chars';
+
+  const parts = [document.getElementById('pas-p').value, document.getElementById('pas-ag').value, document.getElementById('pas-s').value].filter(Boolean);
+  document.getElementById('pas-preview').textContent = parts.length ? parts.join('\n\n') : 'Start typing above to see your copy come together...';
+}
+
+const powerWords = ['free','proven','secret','instant','guaranteed','exclusive','limited','powerful','ultimate','essential','breakthrough','unlock','transform','boost','discover','master','hack','insider','skyrocket','double','triple','massive'];
+const emotionWords = ['love','fear','angry','happy','worry','exciting','shocking','surprising','heartbreaking','amazing','incredible','unbelievable','jaw-dropping','life-changing','mind-blowing','devastating','thrilling'];
+
+function analyzeHeadline() {
+  const text = document.getElementById('hl-input').value.trim();
+  if (!text) return;
+  const words = text.toLowerCase().split(/\s+/);
+  const wordCount = words.length;
+  const hasNumber = /\d/.test(text);
+  const pw = words.filter(w => powerWords.includes(w.replace(/[^a-z]/g,''))).length;
+  const ew = words.filter(w => emotionWords.includes(w.replace(/[^a-z]/g,''))).length;
+  const clarity = wordCount >= 6 && wordCount <= 14 ? 1 : 0;
+
+  let score = 0;
+  if (wordCount >= 6 && wordCount <= 14) score += 25; else if (wordCount >= 4 && wordCount <= 18) score += 15;
+  if (hasNumber) score += 20;
+  score += Math.min(pw, 3) * 10;
+  score += Math.min(ew, 2) * 10;
+  if (clarity) score += 5;
+  if (text.includes('?') || text.includes('!')) score += 5;
+  if (/^[A-Z0-9]/.test(text)) score += 5;
+  score = Math.min(score, 100);
+
+  let grade, cls;
+  if (score >= 70) { grade = 'Strong headline! Ready to publish.'; cls = 'good'; }
+  else if (score >= 40) { grade = 'Decent, but could be punchier.'; cls = 'avg'; }
+  else { grade = 'Needs work. Try adding numbers, power words, or emotional triggers.'; cls = 'bad'; }
+
+  let tips = [];
+  if (!hasNumber) tips.push('Add a specific number (e.g., "7 Ways..." or "in 30 Days")');
+  if (pw === 0) tips.push('Include a power word: proven, secret, free, ultimate, essential');
+  if (ew === 0) tips.push('Add emotional punch: surprising, shocking, life-changing');
+  if (wordCount < 6) tips.push('Too short. Aim for 6-14 words for optimal engagement.');
+  if (wordCount > 14) tips.push('Too long. Trim to 6-14 words for better click-through.');
+
+  document.getElementById('hl-results').innerHTML = `
+    <div class="score-grid">
+      <div class="score-card"><div class="val">${wordCount}</div><div class="lbl">Word Count</div></div>
+      <div class="score-card"><div class="val" style="color:${pw > 0 ? 'var(--success)' : 'var(--danger)'}">${pw}</div><div class="lbl">Power Words</div></div>
+      <div class="score-card"><div class="val" style="color:${ew > 0 ? 'var(--success)' : 'var(--danger)'}">${ew}</div><div class="lbl">Emotion Words</div></div>
+      <div class="score-card"><div class="val" style="color:${hasNumber ? 'var(--success)' : 'var(--danger)'}">${hasNumber ? 'Yes' : 'No'}</div><div class="lbl">Has Number</div></div>
+      <div class="score-card"><div class="val" style="color:${clarity ? 'var(--success)' : 'var(--warning)'}">${clarity ? 'Good' : 'Off'}</div><div class="lbl">Length Clarity</div></div>
+      <div class="score-card"><div class="val">${score}/100</div><div class="lbl">Overall</div></div>
+    </div>
+    <div class="overall-score ${cls}"><div class="big">${score}/100</div><div class="grade">${grade}</div></div>
+    ${tips.length ? '<ul class="tips-list">' + tips.map(t => '<li>' + t + '</li>').join('') + '</ul>' : ''}
+  `;
+}
+
+const fixExercises = [
+  {
+    product: 'Coaching Class (IIT-JEE)',
+    bad: 'We provide best coaching for IIT. Join now. We have good faculty and results. Call us.',
+    pro: 'Cracked IIT in first attempt? 327 students did it last year with our program. Book a free strategy session — limited to 15 students this batch.',
+    why: 'The original is generic and feature-focused. The rewrite uses a specific number (social proof), focuses on the student\'s outcome, and creates urgency with limited seats.'
+  },
+  {
+    product: 'Chai Cafe',
+    bad: 'Best chai in the city. We use good quality ingredients. Visit our cafe today.',
+    pro: 'Kulhad chai brewed with A2 milk, Assam tea leaves, and fresh elaichi. One sip and your office chai will never taste the same. Walk in or order on Swiggy — first cup on us!',
+    why: 'The rewrite uses sensory details (kulhad, Assam, elaichi), creates a relatable contrast (office chai), and adds a clear CTA with an incentive (first cup free).'
+  },
+  {
+    product: 'Online Saree Shop',
+    bad: 'Buy sarees online from our website. We have many varieties. Free shipping available.',
+    pro: 'Handwoven Banarasi silk. 500+ designs. Each saree ships with a 60-second video showing the actual drape, colour, and weave. 7-day no-questions return. Shop now — festival collection selling fast.',
+    why: 'Specificity wins: "500+ designs" beats "many varieties", the video promise beats "buy online", and "festival collection selling fast" creates urgency.'
+  },
+  {
+    product: 'Digital Marketing Course',
+    bad: 'Learn digital marketing. Best course with placement. Enroll now for discount.',
+    pro: 'Go from posting random content to running paid campaigns that actually convert. 12-week live program with real client projects. 89% placement rate. Early bird offer ends Friday.',
+    why: 'The rewrite contrasts the before/after journey, specifies duration and format, provides proof (89% placement), and gives a deadline instead of vague "discount".'
+  },
+  {
+    product: 'Gym / Fitness Studio',
+    bad: 'Join our gym. We have all equipment. Trainers available. Call for membership details.',
+    pro: 'Your first 5 kg lost in 30 days or your money back. Personal trainer. Nutrition plan. No crowds at 6 AM. Start your trial week for just Rs. 199.',
+    why: 'The original lists features. The rewrite leads with a bold outcome guarantee, addresses the common "crowded gym" objection, and lowers risk with a Rs. 199 trial.'
+  }
+];
+
+function initFix() {
+  const container = document.getElementById('fix-exercises');
+  container.innerHTML = fixExercises.map((ex, i) => `
+    <div class="fix-card">
+      <h4>Bad Copy #${i + 1} — ${ex.product}</h4>
+      <div class="bad-copy">"${ex.bad}"</div>
+      <div class="context">Rewrite this to make it compelling:</div>
+      <textarea placeholder="Write your improved version here..."></textarea>
+      <button class="reveal-btn" onclick="revealPro(${i})">Reveal Professional Version</button>
+      <div class="pro-version" id="pro-${i}">
+        <strong>Professional version:</strong>
+        "${ex.pro}"
+        <div class="pro-why"><strong>Why it works:</strong> ${ex.why}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function revealPro(i) {
+  const el = document.getElementById('pro-' + i);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+initFix();
+</script>
+</body>
+</html>

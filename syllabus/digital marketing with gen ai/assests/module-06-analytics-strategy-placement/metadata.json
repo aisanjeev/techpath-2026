@@ -1,0 +1,152 @@
+{
+  "01-analytics-and-tracking.md": {
+    "title": "Analytics & Tracking \u2014 Measure Everything",
+    "description": "Module 06 \u2014 Analytics, Strategy & Career Readiness | Topic 1 --- If you cannot measure it, you cannot improve it. Analytics tells you what is working, what is wasting money, and where to focus your efforts. Without analytics, digital marketing is just guessing with a budget. Think of analytics like the speedometer and fuel gauge in a car. You could drive without looking at them, but you would not know how fast you are going, when you are running...",
+    "asset_type": "markdown",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "01-utm-campaign-tracker.html": {
+    "title": "UTM Campaign Tracker | TechPath Academy",
+    "description": "Interactive UTM Campaign Tracker | TechPath Academy exercise for Analytics Strategy Placement",
+    "asset_type": "html_bundle",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "02-attribution-model-explorer.html": {
+    "title": "Attribution Model Explorer | TechPath Academy",
+    "description": "Interactive Attribution Model Explorer | TechPath Academy exercise for Analytics Strategy Placement",
+    "asset_type": "html_bundle",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "02-marketing-strategy-framework.md": {
+    "title": "Marketing Strategy & Budget Frameworks",
+    "description": "Module 06 \u2014 Analytics, Strategy & Career Readiness | Topic 2 --- Most beginners jump straight into tactics \u2014 \"Let me run Instagram ads!\" or \"I need to post Reels!\" But tactics without strategy is like driving fast without knowing the destination. You burn fuel (budget) but reach nowhere. Think of strategy as the GPS and tactics as the accelerator. The GPS decides where you are going and which route to take. The accelerator decides how fast....",
+    "asset_type": "markdown",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "03-ai-in-marketing.md": {
+    "title": "AI in Digital Marketing \u2014 The 2026 Landscape",
+    "description": "Module 06 \u2014 Analytics, Strategy & Career Readiness | Topic 3 --- AI has gone from a buzzword to a daily tool for digital marketers. In 2025-2026, AI does not replace marketers \u2014 it replaces marketers who refuse to use AI. A single marketer with AI tools can now do the work that previously required a team of five. Think of AI like electricity. When electricity was invented, it did not eliminate jobs \u2014 it transformed them. Factories that adopted...",
+    "asset_type": "markdown",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "04-career-and-placement.md": {
+    "title": "Career, Portfolio & Placement Guide",
+    "description": "Module 06 \u2014 Analytics, Strategy & Career Readiness | Topic 4 --- Digital marketing is not one job \u2014 it is a family of specialized roles. Understanding each role helps you choose where to focus and how to position yourself. Think of these roles like positions in a cricket team. The opener (SEO Specialist) focuses on building a strong foundation. The fast bowler (Paid Ads Specialist) brings quick results. The captain (DM Manager) coordinates...",
+    "asset_type": "markdown",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "assignment-06.md": {
+    "title": "Module 6: Assignment \u2014 Analytics, Strategy, Capstone & Job Placement",
+    "description": "Total Marks: 100 Submission Deadline: End of Week 30 Format: Submit all deliverables as a single Google Drive folder link --- Implement Google Analytics 4 on a website, create custom explorations, and build a professional Looker Studio dashboard. Part A: GA4 Setup via Google Tag Manager (10 marks) 1. Create a GA4 property (use the Google Merchandise Store demo account if you don't have a live website:...",
+    "asset_type": "assignment",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "cheatsheet-06.md": {
+    "title": "Cheatsheet 06",
+    "description": "Learning material for Cheatsheet 06",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "code-marketing-budget-planner.html": {
+    "title": "Marketing Budget Planner \u2014 TechPath Academy",
+    "description": "Interactive Marketing Budget Planner \u2014 TechPath Academy exercise for Analytics Strategy Placement",
+    "asset_type": "html_bundle",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "code-utm-builder.html": {
+    "title": "UTM Link Builder \u2014 TechPath Academy",
+    "description": "Interactive UTM Link Builder \u2014 TechPath Academy exercise for Analytics Strategy Placement",
+    "asset_type": "html_bundle",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "lab-06-a.json": {
+    "title": "Set Up GA4 and Build a Marketing Dashboard",
+    "description": "Learning material for Set Up GA4 and Build a Marketing Dashboard",
+    "asset_type": "lab",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "lab-06-b.json": {
+    "title": "Create a Client-Ready Marketing Strategy Deck",
+    "description": "Learning material for Create a Client-Ready Marketing Strategy Deck",
+    "asset_type": "lab",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "notes-06.md": {
+    "title": "Module 6: Analytics, Strategy, Capstone & Job Placement",
+    "description": "--- The fundamental change: Universal Analytics (UA) was session-based. GA4 is event-based. Everything a user does \u2014 page view, scroll, click, purchase \u2014 is tracked as an EVENT with parameters. Example \u2014 Rahul visits TechPath website: Every event can carry additional information through parameters. Custom parameters you should track: - button_text \u2014 Which CTA was clicked - form_id \u2014 Which form was submitted - page_section \u2014 Which section of the...",
+    "asset_type": "notes",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "quiz-06.json": {
+    "title": "Quiz 06",
+    "description": "Learning material for Quiz 06",
+    "asset_type": "quiz",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "resources-06.md": {
+    "title": "Module 6: Resources \u2014 Analytics, Strategy, Capstone & Job Placement",
+    "description": "--- --- --- --- --- ---",
+    "asset_type": "notes",
+    "tags": [
+      "analytics-strategy-placement",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  }
+}

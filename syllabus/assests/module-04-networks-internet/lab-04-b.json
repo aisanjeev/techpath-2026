@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "How the Internet Works — Trace a Web Request",
+  "description": "Follow a web request from browser to server and back, understanding each network layer",
+  "tags": [
+    "http",
+    "dns",
+    "browser",
+    "devtools",
+    "web-request"
+  ],
+  "status": "draft",
+  "objective": "Students will use browser DevTools to observe real HTTP requests, analyze headers, status codes, and timing to understand how web pages load",
+  "steps": [
+    {
+      "title": "Open Browser DevTools — Network Tab",
+      "instructions": "Open **Chrome** → press **F12** to open DevTools.\n\nClick the **Network** tab.\n\nCheck **Preserve log** (so entries don't clear when the page navigates).\n\nNow type `https://techpath.biz` in the address bar and press Enter.\n\nWatch the Network tab fill up with entries. Each row is a separate HTTP request.\n\nNote:\n- How many total requests were made? (shown at bottom)\n- How much data was transferred?\n- How long did the page take to load? (DOMContentLoaded and Load times at bottom)"
+    },
+    {
+      "title": "Analyze the First Request",
+      "instructions": "Click on the **first entry** in the Network list (it should be the HTML document).\n\nLook at the **Headers** tab:\n\n**General:**\n- Request URL — the full URL\n- Request Method — GET (retrieving data)\n- Status Code — 200 OK (success), or 301/302 (redirect)\n\n**Response Headers:**\n- `content-type` — what kind of data (text/html)\n- `server` — what web server (nginx, Apache, etc.)\n- `content-encoding` — is it compressed? (gzip, br)\n\n**Request Headers:**\n- `user-agent` — your browser identification\n- `accept` — what content types your browser can handle\n- `accept-language` — your language preference\n\nScreenshot the Headers tab."
+    },
+    {
+      "title": "Identify Resource Types",
+      "instructions": "Look at all entries in the Network tab. Filter by type using the buttons:\n- **Doc** — HTML documents\n- **CSS** — Stylesheets\n- **JS** — JavaScript files\n- **Img** — Images\n- **Font** — Web fonts\n- **XHR/Fetch** — API calls (data requests)\n\nCreate a table:\n\n| Type | Count | Largest File | Size |\n|------|-------|-------------|------|\n| HTML | ? | ? | ? |\n| CSS | ? | ? | ? |\n| JS | ? | ? | ? |\n| Images | ? | ? | ? |\n| Fonts | ? | ? | ? |\n\nClick the **Size** column header to sort by size. What is the largest resource? Could the page be optimized?"
+    },
+    {
+      "title": "Understand Status Codes",
+      "instructions": "The Status column shows HTTP status codes:\n\n| Code | Meaning | Example |\n|------|---------|--------|\n| **200** | OK — success | Page loaded correctly |\n| **301** | Moved Permanently | URL changed, browser follows redirect |\n| **304** | Not Modified | Using cached version (fast!) |\n| **404** | Not Found | Broken link, missing page |\n| **500** | Server Error | Something crashed on the server |\n\nNow try loading a page that doesn't exist:\n```\nhttps://techpath.biz/this-page-does-not-exist\n```\n\nWatch the Network tab — you should see a **404** status code.\n\nTry another site and look for **301** redirects — many sites redirect from `http://` to `https://`."
+    },
+    {
+      "title": "Measure Loading Performance",
+      "instructions": "Right-click any column header in the Network tab → enable **Timing** column.\n\nClick on any request → click the **Timing** tab:\n\n| Phase | What It Is |\n|-------|----------|\n| **DNS Lookup** | Time to find the server's IP address |\n| **TCP Connection** | Time to establish connection |\n| **TLS/SSL** | Time for encryption handshake |\n| **Waiting (TTFB)** | Time until first byte from server |\n| **Content Download** | Time to receive the full response |\n\nWhich phase takes the longest? For most sites, **Waiting (TTFB)** is the bottleneck — it's server processing time.\n\nNow test with **Slow 3G** throttling:\n- Click the gear icon (⚙️) or the throttle dropdown → select **Slow 3G**\n- Reload the page\n- Compare total load time\n\nReset throttling to **No throttling** when done.\n\n**Submit:** Your complete Network analysis report with screenshots showing request count, headers, status codes, resource breakdown, and timing analysis."
+    }
+  ],
+  "expected_output": "A detailed report showing browser DevTools Network tab analysis — request count, headers breakdown, resource types table, status code identification, and timing analysis comparing normal vs throttled loading"
+}

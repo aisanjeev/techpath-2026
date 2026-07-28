@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "question": "Which HTML5 tag should be used for the primary content area of a web page (only one allowed per page)?",
+      "options": [
+        "A) <section>",
+        "B) <article>",
+        "C) <main>",
+        "D) <div>"
+      ],
+      "correct_index": 2,
+      "explanation": "The <main> tag represents the primary content of a page. HTML5 allows only one <main> element per page. <section> and <article> can appear multiple times, and <div> has no semantic meaning."
+    },
+    {
+      "question": "Which input type automatically validates that the user has entered a properly formatted email address?",
+      "options": [
+        "A) <input type=\"text\">",
+        "B) <input type=\"email\">",
+        "C) <input type=\"url\">",
+        "D) <input type=\"search\">"
+      ],
+      "correct_index": 1,
+      "explanation": "The type=\"email\" input provides built-in browser validation that checks for a valid email format (must contain @ and a domain). No extra JavaScript is needed for basic validation."
+    },
+    {
+      "question": "In CSS Flexbox, which property controls the spacing of items along the main axis?",
+      "options": [
+        "A) align-items",
+        "B) flex-wrap",
+        "C) justify-content",
+        "D) flex-direction"
+      ],
+      "correct_index": 2,
+      "explanation": "justify-content controls how items are distributed along the main axis (horizontal by default). align-items controls the cross axis (vertical). flex-direction sets which direction is the main axis."
+    },
+    {
+      "question": "What does the CSS rule `grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))` do?",
+      "options": [
+        "A) Creates exactly 3 columns of 200px each",
+        "B) Creates as many columns as will fit, each at least 200px wide, stretching to fill the row",
+        "C) Creates one column that is always 200px wide",
+        "D) Creates columns only when the screen is wider than 200px"
+      ],
+      "correct_index": 1,
+      "explanation": "auto-fit with minmax() is a powerful responsive pattern. It automatically creates as many columns as the container can hold (each at least 200px wide), and 1fr makes them stretch equally to fill any remaining space. No media queries needed."
+    },
+    {
+      "question": "In a mobile-first CSS approach, how should you write your media queries?",
+      "options": [
+        "A) Use max-width to target smaller screens first",
+        "B) Use min-width to add styles for larger screens",
+        "C) Write desktop styles first, then override for mobile",
+        "D) Use only Bootstrap classes, no media queries"
+      ],
+      "correct_index": 1,
+      "explanation": "Mobile-first means you write base styles for phones, then use @media (min-width: ...) to progressively add styles for tablets and desktops. This is better because phone styles are simpler and load first."
+    },
+    {
+      "question": "Which Bootstrap 5 class creates a column that takes up 4 out of 12 grid units on medium screens and above?",
+      "options": [
+        "A) col-4",
+        "B) col-md-4",
+        "C) col-lg-4",
+        "D) col-sm-4"
+      ],
+      "correct_index": 1,
+      "explanation": "col-md-4 means the column is 4/12 (one-third) wide on medium screens (768px) and above. On smaller screens, it defaults to full width. The 'md' breakpoint targets tablets and larger."
+    },
+    {
+      "question": "What does `document.querySelectorAll('.card')` return?",
+      "options": [
+        "A) The first element with class 'card'",
+        "B) A live HTMLCollection of all elements with class 'card'",
+        "C) A static NodeList of all elements matching the CSS selector '.card'",
+        "D) An array of all elements with class 'card'"
+      ],
+      "correct_index": 2,
+      "explanation": "querySelectorAll returns a static NodeList (not a live collection, and not a true Array). It contains all elements matching the CSS selector. Use forEach() to loop over it, or spread it into an array with [...nodeList]."
+    },
+    {
+      "question": "When making a POST request with the Fetch API, which header must you set to send JSON data?",
+      "options": [
+        "A) Accept: application/json",
+        "B) Content-Type: application/json",
+        "C) Authorization: Bearer token",
+        "D) X-Requested-With: XMLHttpRequest"
+      ],
+      "correct_index": 1,
+      "explanation": "Content-Type: application/json tells the server that the request body is JSON. Without it, the server (FastAPI/Django) may not parse the body correctly. Accept tells the server what format you want back, but Content-Type describes what you are sending."
+    },
+    {
+      "question": "What is the purpose of CORS (Cross-Origin Resource Sharing)?",
+      "options": [
+        "A) It encrypts data between the browser and server",
+        "B) It allows a web page on one origin to make requests to a different origin",
+        "C) It compresses API responses to reduce load time",
+        "D) It caches API responses in the browser"
+      ],
+      "correct_index": 1,
+      "explanation": "CORS is a security mechanism. By default, browsers block requests from one origin (e.g., localhost:5500) to another (e.g., localhost:8000). CORS headers from the server tell the browser which origins are allowed to make requests."
+    },
+    {
+      "question": "In FastAPI, which middleware line enables CORS for a frontend running on localhost:3000?",
+      "options": [
+        "A) app.add_middleware(CORSMiddleware, allow_origins=['*'])",
+        "B) app.add_middleware(CORSMiddleware, allow_origins=['http://localhost:3000'])",
+        "C) app.use(cors({ origin: 'http://localhost:3000' }))",
+        "D) CORS_ALLOWED_ORIGINS = ['http://localhost:3000']"
+      ],
+      "correct_index": 1,
+      "explanation": "In FastAPI, you import CORSMiddleware from fastapi.middleware.cors and add it with specific allowed origins. Option A allows all origins (insecure for production). Option C is Express.js syntax. Option D is Django syntax."
+    },
+    {
+      "question": "What does the HTMX attribute `hx-trigger=\"keyup changed delay:300ms\"` do?",
+      "options": [
+        "A) Sends a request 300ms after the page loads",
+        "B) Sends a request on every keypress with no delay",
+        "C) Sends a request 300ms after the user stops typing, only if the value changed",
+        "D) Delays the page rendering by 300ms"
+      ],
+      "correct_index": 2,
+      "explanation": "This is the HTMX debounce pattern for search inputs. 'keyup' fires on key release, 'changed' only triggers if the value is different from before, and 'delay:300ms' waits 300ms after the last keypress before sending. This prevents flooding the server with requests."
+    },
+    {
+      "question": "In HTMX, what does `hx-swap=\"outerHTML\"` do compared to `hx-swap=\"innerHTML\"`?",
+      "options": [
+        "A) outerHTML replaces the target element itself; innerHTML replaces only the content inside it",
+        "B) They do the same thing",
+        "C) outerHTML adds content after the target; innerHTML adds content before it",
+        "D) outerHTML only works with forms; innerHTML works with any element"
+      ],
+      "correct_index": 0,
+      "explanation": "innerHTML replaces the content inside the target element (the element stays). outerHTML replaces the entire target element, including the element itself, with the server response. Use outerHTML when deleting a table row (the <tr> itself should go away)."
+    },
+    {
+      "question": "Which Chart.js chart type is best for showing the distribution of students across different cities?",
+      "options": [
+        "A) line",
+        "B) scatter",
+        "C) pie or doughnut",
+        "D) radar"
+      ],
+      "correct_index": 2,
+      "explanation": "Pie and doughnut charts are best for showing parts of a whole — such as what percentage of students come from each city. Line charts are for trends over time, scatter for correlations, and radar for multi-dimensional comparisons."
+    },
+    {
+      "question": "What is the media type that a FastAPI endpoint must set when returning Server-Sent Events (SSE)?",
+      "options": [
+        "A) application/json",
+        "B) text/html",
+        "C) text/event-stream",
+        "D) application/octet-stream"
+      ],
+      "correct_index": 2,
+      "explanation": "SSE responses must have the Content-Type header set to text/event-stream. This tells the browser to keep the connection open and process incoming data line by line. In FastAPI, you pass media_type='text/event-stream' to StreamingResponse."
+    },
+    {
+      "question": "In the SSE data format, what does each message line look like, and how are messages separated?",
+      "options": [
+        "A) Each line starts with 'msg:' and messages are separated by a semicolon",
+        "B) Each line starts with 'data:' followed by the content, and messages are separated by two newlines (\\n\\n)",
+        "C) Messages are sent as JSON objects separated by commas",
+        "D) Each line starts with 'event:' and messages are separated by a single newline"
+      ],
+      "correct_index": 1,
+      "explanation": "The SSE protocol requires each data line to start with 'data: ' followed by the payload. Messages are separated by two newline characters (\\n\\n). The browser's EventSource API or a fetch reader parses this format automatically."
+    }
+  ]
+}

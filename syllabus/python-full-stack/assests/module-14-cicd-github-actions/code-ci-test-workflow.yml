@@ -1,0 +1,214 @@
+# =============================================================================
+# CI Workflow — Automated Testing Pipeline
+# =============================================================================
+# This workflow runs automatically when code is pushed or a Pull Request
+# is opened against the main branch.
+#
+# What it does:
+#   1. Checks out the code from the repository
+#   2. Sets up Python (tests on both 3.11 and 3.12 using matrix builds)
+#   3. Caches pip packages so future runs are faster
+#   4. Installs all project dependencies
+#   5. Lints the code with ruff (catches style issues and bugs)
+#   6. Runs all tests with pytest
+#   7. Generates a test coverage report
+#
+# Project: TechPath Institute — Student Management API
+# Author: Rahul (DevOps Team, TechPath Institute, Bhopal)
+# =============================================================================
+
+name: CI — Test & Lint Pipeline
+
+# -----------------------------------------------------------------------------
+# TRIGGERS: When should this workflow run?
+# -----------------------------------------------------------------------------
+# "on" defines the events that start this workflow.
+# We want it to run on:
+#   - Every push to the "main" or "develop" branch
+#   - Every Pull Request targeting the "main" branch
+# This ensures no broken code reaches the main branch.
+# -----------------------------------------------------------------------------
+on:
+  push:
+    branches:
+      - main          # Run when code is pushed to main
+      - develop       # Run when code is pushed to develop
+  pull_request:
+    branches:
+      - main          # Run when a PR is opened/updated against main
+
+# -----------------------------------------------------------------------------
+# JOBS: What tasks should be performed?
+# -----------------------------------------------------------------------------
+# A job is a group of steps that run on the same virtual machine (runner).
+# Here we define one job called "test" that handles linting and testing.
+# -----------------------------------------------------------------------------
+jobs:
+  test:
+    # -------------------------------------------------------------------------
+    # JOB NAME: This name appears in the GitHub Actions UI
+    # -------------------------------------------------------------------------
+    name: "Test on Python ${{ matrix.python-version }}"
+
+    # -------------------------------------------------------------------------
+    # RUNNER: Which virtual machine should run this job?
+    # ubuntu-latest is a free Linux VM provided by GitHub.
+    # It comes with Python, Node, Docker, and many tools pre-installed.
+    # -------------------------------------------------------------------------
+    runs-on: ubuntu-latest
+
+    # -------------------------------------------------------------------------
+    # MATRIX STRATEGY: Test on multiple Python versions
+    # -------------------------------------------------------------------------
+    # This creates TWO parallel jobs — one for Python 3.11, one for 3.12.
+    # If your code works on both, you can be confident about compatibility.
+    #
+    # Think of it like Vikram testing his recipe with two different brands
+    # of flour — if it works with both, the recipe is reliable!
+    # -------------------------------------------------------------------------
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    # -------------------------------------------------------------------------
+    # STEPS: The ordered list of commands to execute
+    # -------------------------------------------------------------------------
+    steps:
+      # -----------------------------------------------------------------------
+      # Step 1: CHECKOUT — Download the repository code
+      # -----------------------------------------------------------------------
+      # Without this step, the runner has no code to work with.
+      # "actions/checkout@v4" is a pre-built action from the GitHub Marketplace.
+      # The @v4 means we are using version 4 of this action.
+      # -----------------------------------------------------------------------
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # Step 2: SETUP PYTHON — Install the correct Python version
+      # -----------------------------------------------------------------------
+      # This installs Python on the runner machine.
+      # "${{ matrix.python-version }}" is a variable — it will be "3.11" in
+      # one job and "3.12" in the other (from the matrix above).
+      # -----------------------------------------------------------------------
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # -----------------------------------------------------------------------
+      # Step 3: CACHE PIP — Reuse previously downloaded packages
+      # -----------------------------------------------------------------------
+      # Without caching: pip downloads all packages from the internet (slow)
+      # With caching: pip reuses packages from the last run (fast!)
+      #
+      # The "key" uses a hash of requirements.txt — if dependencies change,
+      # the cache is invalidated and packages are re-downloaded.
+      # -----------------------------------------------------------------------
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+            ${{ runner.os }}-pip-
+
+      # -----------------------------------------------------------------------
+      # Step 4: INSTALL DEPENDENCIES — Set up the project
+      # -----------------------------------------------------------------------
+      # First upgrade pip itself, then install all packages from
+      # requirements.txt. The "|" (pipe) allows multi-line commands.
+      # -----------------------------------------------------------------------
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # Also install dev/test dependencies if they are in a separate file
+          if [ -f requirements-dev.txt ]; then
+            pip install -r requirements-dev.txt
+          fi
+          # Make sure testing tools are installed
+          pip install pytest pytest-cov ruff
+
+      # -----------------------------------------------------------------------
+      # Step 5: LINT WITH RUFF — Check code quality
+      # -----------------------------------------------------------------------
+      # Ruff is a blazing-fast Python linter (written in Rust).
+      # It checks for:
+      #   - Style issues (wrong indentation, unused imports)
+      #   - Potential bugs (undefined variables, unreachable code)
+      #   - Best practices (use of "is" vs "==" for None checks)
+      #
+      # --output-format=github makes errors appear as annotations
+      # directly on the Pull Request — very helpful for code review!
+      # -----------------------------------------------------------------------
+      - name: Lint with ruff
+        run: |
+          echo "Running ruff linter on the codebase..."
+          ruff check . --output-format=github
+          echo "Lint check passed! No issues found."
+
+      # -----------------------------------------------------------------------
+      # Step 6: CHECK FORMATTING — Ensure consistent code style
+      # -----------------------------------------------------------------------
+      # ruff format --check does NOT change any files — it only reports
+      # if any files are not formatted correctly. This keeps the team's
+      # code style consistent.
+      #
+      # Like Neha's rule at TechPath: "All assignment submissions must
+      # follow the same formatting guidelines."
+      # -----------------------------------------------------------------------
+      - name: Check code formatting
+        run: |
+          echo "Checking code formatting with ruff..."
+          ruff format --check .
+          echo "Formatting check passed!"
+
+      # -----------------------------------------------------------------------
+      # Step 7: RUN TESTS — Execute pytest
+      # -----------------------------------------------------------------------
+      # pytest discovers and runs all test files (test_*.py or *_test.py).
+      # Flags:
+      #   --tb=short  → Show short tracebacks (easier to read in CI logs)
+      #   -q          → Quiet mode (less verbose output)
+      #   -v          → Verbose mode (show each test name and result)
+      #
+      # We use -v here so students can see exactly which tests pass/fail.
+      # -----------------------------------------------------------------------
+      - name: Run tests with pytest
+        run: |
+          echo "Running test suite..."
+          pytest -v --tb=short
+          echo "All tests passed!"
+
+      # -----------------------------------------------------------------------
+      # Step 8: COVERAGE REPORT — Measure how much code is tested
+      # -----------------------------------------------------------------------
+      # --cov=app           → Measure coverage for the "app" directory
+      # --cov-report=term   → Print coverage table in the terminal/logs
+      # --cov-report=xml    → Generate XML report (for tools like Codecov)
+      # --cov-fail-under=70 → Fail if coverage drops below 70%
+      #
+      # Coverage tells you: "Out of all the lines in your code, how many
+      # are actually executed during tests?" 70% is a good starting target.
+      # -----------------------------------------------------------------------
+      - name: Run tests with coverage report
+        run: |
+          echo "Running tests with coverage measurement..."
+          pytest --cov=app --cov-report=term-missing --cov-report=xml --cov-fail-under=70
+          echo "Coverage report generated!"
+
+      # -----------------------------------------------------------------------
+      # Step 9: UPLOAD COVERAGE — Save the report as an artifact
+      # -----------------------------------------------------------------------
+      # This uploads the coverage report so you can download it later
+      # from the GitHub Actions page. Useful for tracking coverage trends.
+      # -----------------------------------------------------------------------
+      - name: Upload coverage report
+        if: matrix.python-version == '3.12'    # Only upload once (not for both versions)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 30                   # Keep for 30 days, then auto-delete

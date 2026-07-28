@@ -1,0 +1,94 @@
+{
+  "questions": [
+    {
+      "question": "What is the keyboard shortcut to make selected text Bold in MS Word?",
+      "options": ["Ctrl + A", "Ctrl + B", "Ctrl + D", "Ctrl + G"],
+      "correct_index": 1,
+      "explanation": "Ctrl + B is the shortcut for Bold in MS Word. Ctrl + A selects all text, Ctrl + D opens the Font dialog box, and Ctrl + G opens the Go To dialog."
+    },
+    {
+      "question": "What is the shortcut key for 'Save As' in MS Word?",
+      "options": ["Ctrl + S", "Ctrl + Shift + S", "F12", "F7"],
+      "correct_index": 2,
+      "explanation": "F12 is the shortcut for Save As, which lets you save a document with a new name, location, or format. Ctrl + S is for Save (overwrites the current file)."
+    },
+    {
+      "question": "Which shortcut key is used for Find and Replace in MS Word?",
+      "options": ["Ctrl + F", "Ctrl + R", "Ctrl + H", "Ctrl + G"],
+      "correct_index": 2,
+      "explanation": "Ctrl + H opens the Find and Replace dialog box. Ctrl + F opens Find only. Ctrl + R is for Right alignment. Ctrl + G is for Go To."
+    },
+    {
+      "question": "What is the default file extension for documents saved in MS Word 2007 and later?",
+      "options": [".doc", ".docx", ".pdf", ".txt"],
+      "correct_index": 1,
+      "explanation": "MS Word 2007 and later versions save documents in .docx format by default. The .doc format was used in Word 2003 and earlier versions."
+    },
+    {
+      "question": "What does the shortcut Ctrl + E do in MS Word?",
+      "options": ["Exit Word", "Center align text", "Open Edit menu", "Select all text"],
+      "correct_index": 1,
+      "explanation": "Ctrl + E is used to Center align the selected text or paragraph in MS Word. Remember the memory trick: the 'E' in cEnter."
+    },
+    {
+      "question": "Which tab in MS Word contains the option to insert a Table?",
+      "options": ["Home", "Insert", "Layout", "Design"],
+      "correct_index": 1,
+      "explanation": "Tables are inserted from the Insert tab. The Insert tab also contains options for Pictures, Shapes, Header/Footer, and Page Numbers."
+    },
+    {
+      "question": "What is the default font in MS Word 2007 and later versions?",
+      "options": ["Times New Roman, 12pt", "Arial, 11pt", "Calibri, 11pt", "Verdana, 10pt"],
+      "correct_index": 2,
+      "explanation": "The default font in MS Word 2007 and later is Calibri with a size of 11 points. Times New Roman, 12pt was the default in Word 2003 and earlier."
+    },
+    {
+      "question": "To add a new row at the end of a table in MS Word, you should:",
+      "options": ["Press Enter in the last cell", "Press Tab in the last cell", "Press Ctrl + Enter", "Right-click and select Add Row"],
+      "correct_index": 1,
+      "explanation": "Pressing the Tab key when the cursor is in the last cell of the last row automatically adds a new row at the end of the table."
+    },
+    {
+      "question": "Which keyboard shortcut opens the Spelling and Grammar checker in MS Word?",
+      "options": ["F5", "F7", "F1", "F12"],
+      "correct_index": 1,
+      "explanation": "F7 opens the Spelling and Grammar checker. F5 opens Go To, F1 opens Help, and F12 opens Save As."
+    },
+    {
+      "question": "What is the shortcut to Undo the last action in MS Word?",
+      "options": ["Ctrl + Y", "Ctrl + Z", "Ctrl + U", "Ctrl + X"],
+      "correct_index": 1,
+      "explanation": "Ctrl + Z is the shortcut for Undo, which reverses the last action. Ctrl + Y is for Redo. Ctrl + U is for Underline. Ctrl + X is for Cut."
+    },
+    {
+      "question": "In MS Word, where are Page Borders found?",
+      "options": ["Home tab", "Insert tab", "Design tab", "Layout tab"],
+      "correct_index": 2,
+      "explanation": "Page Borders are found in the Design tab under the Page Background group. This is different from paragraph borders, which are in the Home tab."
+    },
+    {
+      "question": "What does a red wavy underline indicate in MS Word?",
+      "options": ["Grammar error", "Formatting error", "Spelling error", "Auto-save reminder"],
+      "correct_index": 2,
+      "explanation": "A red wavy underline indicates a spelling error — the word is not recognized by Word's dictionary. A blue (or green in older versions) wavy underline indicates a grammar error."
+    },
+    {
+      "question": "Which shortcut key changes the text case (uppercase/lowercase) in MS Word?",
+      "options": ["Ctrl + F3", "Alt + F3", "Shift + F3", "Ctrl + Shift + A"],
+      "correct_index": 2,
+      "explanation": "Shift + F3 cycles through text case options: Sentence case, UPPERCASE, and lowercase. It can be pressed repeatedly to toggle between these options."
+    },
+    {
+      "question": "In Mail Merge, the file containing names, addresses, and other data is called:",
+      "options": ["Main Document", "Merge Field", "Data Source", "Template"],
+      "correct_index": 2,
+      "explanation": "The Data Source is the file (usually an Excel spreadsheet or database) that contains the actual data like names and addresses. The Main Document is the template letter with merge fields."
+    },
+    {
+      "question": "What is the default view in MS Word?",
+      "options": ["Draft View", "Read Mode", "Print Layout", "Web Layout"],
+      "correct_index": 2,
+      "explanation": "Print Layout is the default view in MS Word. It shows the document exactly as it will appear when printed, including margins, headers, footers, and page breaks."
+    }
+  ]
+}

@@ -414,6 +414,7 @@ async def list_assets(
     program_id: Optional[int] = Query(None),
     module_id: Optional[int] = Query(None),
     tag: Optional[str] = Query(None),
+    unassigned: Optional[bool] = Query(None),
     db: AsyncSession = Depends(get_db),
     current_admin: User = Depends(get_current_admin_user),
 ) -> JSONResponse:
@@ -433,6 +434,7 @@ async def list_assets(
         program_id=program_id,
         module_id=module_id,
         tag=tag,
+        unassigned=unassigned,
     )
     data = [(await asset_to_response(db, a)).model_dump(mode="json") for a in assets]
     return JSONResponse(content=data, headers={"X-Total-Count": str(total)})
@@ -538,3 +540,40 @@ async def delete_asset(
     except IntegrityError:
         raise ConflictError("This asset is still referenced and cannot be deleted")
     return MessageResponse(message="Lecture asset deleted")
+
+
+@router.post("/assets/bulk-delete")
+async def bulk_delete_assets(
+    asset_ids: List[int] = Body(..., embed=True),
+    db: AsyncSession = Depends(get_db),
+    current_admin: User = Depends(get_current_admin_user),
+) -> dict:
+    """Bulk delete a list of assets by ID. Assets in use by modules are skipped."""
+    deleted = 0
+    failed = 0
+    in_use = 0
+
+    for aid in asset_ids[:200]:
+        asset = await lecture_asset_crud.get(db, aid)
+        if not asset:
+            failed += 1
+            continue
+
+        usage_count = await lecture_asset_crud.usage_count(db, aid)
+        if usage_count > 0:
+            in_use += 1
+            continue
+
+        try:
+            await lecture_asset_crud.delete(db, id=aid)
+            deleted += 1
+        except IntegrityError:
+            failed += 1
+
+    return {
+        "deleted": deleted,
+        "failed": failed,
+        "in_use": in_use,
+        "message": f"Successfully deleted {deleted} asset(s)."
+        + (f" {in_use} asset(s) were skipped because they are attached to modules." if in_use > 0 else ""),
+    }

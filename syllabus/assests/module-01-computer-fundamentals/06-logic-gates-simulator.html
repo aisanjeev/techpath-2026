@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logic Gates Simulator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:20px;min-height:100vh}
+h1{text-align:center;font-size:20px;color:#fff;margin-bottom:4px}
+.sub{text-align:center;font-size:13px;color:#94a3b8;margin-bottom:24px}
+
+/* Gate Tabs */
+.tabs{display:flex;justify-content:center;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.tab{
+  padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;
+  cursor:pointer;border:1.5px solid #334155;background:#1e293b;color:#94a3b8;
+  transition:all .2s;
+}
+.tab:hover{border-color:#60a5fa;color:#e2e8f0}
+.tab.active{background:#3b82f6;border-color:#3b82f6;color:#fff}
+
+/* Gate Card */
+.gate-card{max-width:480px;margin:0 auto 24px;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:24px}
+.gate-name{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+.gate-desc{font-size:14px;color:#94a3b8;margin-bottom:20px;line-height:1.6}
+
+/* Interactive Inputs */
+.gate-io{display:flex;align-items:center;justify-content:center;gap:24px;margin-bottom:20px}
+.input-group{display:flex;flex-direction:column;gap:10px;align-items:center}
+.input-label{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em}
+.toggle{
+  width:60px;height:60px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:24px;font-weight:700;cursor:pointer;
+  transition:all .2s;border:2px solid #334155;
+  font-family:Consolas,monospace;user-select:none;
+}
+.toggle.off{background:#1e293b;color:#64748b}
+.toggle.on{background:rgba(59,130,246,.2);color:#60a5fa;border-color:#3b82f6;box-shadow:0 0 15px rgba(59,130,246,.2)}
+.gate-symbol{font-size:28px;color:#475569}
+.output-display{
+  width:80px;height:80px;border-radius:16px;display:flex;align-items:center;
+  justify-content:center;font-size:36px;font-weight:700;
+  font-family:Consolas,monospace;transition:all .3s;border:2px solid #334155;
+}
+.output-display.out-0{background:#1e293b;color:#64748b}
+.output-display.out-1{background:rgba(34,197,94,.15);color:#22c55e;border-color:#22c55e;box-shadow:0 0 20px rgba(34,197,94,.2)}
+
+/* Truth Table */
+.truth-table{width:100%;border-collapse:collapse;margin-top:16px}
+.truth-table th{
+  background:#0f172a;padding:10px;font-size:12px;text-transform:uppercase;
+  letter-spacing:.06em;color:#60a5fa;border-bottom:1px solid #334155;
+}
+.truth-table td{
+  padding:10px;text-align:center;font-size:15px;font-family:Consolas,monospace;
+  border-bottom:1px solid rgba(51,65,85,.5);color:#cbd5e1;
+}
+.truth-table tr.highlight td{background:rgba(59,130,246,.1);color:#fff;font-weight:600}
+.truth-table td.out-1{color:#22c55e;font-weight:700}
+.truth-table td.out-0{color:#64748b}
+
+/* Remember Box */
+.remember{
+  max-width:480px;margin:0 auto;background:#1e293b;border:1px solid #334155;
+  border-radius:12px;padding:20px;
+}
+.remember h3{font-size:14px;color:#f59e0b;margin-bottom:10px}
+.remember p{font-size:13px;color:#94a3b8;line-height:1.7;margin-bottom:6px}
+.remember strong{color:#fff}
+
+@media(max-width:480px){
+  .gate-io{gap:14px}
+  .toggle{width:48px;height:48px;font-size:20px}
+  .output-display{width:60px;height:60px;font-size:28px}
+}
+</style>
+</head>
+<body>
+
+<h1>Logic Gates — Interactive Simulator</h1>
+<p class="sub">Click the input buttons (0/1) to change values. See the output and truth table change live!</p>
+
+<!-- Gate Tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="selectGate('AND')">AND</div>
+  <div class="tab" onclick="selectGate('OR')">OR</div>
+  <div class="tab" onclick="selectGate('NOT')">NOT</div>
+  <div class="tab" onclick="selectGate('NAND')">NAND</div>
+  <div class="tab" onclick="selectGate('NOR')">NOR</div>
+  <div class="tab" onclick="selectGate('XOR')">XOR</div>
+</div>
+
+<!-- Gate Card -->
+<div class="gate-card">
+  <div class="gate-name" id="gateName">AND Gate</div>
+  <div class="gate-desc" id="gateDesc">Output is 1 ONLY when BOTH inputs are 1. Think: "Both must be true."</div>
+
+  <div class="gate-io">
+    <div class="input-group">
+      <div class="input-label">Input A</div>
+      <div class="toggle off" id="inputA" onclick="toggleInput('A')">0</div>
+    </div>
+    <div class="input-group" id="inputBGroup">
+      <div class="input-label">Input B</div>
+      <div class="toggle off" id="inputB" onclick="toggleInput('B')">0</div>
+    </div>
+    <div class="gate-symbol">&#10132;</div>
+    <div class="input-group">
+      <div class="input-label">Output</div>
+      <div class="output-display out-0" id="output">0</div>
+    </div>
+  </div>
+
+  <table class="truth-table" id="truthTable"></table>
+</div>
+
+<!-- Remember -->
+<div class="remember">
+  <h3>Quick Memory Trick</h3>
+  <p><strong>AND</strong> = Both must be 1 → "A AND B must BOTH be true"</p>
+  <p><strong>OR</strong> = At least one is 1 → "A OR B, either one is enough"</p>
+  <p><strong>NOT</strong> = Flip the value → "NOT 0 = 1, NOT 1 = 0"</p>
+  <p><strong>NAND</strong> = Opposite of AND → "NOT AND"</p>
+  <p><strong>NOR</strong> = Opposite of OR → "NOT OR"</p>
+  <p><strong>XOR</strong> = Different inputs = 1 → "Exactly one must be true"</p>
+</div>
+
+<script>
+const gates = {
+  AND: {
+    desc: 'Output is 1 ONLY when BOTH inputs are 1. Think: "Both must be true."',
+    fn: (a,b) => a & b,
+    inputs: 2
+  },
+  OR: {
+    desc: 'Output is 1 when AT LEAST ONE input is 1. Think: "Either one is enough."',
+    fn: (a,b) => a | b,
+    inputs: 2
+  },
+  NOT: {
+    desc: 'Flips the input. 0 becomes 1, and 1 becomes 0. Only has ONE input.',
+    fn: (a) => a ? 0 : 1,
+    inputs: 1
+  },
+  NAND: {
+    desc: 'Opposite of AND. Output is 0 ONLY when both inputs are 1. Otherwise output is 1.',
+    fn: (a,b) => (a & b) ? 0 : 1,
+    inputs: 2
+  },
+  NOR: {
+    desc: 'Opposite of OR. Output is 1 ONLY when both inputs are 0. Otherwise output is 0.',
+    fn: (a,b) => (a | b) ? 0 : 1,
+    inputs: 2
+  },
+  XOR: {
+    desc: 'Output is 1 when inputs are DIFFERENT. If both same (0,0 or 1,1), output is 0.',
+    fn: (a,b) => a ^ b,
+    inputs: 2
+  }
+};
+
+let currentGate = 'AND';
+let inputA = 0, inputB = 0;
+
+function toggleInput(which) {
+  if (which === 'A') { inputA = inputA ? 0 : 1; }
+  else { inputB = inputB ? 0 : 1; }
+  updateDisplay();
+}
+
+function selectGate(name) {
+  currentGate = name;
+  inputA = 0; inputB = 0;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.tab[onclick*="'+name+'"]').classList.add('active');
+  document.getElementById('gateName').textContent = name + ' Gate';
+  document.getElementById('gateDesc').textContent = gates[name].desc;
+  document.getElementById('inputBGroup').style.display = gates[name].inputs === 1 ? 'none' : '';
+  updateDisplay();
+}
+
+function updateDisplay() {
+  const gate = gates[currentGate];
+  const a = document.getElementById('inputA');
+  const b = document.getElementById('inputB');
+  const out = document.getElementById('output');
+
+  a.textContent = inputA; a.className = 'toggle ' + (inputA ? 'on' : 'off');
+  b.textContent = inputB; b.className = 'toggle ' + (inputB ? 'on' : 'off');
+
+  const result = gate.inputs === 1 ? gate.fn(inputA) : gate.fn(inputA, inputB);
+  out.textContent = result;
+  out.className = 'output-display ' + (result ? 'out-1' : 'out-0');
+
+  buildTruthTable();
+}
+
+function buildTruthTable() {
+  const gate = gates[currentGate];
+  const table = document.getElementById('truthTable');
+  let html = '<thead><tr>';
+  html += '<th>Input A</th>';
+  if (gate.inputs === 2) html += '<th>Input B</th>';
+  html += '<th>Output</th></tr></thead><tbody>';
+
+  const rows = gate.inputs === 1 ? [[0],[1]] : [[0,0],[0,1],[1,0],[1,1]];
+  rows.forEach(r => {
+    const out = gate.inputs === 1 ? gate.fn(r[0]) : gate.fn(r[0], r[1]);
+    const isActive = gate.inputs === 1
+      ? (r[0] === inputA)
+      : (r[0] === inputA && r[1] === inputB);
+    html += '<tr class="' + (isActive ? 'highlight' : '') + '">';
+    html += '<td>' + r[0] + '</td>';
+    if (gate.inputs === 2) html += '<td>' + r[1] + '</td>';
+    html += '<td class="out-' + out + '">' + out + '</td>';
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+updateDisplay();
+</script>
+</body>
+</html>

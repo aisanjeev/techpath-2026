@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "question": "What is a computer?",
+      "options": [
+        "A machine that only plays games",
+        "An electronic device that takes input, processes it, gives output, and stores data",
+        "A device used only for internet",
+        "A type of calculator"
+      ],
+      "correct_index": 1,
+      "explanation": "A computer is a programmable electronic device that follows the IPOS cycle — Input, Process, Output, Storage."
+    },
+    {
+      "question": "What does IPOS stand for?",
+      "options": [
+        "Internet, Program, Output, Software",
+        "Input, Process, Output, Storage",
+        "Input, Print, Open, Save",
+        "Install, Process, Open, Store"
+      ],
+      "correct_index": 1,
+      "explanation": "IPOS = Input → Process → Output → Storage. This is the basic working cycle of every computer."
+    },
+    {
+      "question": "Which of these is an input device?",
+      "options": [
+        "Monitor",
+        "Printer",
+        "Keyboard",
+        "Speaker"
+      ],
+      "correct_index": 2,
+      "explanation": "Keyboard sends data TO the computer (input). Monitor, printer, and speaker show results FROM the computer (output)."
+    },
+    {
+      "question": "CPU stands for?",
+      "options": [
+        "Computer Personal Unit",
+        "Central Processing Unit",
+        "Central Program Utility",
+        "Computer Processing Unit"
+      ],
+      "correct_index": 1,
+      "explanation": "CPU = Central Processing Unit. It is called the brain of the computer because it does all the thinking and calculating."
+    },
+    {
+      "question": "RAM is which type of memory?",
+      "options": [
+        "Permanent memory",
+        "Temporary memory (data is lost when power off)",
+        "External memory",
+        "Read-only memory"
+      ],
+      "correct_index": 1,
+      "explanation": "RAM (Random Access Memory) is volatile — it loses all data when computer is turned off."
+    },
+    {
+      "question": "Which one is an example of system software?",
+      "options": [
+        "MS Word",
+        "Google Chrome",
+        "Windows 11",
+        "WhatsApp"
+      ],
+      "correct_index": 2,
+      "explanation": "Windows 11 is an operating system = system software. Word, Chrome, WhatsApp are application software."
+    },
+    {
+      "question": "Who is called the Father of Computers?",
+      "options": [
+        "Alan Turing",
+        "Charles Babbage",
+        "Bill Gates",
+        "Steve Jobs"
+      ],
+      "correct_index": 1,
+      "explanation": "Charles Babbage designed the Analytical Engine (1837) which had the basic design of modern computers."
+    },
+    {
+      "question": "First generation computers used which technology?",
+      "options": [
+        "Transistors",
+        "Integrated Circuits (ICs)",
+        "Vacuum Tubes",
+        "Microprocessors"
+      ],
+      "correct_index": 2,
+      "explanation": "First generation (1940-1956) used vacuum tubes. They were very large and generated a lot of heat."
+    },
+    {
+      "question": "1 Byte = how many Bits?",
+      "options": [
+        "4 bits",
+        "16 bits",
+        "8 bits",
+        "2 bits"
+      ],
+      "correct_index": 2,
+      "explanation": "1 Byte = 8 Bits. A bit is the smallest unit of data (0 or 1)."
+    },
+    {
+      "question": "Which is the correct order from smallest to largest?",
+      "options": [
+        "KB → Byte → MB → GB",
+        "Bit → Byte → KB → MB → GB → TB",
+        "Byte → Bit → KB → GB",
+        "MB → KB → GB → TB"
+      ],
+      "correct_index": 1,
+      "explanation": "Bit → Byte (8 bits) → KB (1024 bytes) → MB (1024 KB) → GB (1024 MB) → TB (1024 GB)."
+    },
+    {
+      "question": "What does an AND gate output when both inputs are 1?",
+      "options": [
+        "0",
+        "1",
+        "2",
+        "Cannot determine"
+      ],
+      "correct_index": 1,
+      "explanation": "AND gate = both inputs must be 1 to get output 1. If any input is 0, output is 0."
+    },
+    {
+      "question": "OR gate gives output 0 only when:",
+      "options": [
+        "Both inputs are 1",
+        "Both inputs are 0",
+        "One input is 1",
+        "One input is 0"
+      ],
+      "correct_index": 1,
+      "explanation": "OR gate = at least one input must be 1 for output 1. Only when ALL inputs are 0, the output is 0."
+    },
+    {
+      "question": "Convert binary 1101 to decimal.",
+      "options": [
+        "11",
+        "15",
+        "13",
+        "12"
+      ],
+      "correct_index": 2,
+      "explanation": "1101 = (1x8) + (1x4) + (0x2) + (1x1) = 8 + 4 + 0 + 1 = 13."
+    },
+    {
+      "question": "Which type of computer processes continuous data (like temperature)?",
+      "options": [
+        "Digital Computer",
+        "Analog Computer",
+        "Hybrid Computer",
+        "Supercomputer"
+      ],
+      "correct_index": 1,
+      "explanation": "Analog computers work with continuous data like temperature, speed, pressure."
+    },
+    {
+      "question": "ROM is used to store:",
+      "options": [
+        "Temporary data while running programs",
+        "User files and documents",
+        "Permanent instructions like BIOS/startup program",
+        "Internet data"
+      ],
+      "correct_index": 2,
+      "explanation": "ROM (Read-Only Memory) stores permanent instructions like BIOS that start the computer."
+    }
+  ]
+}

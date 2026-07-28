@@ -1,0 +1,662 @@
+# =============================================================================
+# TechPath Student Management API — OpenAPI 3.0 Specification
+# =============================================================================
+# This is a complete API specification for a student management system.
+# Students at TechPath Institute can use this as a reference for their
+# own capstone projects.
+#
+# How to use:
+#   1. Copy this file into your project
+#   2. Open https://editor.swagger.io and paste it
+#   3. See the interactive API documentation
+#   4. Modify paths, schemas, and responses for YOUR project
+#
+# Key rule: Write this spec BEFORE writing any backend code!
+# =============================================================================
+
+openapi: 3.0.3
+
+info:
+  title: TechPath Student Management API
+  version: 1.0.0
+  description: |
+    REST API for managing students, batches, and attendance at TechPath Institute, Bhopal.
+
+    **Authentication:** All protected endpoints require a Bearer token in the Authorization header.
+
+    **Response Format:** All responses follow the standard format:
+    ```json
+    {
+      "success": true,
+      "data": { ... },
+      "timestamp": "2026-07-25T10:30:00Z"
+    }
+    ```
+  contact:
+    name: TechPath Institute
+    email: support@techpath.biz
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+  - url: https://staging.api.techpath.biz/api/v1
+    description: Staging server (for testing)
+  - url: https://api.techpath.biz/api/v1
+    description: Production server
+
+# ---------------------------------------------------------------------------
+# Authentication Schemes
+# ---------------------------------------------------------------------------
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Firebase ID token or JWT from /auth/login
+
+  # -------------------------------------------------------------------------
+  # Reusable Schemas (Data Models)
+  # -------------------------------------------------------------------------
+  schemas:
+    # --- Student ---
+    Student:
+      type: object
+      required: [name, email]
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          maxLength: 100
+          example: "Rahul Sharma"
+        email:
+          type: string
+          format: email
+          example: "rahul.sharma@example.com"
+        phone:
+          type: string
+          pattern: "^[6-9]\\d{9}$"
+          example: "9876543210"
+          description: "10-digit Indian mobile number"
+        batch_id:
+          type: integer
+          example: 1
+        city:
+          type: string
+          example: "Bhopal"
+        is_active:
+          type: boolean
+          default: true
+        enrolled_at:
+          type: string
+          format: date-time
+          readOnly: true
+
+    StudentCreate:
+      type: object
+      required: [name, email]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: "Priya Patel"
+        email:
+          type: string
+          format: email
+          example: "priya.patel@example.com"
+        phone:
+          type: string
+          example: "8765432109"
+        batch_id:
+          type: integer
+          example: 1
+        city:
+          type: string
+          example: "Pune"
+
+    StudentUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        phone:
+          type: string
+        city:
+          type: string
+        is_active:
+          type: boolean
+
+    # --- Batch ---
+    Batch:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Python Full Stack — July 2026"
+        trainer_name:
+          type: string
+          example: "Amit Kumar"
+        start_date:
+          type: string
+          format: date
+          example: "2026-07-01"
+        end_date:
+          type: string
+          format: date
+          example: "2026-12-31"
+        city:
+          type: string
+          example: "Bhopal"
+        student_count:
+          type: integer
+          readOnly: true
+          example: 25
+
+    # --- Attendance ---
+    Attendance:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        student_id:
+          type: integer
+          example: 1
+        date:
+          type: string
+          format: date
+          example: "2026-07-25"
+        status:
+          type: string
+          enum: [present, absent, late]
+          example: "present"
+        marked_by:
+          type: string
+          example: "Amit Kumar"
+        created_at:
+          type: string
+          format: date-time
+
+    AttendanceCreate:
+      type: object
+      required: [student_id, date, status]
+      properties:
+        student_id:
+          type: integer
+          example: 1
+        date:
+          type: string
+          format: date
+          example: "2026-07-25"
+        status:
+          type: string
+          enum: [present, absent, late]
+          example: "present"
+
+    AttendanceBulkCreate:
+      type: object
+      required: [date, records]
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2026-07-25"
+        records:
+          type: array
+          items:
+            type: object
+            required: [student_id, status]
+            properties:
+              student_id:
+                type: integer
+              status:
+                type: string
+                enum: [present, absent, late]
+
+    # --- Report ---
+    AttendanceReport:
+      type: object
+      properties:
+        student_id:
+          type: integer
+        student_name:
+          type: string
+          example: "Rahul Sharma"
+        total_classes:
+          type: integer
+          example: 20
+        present:
+          type: integer
+          example: 17
+        absent:
+          type: integer
+          example: 3
+        percentage:
+          type: number
+          format: float
+          example: 85.0
+
+    # --- Auth ---
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "rahul@example.com"
+        password:
+          type: string
+          format: password
+          example: "securePassword123"
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: "JWT access token"
+        user:
+          $ref: "#/components/schemas/Student"
+
+    # --- Standard Response Wrappers ---
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Student not found"
+        timestamp:
+          type: string
+          format: date-time
+
+    MessageResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Attendance marked successfully"
+        timestamp:
+          type: string
+          format: date-time
+
+  # -------------------------------------------------------------------------
+  # Reusable Parameters
+  # -------------------------------------------------------------------------
+  parameters:
+    skip:
+      name: skip
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      description: Number of records to skip (for pagination)
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Maximum records to return
+
+# ---------------------------------------------------------------------------
+# API Endpoints (Paths)
+# ---------------------------------------------------------------------------
+paths:
+  # --- Auth ---
+  /auth/login:
+    post:
+      summary: User login
+      tags: [Authentication]
+      security: []  # No auth needed for login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # --- Students ---
+  /students:
+    get:
+      summary: List all students
+      description: Returns a paginated list of students. Supports filtering by batch and city.
+      tags: [Students]
+      parameters:
+        - $ref: "#/components/parameters/skip"
+        - $ref: "#/components/parameters/limit"
+        - name: batch_id
+          in: query
+          schema:
+            type: integer
+          description: Filter by batch ID
+        - name: city
+          in: query
+          schema:
+            type: string
+          description: Filter by city name
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
+      responses:
+        "200":
+          description: List of students
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
+              description: Total number of matching students
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Student"
+
+    post:
+      summary: Create a new student
+      tags: [Students]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentCreate"
+            example:
+              name: "Ananya Gupta"
+              email: "ananya.gupta@example.com"
+              phone: "7654321098"
+              batch_id: 1
+              city: "Delhi"
+      responses:
+        "201":
+          description: Student created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: "#/components/schemas/Student"
+        "409":
+          description: Student with this email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /students/{student_id}:
+    get:
+      summary: Get a student by ID
+      tags: [Students]
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: "#/components/schemas/Student"
+        "404":
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    patch:
+      summary: Update a student
+      tags: [Students]
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentUpdate"
+      responses:
+        "200":
+          description: Student updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: "#/components/schemas/Student"
+        "404":
+          description: Student not found
+
+    delete:
+      summary: Soft-delete a student (sets is_active=false)
+      tags: [Students]
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student deactivated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # --- Attendance ---
+  /attendance:
+    post:
+      summary: Mark attendance for a student
+      tags: [Attendance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceCreate"
+      responses:
+        "201":
+          description: Attendance recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: "#/components/schemas/Attendance"
+        "404":
+          description: Student not found
+
+  /attendance/bulk:
+    post:
+      summary: Mark attendance for entire batch at once
+      tags: [Attendance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceBulkCreate"
+            example:
+              date: "2026-07-25"
+              records:
+                - student_id: 1
+                  status: "present"
+                - student_id: 2
+                  status: "present"
+                - student_id: 3
+                  status: "absent"
+      responses:
+        "201":
+          description: Attendance recorded for all students
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /students/{student_id}/attendance:
+    get:
+      summary: Get attendance history for a student
+      tags: [Attendance]
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: month
+          in: query
+          schema:
+            type: string
+            pattern: "^\\d{4}-\\d{2}$"
+          description: "Filter by month (YYYY-MM format)"
+          example: "2026-07"
+      responses:
+        "200":
+          description: Attendance records
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Attendance"
+
+  # --- Reports ---
+  /reports/attendance:
+    get:
+      summary: Get attendance report for a batch
+      tags: [Reports]
+      parameters:
+        - name: batch_id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: month
+          in: query
+          schema:
+            type: string
+            pattern: "^\\d{4}-\\d{2}$"
+          example: "2026-07"
+      responses:
+        "200":
+          description: Attendance report with percentages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AttendanceReport"
+
+  # --- Health ---
+  /health:
+    get:
+      summary: Health check
+      tags: [System]
+      security: []
+      responses:
+        "200":
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  database:
+                    type: string
+                    example: "connected"

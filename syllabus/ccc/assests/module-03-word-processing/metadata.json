@@ -1,0 +1,156 @@
+{
+  "01-word-processing-basics.md": {
+    "title": "Word Processing Basics",
+    "description": "Module 03 \u2014 CCC Exam Preparation | Topic 1 --- Word processing means using a computer to create, edit, format, save, and print text documents. A word processor is the software that lets you do this. The most popular word processor in the world is Microsoft Word (commonly called MS Word). It is part of the Microsoft Office suite. Other word processors include LibreOffice Writer, Google Docs, and WordPad, but the CCC exam focuses almost entirely...",
+    "asset_type": "markdown",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "02-text-creation-editing.md": {
+    "title": "Text Creation and Editing",
+    "description": "Module 03 \u2014 CCC Exam Preparation | Topic 2 --- When you open MS Word, a blank document appears automatically. You can also create new documents at any time: The blinking vertical line you see is called the cursor (or insertion point). Whatever you type will appear at the cursor position. --- Simply start typing to enter text into your document. MS Word automatically wraps text to the next line when you reach the right margin \u2014 you do not need to...",
+    "asset_type": "markdown",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "03-text-formatting.md": {
+    "title": "Text Formatting",
+    "description": "Module 03 \u2014 CCC Exam Preparation | Topic 3 --- Formatting means changing the appearance of text to make it look better, easier to read, or more professional. Formatting does not change the content of the text \u2014 only how it looks. In MS Word, most formatting options are found on the Home tab in the ribbon. --- Font formatting changes the appearance of individual characters (letters, numbers, symbols). A font (also called a typeface) is the design...",
+    "asset_type": "markdown",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "04-paragraph-formatting.md": {
+    "title": "Paragraph Formatting and Document Features",
+    "description": "Module 03 \u2014 CCC Exam Preparation | Topic 4 --- Indenting means adding extra space between the margin and the text of a paragraph. Indenting helps organize text and makes documents look professional. Method 1: Using the Ruler - Drag the First Line Indent marker (top triangle on the left ruler) to set first line indent - Drag the Hanging Indent marker (bottom triangle on the left ruler) to set hanging indent - Drag the Left Indent marker (small...",
+    "asset_type": "markdown",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "05-tables-in-word.md": {
+    "title": "Tables in MS Word",
+    "description": "Module 03 \u2014 CCC Exam Preparation | Topic 5 --- A table is a grid of rows and columns used to organize data in a structured format. Each box in the table is called a cell. Tables are one of the most important features in MS Word and are heavily tested in the CCC exam. Example: A table with 3 rows and 4 columns has 3 x 4 = 12 cells. --- There are several ways to insert a table in MS Word: 1. Place the cursor where you want the table 2. Go to...",
+    "asset_type": "markdown",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "06-advanced-word-features.md": {
+    "title": "Advanced Word Features",
+    "description": "Module 03 \u2014 CCC Exam Preparation | Topic 6 --- MS Word can automatically check your spelling and grammar as you type, and you can also run a manual check. Right-click on the underlined word to see suggestions and choose the correct one. - Press F7 or go to Review tab \u2192 Spelling & Grammar - Word checks the entire document from the cursor position to the end - For each error, it shows suggestions \u2014 you can: - Change \u2014 accept the suggestion -...",
+    "asset_type": "markdown",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "07-word-shortcut-trainer.html": {
+    "title": "MS Word Shortcut Trainer \u2014 TechPath Institute",
+    "description": "Interactive MS Word Shortcut Trainer \u2014 TechPath Institute exercise for Word Processing",
+    "asset_type": "html_bundle",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "assignment-03.md": {
+    "title": "Assignment: Elements of Word Processing",
+    "description": "Module 03 \u2014 CCC Exam Preparation --- Complete all 4 tasks below using Microsoft Word. Each task tests different Word processing skills that are essential for the CCC exam. Save each task as a separate document. --- Objective: Practice document creation, text formatting, alignment, and page setup. 1. Open Microsoft Word and create a new blank document (Ctrl + N). 2. Set the page margins to 1.5 inches on all sides (Layout tab \u2192 Margins \u2192 Custom...",
+    "asset_type": "assignment",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "cheatsheet-03.md": {
+    "title": "Cheatsheet 03",
+    "description": "Learning material for Cheatsheet 03",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "lab-03-a.json": {
+    "title": "Create and Format a Professional Letter",
+    "description": "Create a formal application letter with proper formatting, alignment, headers, and footers in MS Word.",
+    "asset_type": "lab",
+    "tags": [
+      "word-processing",
+      "formatting",
+      "letter",
+      "alignment",
+      "headers"
+    ]
+  },
+  "lab-03-b.json": {
+    "title": "Tables, Headers, and Document Formatting",
+    "description": "Create a formatted student report card with tables, merged cells, headers, footers, and Find & Replace.",
+    "asset_type": "lab",
+    "tags": [
+      "tables",
+      "merge-cells",
+      "find-replace",
+      "formatting",
+      "headers-footers"
+    ]
+  },
+  "notes-03.md": {
+    "title": "Comprehensive Notes: Elements of Word Processing",
+    "description": "Module 03 \u2014 CCC Exam Preparation --- These notes cover all topics in Unit 3 (Elements of Word Processing) of the CCC syllabus. This unit is one of the highest-scoring units in the exam, typically accounting for 16-18 questions out of 100. Study these notes thoroughly. --- Word processing is the use of a computer application to create, edit, format, store, and print text documents. Microsoft Word (MS Word) is the most widely used word processor...",
+    "asset_type": "notes",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-03.json": {
+    "title": "Quiz 03",
+    "description": "Learning material for Quiz 03",
+    "asset_type": "quiz",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-03.md": {
+    "title": "Quiz: Elements of Word Processing",
+    "description": "Module 03 \u2014 CCC Exam Preparation --- - A) Ctrl + A - B) Ctrl + B \u2714 - C) Ctrl + D - D) Ctrl + G > Explanation: Ctrl + B is the shortcut for Bold in MS Word. Ctrl + A selects all text, Ctrl + D opens the Font dialog box, and Ctrl + G opens the Go To dialog. --- - A) Ctrl + S - B) Ctrl + Shift + S - C) F12 \u2714 - D) F7 > Explanation: F12 is the shortcut for Save As, which lets you save a document with a new name, location, or format. Ctrl + S is for...",
+    "asset_type": "markdown",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "resources-03.md": {
+    "title": "Resources: Elements of Word Processing",
+    "description": "Module 03 \u2014 CCC Exam Preparation --- - Microsoft Word Tutorial for Beginners \u2014 Microsoft 365 official YouTube channel: Full walkthrough of Word interface, creating and saving documents - https://support.microsoft.com/en-us/word - MS Word Complete Tutorial in Hindi \u2014 Search \"MS Word complete tutorial Hindi\" on YouTube for beginner-friendly walkthroughs covering the CCC syllabus - Learn MS Word in 30 Minutes \u2014 Quick crash course covering all...",
+    "asset_type": "notes",
+    "tags": [
+      "word-processing",
+      "ccc",
+      "computer-concepts"
+    ]
+  }
+}

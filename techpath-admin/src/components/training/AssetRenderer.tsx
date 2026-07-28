@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   ExternalLink,
   Github,
@@ -50,7 +50,20 @@ interface Props {
 }
 
 function InlineTextSlide({ asset }: Props) {
-  const html = useMemo(() => renderMarkdown(asset.body ?? ''), [asset.body]);
+  const [content, setContent] = useState(asset.body ?? '');
+  
+  useEffect(() => {
+    if (!asset.body && asset.file_url) {
+      fetch(asset.file_url)
+        .then((res) => res.text())
+        .then((text) => setContent(text))
+        .catch((err) => console.error('Failed to load markdown content:', err));
+    } else {
+      setContent(asset.body ?? '');
+    }
+  }, [asset.body, asset.file_url]);
+
+  const html = useMemo(() => renderMarkdown(content), [content]);
 
   return (
     <article

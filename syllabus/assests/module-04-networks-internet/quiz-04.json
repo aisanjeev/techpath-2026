@@ -1,0 +1,94 @@
+{
+  "questions": [
+    {
+      "question": "What is a computer network?",
+      "options": ["A single computer connected to a printer", "Two or more computers connected to share data and resources", "A website on the internet", "A type of software"],
+      "correct_index": 1,
+      "explanation": "A network is two or more computers connected together to share data, files, and resources like printers."
+    },
+    {
+      "question": "Which network type covers a single building like an office or school lab?",
+      "options": ["PAN", "LAN", "MAN", "WAN"],
+      "correct_index": 1,
+      "explanation": "LAN (Local Area Network) covers a small area like one building — office, school lab, or home."
+    },
+    {
+      "question": "What does DNS stand for?",
+      "options": ["Data Network System", "Domain Name System", "Digital Network Service", "Direct Name Server"],
+      "correct_index": 1,
+      "explanation": "DNS (Domain Name System) converts website names like google.com into IP addresses that computers understand."
+    },
+    {
+      "question": "Which network topology is most commonly used today?",
+      "options": ["Bus", "Ring", "Star", "Mesh"],
+      "correct_index": 2,
+      "explanation": "Star topology is most common — all devices connect to a central switch or router. Easy to add/remove devices."
+    },
+    {
+      "question": "How many layers does the OSI model have?",
+      "options": ["4", "5", "6", "7"],
+      "correct_index": 3,
+      "explanation": "The OSI model has 7 layers: Physical, Data Link, Network, Transport, Session, Presentation, Application."
+    },
+    {
+      "question": "Which protocol is used to securely browse websites?",
+      "options": ["HTTP", "HTTPS", "FTP", "SMTP"],
+      "correct_index": 1,
+      "explanation": "HTTPS (HTTP Secure) encrypts data between your browser and the website. Always look for the lock icon."
+    },
+    {
+      "question": "What does a router do?",
+      "options": ["Stores files", "Connects your network to the internet and directs traffic", "Converts digital signals to sound", "Only works as a printer"],
+      "correct_index": 1,
+      "explanation": "A router connects your local network to the internet and decides which path data should take."
+    },
+    {
+      "question": "What is the difference between TCP and UDP?",
+      "options": ["TCP is faster, UDP is slower", "TCP confirms delivery, UDP just sends without confirmation", "TCP is for WiFi, UDP is for cables", "TCP is old, UDP is new"],
+      "correct_index": 1,
+      "explanation": "TCP confirms every packet is received (reliable but slower). UDP just sends data without checking (faster, used for video calls and gaming)."
+    },
+    {
+      "question": "What is an IP address?",
+      "options": ["A website name", "A unique number assigned to every device on a network", "A type of cable", "A password for WiFi"],
+      "correct_index": 1,
+      "explanation": "An IP address (like 192.168.1.5) is a unique number that identifies each device on a network."
+    },
+    {
+      "question": "Which cyber attack tricks you into giving your password through a fake email?",
+      "options": ["Ransomware", "Phishing", "Brute Force", "Spyware"],
+      "correct_index": 1,
+      "explanation": "Phishing uses fake emails or websites that look real to trick you into entering your password or personal info."
+    },
+    {
+      "question": "What is the memory trick for OSI layers (top to bottom)?",
+      "options": ["Please Do Not Throw Sausage Pizza Away", "All People Seem To Need Data Processing", "Application Protocol Standard Transfer", "Always Practice Simple Testing"],
+      "correct_index": 1,
+      "explanation": "All People Seem To Need Data Processing = Application, Presentation, Session, Transport, Network, Data Link, Physical."
+    },
+    {
+      "question": "What does a firewall do?",
+      "options": ["Increases internet speed", "Blocks unauthorized network access", "Stores website data", "Creates WiFi signals"],
+      "correct_index": 1,
+      "explanation": "A firewall monitors network traffic and blocks unauthorized access — like a security guard for your network."
+    },
+    {
+      "question": "What is a VPN used for?",
+      "options": ["Making internet faster", "Creating a secure, encrypted connection over the internet", "Connecting a printer", "Blocking ads"],
+      "correct_index": 1,
+      "explanation": "A VPN (Virtual Private Network) encrypts all your internet traffic and hides your IP address. Important on public WiFi."
+    },
+    {
+      "question": "Which OSI layer handles encryption?",
+      "options": ["Application (Layer 7)", "Presentation (Layer 6)", "Network (Layer 3)", "Physical (Layer 1)"],
+      "correct_index": 1,
+      "explanation": "The Presentation layer (Layer 6) handles encryption, compression, and data format conversion (SSL/TLS, JPEG, etc.)"
+    },
+    {
+      "question": "What is a CDN?",
+      "options": ["A type of cable", "A network that stores website copies in servers around the world for faster loading", "A company that makes routers", "A security protocol"],
+      "correct_index": 1,
+      "explanation": "CDN (Content Delivery Network) stores copies of websites on servers worldwide. Your request goes to the nearest server for faster loading."
+    }
+  ]
+}

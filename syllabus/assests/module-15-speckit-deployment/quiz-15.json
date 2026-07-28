@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "question": "What is a Spec-Kit?",
+      "options": ["A programming language", "A complete project delivery package with docs and config", "A type of database", "A testing framework"],
+      "correct_index": 1,
+      "explanation": "A Spec-Kit is a complete delivery package — README, tech spec, setup guide, environment config, and screenshots."
+    },
+    {
+      "question": "What should you NEVER commit to GitHub?",
+      "options": ["README.md", ".gitignore", ".env file with real secrets", "package.json"],
+      "correct_index": 2,
+      "explanation": ".env files contain passwords, API keys, and secrets — never commit them. Use .env.example instead."
+    },
+    {
+      "question": "Which platform is best for deploying a React/Next.js frontend for free?",
+      "options": ["Render", "Vercel", "PythonAnywhere", "Docker Hub"],
+      "correct_index": 1,
+      "explanation": "Vercel is built for frontend frameworks like React, Next.js, and Astro — auto-deploys from Git push."
+    },
+    {
+      "question": "What is Docker used for?",
+      "options": ["Writing CSS", "Packaging an app with its dependencies into a portable container", "Creating databases", "Designing UI"],
+      "correct_index": 1,
+      "explanation": "Docker packages your entire app (code + dependencies + config) into a container that runs the same everywhere."
+    },
+    {
+      "question": "What does CI/CD stand for?",
+      "options": ["Code Integration / Code Delivery", "Continuous Integration / Continuous Deployment", "Computer Interface / Computer Design", "Cloud Integration / Cloud Deployment"],
+      "correct_index": 1,
+      "explanation": "CI/CD = Continuous Integration (auto-test) + Continuous Deployment (auto-deploy) on every code push."
+    },
+    {
+      "question": "What is a Dockerfile?",
+      "options": ["A text file with passwords", "Instructions to build a Docker image", "A database backup file", "A JavaScript file"],
+      "correct_index": 1,
+      "explanation": "A Dockerfile contains step-by-step instructions (FROM, COPY, RUN, CMD) to build a Docker image."
+    },
+    {
+      "question": "What does SSL/HTTPS do?",
+      "options": ["Makes websites load faster", "Encrypts data between browser and server", "Adds colors to a website", "Compresses images"],
+      "correct_index": 1,
+      "explanation": "SSL encrypts the connection — HTTPS is HTTP + SSL. It's the padlock icon in your browser."
+    },
+    {
+      "question": "Which file tells Git which files to ignore?",
+      "options": [".env", "README.md", ".gitignore", "package.json"],
+      "correct_index": 2,
+      "explanation": ".gitignore lists files/folders Git should not track — like .env, node_modules, __pycache__."
+    },
+    {
+      "question": "What DNS record points a domain to an IP address?",
+      "options": ["CNAME", "MX", "A record", "TXT"],
+      "correct_index": 2,
+      "explanation": "An A record maps a domain name directly to an IP address (e.g., example.com → 76.76.21.21)."
+    },
+    {
+      "question": "What does 'docker-compose up' do?",
+      "options": ["Deletes all containers", "Starts all services defined in docker-compose.yml", "Pushes code to GitHub", "Installs Python"],
+      "correct_index": 1,
+      "explanation": "docker-compose up starts all services (web app, database, etc.) defined in the docker-compose.yml file."
+    }
+  ]
+}

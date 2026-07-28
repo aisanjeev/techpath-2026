@@ -1,0 +1,38 @@
+{
+  "asset_type": "lab",
+  "title": "Build a Student CRUD API with FastAPI",
+  "description": "Create a complete REST API with FastAPI, Pydantic validation, and SQLite database",
+  "tags": [
+    "fastapi",
+    "python",
+    "api",
+    "crud",
+    "pydantic"
+  ],
+  "status": "draft",
+  "objective": "Students will build a REST API with 5 CRUD endpoints, Pydantic validation, SQLite persistence, and test it using the auto-generated Swagger docs",
+  "steps": [
+    {
+      "title": "Set Up FastAPI Project",
+      "instructions": "Create a project folder and install dependencies:\n```bash\nmkdir student-api\ncd student-api\npip install fastapi uvicorn\n```\n\nCreate `main.py`:\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI(title=\"Student API\", version=\"1.0\")\n\n@app.get(\"/\")\ndef home():\n    return {\"message\": \"Student API is running!\", \"docs\": \"/docs\"}\n```\n\nRun the server:\n```bash\nuvicorn main:app --reload\n```\n\nOpen in browser:\n- http://localhost:8000 — JSON response\n- http://localhost:8000/docs — Swagger UI (interactive docs)\n\nTry clicking \"Try it out\" on the GET / endpoint in Swagger."
+    },
+    {
+      "title": "Create Pydantic Models and Sample Data",
+      "instructions": "Add models and in-memory data to `main.py`:\n\n```python\nfrom fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\nfrom typing import Optional\n\napp = FastAPI(title=\"Student API\")\n\nclass StudentCreate(BaseModel):\n    name: str = Field(min_length=2, max_length=50)\n    email: str\n    course: str = \"ADCA\"\n    marks: int = Field(ge=0, le=100)\n    city: str = \"Bhopal\"\n\nclass StudentUpdate(BaseModel):\n    name: Optional[str] = None\n    marks: Optional[int] = Field(None, ge=0, le=100)\n    city: Optional[str] = None\n\n# In-memory database\nstudents = [\n    {\"id\": 1, \"name\": \"Rahul Sharma\", \"email\": \"rahul@email.com\", \"course\": \"ADCA\", \"marks\": 85, \"city\": \"Bhopal\"},\n    {\"id\": 2, \"name\": \"Priya Patel\", \"email\": \"priya@email.com\", \"course\": \"DCA\", \"marks\": 92, \"city\": \"Indore\"},\n]\nnext_id = 3\n```\n\nSave — the server auto-reloads (that's what `--reload` does)."
+    },
+    {
+      "title": "Add CRUD Endpoints",
+      "instructions": "```python\n@app.get(\"/api/students\")\ndef list_students():\n    return {\"success\": True, \"total\": len(students), \"data\": students}\n\n@app.get(\"/api/students/{student_id}\")\ndef get_student(student_id: int):\n    for s in students:\n        if s[\"id\"] == student_id:\n            return {\"success\": True, \"data\": s}\n    raise HTTPException(status_code=404, detail=\"Student not found\")\n\n@app.post(\"/api/students\", status_code=201)\ndef create_student(student: StudentCreate):\n    global next_id\n    new = {\"id\": next_id, **student.model_dump()}\n    students.append(new)\n    next_id += 1\n    return {\"success\": True, \"data\": new}\n\n@app.put(\"/api/students/{student_id}\")\ndef update_student(student_id: int, updates: StudentUpdate):\n    for s in students:\n        if s[\"id\"] == student_id:\n            for key, value in updates.model_dump(exclude_unset=True).items():\n                s[key] = value\n            return {\"success\": True, \"data\": s}\n    raise HTTPException(status_code=404, detail=\"Student not found\")\n\n@app.delete(\"/api/students/{student_id}\")\ndef delete_student(student_id: int):\n    for i, s in enumerate(students):\n        if s[\"id\"] == student_id:\n            removed = students.pop(i)\n            return {\"success\": True, \"message\": f\"Deleted {removed['name']}\"}\n    raise HTTPException(status_code=404, detail=\"Student not found\")\n```"
+    },
+    {
+      "title": "Test with Swagger UI",
+      "instructions": "Open http://localhost:8000/docs and test each endpoint:\n\n| Test | Endpoint | Expected |\n|------|----------|----------|\n| List all | GET /api/students | 2 students returned |\n| Get by ID | GET /api/students/1 | Rahul's data |\n| Get missing | GET /api/students/99 | 404 error |\n| Create | POST /api/students (body: name, email, marks) | 201 + new student |\n| Create invalid | POST with marks: 150 | 422 validation error |\n| Create short name | POST with name: \"R\" | 422 (min_length=2) |\n| Update marks | PUT /api/students/1 (marks: 95) | Updated student |\n| Delete | DELETE /api/students/2 | Success message |\n| List again | GET /api/students | Reflects changes |\n\nIn Swagger UI:\n1. Click an endpoint → \"Try it out\"\n2. Fill in the parameters or request body\n3. Click \"Execute\"\n4. Check the response code and body\n\nScreenshot each test result."
+    },
+    {
+      "title": "Add Search and Filter",
+      "instructions": "Add query parameters to the list endpoint:\n```python\nfrom typing import Optional\nfrom fastapi import Query\n\n@app.get(\"/api/students\")\ndef list_students(\n    course: Optional[str] = None,\n    search: Optional[str] = None,\n    sort: str = \"id\",\n    limit: int = Query(default=10, ge=1, le=100),\n):\n    result = students.copy()\n\n    if course:\n        result = [s for s in result if s[\"course\"].lower() == course.lower()]\n\n    if search:\n        result = [s for s in result if search.lower() in s[\"name\"].lower()]\n\n    if sort in (\"name\", \"marks\"):\n        result.sort(key=lambda s: s[sort])\n\n    result = result[:limit]\n    return {\"success\": True, \"total\": len(result), \"data\": result}\n```\n\nTest in Swagger UI:\n\n| URL | Expected |\n|-----|----------|\n| `/api/students?course=ADCA` | Only ADCA students |\n| `/api/students?search=rah` | Only matching names |\n| `/api/students?sort=marks` | Sorted by marks |\n| `/api/students?limit=2` | Only 2 results |\n| `/api/students?course=ADCA&sort=marks` | Filtered + sorted |\n\nAlso add a stats endpoint:\n```python\n@app.get(\"/api/stats\")\ndef stats():\n    marks = [s[\"marks\"] for s in students]\n    return {\n        \"total\": len(students),\n        \"average\": round(sum(marks)/len(marks), 1) if marks else 0,\n        \"highest\": max(marks) if marks else 0,\n    }\n```\n\n**Submit:** Your `main.py` file + Swagger UI screenshots for all endpoints including filters."
+    }
+  ],
+  "starter_code": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel, Field\n\napp = FastAPI(title=\"Student API\")\n\n# TODO: Add Pydantic models\n# TODO: Add student data\n# TODO: Add CRUD endpoints",
+  "expected_output": "A running FastAPI server with 5 CRUD endpoints (list, get, create, update, delete) that validates input with Pydantic and returns consistent JSON responses — tested via Swagger UI"
+}

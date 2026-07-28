@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Engineering Playground — TechPath Institute</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f172a;--card:#1e293b;--card-hover:#273548;--text:#e2e8f0;
+  --text-muted:#94a3b8;--accent:#38bdf8;--accent-hover:#7dd3fc;
+  --border:#334155;--success:#22c55e;--warning:#f59e0b;--danger:#ef4444;
+  --system:#60a5fa;--user:#4ade80;--assistant:#c084fc;--example:#fbbf24;
+  --radius:8px;--shadow:0 4px 6px -1px rgba(0,0,0,0.3);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+
+/* Header */
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.header h1{font-size:1.25rem;font-weight:700;color:var(--accent)}
+.header .subtitle{font-size:0.8rem;color:var(--text-muted)}
+.header .brand{font-size:0.75rem;color:var(--text-muted);background:var(--bg);padding:4px 12px;border-radius:20px}
+
+/* Layout */
+.main{display:grid;grid-template-columns:1fr 320px;gap:20px;padding:20px;max-width:1400px;margin:0 auto}
+@media(max-width:1024px){.main{grid-template-columns:1fr;}}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px}
+.tab{padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:0.85rem;color:var(--text-muted);transition:all 0.2s}
+.tab:hover{background:var(--card-hover);color:var(--text)}
+.tab.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card h2{font-size:1rem;font-weight:600;margin-bottom:12px;color:var(--accent);display:flex;align-items:center;gap:8px}
+.card h3{font-size:0.9rem;font-weight:600;margin-bottom:8px;color:var(--text)}
+
+/* Form elements */
+label{display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+textarea,input[type="text"]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;color:var(--text);font-family:monospace;font-size:0.85rem;resize:vertical;transition:border-color 0.2s}
+textarea:focus,input[type="text"]:focus{outline:none;border-color:var(--accent)}
+textarea::placeholder,input::placeholder{color:#475569}
+
+/* Buttons */
+.btn{padding:8px 16px;border:none;border-radius:var(--radius);cursor:pointer;font-size:0.85rem;font-weight:600;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:var(--bg)}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-secondary{background:var(--border);color:var(--text)}
+.btn-secondary:hover{background:var(--card-hover)}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger)}
+.btn-danger:hover{background:var(--danger);color:white}
+.btn-sm{padding:4px 10px;font-size:0.75rem}
+
+/* Technique description */
+.technique-desc{background:var(--bg);border-left:3px solid var(--accent);padding:12px 16px;margin-bottom:16px;font-size:0.85rem;border-radius:0 var(--radius) var(--radius) 0}
+
+/* Example pairs */
+.example-pair{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px;position:relative}
+.example-pair .pair-label{font-size:0.7rem;color:var(--example);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:700}
+.example-pair textarea{margin-bottom:8px}
+.remove-pair{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--danger);cursor:pointer;font-size:1.1rem;line-height:1;padding:2px 6px;border-radius:4px}
+.remove-pair:hover{background:rgba(239,68,68,0.15)}
+
+/* Preview */
+.preview-block{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;font-family:monospace;font-size:0.82rem;white-space:pre-wrap;word-break:break-word;max-height:500px;overflow-y:auto;line-height:1.7}
+.preview-block .role-label{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.role-system{color:var(--system)}
+.role-system .role-label{background:rgba(96,165,250,0.15);color:var(--system)}
+.role-user{color:var(--user)}
+.role-user .role-label{background:rgba(74,222,128,0.15);color:var(--user)}
+.role-assistant{color:var(--assistant)}
+.role-assistant .role-label{background:rgba(192,132,252,0.15);color:var(--assistant)}
+.role-example{color:var(--example)}
+.role-example .role-label{background:rgba(251,191,36,0.15);color:var(--example)}
+.msg-divider{border:none;border-top:1px dashed var(--border);margin:12px 0}
+
+/* Token bar */
+.token-info{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.token-count{font-size:1.5rem;font-weight:700;color:var(--accent)}
+.token-label{font-size:0.8rem;color:var(--text-muted)}
+.token-bars{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.token-bar-row{display:flex;align-items:center;gap:8px;font-size:0.75rem}
+.token-bar-label{min-width:55px;color:var(--text-muted);text-align:right}
+.token-bar-track{flex:1;height:16px;background:var(--bg);border-radius:8px;overflow:hidden;border:1px solid var(--border);position:relative}
+.token-bar-fill{height:100%;border-radius:8px;transition:width 0.3s ease}
+.token-bar-pct{min-width:40px;color:var(--text-muted);font-size:0.7rem}
+
+/* Checkbox */
+.checkbox-row{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:0.85rem;color:var(--text-muted)}
+.checkbox-row input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px}
+
+/* Actions row */
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* Template library */
+.template-list{display:flex;flex-direction:column;gap:6px}
+.template-item{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;cursor:pointer;transition:all 0.2s;display:flex;justify-content:space-between;align-items:center}
+.template-item:hover{border-color:var(--accent);background:var(--card-hover)}
+.template-item .t-name{font-size:0.85rem;font-weight:600}
+.template-item .t-tech{font-size:0.7rem;color:var(--text-muted);background:var(--card);padding:2px 8px;border-radius:10px}
+
+/* Tips sidebar */
+.sidebar .tip{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px;font-size:0.82rem;line-height:1.5}
+.sidebar .tip strong{color:var(--accent);display:block;margin-bottom:4px}
+
+/* Toast notification */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--success);color:white;padding:12px 20px;border-radius:var(--radius);font-size:0.85rem;font-weight:600;opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
+
+/* Section spacing */
+.section-gap{margin-bottom:16px}
+
+/* CoT checkbox area */
+.cot-option{margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Prompt Engineering Playground</h1>
+    <div class="subtitle">Build, preview, and learn prompt engineering techniques interactively</div>
+  </div>
+  <div class="brand">TechPath Institute</div>
+</div>
+
+<div class="main">
+  <div class="content">
+    <!-- Technique Selector -->
+    <div class="card">
+      <h2>Select Technique</h2>
+      <div class="tabs" id="techniqueTabs"></div>
+      <div class="technique-desc" id="techniqueDesc"></div>
+    </div>
+
+    <!-- Prompt Builder -->
+    <div class="card">
+      <h2>Prompt Builder</h2>
+
+      <div class="section-gap">
+        <label for="systemPrompt">System Prompt</label>
+        <textarea id="systemPrompt" rows="4" placeholder="You are a helpful assistant at TechPath Institute, Bhopal. You help students learn programming. Rules: explain in simple English, use Indian names and context, keep answers concise."></textarea>
+      </div>
+
+      <!-- CoT option -->
+      <div class="cot-option" id="cotOption" style="display:none">
+        <div class="checkbox-row">
+          <input type="checkbox" id="cotCheckbox" checked>
+          <label for="cotCheckbox" style="margin:0;text-transform:none;font-size:0.85rem;font-weight:normal;color:var(--text-muted)">Auto-prepend "Let's think step by step" to user message</label>
+        </div>
+      </div>
+
+      <!-- Few-shot examples -->
+      <div id="examplesArea" style="display:none">
+        <label>Few-Shot Examples</label>
+        <div id="examplePairs"></div>
+        <button class="btn btn-secondary btn-sm" onclick="addExamplePair()" style="margin-top:8px;margin-bottom:16px">+ Add Example Pair</button>
+      </div>
+
+      <div class="section-gap">
+        <label for="userMessage">User Message</label>
+        <textarea id="userMessage" rows="4" placeholder="Type your prompt here..."></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="copyFullPrompt()">Copy Full Prompt</button>
+        <button class="btn btn-secondary" onclick="resetAll()">Reset All</button>
+      </div>
+    </div>
+
+    <!-- Full Prompt Preview -->
+    <div class="card">
+      <h2>Full Prompt Preview</h2>
+      <div class="preview-block" id="promptPreview">
+        <span style="color:var(--text-muted)">Your formatted prompt will appear here as you type...</span>
+      </div>
+    </div>
+
+    <!-- Token Estimator -->
+    <div class="card">
+      <h2>Token Estimator</h2>
+      <div class="token-info">
+        <div>
+          <div class="token-count" id="tokenCount">0</div>
+          <div class="token-label">estimated tokens</div>
+        </div>
+        <div style="font-size:0.8rem;color:var(--text-muted)">
+          <span id="charCount">0</span> chars | <span id="wordCount">0</span> words
+        </div>
+      </div>
+      <div class="token-bars" id="tokenBars"></div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Template Library -->
+    <div class="card">
+      <h2>Template Library</h2>
+      <div class="template-list" id="templateList"></div>
+    </div>
+
+    <!-- Tips -->
+    <div class="card">
+      <h2>Tips</h2>
+      <div id="tipsArea"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====== DATA ======
+const techniques = [
+  {
+    id: 'zero-shot',
+    name: 'Zero-Shot',
+    desc: 'Give the model a task with no examples. Works well for simple, well-known tasks like translation, summarization, or classification. The model relies entirely on its training knowledge.',
+    tips: [
+      { title: 'Be Specific', text: 'Instead of "Summarize this", say "Summarize this article in 3 bullet points, each under 20 words."' },
+      { title: 'Set Output Format', text: 'Tell the model exactly what format you want: "Reply with only one word: positive, negative, or neutral."' },
+      { title: 'Use Delimiters', text: 'Wrap your input data in triple backticks or XML tags to separate instructions from data.' },
+      { title: 'When to Avoid', text: 'If the model gives inconsistent results, switch to few-shot by adding 2-3 examples.' }
+    ]
+  },
+  {
+    id: 'few-shot',
+    name: 'Few-Shot',
+    desc: 'Provide 2-5 example input-output pairs before your actual request. The model learns the pattern from the examples and applies it to new input. Great for classification, formatting, and style consistency.',
+    tips: [
+      { title: 'Quality Over Quantity', text: '3 diverse, high-quality examples beat 10 similar ones. Cover different cases.' },
+      { title: 'Consistent Format', text: 'Keep all examples in the exact same format — the model copies what it sees.' },
+      { title: 'Cover Edge Cases', text: 'Include at least one tricky or unusual example to improve robustness.' },
+      { title: 'Order Matters', text: 'Put the most representative example last — models pay more attention to recent context.' }
+    ]
+  },
+  {
+    id: 'chain-of-thought',
+    name: 'Chain-of-Thought',
+    desc: 'Ask the model to reason step by step before giving a final answer. Dramatically improves accuracy on math, logic, and multi-step reasoning tasks. Add "Let\'s think step by step" or show a worked example.',
+    tips: [
+      { title: 'Magic Phrase', text: '"Let\'s think step by step" alone can improve math accuracy by 40-70% on some benchmarks.' },
+      { title: 'Show Your Work', text: 'For complex problems, provide a worked example showing the reasoning steps you expect.' },
+      { title: 'Best For', text: 'Math word problems, logical deduction, code debugging, multi-step analysis.' },
+      { title: 'Token Cost', text: 'CoT uses more tokens (the reasoning text), so expect higher costs. Worth it for accuracy.' }
+    ]
+  },
+  {
+    id: 'role-based',
+    name: 'Role-Based',
+    desc: 'Assign the model a specific role or persona in the system prompt (e.g., "You are a senior Python developer"). This shapes the tone, vocabulary, and depth of the response. Very effective for specialized tasks.',
+    tips: [
+      { title: 'Be Detailed', text: '"You are a senior Python developer with 10 years of experience" works better than "You are a coder".' },
+      { title: 'Add Constraints', text: 'Include rules: "Never suggest deprecated methods", "Always include error handling in code examples".' },
+      { title: 'Set Audience', text: 'Tell the model who the output is for: "Explain to a student who has never written code before".' },
+      { title: 'Combine Roles', text: 'You can combine roles: "You are a Python tutor who is also an expert in database design".' }
+    ]
+  },
+  {
+    id: 'structured-output',
+    name: 'Structured Output',
+    desc: 'Request the model to return data in a specific structure like JSON, CSV, Markdown table, or XML. Essential for building applications that need to parse LLM output programmatically.',
+    tips: [
+      { title: 'Show the Schema', text: 'Provide an example of the exact JSON structure you want, with field names and types.' },
+      { title: 'Use json_object Mode', text: 'OpenAI supports response_format={"type": "json_object"} to guarantee valid JSON output.' },
+      { title: 'Always Validate', text: 'Even with JSON mode, validate the output with try/except and Pydantic in production.' },
+      { title: 'Escape Carefully', text: 'If your data might contain quotes or special chars, instruct the model to escape them properly.' }
+    ]
+  }
+];
+
+const templates = [
+  {
+    name: 'Summarize Text',
+    technique: 'zero-shot',
+    system: 'You are a concise summarizer. Provide clear, accurate summaries.',
+    user: 'Summarize the following article in 3 bullet points, each under 20 words:\n\n```\n[Paste your article text here]\n```',
+    examples: []
+  },
+  {
+    name: 'Classify Sentiment',
+    technique: 'few-shot',
+    system: 'You are a sentiment classifier. Respond with exactly one word: positive, negative, or neutral.',
+    user: 'Review: "TechPath Institute taught me Python in just 3 months, I got placed at TCS!"\n\nSentiment:',
+    examples: [
+      { user: 'Review: "The food at this restaurant was absolutely delicious!"\n\nSentiment:', assistant: 'positive' },
+      { user: 'Review: "Terrible customer service, waited 2 hours for nothing."\n\nSentiment:', assistant: 'negative' },
+      { user: 'Review: "The hotel room was okay, nothing special about it."\n\nSentiment:', assistant: 'neutral' }
+    ]
+  },
+  {
+    name: 'Solve Math Problem',
+    technique: 'chain-of-thought',
+    system: 'You are a math tutor. Show all steps clearly before giving the final answer.',
+    user: 'A shopkeeper in Bhopal buys 50 notebooks at Rs.30 each and sells them at Rs.45 each. He also pays Rs.200 for transport. What is his total profit?\n\nLet\'s think step by step.',
+    examples: []
+  },
+  {
+    name: 'Code Reviewer',
+    technique: 'role-based',
+    system: 'You are a senior Python developer with 10 years of experience at a top Indian IT company.\n\nRules:\n- Review code for bugs, performance, and readability\n- Suggest improvements with code examples\n- Rate the code quality from 1-10\n- Be constructive and encouraging\n- Point out security issues if any',
+    user: 'Please review this Python function:\n\n```python\ndef get_student_marks(name):\n    students = {"Rahul": 85, "Priya": 92, "Amit": 78}\n    return students[name]\n```',
+    examples: []
+  },
+  {
+    name: 'Extract Data as JSON',
+    technique: 'structured-output',
+    system: 'You are a data extraction assistant. Extract information from text and return it as valid JSON only. Do not include any other text in your response.',
+    user: 'Extract student information from this text and return as JSON:\n\n"Sneha Verma from Indore enrolled in the Python Full Stack course at TechPath Institute on 15th January 2025. Her contact number is 98765-43210 and she paid Rs.45,000 as course fee."\n\nReturn JSON with fields: name, city, course, enrollment_date, phone, fee_paid',
+    examples: []
+  },
+  {
+    name: 'Translate to Hindi',
+    technique: 'zero-shot',
+    system: 'You are a professional English to Hindi translator. Translate accurately while keeping technical terms in English. Use Devanagari script.',
+    user: 'Translate the following text to Hindi:\n\n"Welcome to TechPath Institute. Our Python Full Stack course will teach you web development, API design, and database management in 6 months."',
+    examples: []
+  }
+];
+
+const modelLimits = [
+  { name: '4K', tokens: 4096, color: '#ef4444' },
+  { name: '8K', tokens: 8192, color: '#f59e0b' },
+  { name: '16K', tokens: 16384, color: '#22c55e' },
+  { name: '128K', tokens: 131072, color: '#38bdf8' },
+  { name: '200K', tokens: 204800, color: '#c084fc' }
+];
+
+// ====== STATE ======
+let currentTechnique = 'zero-shot';
+let examplePairs = [];
+
+// ====== INIT ======
+function init() {
+  renderTabs();
+  renderTemplates();
+  selectTechnique('zero-shot');
+
+  document.getElementById('systemPrompt').addEventListener('input', updatePreview);
+  document.getElementById('userMessage').addEventListener('input', updatePreview);
+  document.getElementById('cotCheckbox').addEventListener('change', updatePreview);
+}
+
+// ====== TABS ======
+function renderTabs() {
+  const container = document.getElementById('techniqueTabs');
+  container.innerHTML = techniques.map(t =>
+    '<button class="tab' + (t.id === currentTechnique ? ' active' : '') + '" data-id="' + t.id + '" onclick="selectTechnique(\'' + t.id + '\')">' + t.name + '</button>'
+  ).join('');
+}
+
+function selectTechnique(id) {
+  currentTechnique = id;
+  const tech = techniques.find(t => t.id === id);
+
+  // Update tabs
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.id === id);
+  });
+
+  // Update description
+  document.getElementById('techniqueDesc').textContent = tech.desc;
+
+  // Show/hide CoT option
+  document.getElementById('cotOption').style.display = id === 'chain-of-thought' ? 'block' : 'none';
+
+  // Show/hide examples area
+  const showExamples = id === 'few-shot';
+  document.getElementById('examplesArea').style.display = showExamples ? 'block' : 'none';
+  if (showExamples && examplePairs.length === 0) {
+    addExamplePair();
+  }
+
+  // Update tips
+  renderTips(tech.tips);
+
+  updatePreview();
+}
+
+// ====== EXAMPLE PAIRS ======
+function addExamplePair() {
+  examplePairs.push({ user: '', assistant: '' });
+  renderExamplePairs();
+}
+
+function removeExamplePair(index) {
+  examplePairs.splice(index, 1);
+  renderExamplePairs();
+  updatePreview();
+}
+
+function renderExamplePairs() {
+  const container = document.getElementById('examplePairs');
+  container.innerHTML = examplePairs.map((pair, i) =>
+    '<div class="example-pair">' +
+      '<div class="pair-label">Example ' + (i + 1) + '</div>' +
+      (examplePairs.length > 1 ? '<button class="remove-pair" onclick="removeExamplePair(' + i + ')" title="Remove this example">&times;</button>' : '') +
+      '<label>User</label>' +
+      '<textarea rows="2" placeholder="Example user input..." oninput="updateExamplePair(' + i + ',\'user\',this.value)">' + escapeHtml(pair.user) + '</textarea>' +
+      '<label>Assistant</label>' +
+      '<textarea rows="2" placeholder="Expected assistant response..." oninput="updateExamplePair(' + i + ',\'assistant\',this.value)">' + escapeHtml(pair.assistant) + '</textarea>' +
+    '</div>'
+  ).join('');
+}
+
+function updateExamplePair(index, role, value) {
+  examplePairs[index][role] = value;
+  updatePreview();
+}
+
+// ====== PREVIEW ======
+function updatePreview() {
+  const systemPrompt = document.getElementById('systemPrompt').value.trim();
+  const userMessage = document.getElementById('userMessage').value.trim();
+  const cotChecked = document.getElementById('cotCheckbox').checked;
+
+  let previewHtml = '';
+  let fullText = '';
+
+  // System prompt
+  if (systemPrompt) {
+    previewHtml += '<div class="role-system"><span class="role-label">SYSTEM</span>\n' + escapeHtml(systemPrompt) + '</div>';
+    fullText += systemPrompt;
+  }
+
+  // Few-shot examples
+  if (currentTechnique === 'few-shot') {
+    examplePairs.forEach((pair, i) => {
+      if (pair.user || pair.assistant) {
+        previewHtml += '<hr class="msg-divider">';
+        previewHtml += '<div class="role-example"><span class="role-label">EXAMPLE ' + (i + 1) + ' — USER</span>\n' + escapeHtml(pair.user || '(empty)') + '</div>';
+        previewHtml += '<div class="role-example"><span class="role-label">EXAMPLE ' + (i + 1) + ' — ASSISTANT</span>\n' + escapeHtml(pair.assistant || '(empty)') + '</div>';
+        fullText += '\n' + pair.user + '\n' + pair.assistant;
+      }
+    });
+  }
+
+  // User message
+  if (userMessage) {
+    previewHtml += '<hr class="msg-divider">';
+    let finalUserMsg = userMessage;
+    if (currentTechnique === 'chain-of-thought' && cotChecked) {
+      finalUserMsg = userMessage + (userMessage.endsWith('\n') ? '' : '\n') + '\nLet\'s think step by step.';
+    }
+    previewHtml += '<div class="role-user"><span class="role-label">USER</span>\n' + escapeHtml(finalUserMsg) + '</div>';
+    fullText += '\n' + finalUserMsg;
+  }
+
+  if (!previewHtml) {
+    previewHtml = '<span style="color:var(--text-muted)">Your formatted prompt will appear here as you type...</span>';
+  }
+
+  document.getElementById('promptPreview').innerHTML = previewHtml;
+
+  // Token estimation
+  updateTokenEstimate(fullText);
+}
+
+// ====== TOKEN ESTIMATOR ======
+function updateTokenEstimate(text) {
+  const chars = text.length;
+  const tokens = Math.ceil(chars / 4);
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+  document.getElementById('tokenCount').textContent = tokens.toLocaleString();
+  document.getElementById('charCount').textContent = chars.toLocaleString();
+  document.getElementById('wordCount').textContent = words.toLocaleString();
+
+  // Render bars
+  const barsContainer = document.getElementById('tokenBars');
+  barsContainer.innerHTML = modelLimits.map(limit => {
+    const pct = Math.min((tokens / limit.tokens) * 100, 100);
+    const barColor = pct > 90 ? '#ef4444' : pct > 70 ? '#f59e0b' : limit.color;
+    return '<div class="token-bar-row">' +
+      '<span class="token-bar-label">' + limit.name + '</span>' +
+      '<div class="token-bar-track">' +
+        '<div class="token-bar-fill" style="width:' + pct + '%;background:' + barColor + '"></div>' +
+      '</div>' +
+      '<span class="token-bar-pct">' + pct.toFixed(1) + '%</span>' +
+    '</div>';
+  }).join('');
+}
+
+// ====== TEMPLATES ======
+function renderTemplates() {
+  const container = document.getElementById('templateList');
+  container.innerHTML = templates.map((t, i) =>
+    '<div class="template-item" onclick="loadTemplate(' + i + ')">' +
+      '<span class="t-name">' + t.name + '</span>' +
+      '<span class="t-tech">' + t.technique + '</span>' +
+    '</div>'
+  ).join('');
+}
+
+function loadTemplate(index) {
+  const t = templates[index];
+
+  // Switch technique
+  selectTechnique(t.technique);
+
+  // Fill fields
+  document.getElementById('systemPrompt').value = t.system;
+  document.getElementById('userMessage').value = t.user;
+
+  // Load examples if few-shot
+  if (t.technique === 'few-shot' && t.examples.length > 0) {
+    examplePairs = t.examples.map(e => ({ user: e.user, assistant: e.assistant }));
+    renderExamplePairs();
+  }
+
+  updatePreview();
+  showToast('Template loaded: ' + t.name);
+}
+
+// ====== TIPS ======
+function renderTips(tips) {
+  const container = document.getElementById('tipsArea');
+  container.innerHTML = tips.map(tip =>
+    '<div class="tip"><strong>' + tip.title + '</strong>' + tip.text + '</div>'
+  ).join('');
+}
+
+// ====== ACTIONS ======
+function copyFullPrompt() {
+  const systemPrompt = document.getElementById('systemPrompt').value.trim();
+  const userMessage = document.getElementById('userMessage').value.trim();
+  const cotChecked = document.getElementById('cotCheckbox').checked;
+
+  let fullPrompt = '';
+
+  if (systemPrompt) {
+    fullPrompt += '[System]\n' + systemPrompt + '\n\n';
+  }
+
+  if (currentTechnique === 'few-shot') {
+    examplePairs.forEach((pair, i) => {
+      if (pair.user || pair.assistant) {
+        fullPrompt += '[Example ' + (i + 1) + ' - User]\n' + pair.user + '\n\n';
+        fullPrompt += '[Example ' + (i + 1) + ' - Assistant]\n' + pair.assistant + '\n\n';
+      }
+    });
+  }
+
+  if (userMessage) {
+    let finalMsg = userMessage;
+    if (currentTechnique === 'chain-of-thought' && cotChecked) {
+      finalMsg += '\n\nLet\'s think step by step.';
+    }
+    fullPrompt += '[User]\n' + finalMsg;
+  }
+
+  if (!fullPrompt.trim()) {
+    showToast('Nothing to copy — enter a prompt first');
+    return;
+  }
+
+  navigator.clipboard.writeText(fullPrompt).then(() => {
+    showToast('Copied to clipboard!');
+  }).catch(() => {
+    // Fallback
+    const textarea = document.createElement('textarea');
+    textarea.value = fullPrompt;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    showToast('Copied to clipboard!');
+  });
+}
+
+function resetAll() {
+  document.getElementById('systemPrompt').value = '';
+  document.getElementById('userMessage').value = '';
+  examplePairs = [];
+  if (currentTechnique === 'few-shot') {
+    addExamplePair();
+  }
+  renderExamplePairs();
+  updatePreview();
+  showToast('Reset complete');
+}
+
+// ====== UTILITIES ======
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ====== START ======
+init();
+</script>
+</body>
+</html>

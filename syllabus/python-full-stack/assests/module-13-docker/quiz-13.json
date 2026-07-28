@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "question": "What problem does Docker primarily solve?",
+      "options": [
+        "A) Making websites load faster",
+        "B) The 'it works on my machine' problem — environment inconsistency",
+        "C) Writing Python code automatically",
+        "D) Replacing GitHub for version control"
+      ],
+      "correct_index": 1,
+      "explanation": "Docker packages your app with all its dependencies into a container, ensuring it runs the same way on every machine — solving the classic 'it works on my machine' problem."
+    },
+    {
+      "question": "What is the main difference between a Docker container and a virtual machine (VM)?",
+      "options": [
+        "A) Containers are more expensive to run",
+        "B) VMs share the host OS kernel while containers don't",
+        "C) Containers share the host OS kernel, making them lightweight, while VMs run a full OS each",
+        "D) Containers can only run Linux applications"
+      ],
+      "correct_index": 2,
+      "explanation": "Containers share the host OS kernel and are process-level isolated, making them much lighter (MBs vs GBs) and faster to start (seconds vs minutes) compared to VMs that run a full OS."
+    },
+    {
+      "question": "What is the relationship between a Docker image and a Docker container?",
+      "options": [
+        "A) They are the same thing",
+        "B) An image is a running instance of a container",
+        "C) A container is a running instance of an image",
+        "D) Images can only be downloaded, not created"
+      ],
+      "correct_index": 2,
+      "explanation": "An image is a read-only template (like a recipe), and a container is a running instance created from that image (like the cooked dish). One image can create many containers."
+    },
+    {
+      "question": "Which Dockerfile instruction should always be the first line?",
+      "options": [
+        "A) WORKDIR",
+        "B) RUN",
+        "C) FROM",
+        "D) CMD"
+      ],
+      "correct_index": 2,
+      "explanation": "Every Dockerfile must start with FROM, which specifies the base image to build upon (e.g., FROM python:3.12-slim)."
+    },
+    {
+      "question": "Why should you copy requirements.txt and install dependencies BEFORE copying the rest of your code?",
+      "options": [
+        "A) Python requires it in that order",
+        "B) For Docker layer caching — dependencies rarely change, so this layer stays cached even when code changes",
+        "C) The Dockerfile won't build otherwise",
+        "D) It makes the image smaller"
+      ],
+      "correct_index": 1,
+      "explanation": "Docker caches each layer. Since requirements.txt changes rarely but code changes often, installing deps first means Docker reuses the cached dependency layer on code-only changes, making builds much faster."
+    },
+    {
+      "question": "What does the flag -p 8000:8000 do in 'docker run -p 8000:8000 my-app'?",
+      "options": [
+        "A) Sets the app's password to 8000",
+        "B) Maps port 8000 on the host machine to port 8000 inside the container",
+        "C) Opens 8000 connections to the container",
+        "D) Limits the container to use 8000 MB of memory"
+      ],
+      "correct_index": 1,
+      "explanation": "The -p flag maps ports in the format host:container. So -p 8000:8000 means accessing localhost:8000 on your machine routes traffic to port 8000 inside the container."
+    },
+    {
+      "question": "What is the purpose of a .dockerignore file?",
+      "options": [
+        "A) To list files that Docker should delete after building",
+        "B) To prevent specific files from being sent to the Docker build context",
+        "C) To ignore Docker errors during the build",
+        "D) To list containers that should not be started"
+      ],
+      "correct_index": 1,
+      "explanation": "The .dockerignore file tells Docker which files to exclude from the build context (like .git, .env, node_modules). This makes builds faster and prevents sensitive files from ending up in the image."
+    },
+    {
+      "question": "In Docker Compose, how does one service connect to another by hostname?",
+      "options": [
+        "A) Using localhost",
+        "B) Using the service name defined in docker-compose.yml",
+        "C) Using the container's IP address only",
+        "D) Services cannot communicate with each other"
+      ],
+      "correct_index": 1,
+      "explanation": "Docker Compose creates a network where services can reach each other using their service name as hostname. For example, if your database service is named 'db', the API connects to it at 'db:5432'."
+    },
+    {
+      "question": "What does 'docker compose down -v' do?",
+      "options": [
+        "A) Stops services with verbose output",
+        "B) Stops services and shows the version",
+        "C) Stops services, removes containers, networks, AND deletes volumes (data loss!)",
+        "D) Stops only the services with volumes attached"
+      ],
+      "correct_index": 2,
+      "explanation": "The -v flag with 'docker compose down' removes named volumes along with containers and networks. This means persistent data (like database contents) will be permanently deleted."
+    },
+    {
+      "question": "What is the benefit of a multi-stage Docker build?",
+      "options": [
+        "A) It runs the app in multiple stages for better performance",
+        "B) It uses one stage for building/compiling and a clean stage for the final image, reducing size",
+        "C) It allows running multiple apps in one container",
+        "D) It automatically scales the application"
+      ],
+      "correct_index": 1,
+      "explanation": "Multi-stage builds use a 'builder' stage to install build tools and compile dependencies, then copy only the compiled output to a fresh, slim final image. Build tools like gcc are left behind, dramatically reducing image size."
+    },
+    {
+      "question": "Why should you use '--host 0.0.0.0' when running uvicorn inside a Docker container?",
+      "options": [
+        "A) It makes the app run faster",
+        "B) It is required by Docker to start the container",
+        "C) By default uvicorn binds to 127.0.0.1 (localhost only), which is unreachable from outside the container",
+        "D) It enables HTTPS"
+      ],
+      "correct_index": 2,
+      "explanation": "127.0.0.1 means 'only accept connections from inside this machine.' Inside a container, that means only the container itself can connect. Using 0.0.0.0 makes the app accept connections from any network interface, including the host machine."
+    },
+    {
+      "question": "Which Docker command lets you run a bash shell inside an already running container?",
+      "options": [
+        "A) docker run -it container bash",
+        "B) docker exec -it container bash",
+        "C) docker shell container",
+        "D) docker ssh container"
+      ],
+      "correct_index": 1,
+      "explanation": "'docker exec -it container bash' executes a new command (bash) inside an already running container. 'docker run' would create a new container instead."
+    },
+    {
+      "question": "What is the recommended Python base image for production Dockerfiles?",
+      "options": [
+        "A) python:3.12 (full image, ~900 MB)",
+        "B) python:3.12-slim (~150 MB)",
+        "C) ubuntu:22.04",
+        "D) python:3.12-alpine (~50 MB)"
+      ],
+      "correct_index": 1,
+      "explanation": "python:3.12-slim is the recommended choice for production. It is much smaller than the full image but has better package compatibility than alpine. It provides a good balance of size and reliability."
+    },
+    {
+      "question": "Where should you NEVER store secrets like API keys and database passwords?",
+      "options": [
+        "A) In environment variables passed at runtime",
+        "B) In a .env.local file (added to .gitignore)",
+        "C) Hardcoded in the Dockerfile using ENV instruction",
+        "D) In a secrets manager like Azure Key Vault"
+      ],
+      "correct_index": 2,
+      "explanation": "Secrets in a Dockerfile's ENV instruction get baked into the image layer and are visible via 'docker history'. Anyone who pulls the image can see them. Use runtime environment variables or a secrets manager instead."
+    },
+    {
+      "question": "What is the correct image naming format for pushing to GitHub Container Registry (GHCR)?",
+      "options": [
+        "A) github.com/username/image:tag",
+        "B) ghcr.io/username/image:tag",
+        "C) registry.github.com/username/image:tag",
+        "D) username/image:tag"
+      ],
+      "correct_index": 1,
+      "explanation": "GHCR uses the format ghcr.io/username/image:tag. For example: ghcr.io/rahul2024/fastapi-app:v1.0. The ghcr.io prefix tells Docker to push to GitHub's registry instead of Docker Hub."
+    }
+  ]
+}

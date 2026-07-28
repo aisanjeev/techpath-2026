@@ -1,0 +1,224 @@
+{
+  "questions": [
+    {
+      "question": "What is the Hub-Spoke content model?",
+      "options": [
+        "Creating one type of content and never repurposing it",
+        "One pillar piece of content (hub) broken into smaller pieces (spokes) distributed across platforms",
+        "A social media scheduling tool",
+        "A method of buying backlinks from hub websites"
+      ],
+      "correct_index": 1,
+      "explanation": "The Hub-Spoke model means creating one comprehensive content piece (like a blog or video) and repurposing it into multiple smaller formats — reels, carousels, tweets, etc."
+    },
+    {
+      "question": "In the AIDA copywriting framework, what does the 'I' stand for?",
+      "options": [
+        "Investment",
+        "Interest",
+        "Impression",
+        "Influence"
+      ],
+      "correct_index": 1,
+      "explanation": "AIDA = Attention → Interest → Desire → Action. After grabbing attention, you must build interest by showing the reader why they should care."
+    },
+    {
+      "question": "What does E-E-A-T stand for in Google's content quality guidelines?",
+      "options": [
+        "Engage, Earn, Attract, Track",
+        "Experience, Expertise, Authoritativeness, Trustworthiness",
+        "Edit, Enhance, Advertise, Target",
+        "Email, Engagement, Analytics, Testing"
+      ],
+      "correct_index": 1,
+      "explanation": "E-E-A-T = Experience, Expertise, Authoritativeness, Trustworthiness. Google uses this to evaluate content quality — especially for YMYL (Your Money Your Life) topics."
+    },
+    {
+      "question": "The 4-1-1 rule for social media content means:",
+      "options": [
+        "Post 4 times on Monday, 1 on Tuesday, 1 on Wednesday",
+        "For every 6 posts: 4 educational/entertaining, 1 soft promotion, 1 hard promotion",
+        "Use 4 hashtags, 1 image, 1 CTA per post",
+        "Gain 4 followers, lose 1, gain 1 more"
+      ],
+      "correct_index": 1,
+      "explanation": "The 4-1-1 rule helps balance content: 4 pieces of value-driven content, 1 soft sell (case study, testimonial), and 1 direct promotional post."
+    },
+    {
+      "question": "A nano influencer in India typically has:",
+      "options": [
+        "1,000 - 10,000 followers",
+        "10,000 - 1,00,000 followers",
+        "1,00,000 - 10,00,000 followers",
+        "More than 10,00,000 followers"
+      ],
+      "correct_index": 0,
+      "explanation": "Nano influencers have 1K-10K followers. They offer high engagement rates and authenticity at low cost, making them ideal for local or niche Indian brands."
+    },
+    {
+      "question": "What is the typical cost range for a sponsored Instagram Reel from a micro influencer (10K-1L followers) in India?",
+      "options": [
+        "₹500 - ₹2,000",
+        "₹5,000 - ₹50,000",
+        "₹2,00,000 - ₹5,00,000",
+        "₹10,00,000+"
+      ],
+      "correct_index": 1,
+      "explanation": "Indian micro influencers (10K-1L followers) typically charge ₹5,000 to ₹50,000 per sponsored Reel, depending on their niche, engagement rate, and deliverables."
+    },
+    {
+      "question": "According to ASCI (Advertising Standards Council of India) guidelines, influencers must:",
+      "options": [
+        "Never mention that content is sponsored",
+        "Clearly disclose paid partnerships using labels like #Ad or #Sponsored",
+        "Only promote government-approved products",
+        "Post disclaimers only if the brand asks them to"
+      ],
+      "correct_index": 1,
+      "explanation": "ASCI mandates that influencers must clearly disclose paid partnerships. Labels like #Ad, #Sponsored, or 'Paid Partnership' must be visible — hiding them violates guidelines."
+    },
+    {
+      "question": "Which storytelling framework uses the structure: Problem → Agitate → Solution?",
+      "options": [
+        "AIDA",
+        "PAS",
+        "SMART",
+        "CRAFT"
+      ],
+      "correct_index": 1,
+      "explanation": "PAS = Problem (identify the pain), Agitate (make the pain feel urgent), Solution (present your product/service as the answer). It's highly effective for sales copy."
+    },
+    {
+      "question": "A brand faces backlash on Twitter after a tone-deaf ad campaign. The FIRST step in crisis communication should be:",
+      "options": [
+        "Delete all social media accounts immediately",
+        "Acknowledge the issue quickly, apologize sincerely, and outline corrective action",
+        "Ignore it — people will forget in a week",
+        "Attack the critics and defend the campaign aggressively"
+      ],
+      "correct_index": 1,
+      "explanation": "In a crisis, speed and sincerity matter. Acknowledge the mistake, take responsibility, apologize genuinely, and share what steps you'll take to fix it."
+    },
+    {
+      "question": "Which platform is BEST for B2B (business-to-business) content marketing in India?",
+      "options": [
+        "Instagram",
+        "Pinterest",
+        "LinkedIn",
+        "Snapchat"
+      ],
+      "correct_index": 2,
+      "explanation": "LinkedIn is the top B2B platform with professionals, decision-makers, and business owners. It's ideal for thought leadership, case studies, and professional networking."
+    },
+    {
+      "question": "A content calendar helps marketers by:",
+      "options": [
+        "Automatically posting content without human involvement",
+        "Planning content themes, formats, and publishing dates in advance for consistency",
+        "Guaranteeing viral content every time",
+        "Replacing the need for a content strategy"
+      ],
+      "correct_index": 1,
+      "explanation": "A content calendar organizes your publishing schedule — what to post, when, where, and in what format — ensuring consistency and strategic alignment."
+    },
+    {
+      "question": "Instagram Reels are primarily effective for:",
+      "options": [
+        "Publishing 5,000-word blog articles",
+        "Short-form video content that reaches new audiences through the Explore algorithm",
+        "Sending private business proposals",
+        "Running email campaigns"
+      ],
+      "correct_index": 1,
+      "explanation": "Instagram Reels are short-form videos (up to 90 seconds) that the algorithm pushes to non-followers via Explore, making them powerful for reach and discovery."
+    },
+    {
+      "question": "What type of content works best for Pinterest in the Indian market?",
+      "options": [
+        "Breaking news and political opinions",
+        "Visual inspiration — recipes, fashion, home decor, wedding planning, and DIY ideas",
+        "Long-form academic research papers",
+        "Live sports commentary"
+      ],
+      "correct_index": 1,
+      "explanation": "Pinterest is a visual discovery engine. In India, it's popular for wedding planning, recipes, fashion inspiration, home decor, and DIY projects."
+    },
+    {
+      "question": "A mega influencer has:",
+      "options": [
+        "Less than 1,000 followers",
+        "10,000 - 1,00,000 followers",
+        "1,00,000 - 10,00,000 followers",
+        "More than 10,00,000 followers"
+      ],
+      "correct_index": 3,
+      "explanation": "Mega influencers have 10L+ (1M+) followers — celebrities and top creators. They offer massive reach but lower engagement rates and charge ₹5L-₹50L+ per post."
+    },
+    {
+      "question": "The main difference between content marketing and advertising is:",
+      "options": [
+        "There is no difference — they are the same thing",
+        "Content marketing provides value and builds trust over time; advertising directly promotes and interrupts",
+        "Advertising is free; content marketing always costs money",
+        "Content marketing only works on YouTube"
+      ],
+      "correct_index": 1,
+      "explanation": "Content marketing educates, entertains, or inspires to build long-term trust (pull strategy). Advertising interrupts with direct promotion to drive immediate action (push strategy)."
+    },
+    {
+      "question": "When writing a Facebook ad copy using AIDA, which element creates the 'Desire' phase?",
+      "options": [
+        "A bold headline that stops scrolling",
+        "Statistics about the market size",
+        "Showing benefits, testimonials, or transformation the product delivers",
+        "Adding a 'Shop Now' button"
+      ],
+      "correct_index": 2,
+      "explanation": "The Desire phase makes the reader want the product by showing benefits, social proof (testimonials), or the transformation they'll experience after purchase."
+    },
+    {
+      "question": "An Indian wellness brand wants to launch on YouTube. Which content strategy aligns with platform best practices?",
+      "options": [
+        "Upload one 3-hour unedited video monthly",
+        "Create searchable how-to videos (8-15 min), use Shorts for reach, optimize titles with keywords",
+        "Only upload audio podcasts as video files",
+        "Post Instagram Reels directly on YouTube without any changes"
+      ],
+      "correct_index": 1,
+      "explanation": "YouTube rewards searchable, well-structured content. A mix of longer how-to videos for SEO and Shorts for discovery, with keyword-optimized titles, is the best approach."
+    },
+    {
+      "question": "What is the key risk of NOT disclosing a paid partnership on social media in India?",
+      "options": [
+        "No risk at all — disclosure is optional",
+        "ASCI can issue penalties, the content can be taken down, and brand reputation suffers",
+        "The platform automatically adds a disclosure",
+        "Only international brands need to disclose"
+      ],
+      "correct_index": 1,
+      "explanation": "ASCI enforces disclosure guidelines in India. Non-compliance can lead to content removal, penalties, and loss of audience trust for both the influencer and brand."
+    },
+    {
+      "question": "Which metric is MOST important when selecting a micro influencer for a campaign?",
+      "options": [
+        "Number of followers only",
+        "Engagement rate and audience relevance to your brand",
+        "How many celebrities follow them",
+        "The color scheme of their Instagram feed"
+      ],
+      "correct_index": 1,
+      "explanation": "Engagement rate (likes + comments ÷ followers × 100) and audience alignment matter more than follower count. A relevant, engaged audience drives better ROI."
+    },
+    {
+      "question": "X (formerly Twitter) is most effective for:",
+      "options": [
+        "Posting long-form videos over 30 minutes",
+        "Real-time conversations, trending topics, thought leadership, and customer service",
+        "Selling physical products through a shop feature",
+        "Publishing full research papers"
+      ],
+      "correct_index": 1,
+      "explanation": "X excels at real-time engagement — trending conversations, quick updates, thought leadership threads, and responsive customer service interactions."
+    }
+  ]
+}

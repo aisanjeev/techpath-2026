@@ -66,6 +66,12 @@ class TrainingProgram(Base, TimestampMixin):
         order_by="TrainingModule.display_order",
     )
 
+    batches: Mapped[List["TrainingBatch"]] = relationship(  # noqa: F821
+        "TrainingBatch",
+        secondary="training_batch_programs",
+        back_populates="programs"
+    )
+
     def __repr__(self) -> str:
         return f"<TrainingProgram(id={self.id}, slug='{self.slug}')>"
 

@@ -32,6 +32,7 @@ from app.schemas.training_roster import (
     SyncStatusResponse,
     TrainingBatchResponse,
     TrainingStudentResponse,
+    BatchProgramSummary,
 )
 from app.services.roster.factory import get_roster_provider
 from app.services.roster_sync_service import RosterSyncService
@@ -42,7 +43,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-def _batch_out(batch, program_title: Optional[str] = None) -> TrainingBatchResponse:
+def _batch_out(batch) -> TrainingBatchResponse:
     schedule = None
     if batch.schedule_json:
         try:
@@ -54,8 +55,7 @@ def _batch_out(batch, program_title: Optional[str] = None) -> TrainingBatchRespo
         external_id=batch.external_id,
         name=batch.name,
         code=batch.code,
-        program_id=batch.program_id,
-        program_title=program_title,
+        programs=[BatchProgramSummary(id=p.id, title=p.title) for p in batch.programs],
         start_date=batch.start_date,
         end_date=batch.end_date,
         timezone=batch.timezone,
@@ -105,21 +105,17 @@ async def get_batch(
     if not batch:
         raise NotFoundError("Batch")
 
-    program_title = None
-    if batch.program_id:
-        program = await training_program_crud.get(db, batch.program_id)
-        program_title = program.title if program else None
-    return _batch_out(batch, program_title)
+    return _batch_out(batch)
 
 
 @router.patch("/batches/{batch_id}/program", response_model=TrainingBatchResponse)
-async def link_batch_program(
+async def link_batch_programs(
     batch_id: int,
     payload: LinkProgramRequest,
     db: AsyncSession = Depends(get_db),
     current_admin: User = Depends(get_current_admin_user),
 ) -> TrainingBatchResponse:
-    """Link a batch to the training programme it will be taught from.
+    """Link a batch to the training programmes it will be taught from.
 
     This is the only writable field on a mirrored batch — it is ours, not the external
     system's, and the sync preserves it.
@@ -128,18 +124,19 @@ async def link_batch_program(
     if not batch:
         raise NotFoundError("Batch")
 
-    program_title = None
-    if payload.program_id is not None:
-        program = await training_program_crud.get(db, payload.program_id)
-        if not program:
-            raise NotFoundError("Training programme")
-        program_title = program.title
+    programs = []
+    if payload.program_ids:
+        for p_id in payload.program_ids:
+            program = await training_program_crud.get(db, p_id)
+            if not program:
+                raise NotFoundError(f"Training programme {p_id}")
+            programs.append(program)
 
-    batch.program_id = payload.program_id
+    batch.programs = programs
     db.add(batch)
     await db.flush()
     await db.refresh(batch)
-    return _batch_out(batch, program_title)
+    return _batch_out(batch)
 
 
 @router.patch("/batches/{batch_id}/trainer", response_model=TrainingBatchResponse)
@@ -164,11 +161,7 @@ async def assign_batch_trainer(
     await db.flush()
     await db.refresh(batch)
 
-    program_title = None
-    if batch.program_id:
-        program = await training_program_crud.get(db, batch.program_id)
-        program_title = program.title if program else None
-    return _batch_out(batch, program_title)
+    return _batch_out(batch)
 
 
 @router.patch("/batches/{batch_id}/self-paced", response_model=TrainingBatchResponse)
@@ -187,11 +180,7 @@ async def toggle_batch_self_paced(
     await db.flush()
     await db.refresh(batch)
 
-    program_title = None
-    if batch.program_id:
-        program = await training_program_crud.get(db, batch.program_id)
-        program_title = program.title if program else None
-    return _batch_out(batch, program_title)
+    return _batch_out(batch)
 
 
 @router.get("/batches/{batch_id}/students")

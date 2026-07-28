@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Future-Ready ADCA — 12-Month Syllabus</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink2: #444;
+    --ink3: #777;
+    --paper: #fafaf8;
+    --white: #ffffff;
+    --accent: #2563eb;
+    --accent-light: #dbeafe;
+    --green: #16a34a;
+    --green-light: #dcfce7;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --amber: #d97706;
+    --amber-light: #fef3c7;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --border: #e5e5e2;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--ink);
+    color: #fff;
+    padding: 56px 48px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      -45deg, transparent, transparent 60px,
+      rgba(255,255,255,0.015) 60px, rgba(255,255,255,0.015) 61px
+    );
+  }
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: #60a5fa;
+    margin-bottom: 16px; position: relative;
+  }
+  .hero h1 {
+    font-size: 38px; font-weight: 700; line-height: 1.15;
+    letter-spacing: -0.02em; margin-bottom: 12px; position: relative;
+  }
+  .hero h1 span { color: #60a5fa; }
+  .hero-sub {
+    font-size: 15px; color: #a3a3a3; max-width: 560px;
+    margin-bottom: 32px; position: relative;
+  }
+  .hero-stats {
+    display: flex; gap: 32px; flex-wrap: wrap; position: relative;
+  }
+  .stat { display: flex; flex-direction: column; gap: 2px; }
+  .stat-num { font-size: 22px; font-weight: 700; color: #fff; }
+  .stat-label { font-size: 11px; color: #737373; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ── CAREER TRACKS ── */
+  .section { padding: 40px 48px; }
+  .section-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink3);
+    margin-bottom: 20px;
+  }
+  .tracks-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .track {
+    background: var(--white); border: 0.5px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .track-icon { font-size: 20px; }
+  .track-name { font-size: 13px; font-weight: 600; }
+  .track-roles { font-size: 11px; color: var(--ink3); line-height: 1.5; }
+  .track-salary {
+    font-size: 11px; font-weight: 600; margin-top: 4px;
+    padding: 2px 8px; border-radius: 20px; display: inline-block; width: fit-content;
+  }
+
+  /* ── SEMESTER HEADERS ── */
+  .semester-header {
+    padding: 20px 48px 0;
+    border-top: 0.5px solid var(--border);
+  }
+  .semester-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; padding: 6px 14px;
+    border-radius: 20px; margin-bottom: 6px;
+  }
+  .semester-name { font-size: 20px; font-weight: 700; }
+  .semester-desc { font-size: 13px; color: var(--ink3); margin-top: 4px; }
+
+  /* ── MODULE GRID ── */
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+    gap: 14px;
+    padding: 20px 48px 8px;
+  }
+
+  .module {
+    background: var(--white);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .module-head {
+    padding: 14px 16px 12px;
+    display: flex; align-items: flex-start; gap: 10px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .module-num {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+    color: var(--ink3); min-width: 22px; margin-top: 2px;
+  }
+  .module-meta { flex: 1; }
+  .module-title { font-size: 14px; font-weight: 600; line-height: 1.3; }
+  .module-sub { font-size: 11px; color: var(--ink3); margin-top: 2px; }
+  .module-badge {
+    font-size: 10px; font-weight: 600; padding: 3px 9px;
+    border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+  }
+  .module-body { padding: 12px 16px; }
+  .topic { display: flex; gap: 8px; margin-bottom: 7px; }
+  .topic-dot {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--border); flex-shrink: 0; margin-top: 6px;
+  }
+  .topic-text { font-size: 12px; color: var(--ink2); line-height: 1.45; }
+  .module-footer {
+    padding: 8px 16px 12px;
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 20px;
+    background: var(--paper); border: 0.5px solid var(--border);
+    color: var(--ink3);
+  }
+  .module-duration {
+    font-size: 10px; color: var(--ink3);
+    margin-left: auto; white-space: nowrap; align-self: center;
+  }
+
+  /* badge colors */
+  .b-blue { background: var(--accent-light); color: var(--accent); }
+  .b-green { background: var(--green-light); color: var(--green); }
+  .b-purple { background: var(--purple-light); color: var(--purple); }
+  .b-amber { background: var(--amber-light); color: var(--amber); }
+  .t-blue { background: var(--accent-light); color: var(--accent); }
+  .t-green { background: var(--green-light); color: var(--green); }
+  .t-purple { background: var(--purple-light); color: var(--purple); }
+  .t-amber { background: var(--amber-light); color: var(--amber); }
+  .t-red { background: var(--red-light); color: var(--red); }
+  .s-blue { background: #1e40af; color: #bfdbfe; }
+  .s-green { background: #14532d; color: #bbf7d0; }
+  .s-purple { background: #4c1d95; color: #ddd6fe; }
+  .s-amber { background: #92400e; color: #fde68a; }
+
+  /* track colors */
+  .tr-blue { background: var(--accent-light); color: var(--accent); }
+  .tr-green { background: var(--green-light); color: var(--green); }
+  .tr-purple { background: var(--purple-light); color: var(--purple); }
+  .tr-amber { background: var(--amber-light); color: var(--amber); }
+  .tr-red { background: var(--red-light); color: var(--red); }
+
+  /* ── PROJECTS SECTION ── */
+  .projects-section { padding: 28px 48px; }
+  .projects-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .project-card {
+    background: var(--white); border: 0.5px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .project-phase { font-size: 10px; font-weight: 600; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .project-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .project-desc { font-size: 11px; color: var(--ink3); line-height: 1.5; }
+  .project-stack { margin-top: 8px; display: flex; gap: 4px; flex-wrap: wrap; }
+
+  /* ── OUTCOMES ── */
+  .outcomes { padding: 28px 48px 48px; }
+  .outcome-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .outcome-card {
+    background: var(--ink); color: #fff;
+    border-radius: var(--radius); padding: 20px;
+  }
+  .outcome-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+  .outcome-item { font-size: 12px; color: #a3a3a3; margin-bottom: 5px; display: flex; gap: 8px; }
+  .outcome-item::before { content: '→'; color: #60a5fa; flex-shrink: 0; }
+
+  /* ── LEGEND ── */
+  .legend {
+    padding: 20px 48px;
+    border-top: 0.5px solid var(--border);
+    display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+  }
+  .legend-label { font-size: 11px; color: var(--ink3); font-weight: 500; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink2); }
+
+  @media (max-width: 640px) {
+    .hero, .section, .semester-header, .modules-grid, .projects-section, .outcomes, .legend { padding-left: 20px; padding-right: 20px; }
+    .hero h1 { font-size: 26px; }
+    .hero-stats { gap: 20px; }
+  }
+  @media print {
+    body { background: white; }
+    .module { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Advanced Diploma in Computer Applications</div>
+  <h1>Future-Ready <span>ADCA</span><br>12-Month Syllabus</h1>
+  <p class="hero-sub">
+    A ground-up redesigned ADCA for absolute beginners — built around 2025–26 job market realities, AI integration, and real career outcomes. Not just computer skills. A launchpad.
+  </p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">12</span><span class="stat-label">Months</span></div>
+    <div class="stat"><span class="stat-num">16</span><span class="stat-label">Modules</span></div>
+    <div class="stat"><span class="stat-num">5+</span><span class="stat-label">Career Paths</span></div>
+    <div class="stat"><span class="stat-num">6</span><span class="stat-label">Capstone Projects</span></div>
+    <div class="stat"><span class="stat-num">₹2–8L</span><span class="stat-label">Fresher CTC Range</span></div>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <span class="legend-label">Module type:</span>
+  <div class="legend-item"><span class="module-badge b-blue" style="padding:2px 8px">Foundation</span> Core theory</div>
+  <div class="legend-item"><span class="module-badge b-green" style="padding:2px 8px">Practical</span> Hands-on tools</div>
+  <div class="legend-item"><span class="module-badge b-purple" style="padding:2px 8px">Future-Ready</span> AI / Emerging tech</div>
+  <div class="legend-item"><span class="module-badge b-amber" style="padding:2px 8px">Career-Track</span> Job-specific skills</div>
+</div>
+
+<!-- CAREER TRACKS -->
+<div class="section">
+  <div class="section-title">Career paths this course unlocks</div>
+  <div class="tracks-grid">
+    <div class="track">
+      <div class="track-icon">🎨</div>
+      <div class="track-name">UI/UX Designer</div>
+      <div class="track-roles">Figma · Prototyping · Design Systems · Web Design</div>
+      <span class="track-salary tr-blue">₹3–6L fresher</span>
+    </div>
+    <div class="track">
+      <div class="track-icon">🌐</div>
+      <div class="track-name">Web Developer</div>
+      <div class="track-roles">HTML/CSS/JS · Bootstrap · Python · Django/FastAPI</div>
+      <span class="track-salary tr-green">₹3–8L fresher</span>
+    </div>
+    <div class="track">
+      <div class="track-icon">🤖</div>
+      <div class="track-name">AI Tools Specialist</div>
+      <div class="track-roles">Prompt Engineering · Chatbots · AI Automation</div>
+      <span class="track-salary tr-purple">₹3–6L fresher</span>
+    </div>
+    <div class="track">
+      <div class="track-icon">🗄️</div>
+      <div class="track-name">Backend / Database Dev</div>
+      <div class="track-roles">Python · SQL · APIs · Django/FastAPI</div>
+      <span class="track-salary tr-amber">₹4–8L fresher</span>
+    </div>
+    <div class="track">
+      <div class="track-icon">💼</div>
+      <div class="track-name">Digital Office Executive</div>
+      <div class="track-roles">MS Office · Cloud Tools · AI Productivity</div>
+      <span class="track-salary tr-red">₹2–4L fresher</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SEMESTER 1 — MONTHS 1–3
+═══════════════════════════════════════ -->
+<div class="semester-header">
+  <span class="semester-pill s-blue">Semester 1 &nbsp;·&nbsp; Months 1–3</span>
+  <div class="semester-name">Foundation & Digital Fluency</div>
+  <div class="semester-desc">Build from zero — hardware, software, OS, productivity, and networking. By month 3, students are fully digital-literate and productive.</div>
+</div>
+
+<div class="modules-grid">
+
+  <!-- MODULE 1 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">01</span>
+      <div class="module-meta">
+        <div class="module-title">Computer Fundamentals</div>
+        <div class="module-sub">How computers think, work, and compute</div>
+      </div>
+      <span class="module-badge b-blue">Foundation</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">History and generations of computers; types of computers (analog, digital, hybrid)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Input → Process → Output → Storage cycle; block diagram of a computer</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">CPU, RAM, ROM, Storage — roles and differences explained intuitively</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Number systems: Binary, Decimal, Octal, Hexadecimal + conversions</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Bits, Bytes, KB, MB, GB, TB — data measurement; ASCII & Unicode encoding</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Logic gates: AND, OR, NOT, NAND, NOR (concept + truth tables)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Hardware vs Software; System software vs Application software</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-blue">Theory</span>
+      <span class="tag t-blue">Diagrams</span>
+      <span class="module-duration">3 weeks</span>
+    </div>
+  </div>
+
+  <!-- MODULE 2 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">02</span>
+      <div class="module-meta">
+        <div class="module-title">Operating System — Windows & Linux Basics</div>
+        <div class="module-sub">Mastering your computer environment</div>
+      </div>
+      <span class="module-badge b-green">Practical</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">What is an OS? Functions: process, memory, file, I/O management</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Windows 11: desktop, taskbar, file explorer, settings, control panel</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">File system management: create, copy, move, rename, delete, compress</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Keyboard shortcuts (100+ essential shortcuts for productivity)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Task manager, system properties, startup programs, updates</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Introduction to Linux: terminal, basic commands (ls, cd, mkdir, chmod, sudo)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Installing and managing software; Windows vs Linux comparison</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-green">Hands-on</span>
+      <span class="tag t-green">Lab Practice</span>
+      <span class="module-duration">3 weeks</span>
+    </div>
+  </div>
+
+  <!-- MODULE 3 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">03</span>
+      <div class="module-meta">
+        <div class="module-title">MS Office — The New Era</div>
+        <div class="module-sub">Office 365 + AI-assisted productivity</div>
+      </div>
+      <span class="module-badge b-green">Practical</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Word 365:</b> formatting, styles, mail merge, track changes, copilot-assisted writing</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Excel 365:</b> formulas (VLOOKUP, IF, SUMIF), pivot tables, charts, data validation, macros intro</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>PowerPoint 365:</b> design principles, transitions, animations, AI Designer feature</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Outlook:</b> professional email, calendar, scheduling, meeting links</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Google Workspace:</b> Docs, Sheets, Slides, Drive — real-time collaboration</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Using Copilot AI inside Word/Excel/PowerPoint to draft, summarize, analyze</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">PDF creation, forms, digital signatures, professional resume building</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-green">MS Office 365</span>
+      <span class="tag t-purple">AI Copilot</span>
+      <span class="tag t-green">Google Workspace</span>
+      <span class="module-duration">4 weeks</span>
+    </div>
+  </div>
+
+  <!-- MODULE 4 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">04</span>
+      <div class="module-meta">
+        <div class="module-title">Computer Networks & Internet</div>
+        <div class="module-sub">How the digital world connects</div>
+      </div>
+      <span class="module-badge b-blue">Foundation</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Network types: LAN, WAN, MAN; wired vs wireless; topologies</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">OSI Model (7 layers) and TCP/IP model — simplified, conceptual understanding</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">IP addressing: IPv4, IPv6, subnetting basics, DNS, DHCP</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Protocols: HTTP, HTTPS, FTP, SMTP, SSH — what each does</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Routers, switches, modems, firewalls — role of each device</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">How the internet works: DNS resolution, web requests, CDN</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Cybersecurity basics: threats, firewalls, VPN, HTTPS, 2FA, password hygiene</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-blue">Theory + Lab</span>
+      <span class="tag t-red">Cybersecurity</span>
+      <span class="module-duration">3 weeks</span>
+    </div>
+  </div>
+
+</div><!-- /modules-grid sem1 -->
+
+<!-- ═══════════════════════════════════════
+     SEMESTER 2 — MONTHS 4–6
+═══════════════════════════════════════ -->
+<div class="semester-header" style="margin-top:20px">
+  <span class="semester-pill s-green">Semester 2 &nbsp;·&nbsp; Months 4–6</span>
+  <div class="semester-name">Design, AI Literacy & Front-End Web</div>
+  <div class="semester-desc">Students learn to design interfaces with Figma, understand AI deeply, and write their first real web pages with HTML, CSS & JavaScript.</div>
+</div>
+
+<div class="modules-grid">
+
+  <!-- MODULE 5 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">05</span>
+      <div class="module-meta">
+        <div class="module-title">Figma — UI/UX Design</div>
+        <div class="module-sub">Industry-standard design tool from scratch</div>
+      </div>
+      <span class="module-badge b-amber">Career-Track</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Design fundamentals: color theory, typography, spacing, visual hierarchy</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Figma interface: frames, shapes, layers, auto-layout, constraints</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Components, variants, and reusable design systems</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Wireframing: lo-fi → hi-fi; mobile-first approach</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Prototyping: interactive flows, transitions, animations</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">UX principles: user research basics, personas, usability testing</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Figma AI / Make: AI-generated UI components; developer handoff mode</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Portfolio project: Design a complete mobile app UI (3–5 screens)</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-amber">Figma</span>
+      <span class="tag t-amber">UI/UX</span>
+      <span class="tag t-purple">Figma AI</span>
+      <span class="module-duration">4 weeks</span>
+    </div>
+  </div>
+
+  <!-- MODULE 6 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">06</span>
+      <div class="module-meta">
+        <div class="module-title">Fundamentals of AI</div>
+        <div class="module-sub">Tokens, agents, chatbots & AI assistants — truly understood</div>
+      </div>
+      <span class="module-badge b-purple">Future-Ready</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>How LLMs work:</b> Tokens, embeddings, attention mechanism (intuitive, not maths-heavy)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Prompt Engineering:</b> System prompts, few-shot, chain-of-thought, structured output</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>AI Chatbots:</b> How ChatGPT, Claude, Gemini work; practical comparison</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>AI Agents:</b> What agents are, tool-use, memory, autonomous task execution</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>AI Assistants:</b> Siri, Alexa, Copilot — voice, context, and integration</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Retrieval-Augmented Generation (RAG) — concept; why AI "forgets"</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">AI ethics: hallucinations, bias, data privacy, responsible use</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Intro to APIs: how to call an AI model via API (Anthropic / OpenAI)</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-purple">LLMs</span>
+      <span class="tag t-purple">Prompt Engineering</span>
+      <span class="tag t-purple">Agents</span>
+      <span class="module-duration">3 weeks</span>
+    </div>
+  </div>
+
+  <!-- MODULE 7 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">07</span>
+      <div class="module-meta">
+        <div class="module-title">AI Tools — Practical Mastery</div>
+        <div class="module-sub">Using AI to work 10× faster across every domain</div>
+      </div>
+      <span class="module-badge b-purple">Future-Ready</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Writing & Content:</b> ChatGPT, Claude, Gemini for drafting, editing, summarizing</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Image Generation:</b> Midjourney, DALL-E, Stable Diffusion — prompting for design</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Coding AI:</b> GitHub Copilot, Cursor, Claude Code — AI-assisted development</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Presentation AI:</b> Gamma, Beautiful.ai, Copilot in PowerPoint</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Video & Audio AI:</b> ElevenLabs, HeyGen, Sora (text-to-video concepts)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Data Analysis AI:</b> ChatGPT Code Interpreter, Perplexity for research</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Automation:</b> Zapier + AI, Make.com, n8n — no-code AI workflows</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Building a personal AI toolkit; responsible and ethical use practices</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-purple">20+ AI Tools</span>
+      <span class="tag t-purple">Automation</span>
+      <span class="tag t-purple">No-Code AI</span>
+      <span class="module-duration">3 weeks</span>
+    </div>
+  </div>
+
+  <!-- MODULE 8 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">08</span>
+      <div class="module-meta">
+        <div class="module-title">HTML & CSS — Web Foundations</div>
+        <div class="module-sub">Building real web pages from scratch</div>
+      </div>
+      <span class="module-badge b-amber">Career-Track</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>HTML5:</b> semantic tags, forms, tables, media, accessibility (alt, ARIA)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>CSS3:</b> selectors, box model, flexbox, grid, positioning</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Responsive design: media queries, mobile-first, viewport units</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">CSS variables, transitions, animations, transforms</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Typography on the web: Google Fonts, font stacks, line-height</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">VS Code setup, browser DevTools, debugging HTML/CSS</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Figma → HTML/CSS handoff: translating designs into code</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-amber">HTML5</span>
+      <span class="tag t-amber">CSS3</span>
+      <span class="tag t-amber">Responsive</span>
+      <span class="module-duration">4 weeks</span>
+    </div>
+  </div>
+
+</div><!-- /modules-grid sem2 -->
+
+<!-- ═══════════════════════════════════════
+     SEMESTER 3 — MONTHS 7–9
+═══════════════════════════════════════ -->
+<div class="semester-header" style="margin-top:20px">
+  <span class="semester-pill s-purple">Semester 3 &nbsp;·&nbsp; Months 7–9</span>
+  <div class="semester-name">JavaScript, Python & Databases</div>
+  <div class="semester-desc">The programming core. Students become developers — writing real logic in JS and Python, querying databases, and building dynamic web applications.</div>
+</div>
+
+<div class="modules-grid">
+
+  <!-- MODULE 9 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">09</span>
+      <div class="module-meta">
+        <div class="module-title">JavaScript + Bootstrap</div>
+        <div class="module-sub">Interactivity, logic, and rapid UI frameworks</div>
+      </div>
+      <span class="module-badge b-amber">Career-Track</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>JavaScript core:</b> variables, data types, operators, conditionals, loops</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Functions, scope, closures, arrow functions, array/object methods</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">DOM manipulation: querySelector, events, dynamic HTML updates</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Fetch API, JSON, working with REST APIs (GET/POST requests)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">ES6+: destructuring, spread, template literals, modules, async/await</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Bootstrap 5:</b> grid system, components (navbar, cards, modal, forms)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Building a complete responsive website using JS + Bootstrap</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-amber">JavaScript ES6+</span>
+      <span class="tag t-amber">Bootstrap 5</span>
+      <span class="tag t-amber">REST API</span>
+      <span class="module-duration">5 weeks</span>
+    </div>
+  </div>
+
+  <!-- MODULE 10 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">10</span>
+      <div class="module-meta">
+        <div class="module-title">Python Programming</div>
+        <div class="module-sub">The language of AI, data, and modern backend</div>
+      </div>
+      <span class="module-badge b-amber">Career-Track</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Python setup, syntax, variables, data types, type conversion</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Control flow: if/elif/else, for/while loops, break/continue</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Functions, default args, *args, **kwargs, lambda, recursion</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Data structures: lists, tuples, sets, dictionaries — in depth</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">OOP: classes, objects, inheritance, encapsulation, polymorphism</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">File handling: read/write txt, CSV, JSON files</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Exception handling, modules, pip, virtual environments</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Git & GitHub: version control, branches, pull requests, collaboration</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-amber">Python 3</span>
+      <span class="tag t-amber">OOP</span>
+      <span class="tag t-green">Git & GitHub</span>
+      <span class="module-duration">5 weeks</span>
+    </div>
+  </div>
+
+  <!-- MODULE 11 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">11</span>
+      <div class="module-meta">
+        <div class="module-title">Python Libraries</div>
+        <div class="module-sub">Power tools for data, automation, and AI</div>
+      </div>
+      <span class="module-badge b-purple">Future-Ready</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>NumPy:</b> arrays, math operations, broadcasting — the foundation of data science</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Pandas:</b> DataFrames, CSV/Excel reading, filtering, groupby, merge, clean data</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Matplotlib / Seaborn:</b> charts, plots, dashboards — data visualization</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Requests:</b> calling APIs; scraping with BeautifulSoup (ethical use)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>OpenAI / Anthropic SDK:</b> calling AI APIs with Python programmatically</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Automation:</b> os, shutil, schedule, datetime — automate real tasks</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Mini project: Data analysis report with Pandas + visualization</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-purple">Pandas</span>
+      <span class="tag t-purple">NumPy</span>
+      <span class="tag t-purple">AI SDK</span>
+      <span class="tag t-amber">Data Viz</span>
+      <span class="module-duration">3 weeks</span>
+    </div>
+  </div>
+
+  <!-- MODULE 12 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">12</span>
+      <div class="module-meta">
+        <div class="module-title">Database Design & SQL</div>
+        <div class="module-sub">Storing, querying, and managing real data</div>
+      </div>
+      <span class="module-badge b-amber">Career-Track</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Database concepts: tables, rows, columns, keys, relationships, normalization</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>SQL:</b> SELECT, INSERT, UPDATE, DELETE, WHERE, JOIN (INNER, LEFT, RIGHT)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Aggregate functions: COUNT, SUM, AVG, GROUP BY, HAVING, ORDER BY</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">MySQL / PostgreSQL installation and GUI tools (DBeaver, pgAdmin)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Python + Database: SQLAlchemy ORM, CRUD operations from Python code</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>NoSQL intro:</b> MongoDB, document model, when to use SQL vs NoSQL</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Database design project: ERD for a real-world system (school / e-commerce)</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-amber">MySQL</span>
+      <span class="tag t-amber">PostgreSQL</span>
+      <span class="tag t-purple">MongoDB</span>
+      <span class="tag t-amber">SQLAlchemy</span>
+      <span class="module-duration">4 weeks</span>
+    </div>
+  </div>
+
+</div><!-- /modules-grid sem3 -->
+
+<!-- ═══════════════════════════════════════
+     SEMESTER 4 — MONTHS 10–12
+═══════════════════════════════════════ -->
+<div class="semester-header" style="margin-top:20px">
+  <span class="semester-pill s-amber">Semester 4 &nbsp;·&nbsp; Months 10–12</span>
+  <div class="semester-name">AI-Powered Development & Capstone</div>
+  <div class="semester-desc">The most advanced and differentiating semester. Students build production-level AI-powered web apps using GenAI, FastAPI/Django, and deploy them.</div>
+</div>
+
+<div class="modules-grid">
+
+  <!-- MODULE 13 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">13</span>
+      <div class="module-meta">
+        <div class="module-title">GenAI-Powered Website Development</div>
+        <div class="module-sub">Build websites WITH AI, not just about AI</div>
+      </div>
+      <span class="module-badge b-purple">Future-Ready</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Vibe coding with AI: GitHub Copilot, Cursor, Claude — code generation workflow</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Integrating AI Chat into websites: Claude/OpenAI API + JavaScript frontend</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Building an AI-powered chatbot interface (UI + backend + API)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">AI content generation: auto-summarize, translate, generate descriptions</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Streaming responses from AI APIs (real-time UX like ChatGPT)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">AI-generated images in web pages (Stability AI / DALL-E API)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">No-code AI site builders: Bolt.new, Lovable, Vercel v0 — rapid prototyping</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-purple">Claude API</span>
+      <span class="tag t-purple">OpenAI API</span>
+      <span class="tag t-purple">Vibe Coding</span>
+      <span class="tag t-purple">Bolt.new</span>
+      <span class="module-duration">4 weeks</span>
+    </div>
+  </div>
+
+  <!-- MODULE 14 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">14</span>
+      <div class="module-meta">
+        <div class="module-title">FastAPI & Django — Backend Development</div>
+        <div class="module-sub">Building real APIs and web apps with Python</div>
+      </div>
+      <span class="module-badge b-amber">Career-Track</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>FastAPI:</b> project setup, routes, path/query params, Pydantic models, validation</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">REST API design: GET, POST, PUT, DELETE — CRUD API for a real app</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">JWT authentication, OAuth2 basics, securing API endpoints</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">FastAPI + SQLAlchemy + PostgreSQL: full backend with database</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Django:</b> MVT pattern, models, views, templates, admin panel, ORM</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Django REST Framework (DRF): serializers, viewsets, API routing</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Connecting AI APIs inside FastAPI/Django routes (AI-powered backend)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">API testing with Postman, Swagger UI documentation, error handling</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-amber">FastAPI</span>
+      <span class="tag t-amber">Django</span>
+      <span class="tag t-amber">REST API</span>
+      <span class="tag t-amber">PostgreSQL</span>
+      <span class="module-duration">5 weeks</span>
+    </div>
+  </div>
+
+  <!-- MODULE 15 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">15</span>
+      <div class="module-meta">
+        <div class="module-title">Spec-Kit Development</div>
+        <div class="module-sub">Deployment, DevOps basics & professional delivery</div>
+      </div>
+      <span class="module-badge b-purple">Future-Ready</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">What is a Spec-Kit? Writing technical specs, project documentation, README files</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text"><b>Deployment:</b> Render, Railway, Vercel, Netlify — deploy apps for free</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Docker basics: containers, Dockerfile, docker-compose (conceptual + hands-on)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Cloud intro: AWS / Azure / GCP — S3, EC2, cloud functions (awareness level)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">CI/CD concept: GitHub Actions — automatic deploy on push</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Environment variables, secrets management, .env files best practices</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Domain, hosting, SSL certificates — launching a real website live</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-purple">Docker</span>
+      <span class="tag t-purple">Cloud Deploy</span>
+      <span class="tag t-green">GitHub Actions</span>
+      <span class="tag t-purple">Vercel</span>
+      <span class="module-duration">3 weeks</span>
+    </div>
+  </div>
+
+  <!-- MODULE 16 -->
+  <div class="module">
+    <div class="module-head">
+      <span class="module-num">16</span>
+      <div class="module-meta">
+        <div class="module-title">Career Readiness & Portfolio</div>
+        <div class="module-sub">From student to professional — job-ready</div>
+      </div>
+      <span class="module-badge b-green">Practical</span>
+    </div>
+    <div class="module-body">
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">GitHub portfolio: pin 3–5 strong projects, write great READMEs</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">LinkedIn profile setup: headline, about, skills, project posts</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Resume writing for IT roles (ATS-friendly, keyword optimization)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Freelancing platforms: Fiverr, Upwork, Toptal — how to get first clients</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Technical interview prep: common questions, coding challenges (easy level)</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Mock interviews: HR round + technical round simulation</div></div>
+      <div class="topic"><div class="topic-dot"></div><div class="topic-text">Internship and job hunting strategy: platforms, referrals, cold outreach</div></div>
+    </div>
+    <div class="module-footer">
+      <span class="tag t-green">Portfolio</span>
+      <span class="tag t-green">LinkedIn</span>
+      <span class="tag t-green">Interview Prep</span>
+      <span class="tag t-green">Freelancing</span>
+      <span class="module-duration">2 weeks</span>
+    </div>
+  </div>
+
+</div><!-- /modules-grid sem4 -->
+
+<!-- CAPSTONE PROJECTS -->
+<div class="projects-section">
+  <div class="section-title">6 Capstone Projects — Portfolio Ready</div>
+  <div class="projects-grid">
+
+    <div class="project-card">
+      <div class="project-phase">Month 3 — Sem 1 Project</div>
+      <div class="project-title">🏢 Digital Office Suite</div>
+      <div class="project-desc">Professional resume + interactive Excel dashboard + 10-slide business presentation using MS Office 365 and AI Copilot.</div>
+      <div class="project-stack">
+        <span class="tag t-green">Word 365</span><span class="tag t-green">Excel</span><span class="tag t-purple">Copilot AI</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-phase">Month 6 — Sem 2 Project</div>
+      <div class="project-title">📱 App UI Design + Static Website</div>
+      <div class="project-desc">Complete Figma UI for a food delivery app (5 screens, prototype) + convert one screen to HTML/CSS responsive web page.</div>
+      <div class="project-stack">
+        <span class="tag t-amber">Figma</span><span class="tag t-amber">HTML</span><span class="tag t-amber">CSS</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-phase">Month 7 — AI Project</div>
+      <div class="project-title">🤖 Personal AI Assistant Bot</div>
+      <div class="project-desc">A custom chatbot using Claude/OpenAI API + JavaScript. Handles a specific domain (e.g. student FAQ bot, recipe bot).</div>
+      <div class="project-stack">
+        <span class="tag t-purple">Claude API</span><span class="tag t-amber">JavaScript</span><span class="tag t-amber">HTML/CSS</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-phase">Month 9 — Backend Project</div>
+      <div class="project-title">📊 Data Analysis Web Dashboard</div>
+      <div class="project-desc">Python + Pandas analysis of a real dataset (sales/cricket/IPL stats) → visualization → deployed web page with charts.</div>
+      <div class="project-stack">
+        <span class="tag t-purple">Python</span><span class="tag t-purple">Pandas</span><span class="tag t-amber">Charts</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-phase">Month 10 — Full-Stack Project</div>
+      <div class="project-title">🛒 Full-Stack Web Application</div>
+      <div class="project-desc">A complete web app: Django/FastAPI backend + HTML/JS frontend + PostgreSQL database. Examples: blog, job board, inventory system.</div>
+      <div class="project-stack">
+        <span class="tag t-amber">FastAPI</span><span class="tag t-amber">PostgreSQL</span><span class="tag t-amber">JS</span>
+      </div>
+    </div>
+
+    <div class="project-card">
+      <div class="project-phase">Month 12 — Final Capstone</div>
+      <div class="project-title">🚀 AI-Powered Product — Live & Deployed</div>
+      <div class="project-desc">A production-ready AI web app of student's choice — deployed on Vercel/Render with a custom domain. This becomes the portfolio centerpiece.</div>
+      <div class="project-stack">
+        <span class="tag t-purple">GenAI</span><span class="tag t-amber">Django/FastAPI</span><span class="tag t-purple">Deployed</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CAREER OUTCOMES -->
+<div class="outcomes">
+  <div class="section-title">What students can do after 12 months</div>
+  <div class="outcome-grid">
+    <div class="outcome-card">
+      <div class="outcome-title">🎨 UI/UX & Design Path</div>
+      <div class="outcome-item">Junior UI/UX Designer — ₹3–5L</div>
+      <div class="outcome-item">Figma freelancer on Upwork/Fiverr</div>
+      <div class="outcome-item">Web Designer at digital agency</div>
+      <div class="outcome-item">Product Designer Intern (Series A startup)</div>
+    </div>
+    <div class="outcome-card">
+      <div class="outcome-title">🌐 Web Development Path</div>
+      <div class="outcome-item">Junior Frontend Developer — ₹3–6L</div>
+      <div class="outcome-item">Junior Python/Django Developer — ₹4–8L</div>
+      <div class="outcome-item">Full-Stack Intern at startup</div>
+      <div class="outcome-item">Freelance web developer (₹500–2000/hr)</div>
+    </div>
+    <div class="outcome-card">
+      <div class="outcome-title">🤖 AI Specialist Path</div>
+      <div class="outcome-item">AI Tools Specialist / Prompt Engineer — ₹3–6L</div>
+      <div class="outcome-item">AI Content Strategist</div>
+      <div class="outcome-item">Chatbot Developer / AI Automation Freelancer</div>
+      <div class="outcome-item">Gen AI Developer Intern</div>
+    </div>
+    <div class="outcome-card">
+      <div class="outcome-title">💼 Office & Operations Path</div>
+      <div class="outcome-item">Office Executive / Admin (AI-enabled) — ₹2–3.5L</div>
+      <div class="outcome-item">Data Entry Operator → Data Analyst track</div>
+      <div class="outcome-item">Digital Marketing Executive</div>
+      <div class="outcome-item">Government IT job eligibility (CCC+)</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

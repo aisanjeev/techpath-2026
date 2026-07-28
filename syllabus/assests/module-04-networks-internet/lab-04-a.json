@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Network Exploration and Diagnostics",
+  "description": "Use CMD and PowerShell network commands to investigate your network infrastructure",
+  "tags": [
+    "networking",
+    "cmd",
+    "diagnostics",
+    "ip-address",
+    "dns"
+  ],
+  "status": "draft",
+  "objective": "Students will use network diagnostic commands to map their network, test connectivity, trace routes, perform DNS lookups, and identify active connections",
+  "steps": [
+    {
+      "title": "Find Your Network Identity",
+      "instructions": "Open **Command Prompt** (search 'cmd').\n\n```cmd\nipconfig /all\n```\n\nFind and write down these values:\n- **IPv4 Address** (e.g., 192.168.1.105)\n- **Subnet Mask** (e.g., 255.255.255.0)\n- **Default Gateway** (e.g., 192.168.1.1 — this is your router)\n- **DNS Servers** (e.g., 8.8.8.8)\n- **DHCP Enabled** (Yes/No)\n- **Physical Address (MAC)** (e.g., A4-83-E7-2B-FF-01)\n\nNow find your **public IP** (the IP the world sees):\n```cmd\ncurl ifconfig.me\n```\n\nNotice: Your private IP (192.168.x.x) and public IP are different. Why? Because of NAT (Network Address Translation) — your router translates between them."
+    },
+    {
+      "title": "Test Connectivity",
+      "instructions": "```cmd\n:: Test 1: Can you reach the internet?\nping 8.8.8.8\n```\nThis pings Google's DNS server directly by IP. If this works → your internet connection is fine.\n\n```cmd\n:: Test 2: Can DNS resolve names?\nping google.com\n```\nIf Test 1 works but Test 2 fails → DNS is the problem.\n\n```cmd\n:: Test 3: Can you reach your router?\nping 192.168.1.1\n```\nReplace with your Default Gateway. If this fails → your WiFi/Ethernet connection is broken.\n\n```cmd\n:: Test 4: Speed comparison\nping -n 20 google.com\nping -n 20 8.8.8.8\n```\nCompare average response times. DNS adds a small delay.\n\nDocument: Which test gives the fastest response? Which is slowest?"
+    },
+    {
+      "title": "Trace the Route",
+      "instructions": "```cmd\ntracert google.com\n```\n\nThis shows every router (hop) between your PC and Google's server.\n\nEach line shows:\n```\nHop#  Time1  Time2  Time3  RouterIP/Name\n  1    1ms    1ms    1ms   192.168.1.1      ← Your router\n  2    5ms    4ms    5ms   10.0.0.1         ← ISP's first router\n  3   12ms   11ms   12ms  ...               ← ISP network\n  ...\n  12   35ms   34ms   36ms  142.250.77.110   ← Google's server\n```\n\nQuestions to answer:\n1. How many hops to reach Google?\n2. Which hop has the highest delay? (This is a bottleneck)\n3. Are any hops showing `* * *` (request timed out)? That router blocks traceroute — it's normal.\n\nNow try:\n```cmd\ntracert techpath.biz\n```\nCompare the number of hops."
+    },
+    {
+      "title": "DNS Investigation",
+      "instructions": "```cmd\n:: Look up IP address of a domain\nnslookup google.com\n\n:: Look up using Google's DNS specifically\nnslookup google.com 8.8.8.8\n\n:: Look up TechPath\nnslookup techpath.biz\n\n:: Look up mail server records\nnslookup -type=mx gmail.com\n```\n\nNotice how some domains return multiple IP addresses — this is load balancing (multiple servers handle requests).\n\nNow test DNS speed:\n```cmd\n:: Flush DNS cache first\nipconfig /flushdns\n\n:: Time a DNS lookup\nnslookup google.com\n```\nThe first lookup is slightly slower (not cached). The second lookup is faster (cached)."
+    },
+    {
+      "title": "Active Connections",
+      "instructions": "```cmd\n:: Show all active network connections\nnetstat -an\n```\n\nThis shows:\n- **Local Address** (your IP:port)\n- **Foreign Address** (server IP:port)\n- **State** (ESTABLISHED, LISTENING, TIME_WAIT)\n\nFilter for specific info:\n```cmd\n:: Only established connections\nnetstat -an | findstr ESTABLISHED\n\n:: Connections on port 443 (HTTPS)\nnetstat -an | findstr :443\n\n:: Find which program is using a connection\nnetstat -ano | findstr ESTABLISHED\n```\nThe last column shows PID. Find this PID in Task Manager → Details tab to see which app.\n\nCount your established connections. Each one is an active communication channel — browsers have many because each tab/request is separate.\n\n**Document all findings in your lab report with screenshots.**"
+    }
+  ],
+  "expected_output": "A report containing ipconfig output with key values identified, ping results with analysis, traceroute output with hop analysis, DNS lookup results for multiple domains, and netstat connection count with app identification"
+}

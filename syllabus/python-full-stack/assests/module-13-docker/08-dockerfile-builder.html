@@ -1,0 +1,670 @@
+<title>Dockerfile Builder — Module 13</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #334155;
+  }
+  .header h1 { font-size: 1.6rem; color: #60a5fa; margin-bottom: 4px; }
+  .header p { font-size: 0.85rem; color: #94a3b8; }
+  .app { display: grid; grid-template-columns: 340px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; }
+  @media (max-width: 768px) { .app { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .panel h2 { font-size: 1rem; color: #60a5fa; margin-bottom: 16px; }
+
+  /* Controls */
+  .control-group { margin-bottom: 16px; }
+  .control-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  select, input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    background: #0f172a;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  select:focus, input:focus { outline: none; border-color: #60a5fa; }
+
+  .btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary { background: #3b82f6; color: white; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-danger { background: #ef4444; color: white; font-size: 0.75rem; padding: 4px 8px; }
+  .btn-danger:hover { background: #dc2626; }
+  .btn-success { background: #10b981; color: white; }
+  .btn-success:hover { background: #059669; }
+  .btn-secondary { background: #475569; color: white; }
+  .btn-secondary:hover { background: #64748b; }
+
+  .add-layer-section { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .add-layer-section .btn { font-size: 0.78rem; padding: 7px 12px; }
+
+  /* Layers list */
+  .layers-list { margin-top: 16px; }
+  .layer-item {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .layer-item:hover { border-color: #60a5fa; }
+  .layer-num {
+    background: #334155;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .layer-instruction {
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 0.78rem;
+    color: #93c5fd;
+    font-weight: 600;
+    flex-shrink: 0;
+    min-width: 50px;
+  }
+  .layer-value {
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 0.78rem;
+    color: #cbd5e1;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .layer-size {
+    font-size: 0.7rem;
+    color: #f59e0b;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+  .layer-actions { flex-shrink: 0; }
+
+  /* Dockerfile output */
+  .dockerfile-output {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow-x: auto;
+    min-height: 300px;
+    position: relative;
+  }
+  .dockerfile-output .comment { color: #6b7280; }
+  .dockerfile-output .instruction { color: #60a5fa; font-weight: 700; }
+  .dockerfile-output .value { color: #a5f3fc; }
+  .dockerfile-output .string { color: #86efac; }
+
+  /* Size visualization */
+  .size-viz { margin-top: 20px; }
+  .size-viz h3 { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; }
+  .size-bar-container { margin-bottom: 8px; }
+  .size-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+  }
+  .size-bar-label span:first-child { color: #93c5fd; }
+  .size-bar-label span:last-child { color: #f59e0b; font-weight: 600; }
+  .size-bar-track {
+    height: 12px;
+    background: #1e293b;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .size-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.4s ease;
+  }
+  .total-size {
+    margin-top: 16px;
+    text-align: center;
+    padding: 12px;
+    background: #0f172a;
+    border-radius: 8px;
+    border: 1px solid #334155;
+  }
+  .total-size .number { font-size: 1.8rem; font-weight: 700; color: #60a5fa; }
+  .total-size .label { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
+
+  .output-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: #1e293b;
+    border: 1px solid #475569;
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 420px;
+  }
+  .modal h3 { color: #60a5fa; margin-bottom: 16px; }
+  .modal .control-group { margin-bottom: 12px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 30px;
+    color: #475569;
+    font-size: 0.85rem;
+  }
+
+  .preset-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid #334155; }
+  .preset-section h3 { font-size: 0.85rem; color: #94a3b8; margin-bottom: 10px; }
+  .preset-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+  .preset-btns .btn { font-size: 0.75rem; padding: 6px 10px; }
+</style>
+
+<div class="header">
+  <h1>Dockerfile Builder</h1>
+  <p>TechPath Institute | Module 13 — Docker & Containerization</p>
+</div>
+
+<div class="app">
+  <!-- Left panel: Controls -->
+  <div class="panel">
+    <h2>Configuration</h2>
+
+    <div class="control-group">
+      <label>Base Image</label>
+      <select id="baseImage">
+        <option value="python:3.12-slim" data-size="150">python:3.12-slim (150 MB)</option>
+        <option value="python:3.12" data-size="900">python:3.12 (900 MB)</option>
+        <option value="python:3.12-alpine" data-size="50">python:3.12-alpine (50 MB)</option>
+        <option value="node:20-slim" data-size="200">node:20-slim (200 MB)</option>
+        <option value="node:20-alpine" data-size="130">node:20-alpine (130 MB)</option>
+        <option value="ubuntu:22.04" data-size="77">ubuntu:22.04 (77 MB)</option>
+        <option value="nginx:alpine" data-size="40">nginx:alpine (40 MB)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>Working Directory</label>
+      <input type="text" id="workdir" value="/app" placeholder="/app" />
+    </div>
+
+    <h2 style="margin-top: 20px;">Add Layers</h2>
+    <div class="add-layer-section">
+      <button class="btn btn-primary" onclick="openModal('COPY')">+ COPY</button>
+      <button class="btn btn-primary" onclick="openModal('RUN')">+ RUN</button>
+      <button class="btn btn-primary" onclick="openModal('ENV')">+ ENV</button>
+      <button class="btn btn-primary" onclick="openModal('EXPOSE')">+ EXPOSE</button>
+      <button class="btn btn-primary" onclick="openModal('CMD')">+ CMD</button>
+      <button class="btn btn-primary" onclick="openModal('ARG')">+ ARG</button>
+      <button class="btn btn-primary" onclick="openModal('LABEL')">+ LABEL</button>
+    </div>
+
+    <div class="layers-list" id="layersList">
+      <div class="empty-state">No layers added yet.<br>Click buttons above to add layers.</div>
+    </div>
+
+    <div class="preset-section">
+      <h3>Quick Presets</h3>
+      <div class="preset-btns">
+        <button class="btn btn-secondary" onclick="loadPreset('fastapi')">FastAPI App</button>
+        <button class="btn btn-secondary" onclick="loadPreset('django')">Django App</button>
+        <button class="btn btn-secondary" onclick="loadPreset('flask')">Flask App</button>
+        <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel: Output -->
+  <div>
+    <div class="panel">
+      <h2>Generated Dockerfile</h2>
+      <div class="output-actions">
+        <button class="btn btn-success" onclick="copyDockerfile()">Copy to Clipboard</button>
+      </div>
+      <div class="dockerfile-output" id="dockerfileOutput">
+        <span class="comment"># Select a base image and add layers to generate your Dockerfile</span>
+      </div>
+    </div>
+
+    <div class="panel size-viz" style="margin-top: 16px;">
+      <h2>Estimated Layer Sizes</h2>
+      <div id="sizeViz"></div>
+      <div class="total-size" id="totalSize">
+        <div class="number">0 MB</div>
+        <div class="label">Estimated Total Image Size</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Add Layer</h3>
+    <div id="modalContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="addLayer()">Add Layer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let layers = [];
+  let currentInstruction = '';
+
+  const sizeEstimates = {
+    'COPY requirements.txt .': 1,
+    'COPY . .': 5,
+    'COPY ./app ./app': 3,
+    'COPY package.json .': 1,
+    'COPY package*.json .': 1,
+  };
+
+  function estimateRunSize(cmd) {
+    cmd = cmd.toLowerCase();
+    if (cmd.includes('pip install')) return 80;
+    if (cmd.includes('apt-get install')) return 50;
+    if (cmd.includes('apk add')) return 20;
+    if (cmd.includes('npm install') || cmd.includes('npm ci')) return 120;
+    if (cmd.includes('collectstatic')) return 15;
+    if (cmd.includes('mkdir')) return 0;
+    if (cmd.includes('adduser') || cmd.includes('useradd')) return 0;
+    if (cmd.includes('chmod') || cmd.includes('chown')) return 0;
+    if (cmd.includes('rm -rf')) return 0;
+    return 5;
+  }
+
+  function estimateLayerSize(instruction, value) {
+    if (instruction === 'FROM' || instruction === 'WORKDIR' || instruction === 'EXPOSE' ||
+        instruction === 'CMD' || instruction === 'ENV' || instruction === 'ARG' ||
+        instruction === 'LABEL' || instruction === 'USER' || instruction === 'ENTRYPOINT') {
+      return 0;
+    }
+    if (instruction === 'COPY') {
+      return sizeEstimates[`COPY ${value}`] || 3;
+    }
+    if (instruction === 'RUN') {
+      return estimateRunSize(value);
+    }
+    return 1;
+  }
+
+  function getModalFields(instruction) {
+    switch (instruction) {
+      case 'COPY':
+        return `
+          <div class="control-group">
+            <label>Source (on your machine)</label>
+            <input type="text" id="modalInput1" placeholder="e.g., requirements.txt or . or ./app" value="requirements.txt" />
+          </div>
+          <div class="control-group">
+            <label>Destination (in container)</label>
+            <input type="text" id="modalInput2" placeholder="e.g., . or /app" value="." />
+          </div>`;
+      case 'RUN':
+        return `
+          <div class="control-group">
+            <label>Command</label>
+            <input type="text" id="modalInput1" placeholder="e.g., pip install --no-cache-dir -r requirements.txt" value="pip install --no-cache-dir -r requirements.txt" />
+          </div>`;
+      case 'ENV':
+        return `
+          <div class="control-group">
+            <label>Variable Name</label>
+            <input type="text" id="modalInput1" placeholder="e.g., PYTHONUNBUFFERED" value="PYTHONUNBUFFERED" />
+          </div>
+          <div class="control-group">
+            <label>Value</label>
+            <input type="text" id="modalInput2" placeholder="e.g., 1" value="1" />
+          </div>`;
+      case 'EXPOSE':
+        return `
+          <div class="control-group">
+            <label>Port Number</label>
+            <input type="text" id="modalInput1" placeholder="e.g., 8000" value="8000" />
+          </div>`;
+      case 'CMD':
+        return `
+          <div class="control-group">
+            <label>Command (JSON array format)</label>
+            <input type="text" id="modalInput1" placeholder='e.g., uvicorn app.main:app --host 0.0.0.0 --port 8000' value='uvicorn app.main:app --host 0.0.0.0 --port 8000' />
+          </div>`;
+      case 'ARG':
+        return `
+          <div class="control-group">
+            <label>Argument Name</label>
+            <input type="text" id="modalInput1" placeholder="e.g., APP_VERSION" value="APP_VERSION" />
+          </div>
+          <div class="control-group">
+            <label>Default Value (optional)</label>
+            <input type="text" id="modalInput2" placeholder="e.g., 1.0" value="1.0" />
+          </div>`;
+      case 'LABEL':
+        return `
+          <div class="control-group">
+            <label>Key</label>
+            <input type="text" id="modalInput1" placeholder="e.g., maintainer" value="maintainer" />
+          </div>
+          <div class="control-group">
+            <label>Value</label>
+            <input type="text" id="modalInput2" placeholder="e.g., rahul@techpath.biz" value="rahul@techpath.biz" />
+          </div>`;
+      default:
+        return '';
+    }
+  }
+
+  function openModal(instruction) {
+    currentInstruction = instruction;
+    document.getElementById('modalTitle').textContent = `Add ${instruction} Layer`;
+    document.getElementById('modalContent').innerHTML = getModalFields(instruction);
+    document.getElementById('modalOverlay').classList.add('active');
+    setTimeout(() => document.getElementById('modalInput1')?.focus(), 100);
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+    currentInstruction = '';
+  }
+
+  function addLayer() {
+    const input1 = document.getElementById('modalInput1')?.value?.trim();
+    const input2 = document.getElementById('modalInput2')?.value?.trim();
+    if (!input1) return;
+
+    let value = '';
+    let display = '';
+
+    switch (currentInstruction) {
+      case 'COPY':
+        value = `${input1} ${input2 || '.'}`;
+        display = value;
+        break;
+      case 'RUN':
+        value = input1;
+        display = input1;
+        break;
+      case 'ENV':
+        value = `${input1}=${input2 || ''}`;
+        display = value;
+        break;
+      case 'EXPOSE':
+        value = input1;
+        display = input1;
+        break;
+      case 'CMD':
+        value = input1;
+        display = `["${input1.split(' ').join('", "')}"]`;
+        break;
+      case 'ARG':
+        value = input2 ? `${input1}=${input2}` : input1;
+        display = value;
+        break;
+      case 'LABEL':
+        value = `${input1}="${input2 || ''}"`;
+        display = value;
+        break;
+    }
+
+    layers.push({
+      instruction: currentInstruction,
+      value: value,
+      display: display,
+      size: estimateLayerSize(currentInstruction, value)
+    });
+
+    closeModal();
+    render();
+  }
+
+  function removeLayer(index) {
+    layers.splice(index, 1);
+    render();
+  }
+
+  function render() {
+    renderLayers();
+    renderDockerfile();
+    renderSizeViz();
+  }
+
+  function renderLayers() {
+    const container = document.getElementById('layersList');
+    if (layers.length === 0) {
+      container.innerHTML = '<div class="empty-state">No layers added yet.<br>Click buttons above to add layers.</div>';
+      return;
+    }
+
+    container.innerHTML = layers.map((layer, i) => `
+      <div class="layer-item">
+        <span class="layer-num">${i + 1}</span>
+        <span class="layer-instruction">${layer.instruction}</span>
+        <span class="layer-value" title="${layer.display}">${layer.display}</span>
+        ${layer.size > 0 ? `<span class="layer-size">~${layer.size} MB</span>` : ''}
+        <span class="layer-actions">
+          <button class="btn btn-danger" onclick="removeLayer(${i})">X</button>
+        </span>
+      </div>
+    `).join('');
+  }
+
+  function renderDockerfile() {
+    const baseImage = document.getElementById('baseImage').value;
+    const workdir = document.getElementById('workdir').value || '/app';
+    const output = document.getElementById('dockerfileOutput');
+
+    let lines = [];
+    lines.push({ type: 'comment', text: '# Auto-generated Dockerfile' });
+    lines.push({ type: 'comment', text: '# TechPath Institute | Dockerfile Builder' });
+    lines.push({ type: 'empty' });
+    lines.push({ type: 'comment', text: '# Base image' });
+    lines.push({ type: 'instruction', inst: 'FROM', val: baseImage });
+    lines.push({ type: 'empty' });
+    lines.push({ type: 'comment', text: '# Working directory' });
+    lines.push({ type: 'instruction', inst: 'WORKDIR', val: workdir });
+
+    if (layers.length > 0) {
+      lines.push({ type: 'empty' });
+      lines.push({ type: 'comment', text: '# Application layers' });
+    }
+
+    layers.forEach(layer => {
+      if (layer.instruction === 'CMD') {
+        const parts = layer.value.split(' ');
+        const cmdStr = '["' + parts.join('", "') + '"]';
+        lines.push({ type: 'instruction', inst: layer.instruction, val: cmdStr });
+      } else {
+        lines.push({ type: 'instruction', inst: layer.instruction, val: layer.value });
+      }
+    });
+
+    output.innerHTML = lines.map(line => {
+      if (line.type === 'empty') return '\n';
+      if (line.type === 'comment') return `<span class="comment">${line.text}</span>\n`;
+      return `<span class="instruction">${line.inst}</span> <span class="value">${escapeHtml(line.val)}</span>\n`;
+    }).join('');
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function renderSizeViz() {
+    const baseSelect = document.getElementById('baseImage');
+    const baseSize = parseInt(baseSelect.options[baseSelect.selectedIndex].dataset.size) || 150;
+    const container = document.getElementById('sizeViz');
+    const totalEl = document.getElementById('totalSize');
+
+    const sizeLayers = [
+      { name: 'Base Image (' + baseSelect.value + ')', size: baseSize, color: '#3b82f6' }
+    ];
+
+    layers.forEach((layer, i) => {
+      if (layer.size > 0) {
+        sizeLayers.push({
+          name: `${layer.instruction} ${layer.display.substring(0, 40)}`,
+          size: layer.size,
+          color: ['#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#ef4444'][i % 6]
+        });
+      }
+    });
+
+    const maxSize = Math.max(...sizeLayers.map(l => l.size), 1);
+    const totalSize = sizeLayers.reduce((sum, l) => sum + l.size, 0);
+
+    container.innerHTML = sizeLayers.map(layer => `
+      <div class="size-bar-container">
+        <div class="size-bar-label">
+          <span>${layer.name}</span>
+          <span>~${layer.size} MB</span>
+        </div>
+        <div class="size-bar-track">
+          <div class="size-bar-fill" style="width: ${(layer.size / maxSize) * 100}%; background: ${layer.color};"></div>
+        </div>
+      </div>
+    `).join('');
+
+    totalEl.innerHTML = `
+      <div class="number">~${totalSize} MB</div>
+      <div class="label">Estimated Total Image Size</div>
+    `;
+  }
+
+  function copyDockerfile() {
+    const text = document.getElementById('dockerfileOutput').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = event.target;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy to Clipboard'; }, 2000);
+    });
+  }
+
+  function loadPreset(name) {
+    layers = [];
+    const baseSelect = document.getElementById('baseImage');
+    const workdirInput = document.getElementById('workdir');
+
+    if (name === 'fastapi') {
+      baseSelect.value = 'python:3.12-slim';
+      workdirInput.value = '/app';
+      layers = [
+        { instruction: 'ENV', value: 'PYTHONDONTWRITEBYTECODE=1', display: 'PYTHONDONTWRITEBYTECODE=1', size: 0 },
+        { instruction: 'ENV', value: 'PYTHONUNBUFFERED=1', display: 'PYTHONUNBUFFERED=1', size: 0 },
+        { instruction: 'COPY', value: 'requirements.txt .', display: 'requirements.txt .', size: 1 },
+        { instruction: 'RUN', value: 'pip install --no-cache-dir -r requirements.txt', display: 'pip install --no-cache-dir -r requirements.txt', size: 80 },
+        { instruction: 'COPY', value: './app ./app', display: './app ./app', size: 3 },
+        { instruction: 'EXPOSE', value: '8000', display: '8000', size: 0 },
+        { instruction: 'CMD', value: 'uvicorn app.main:app --host 0.0.0.0 --port 8000', display: '["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]', size: 0 }
+      ];
+    } else if (name === 'django') {
+      baseSelect.value = 'python:3.12-slim';
+      workdirInput.value = '/app';
+      layers = [
+        { instruction: 'ENV', value: 'PYTHONDONTWRITEBYTECODE=1', display: 'PYTHONDONTWRITEBYTECODE=1', size: 0 },
+        { instruction: 'ENV', value: 'PYTHONUNBUFFERED=1', display: 'PYTHONUNBUFFERED=1', size: 0 },
+        { instruction: 'RUN', value: 'apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev && rm -rf /var/lib/apt/lists/*', display: 'apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev && rm -rf /var/lib/apt/lists/*', size: 50 },
+        { instruction: 'COPY', value: 'requirements.txt .', display: 'requirements.txt .', size: 1 },
+        { instruction: 'RUN', value: 'pip install --no-cache-dir -r requirements.txt', display: 'pip install --no-cache-dir -r requirements.txt', size: 80 },
+        { instruction: 'COPY', value: '. .', display: '. .', size: 5 },
+        { instruction: 'RUN', value: 'python manage.py collectstatic --noinput', display: 'python manage.py collectstatic --noinput', size: 15 },
+        { instruction: 'EXPOSE', value: '8000', display: '8000', size: 0 },
+        { instruction: 'CMD', value: 'gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3', display: '["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]', size: 0 }
+      ];
+    } else if (name === 'flask') {
+      baseSelect.value = 'python:3.12-slim';
+      workdirInput.value = '/app';
+      layers = [
+        { instruction: 'ENV', value: 'PYTHONUNBUFFERED=1', display: 'PYTHONUNBUFFERED=1', size: 0 },
+        { instruction: 'COPY', value: 'requirements.txt .', display: 'requirements.txt .', size: 1 },
+        { instruction: 'RUN', value: 'pip install --no-cache-dir -r requirements.txt', display: 'pip install --no-cache-dir -r requirements.txt', size: 60 },
+        { instruction: 'COPY', value: '. .', display: '. .', size: 5 },
+        { instruction: 'EXPOSE', value: '5000', display: '5000', size: 0 },
+        { instruction: 'CMD', value: 'gunicorn app:app --bind 0.0.0.0:5000', display: '["gunicorn", "app:app", "--bind", "0.0.0.0:5000"]', size: 0 }
+      ];
+    }
+    render();
+  }
+
+  function clearAll() {
+    layers = [];
+    document.getElementById('baseImage').value = 'python:3.12-slim';
+    document.getElementById('workdir').value = '/app';
+    render();
+  }
+
+  // Event listeners for live update
+  document.getElementById('baseImage').addEventListener('change', render);
+  document.getElementById('workdir').addEventListener('input', render);
+  document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Enter' && document.getElementById('modalOverlay').classList.contains('active')) addLayer();
+  });
+
+  // Initial render
+  render();
+</script>

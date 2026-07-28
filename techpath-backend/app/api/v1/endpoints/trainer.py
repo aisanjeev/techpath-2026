@@ -55,6 +55,7 @@ from app.schemas.training import (
     ModuleAssetLink,
     TrainingModuleDetail,
     TrainingModuleResponse,
+    LectureAssetResponse,
 )
 from app.schemas.training_roster import (
     StartSessionRequest,
@@ -65,6 +66,7 @@ from app.schemas.training_roster import (
     ToggleRecordingRequest,
     ToggleQuestionsPublicRequest,
     TrainingSessionQuestionResponse,
+    BatchProgramSummary,
 )
 from app.services.classroom import bus, media
 from app.services.classroom.identity import TRAINER_WS_TOKEN_MINUTES, mint_trainer_ws_token
@@ -153,13 +155,12 @@ async def my_batches(
 
     out: List[TrainerBatchSummary] = []
     for batch in batches:
-        program_title = None
+        programs_out = []
         module_count = 0
-        if batch.program_id:
-            program = await training_program_crud.get(db, batch.program_id)
-            if program:
-                program_title = program.title
-                module_count = len(await training_module_crud.list_for_program(db, program.id))
+        if batch.programs:
+            for p in batch.programs:
+                programs_out.append(BatchProgramSummary(id=p.id, title=p.title))
+                module_count += len(await training_module_crud.list_for_program(db, p.id))
         out.append(
             TrainerBatchSummary(
                 id=batch.id,
@@ -172,8 +173,7 @@ async def my_batches(
                 start_date=batch.start_date,
                 end_date=batch.end_date,
                 student_count=batch.student_count,
-                program_id=batch.program_id,
-                program_title=program_title,
+                programs=programs_out,
                 module_count=module_count,
             )
         )
@@ -203,13 +203,30 @@ async def get_my_batch(
         raise NotFoundError("Batch")
     await _assert_owns_batch(db, current_user, batch)
 
-    program_title = None
+    programs_out = []
     module_count = 0
-    if batch.program_id:
-        program = await training_program_crud.get(db, batch.program_id)
-        if program:
-            program_title = program.title
-            module_count = len(await training_module_crud.list_for_program(db, program.id))
+    total_asset_count = 0
+    if batch.programs:
+        for p in batch.programs:
+            program_full = await training_program_crud.get_with_modules_and_assets(db, p.id)
+            if program_full:
+                prog_mod_count = len(program_full.modules)
+                prog_asset_count = sum(len(m.asset_links) for m in program_full.modules)
+                programs_out.append(BatchProgramSummary(
+                    id=p.id, 
+                    title=p.title,
+                    summary=p.summary,
+                    level=p.level,
+                    module_count=prog_mod_count,
+                    asset_count=prog_asset_count
+                ))
+                module_count += prog_mod_count
+                total_asset_count += prog_asset_count
+            else:
+                programs_out.append(BatchProgramSummary(id=p.id, title=p.title))
+
+    sessions = await training_session_crud.list_for_batch(db, batch_id)
+    completed_modules = len(set(s.module_id for s in sessions if s.status == "ended" and s.module_id is not None))
 
     return TrainerBatchSummary(
         id=batch.id,
@@ -222,9 +239,10 @@ async def get_my_batch(
         start_date=batch.start_date,
         end_date=batch.end_date,
         student_count=batch.student_count,
-        program_id=batch.program_id,
-        program_title=program_title,
+        programs=programs_out,
         module_count=module_count,
+        asset_count=total_asset_count,
+        completed_module_count=completed_modules,
     )
 
 
@@ -243,39 +261,72 @@ async def get_my_batch_students(
     return [TrainingStudentResponse.model_validate(s) for s in students]
 
 
-@router.get("/batches/{batch_id}/modules", response_model=List[TrainingModuleResponse])
+@router.get("/batches/{batch_id}/modules", response_model=List[TrainingModuleDetail])
 async def get_my_batch_modules(
     batch_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_trainer_user),
-) -> List[TrainingModuleResponse]:
+) -> List[TrainingModuleDetail]:
     """The modules available to present for this batch, via its linked programme."""
     batch = await training_batch_crud.get(db, batch_id)
     if not batch:
         raise NotFoundError("Batch")
     await _assert_owns_batch(db, current_user, batch)
 
-    if not batch.program_id:
+    if not batch.programs:
         return []
 
-    modules = await training_module_crud.list_for_program(db, batch.program_id)
-    counts = await training_module_crud.asset_counts(db, [m.id for m in modules])
-    return [
-        TrainingModuleResponse(
-            id=m.id,
-            program_id=m.program_id,
-            title=m.title,
-            slug=m.slug,
-            description=m.description,
-            display_order=m.display_order,
-            estimated_minutes=m.estimated_minutes,
-            status=m.status,
-            asset_count=counts.get(m.id, 0),
-            created_at=m.created_at,
-            updated_at=m.updated_at,
+    modules: List[TrainingModule] = []
+    from sqlalchemy.orm import selectinload
+    from sqlalchemy import select
+    from app.models.training import TrainingModule, TrainingModuleAsset
+
+    for p in batch.programs:
+        result = await db.execute(
+            select(TrainingModule)
+            .where(TrainingModule.program_id == p.id)
+            .options(
+                selectinload(TrainingModule.asset_links).selectinload(TrainingModuleAsset.asset)
+            )
+            .order_by(TrainingModule.display_order, TrainingModule.id)
         )
-        for m in modules
-    ]
+        modules.extend(result.scalars().all())
+
+    from app.crud.training import asset_to_response
+
+    response_modules = []
+    for m in modules:
+        assets = []
+        for link in sorted(m.asset_links, key=lambda l: l.display_order):
+            asset_resp = await asset_to_response(db, link.asset, audience="trainer")
+            assets.append(
+                ModuleAssetLink(
+                    id=link.id,
+                    asset_id=link.asset_id,
+                    display_order=link.display_order,
+                    is_required=link.is_required,
+                    notes=link.notes,
+                    asset=asset_resp,
+                )
+            )
+        
+        response_modules.append(
+            TrainingModuleDetail(
+                id=m.id,
+                program_id=m.program_id,
+                title=m.title,
+                slug=m.slug,
+                description=m.description,
+                display_order=m.display_order,
+                estimated_minutes=m.estimated_minutes,
+                status=m.status,
+                asset_count=len(m.asset_links),
+                created_at=m.created_at,
+                updated_at=m.updated_at,
+                assets=assets,
+            )
+        )
+    return response_modules
 
 
 @router.get("/modules/{module_id}", response_model=TrainingModuleDetail)
@@ -292,7 +343,7 @@ async def get_module_for_trainer(
 
     if current_user.role != UserRole.ADMIN.value:
         batches = await training_batch_crud.get_by_trainer_email(db, current_user.email)
-        allowed_program_ids = {b.program_id for b in batches if b.program_id}
+        allowed_program_ids = {p.id for b in batches for p in b.programs}
         if module.program_id not in allowed_program_ids:
             raise ForbiddenError("This module is not part of your assigned programmes")
 
@@ -357,7 +408,7 @@ async def create_session(
         module = await training_module_crud.get(db, payload.module_id)
         if not module:
             raise NotFoundError("Module")
-        if batch.program_id and module.program_id != batch.program_id:
+        if batch.programs and module.program_id not in [p.id for p in batch.programs]:
             raise ValidationError("That module belongs to a different training programme")
 
     session = await training_session_crud.create(
@@ -413,7 +464,7 @@ async def start_session(
     module = await training_module_crud.get(db, module_id)
     if not module:
         raise NotFoundError("Module")
-    if session.batch.program_id and module.program_id != session.batch.program_id:
+    if session.batch.programs and module.program_id not in [p.id for p in session.batch.programs]:
         raise ValidationError("That module belongs to a different training programme")
 
     if session.status != SessionStatus.LIVE.value:

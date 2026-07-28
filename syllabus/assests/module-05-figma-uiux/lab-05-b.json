@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Design a Dashboard Card System with Components & Variants",
+  "description": "Build reusable dashboard UI components with variants for different states",
+  "tags": [
+    "figma",
+    "components",
+    "variants",
+    "dashboard",
+    "design-system"
+  ],
+  "status": "draft",
+  "objective": "Students will create a component-based dashboard card system with variants for different data types and states, then assemble them into a complete dashboard layout",
+  "steps": [
+    {
+      "title": "Create a Stats Card Component",
+      "instructions": "Create a new page in your Figma file → name it \"Dashboard\".\n\nBuild a stats card (280×120):\n1. Rectangle: Fill `#FFFFFF`, border-radius 12, border 1px `#E2E8F0`\n2. Inside, add with Auto Layout (Vertical, padding 20, gap 8):\n   - Label: \"Total Revenue\" — Inter Medium, 14px, `#64748B`\n   - Value: \"₹4,52,000\" — Inter Bold, 28px, `#0F172A`\n   - Change indicator: \"↑ 12% from last month\" — Inter Regular, 13px, `#10B981` (green)\n3. Add a subtle icon placeholder (40×40 rounded rectangle, `#EEF2FF`) in the top-right corner\n\nSelect the entire card → **Ctrl+Alt+K** (Create Component).\nRename to **\"Stats Card\"**.\n\nNow create **Variants** (select component → right panel → Add Variant):\n- **Default**: Green change text (positive) — \"↑ 12%\"\n- **Negative**: Red change text — \"↓ 5%\" in `#EF4444`\n- **Neutral**: Gray change text — \"— No change\" in `#64748B`\n\nLabel the variant property as \"trend\" with values: positive, negative, neutral."
+    },
+    {
+      "title": "Create a Table Row Component",
+      "instructions": "Build a data table row (full width × 52):\n1. Use Auto Layout (Horizontal)\n2. Add 5 cells with fixed widths:\n   - Name: \"Rahul Sharma\" — 180px, Inter Regular, 14px\n   - Course: \"ADCA\" — 100px\n   - Amount: \"₹35,000\" — 100px, right-aligned\n   - Status: \"Active\" badge (pill shape) — 80px\n   - Date: \"23-Jul-2026\" — 120px\n3. Bottom border: 1px `#F1F5F9`\n\nStatus badge variants:\n- **Active**: background `#DCFCE7`, text `#16A34A`\n- **Pending**: background `#FEF9C3`, text `#CA8A04`\n- **Completed**: background `#DBEAFE`, text `#2563EB`\n\nCreate component with \"status\" variant property.\n\nDuplicate the row component to create a **Header Row** variant:\n- Bold text, background `#F8FAFC`, no bottom border\n- Font: Inter SemiBold"
+    },
+    {
+      "title": "Create a Chart Placeholder",
+      "instructions": "Build a chart card (560×320):\n1. White rectangle with border-radius 12 and border\n2. Title section (Auto Layout horizontal):\n   - \"Revenue Overview\" — Inter SemiBold, 16px\n   - Spacer (fill)\n   - Period selector: \"Last 7 days ▾\" — 14px, `#64748B`\n3. Chart area: Rectangle 520×240, fill `#F8FAFC`\n   - Draw simple bar shapes to simulate a bar chart\n   - Or add text \"Chart.js / Recharts will render here\"\n4. X-axis labels: Mon, Tue, Wed, Thu, Fri, Sat, Sun\n\nCreate a second variant for **Line Chart** style.\n\nFor real projects, this placeholder gets replaced with actual chart libraries (Chart.js, Recharts) during development."
+    },
+    {
+      "title": "Assemble the Dashboard",
+      "instructions": "Create a frame: **Desktop (1440×900)** or custom 1280×900.\n\nBackground: `#F1F5F9`\n\nBuild the layout:\n\n**Top bar (full width × 64):**\n- White background\n- Logo left, search bar center, user avatar right\n\n**Sidebar (240 × full height):**\n- Dark background `#0F172A`\n- Nav items: Dashboard, Students, Courses, Reports, Settings\n- Active item highlighted with `#6366F1` background\n\n**Main content area:**\n1. Page title: \"Dashboard\" — Inter Bold, 24px\n2. Stats cards row: Place 4 instances of Stats Card\n   - Total Revenue, Total Students, Active Courses, Completion Rate\n   - Use different \"trend\" variants (positive, negative, neutral)\n3. Chart section: 2 chart cards side by side\n4. Table section: Title \"Recent Enrollments\" + header row + 5 data rows\n   - Use different \"status\" variants\n\nUse Auto Layout for the main content:\n- Vertical direction\n- Gap: 24 between sections"
+    },
+    {
+      "title": "Export and Handoff",
+      "instructions": "1. **Select any component** → check the right panel **Design** tab\n   - Note all spacing values, colors, and font specs\n   - This is what developers will read\n\n2. **Export assets:**\n   - Select the logo → Export as SVG\n   - Select an icon → Export as SVG\n   - Select the full dashboard → Export as 1x PNG\n\n3. **Create a handoff page:**\n   - New Figma page → \"Developer Specs\"\n   - List all colors used with hex codes\n   - List all fonts and sizes\n   - List spacing values (padding, gaps)\n   - Add any notes for the developer\n\n4. **Share the file:**\n   - Click Share → change access to \"Anyone with the link can view\"\n   - Copy the link\n\n**Submit:** Figma share link + exported dashboard PNG."
+    }
+  ],
+  "expected_output": "A Figma file containing reusable component library (Stats Card with 3 variants, Table Row with status variants, Chart placeholders) assembled into a complete admin dashboard layout with proper design system documentation"
+}
