@@ -1,0 +1,38 @@
+{
+  "asset_type": "lab",
+  "title": "Build a Django App with Admin Panel and API",
+  "description": "Create a Django project with models, admin panel, and basic API views for student management",
+  "tags": [
+    "django",
+    "python",
+    "admin",
+    "orm",
+    "api"
+  ],
+  "status": "draft",
+  "objective": "Students will create a Django project, define models, run migrations, use the built-in admin panel to manage data, and create simple API views that return JSON",
+  "steps": [
+    {
+      "title": "Create Django Project",
+      "instructions": "Install Django and create the project:\n```bash\npip install django\ndjango-admin startproject institute\ncd institute\npython manage.py startapp students\n```\n\nAdd `'students'` to `INSTALLED_APPS` in `institute/settings.py`:\n```python\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'students',  # add this line\n]\n```\n\nRun the server:\n```bash\npython manage.py runserver\n```\n\nOpen http://localhost:8000 — you should see the Django welcome page."
+    },
+    {
+      "title": "Define Models and Run Migrations",
+      "instructions": "In `students/models.py`:\n```python\nfrom django.db import models\n\nclass Course(models.Model):\n    name = models.CharField(max_length=100, unique=True)\n    duration_months = models.IntegerField()\n    fee = models.IntegerField()\n\n    def __str__(self):\n        return self.name\n\nclass Student(models.Model):\n    name = models.CharField(max_length=100)\n    email = models.EmailField(unique=True)\n    phone = models.CharField(max_length=10, blank=True)\n    course = models.ForeignKey(Course, on_delete=models.CASCADE)\n    marks = models.IntegerField(default=0)\n    city = models.CharField(max_length=50, blank=True)\n    created_at = models.DateTimeField(auto_now_add=True)\n\n    def __str__(self):\n        return f\"{self.name} ({self.course.name})\"\n\n    class Meta:\n        ordering = ['-created_at']\n```\n\nCreate and apply migrations:\n```bash\npython manage.py makemigrations\npython manage.py migrate\n```\n\nYou should see output like: `Applying students.0001_initial... OK`"
+    },
+    {
+      "title": "Set Up Admin Panel",
+      "instructions": "Register models in `students/admin.py`:\n```python\nfrom django.contrib import admin\nfrom .models import Student, Course\n\n@admin.register(Course)\nclass CourseAdmin(admin.ModelAdmin):\n    list_display = ['name', 'duration_months', 'fee']\n\n@admin.register(Student)\nclass StudentAdmin(admin.ModelAdmin):\n    list_display = ['name', 'email', 'course', 'marks', 'city']\n    list_filter = ['course', 'city']\n    search_fields = ['name', 'email']\n```\n\nCreate a superuser:\n```bash\npython manage.py createsuperuser\n```\nEnter: username `admin`, email `admin@techpath.biz`, password `admin123`\n\nOpen http://localhost:8000/admin/ → log in with your credentials.\n\nUsing the admin panel:\n1. Add 3 courses (ADCA, DCA, Tally Pro)\n2. Add 5 students with different courses and cities\n3. Try the search and filter features\n\nScreenshot the admin panel with your data."
+    },
+    {
+      "title": "Create API Views",
+      "instructions": "In `students/views.py`:\n```python\nfrom django.http import JsonResponse\nfrom .models import Student, Course\n\ndef student_list(request):\n    students = Student.objects.select_related('course').all()\n\n    course_filter = request.GET.get('course')\n    if course_filter:\n        students = students.filter(course__name__iexact=course_filter)\n\n    data = []\n    for s in students:\n        data.append({\n            'id': s.id,\n            'name': s.name,\n            'email': s.email,\n            'course': s.course.name,\n            'marks': s.marks,\n            'city': s.city,\n        })\n\n    return JsonResponse({'success': True, 'total': len(data), 'data': data})\n\ndef course_list(request):\n    courses = Course.objects.all()\n    data = [{'id': c.id, 'name': c.name, 'fee': c.fee, 'duration': c.duration_months} for c in courses]\n    return JsonResponse({'success': True, 'data': data})\n```\n\nCreate `students/urls.py`:\n```python\nfrom django.urls import path\nfrom . import views\n\nurlpatterns = [\n    path('api/students/', views.student_list),\n    path('api/courses/', views.course_list),\n]\n```\n\nInclude in `institute/urls.py`:\n```python\nfrom django.contrib import admin\nfrom django.urls import path, include\n\nurlpatterns = [\n    path('admin/', admin.site.urls),\n    path('', include('students.urls')),\n]\n```\n\nTest in browser:\n- http://localhost:8000/api/students/ — all students as JSON\n- http://localhost:8000/api/students/?course=ADCA — filtered by course\n- http://localhost:8000/api/courses/ — all courses"
+    },
+    {
+      "title": "Add Statistics and Test with Shell",
+      "instructions": "Add a stats view in `students/views.py`:\n```python\nfrom django.db.models import Avg, Max, Min, Count\n\ndef student_stats(request):\n    stats = Student.objects.aggregate(\n        total=Count('id'),\n        avg_marks=Avg('marks'),\n        max_marks=Max('marks'),\n        min_marks=Min('marks'),\n    )\n    course_stats = list(\n        Student.objects.values('course__name')\n        .annotate(count=Count('id'), avg=Avg('marks'))\n        .order_by('-avg')\n    )\n    return JsonResponse({\n        \"success\": True,\n        \"data\": {\"overview\": stats, \"by_course\": course_stats}\n    })\n```\n\nAdd the URL:\n```python\npath('api/stats/', views.student_stats),\n```\n\nAlso try the Django shell:\n```bash\npython manage.py shell\n```\n```python\nfrom students.models import Student, Course\nStudent.objects.count()\nStudent.objects.filter(city=\"Bhopal\")\nStudent.objects.order_by(\"-marks\")[:3]\nCourse.objects.annotate(num_students=Count(\"students\")).values(\"name\", \"num_students\")\n```\n\nTest all endpoints:\n- `/api/students/` — returns all students\n- `/api/students/?course=ADCA` — filtered\n- `/api/courses/` — all courses\n- `/api/stats/` — aggregate statistics\n\n**Submit:** Your Django project folder + screenshots of admin panel, API responses, and shell queries."
+    }
+  ],
+  "starter_code": "# After running:\n# django-admin startproject institute\n# cd institute\n# python manage.py startapp students\n\n# Edit students/models.py, students/admin.py, students/views.py\n# Then: python manage.py makemigrations && python manage.py migrate",
+  "expected_output": "A Django project with Course and Student models, admin panel with search/filter, and 2 API endpoints returning JSON — with data managed through the built-in admin interface"
+}

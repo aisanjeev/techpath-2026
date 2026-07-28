@@ -1,0 +1,76 @@
+{
+  "questions": [
+    {
+      "question": "What is JavaScript used for in web development?",
+      "options": ["Styling web pages", "Making web pages interactive", "Creating database tables", "Deploying websites"],
+      "correct_index": 1,
+      "explanation": "JavaScript makes web pages interactive — handling clicks, form validation, animations, dynamic content changes."
+    },
+    {
+      "question": "Which keyword should you use to declare a variable that won't change?",
+      "options": ["var", "let", "const", "static"],
+      "correct_index": 2,
+      "explanation": "Use 'const' for values that won't change. Use 'let' only when the value needs to change. Avoid 'var'."
+    },
+    {
+      "question": "What does === check in JavaScript?",
+      "options": ["Only value", "Only type", "Both value AND type", "Nothing"],
+      "correct_index": 2,
+      "explanation": "=== (strict equality) checks both value AND type. '5' === 5 is false (string vs number). Always use === over ==."
+    },
+    {
+      "question": "What is the output of: console.log(typeof 42)?",
+      "options": ["integer", "number", "string", "float"],
+      "correct_index": 1,
+      "explanation": "JavaScript has only one number type called 'number' — no separate integer or float types."
+    },
+    {
+      "question": "How do you add an element to the end of an array?",
+      "options": ["array.add(item)", "array.push(item)", "array.append(item)", "array.insert(item)"],
+      "correct_index": 1,
+      "explanation": "array.push(item) adds an item to the end. array.pop() removes the last item."
+    },
+    {
+      "question": "What is a template literal in JavaScript?",
+      "options": ["A string using backticks with ${} for variables", "A type of loop", "A CSS template", "A function template"],
+      "correct_index": 0,
+      "explanation": "Template literals use backticks (`) and ${variable} for easy string building: `Hello, ${name}!`"
+    },
+    {
+      "question": "What does document.querySelector('.card') select?",
+      "options": ["All elements with class 'card'", "The first element with class 'card'", "The element with id 'card'", "All card tags"],
+      "correct_index": 1,
+      "explanation": "querySelector returns the FIRST matching element. Use querySelectorAll to get ALL matching elements."
+    },
+    {
+      "question": "How many columns does Bootstrap's grid system have?",
+      "options": ["6", "10", "12", "16"],
+      "correct_index": 2,
+      "explanation": "Bootstrap divides the page into 12 columns. col-6 = 50% width, col-4 = 33.3%, col-3 = 25%."
+    },
+    {
+      "question": "Which Bootstrap class creates a blue button?",
+      "options": ["btn-blue", "btn-primary", "button-blue", "btn-info"],
+      "correct_index": 1,
+      "explanation": "btn-primary creates a blue button. Bootstrap uses color names: primary (blue), success (green), danger (red)."
+    },
+    {
+      "question": "What does 'col-md-6' mean in Bootstrap?",
+      "options": ["6px margin on medium screens", "6 columns wide on medium screens and up", "6 items in a row", "Medium padding of 6"],
+      "correct_index": 1,
+      "explanation": "col-md-6 means take 6 out of 12 columns (50% width) on medium screens (768px) and up."
+    },
+    {
+      "question": "Which array method creates a new array by transforming each item?",
+      "options": ["forEach", "filter", "map", "find"],
+      "correct_index": 2,
+      "explanation": "map() creates a new array by applying a function to each item. [1,2,3].map(x => x*2) returns [2,4,6]."
+    },
+    {
+      "question": "What is the arrow function syntax for: function add(a,b) { return a+b; }?",
+      "options": ["add = (a,b) -> a+b", "const add = (a,b) => a+b", "const add = (a,b) >> a+b", "add => (a,b) = a+b"],
+      "correct_index": 1,
+      "explanation": "Arrow functions: const add = (a, b) => a + b; Shorter syntax for simple functions."
+    }
+  ]
+}

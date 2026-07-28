@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Figma Basics — Build a Login Screen Step by Step",
+  "description": "Create a professional mobile login screen in Figma from scratch, learning frames, shapes, text, Auto Layout, and components",
+  "tags": [
+    "figma",
+    "ui-design",
+    "mobile",
+    "login",
+    "auto-layout"
+  ],
+  "status": "draft",
+  "objective": "Students will create a complete mobile login screen in Figma using frames, Auto Layout, components, and proper design principles",
+  "steps": [
+    {
+      "title": "Create the Frame",
+      "instructions": "Open Figma → create a new design file.\n\nPress **F** (Frame tool) → on the right panel, select **iPhone 14 (390 × 844)**.\n\nSet the background color to `#F8FAFC` (light gray).\n\nRename the frame to \"Login Screen\" in the left panel (double-click the name)."
+    },
+    {
+      "title": "Add the Logo Section",
+      "instructions": "Press **R** (Rectangle) → draw a 64×64 square inside the frame.\n- Corner radius: 16\n- Fill: `#6366F1` (indigo)\n\nPress **T** (Text) → type \"T\" on top of the rectangle.\n- Font: Inter Bold, 32px\n- Color: White\n- Center it on the rectangle\n\nSelect both (rectangle + text) → **Ctrl+G** to group → rename to \"Logo\".\n\nPress **T** again → below the logo, type:\n- \"TechPath\" — Inter Bold, 28px, color `#0F172A`\n- \"Welcome back\" — Inter Regular, 16px, color `#64748B`\n\nCenter all three elements horizontally.\n\nSelect Logo + TechPath + Welcome back → right-click → **Add Auto Layout** (Shift+A).\n- Direction: Vertical\n- Gap: 8\n- Alignment: Center\n\nPosition this group in the upper portion of the frame."
+    },
+    {
+      "title": "Build the Input Fields",
+      "instructions": "Create the Email input:\n1. Press **R** → draw a rectangle 342×48\n   - Fill: `#FFFFFF`\n   - Border: 1px solid `#E2E8F0`\n   - Corner radius: 8\n2. Press **T** → type \"Email address\" inside\n   - Font: Inter Regular, 15px\n   - Color: `#94A3B8` (placeholder gray)\n   - Position: 16px from left edge\n3. Select rectangle + text → **Shift+A** (Auto Layout)\n   - Padding: 12 horizontal, 14 vertical\n   - Rename to \"Input - Email\"\n\nDuplicate (Ctrl+D) → change text to \"Password\".\n\nAdd a label above each input:\n- Press **T** → \"Email\" — Inter Medium, 14px, color `#334155`\n- Press **T** → \"Password\" — same style\n\nSelect both labels + inputs → **Shift+A** (Auto Layout)\n- Direction: Vertical\n- Gap: 16\n- Rename to \"Form Fields\""
+    },
+    {
+      "title": "Add Buttons and Links",
+      "instructions": "Create the Login button:\n1. Press **R** → rectangle 342×48\n   - Fill: `#6366F1`\n   - Corner radius: 8\n   - No border\n2. Press **T** → \"Log In\"\n   - Font: Inter SemiBold, 16px\n   - Color: White\n   - Center on rectangle\n3. Select both → **Shift+A** → Center alignment\n   - Rename to \"Button - Primary\"\n   - **Ctrl+Alt+K** → Create Component\n\nBelow the button, add:\n- \"Forgot password?\" — Inter Medium, 14px, color `#6366F1` (link style)\n\nAt the bottom of the screen, add:\n- \"Don't have an account? **Sign Up**\" — Regular text + bold colored text\n  - \"Don't have an account? \" — Inter Regular, 14px, `#64748B`\n  - \"Sign Up\" — Inter SemiBold, 14px, `#6366F1`\n\nSelect Sign Up text together on one line."
+    },
+    {
+      "title": "Final Assembly and Polish",
+      "instructions": "Select ALL elements in the frame (Ctrl+A) → **Shift+A** to add Auto Layout to the entire frame.\n- Direction: Vertical\n- Padding: 48 top, 24 sides, 24 bottom\n- Gap: 32 between major sections\n- Alignment: Center\n\nAdjust spacing:\n- Logo section to Form: 48px gap\n- Form to Button: 24px gap\n- Button to Forgot Password: 16px gap\n- Push \"Don't have an account?\" to bottom using spacer or fixed positioning\n\nFinal touches:\n- Add a subtle shadow to the input fields: Effect → Drop Shadow → X:0, Y:1, Blur:2, `#00000008`\n- Make sure all text is readable and well-spaced\n- Check alignment — everything should be centered or left-aligned consistently\n\nRename your layers properly in the left panel.\n\n**Preview:** Press Ctrl+P (Present) to see it as a real mobile screen.\n\n**Export:** Select the frame → right panel → Export → 2x PNG\n\n**Submit:** Share link (Share → Copy link) + exported PNG."
+    }
+  ],
+  "expected_output": "A professional mobile login screen in Figma with logo, two input fields, login button (as a component), forgot password link, and sign-up link — all built with Auto Layout for responsive behavior"
+}

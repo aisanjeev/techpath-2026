@@ -29,7 +29,7 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
   const [trainers, setTrainers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [linking, setLinking] = useState(false);
-  const [programId, setProgramId] = useState<string>('');
+  const [programIds, setProgramIds] = useState<number[]>([]);
   const [trainerEmail, setTrainerEmail] = useState<string>('');
   const [isSelfPaced, setIsSelfPaced] = useState(false);
   const [assigningTrainer, setAssigningTrainer] = useState(false);
@@ -48,7 +48,7 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
       setStudents(s);
       setPrograms(p.items);
       setTrainers(t.items);
-      setProgramId(b.program_id != null ? String(b.program_id) : '');
+      setProgramIds(b.programs.map((p) => p.id));
       setTrainerEmail(b.trainer_email ?? '');
       setIsSelfPaced(b.is_self_paced ?? false);
     } catch (err) {
@@ -65,12 +65,12 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
   const saveLink = async () => {
     setLinking(true);
     try {
-      const updated = await trainingRosterService.linkProgram(
+      const updated = await trainingRosterService.linkPrograms(
         batchId,
-        programId ? Number(programId) : null
+        programIds
       );
       setBatch(updated);
-      toast.success(programId ? 'Program linked' : 'Program unlinked');
+      toast.success('Programs updated');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not link the programme');
     } finally {
@@ -176,15 +176,29 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
               Decides what the trainer can present to this batch. This is ours — syncing
               never overwrites it.
             </p>
-            <FormField label="Program">
-              <Select value={programId} onChange={(e) => setProgramId(e.target.value)}>
-                <option value="">Not linked</option>
+            <FormField label="Programs">
+              <div className="max-h-48 overflow-y-auto rounded-md border border-gray-200 bg-white p-2 space-y-1">
                 {programs.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.title}
-                  </option>
+                  <label key={p.id} className="flex items-center gap-2 rounded px-2 py-1 hover:bg-gray-50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
+                      checked={programIds.includes(p.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setProgramIds([...programIds, p.id]);
+                        } else {
+                          setProgramIds(programIds.filter((id) => id !== p.id));
+                        }
+                      }}
+                    />
+                    <span className="text-sm text-gray-700">{p.title}</span>
+                  </label>
                 ))}
-              </Select>
+                {programs.length === 0 && (
+                  <span className="text-sm text-gray-500">No programs available</span>
+                )}
+              </div>
             </FormField>
             <Button onClick={saveLink} disabled={linking} className="mt-4 w-full">
               {linking ? 'Saving…' : 'Save link'}

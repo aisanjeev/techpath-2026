@@ -20,6 +20,7 @@ from app.models.training_roster import (
     TrainingSession,
     TrainingStudent,
     TrainingSyncState,
+    batch_programs,
 )
 
 JOIN_CODE_ALPHABET = string.digits
@@ -31,7 +32,9 @@ class CRUDTrainingBatch(CRUDBase[TrainingBatch, Any, Any]):
         self, db: AsyncSession, external_id: str
     ) -> Optional[TrainingBatch]:
         result = await db.execute(
-            select(TrainingBatch).where(TrainingBatch.external_id == external_id)
+            select(TrainingBatch)
+            .where(TrainingBatch.external_id == external_id)
+            .options(selectinload(TrainingBatch.programs))
         )
         return result.scalar_one_or_none()
 
@@ -45,6 +48,7 @@ class CRUDTrainingBatch(CRUDBase[TrainingBatch, Any, Any]):
         )
         if status:
             query = query.where(TrainingBatch.status == status)
+        query = query.options(selectinload(TrainingBatch.programs))
         result = await db.execute(query.order_by(TrainingBatch.start_date.desc()))
         return list(result.scalars().all())
 
@@ -81,6 +85,7 @@ class CRUDTrainingBatch(CRUDBase[TrainingBatch, Any, Any]):
             count_query = count_query.where(cond)
 
         query = query.order_by(TrainingBatch.start_date.desc(), TrainingBatch.id.desc())
+        query = query.options(selectinload(TrainingBatch.programs))
         rows = list((await db.execute(query.offset(skip).limit(limit))).scalars().all())
         total = (await db.execute(count_query)).scalar() or 0
         return rows, total
@@ -474,7 +479,8 @@ class CRUDStudentModuleProgress(CRUDBase[StudentModuleProgress, Any, Any]):
         """
         result = await db.execute(
             select(TrainingProgram, TrainingBatch)
-            .join(TrainingBatch, TrainingBatch.program_id == TrainingProgram.id)
+            .join(batch_programs, batch_programs.c.program_id == TrainingProgram.id)
+            .join(TrainingBatch, TrainingBatch.id == batch_programs.c.batch_id)
             .join(
                 TrainingBatchStudent,
                 TrainingBatchStudent.batch_id == TrainingBatch.id,
@@ -482,7 +488,6 @@ class CRUDStudentModuleProgress(CRUDBase[StudentModuleProgress, Any, Any]):
             .where(
                 TrainingBatchStudent.student_id == student_id,
                 TrainingBatch.is_self_paced.is_(True),
-                TrainingBatch.program_id.isnot(None),
             )
             .order_by(TrainingProgram.title)
         )
@@ -499,11 +504,13 @@ class CRUDStudentModuleProgress(CRUDBase[StudentModuleProgress, Any, Any]):
                 TrainingBatchStudent,
                 TrainingBatchStudent.batch_id == TrainingBatch.id,
             )
+            .join(batch_programs, batch_programs.c.batch_id == TrainingBatch.id)
             .where(
                 TrainingBatchStudent.student_id == student_id,
                 TrainingBatch.is_self_paced.is_(True),
-                TrainingBatch.program_id == program_id,
+                batch_programs.c.program_id == program_id,
             )
+            .options(selectinload(TrainingBatch.programs))
             .limit(1)
         )
         return result.scalar_one_or_none()

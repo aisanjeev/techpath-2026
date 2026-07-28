@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number System Converter — TechPath CCC Module 01</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    color: #3b82f6;
+  }
+  .subtitle {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+  }
+  .card {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid #334155;
+  }
+  .card h2 {
+    color: #3b82f6;
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+  .converter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 600px) {
+    .converter-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 1.4rem; }
+  }
+  .field { margin-bottom: 12px; }
+  .field label {
+    display: block;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 10px 14px;
+    background: #0f172a;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 1rem;
+    font-family: Consolas, monospace;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus, .field select:focus {
+    border-color: #3b82f6;
+  }
+  .field input.error { border-color: #ef4444; }
+  .result-box {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: Consolas, monospace;
+    font-size: 1rem;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    word-break: break-all;
+  }
+  .result-box.highlight {
+    border-color: #22c55e;
+    color: #22c55e;
+  }
+  .btn {
+    display: inline-block;
+    padding: 10px 24px;
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: #2563eb; }
+  .btn-green { background: #22c55e; }
+  .btn-green:hover { background: #16a34a; }
+  .btn-red { background: #ef4444; }
+  .btn-red:hover { background: #dc2626; }
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .steps-box {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 12px;
+    font-family: Consolas, monospace;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    white-space: pre-wrap;
+  }
+  .practice-section { margin-top: 20px; }
+  .question-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .question-card .q-text {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .question-card input {
+    padding: 8px 12px;
+    background: #1e293b;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-family: Consolas, monospace;
+    font-size: 0.95rem;
+    width: 200px;
+    outline: none;
+  }
+  .question-card input:focus { border-color: #3b82f6; }
+  .feedback {
+    display: inline-block;
+    margin-left: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .feedback.correct { color: #22c55e; }
+  .feedback.wrong { color: #ef4444; }
+  .score-bar {
+    text-align: center;
+    font-size: 1.1rem;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 16px;
+    font-weight: 600;
+  }
+  .score-bar.good { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .score-bar.ok { background: rgba(59,130,246,0.15); color: #3b82f6; }
+  .score-bar.bad { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .size-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .size-table th, .size-table td {
+    padding: 8px 12px;
+    border: 1px solid #334155;
+    text-align: left;
+    font-size: 0.9rem;
+  }
+  .size-table th {
+    background: #334155;
+    color: #e2e8f0;
+    font-weight: 600;
+  }
+  .size-table td { font-family: Consolas, monospace; }
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 8px 20px;
+    background: #1e293b;
+    color: #94a3b8;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: #3b82f6;
+    color: #fff;
+    border-color: #3b82f6;
+  }
+  .tab-btn:hover:not(.active) { background: #334155; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Number System Converter</h1>
+  <p class="subtitle">CCC Exam Preparation — Module 01 | TechPath Institute</p>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('converter')">Converter</button>
+    <button class="tab-btn" onclick="switchTab('steps')">Step-by-Step</button>
+    <button class="tab-btn" onclick="switchTab('practice')">Practice Problems</button>
+    <button class="tab-btn" onclick="switchTab('reference')">Quick Reference</button>
+  </div>
+
+  <!-- Tab 1: Converter -->
+  <div id="tab-converter" class="tab-content active">
+    <div class="card">
+      <h2>Convert Between Number Systems</h2>
+      <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:16px;">Enter a number and see its value in all four number systems instantly.</p>
+      <div class="field">
+        <label>Select Input System</label>
+        <select id="inputBase" onchange="convert()">
+          <option value="10">Decimal (Base 10)</option>
+          <option value="2">Binary (Base 2)</option>
+          <option value="8">Octal (Base 8)</option>
+          <option value="16">Hexadecimal (Base 16)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Enter Number</label>
+        <input type="text" id="inputNumber" placeholder="Enter a number..." oninput="convert()" autocomplete="off">
+      </div>
+      <div class="converter-grid">
+        <div>
+          <div class="field">
+            <label>Decimal (Base 10)</label>
+            <div class="result-box" id="resDec">—</div>
+          </div>
+          <div class="field">
+            <label>Binary (Base 2)</label>
+            <div class="result-box" id="resBin">—</div>
+          </div>
+        </div>
+        <div>
+          <div class="field">
+            <label>Octal (Base 8)</label>
+            <div class="result-box" id="resOct">—</div>
+          </div>
+          <div class="field">
+            <label>Hexadecimal (Base 16)</label>
+            <div class="result-box" id="resHex">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Step-by-Step -->
+  <div id="tab-steps" class="tab-content">
+    <div class="card">
+      <h2>Step-by-Step Conversion</h2>
+      <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:16px;">See the detailed steps for converting a decimal number to binary (division method).</p>
+      <div class="field">
+        <label>Enter a Decimal Number (0–255)</label>
+        <input type="number" id="stepInput" min="0" max="255" placeholder="e.g., 13" autocomplete="off">
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="showSteps()">Show Steps</button>
+      </div>
+      <div class="steps-box" id="stepsOutput">Enter a number above and click "Show Steps" to see the conversion process.</div>
+    </div>
+    <div class="card">
+      <h2>Binary to Decimal — Step-by-Step</h2>
+      <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:16px;">See how each binary digit maps to a power of 2.</p>
+      <div class="field">
+        <label>Enter a Binary Number</label>
+        <input type="text" id="binStepInput" placeholder="e.g., 1101" oninput="this.value=this.value.replace(/[^01]/g,'')" autocomplete="off">
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="showBinSteps()">Show Steps</button>
+      </div>
+      <div class="steps-box" id="binStepsOutput">Enter a binary number above and click "Show Steps" to see the conversion process.</div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Practice -->
+  <div id="tab-practice" class="tab-content">
+    <div class="card">
+      <h2>Practice Problems</h2>
+      <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:16px;">Solve these conversions. Type your answer and check. New problems are generated each time.</p>
+      <div class="btn-row" style="margin-bottom:16px;margin-top:0;">
+        <button class="btn" onclick="generateProblems()">New Problems</button>
+        <button class="btn btn-green" onclick="checkAnswers()">Check Answers</button>
+      </div>
+      <div id="problemsContainer"></div>
+      <div id="scoreResult"></div>
+    </div>
+  </div>
+
+  <!-- Tab 4: Reference -->
+  <div id="tab-reference" class="tab-content">
+    <div class="card">
+      <h2>Memory Size Reference Table</h2>
+      <table class="size-table">
+        <tr><th>Unit</th><th>Equals</th><th>Example</th></tr>
+        <tr><td>1 Bit</td><td>0 or 1</td><td>Smallest unit</td></tr>
+        <tr><td>1 Nibble</td><td>4 Bits</td><td>Half a byte</td></tr>
+        <tr><td>1 Byte</td><td>8 Bits</td><td>1 character (letter/digit)</td></tr>
+        <tr><td>1 KB</td><td>1,024 Bytes</td><td>Half a page of text</td></tr>
+        <tr><td>1 MB</td><td>1,024 KB</td><td>1 photo or 1 MP3 song</td></tr>
+        <tr><td>1 GB</td><td>1,024 MB</td><td>1 movie or 250 songs</td></tr>
+        <tr><td>1 TB</td><td>1,024 GB</td><td>250 movies</td></tr>
+        <tr><td>1 PB</td><td>1,024 TB</td><td>Large data centres</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Number System Comparison</h2>
+      <table class="size-table">
+        <tr><th>System</th><th>Base</th><th>Digits Used</th><th>Example (decimal 255)</th></tr>
+        <tr><td>Decimal</td><td>10</td><td>0, 1, 2, 3, 4, 5, 6, 7, 8, 9</td><td>255</td></tr>
+        <tr><td>Binary</td><td>2</td><td>0, 1</td><td>11111111</td></tr>
+        <tr><td>Octal</td><td>8</td><td>0, 1, 2, 3, 4, 5, 6, 7</td><td>377</td></tr>
+        <tr><td>Hexadecimal</td><td>16</td><td>0-9, A, B, C, D, E, F</td><td>FF</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>ASCII Quick Reference</h2>
+      <table class="size-table">
+        <tr><th>Character Range</th><th>ASCII Values</th><th>Key Values</th></tr>
+        <tr><td>A – Z (uppercase)</td><td>65 – 90</td><td>A=65, Z=90</td></tr>
+        <tr><td>a – z (lowercase)</td><td>97 – 122</td><td>a=97, z=122</td></tr>
+        <tr><td>0 – 9 (digits)</td><td>48 – 57</td><td>0=48, 9=57</td></tr>
+        <tr><td>Space</td><td>32</td><td>—</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Powers of 2 (important for conversions)</h2>
+      <table class="size-table">
+        <tr><th>Power</th><th>Value</th><th>Power</th><th>Value</th></tr>
+        <tr><td>2<sup>0</sup></td><td>1</td><td>2<sup>5</sup></td><td>32</td></tr>
+        <tr><td>2<sup>1</sup></td><td>2</td><td>2<sup>6</sup></td><td>64</td></tr>
+        <tr><td>2<sup>2</sup></td><td>4</td><td>2<sup>7</sup></td><td>128</td></tr>
+        <tr><td>2<sup>3</sup></td><td>8</td><td>2<sup>8</sup></td><td>256</td></tr>
+        <tr><td>2<sup>4</sup></td><td>16</td><td>2<sup>10</sup></td><td>1024</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function convert() {
+  const base = parseInt(document.getElementById('inputBase').value);
+  const raw = document.getElementById('inputNumber').value.trim();
+  const inp = document.getElementById('inputNumber');
+
+  if (!raw) {
+    ['resDec','resBin','resOct','resHex'].forEach(id => {
+      document.getElementById(id).textContent = '—';
+      document.getElementById(id).classList.remove('highlight');
+    });
+    inp.classList.remove('error');
+    return;
+  }
+
+  let num;
+  try {
+    num = parseInt(raw, base);
+    if (isNaN(num) || num < 0) throw new Error();
+    // Validate input chars
+    const validChars = {
+      2: /^[01]+$/,
+      8: /^[0-7]+$/,
+      10: /^[0-9]+$/,
+      16: /^[0-9a-fA-F]+$/
+    };
+    if (!validChars[base].test(raw)) throw new Error();
+    inp.classList.remove('error');
+  } catch (e) {
+    inp.classList.add('error');
+    ['resDec','resBin','resOct','resHex'].forEach(id => {
+      document.getElementById(id).textContent = 'Invalid input';
+      document.getElementById(id).classList.remove('highlight');
+    });
+    return;
+  }
+
+  const results = {
+    resDec: num.toString(10),
+    resBin: num.toString(2),
+    resOct: num.toString(8),
+    resHex: num.toString(16).toUpperCase()
+  };
+
+  const baseMap = {10:'resDec', 2:'resBin', 8:'resOct', 16:'resHex'};
+  const inputId = baseMap[base];
+
+  for (const [id, val] of Object.entries(results)) {
+    const el = document.getElementById(id);
+    el.textContent = val;
+    el.classList.toggle('highlight', id !== inputId);
+  }
+}
+
+function showSteps() {
+  const num = parseInt(document.getElementById('stepInput').value);
+  const out = document.getElementById('stepsOutput');
+
+  if (isNaN(num) || num < 0 || num > 255) {
+    out.textContent = 'Please enter a number between 0 and 255.';
+    return;
+  }
+
+  if (num === 0) {
+    out.textContent = 'Decimal 0 = Binary 0\n\nZero is the same in all number systems!';
+    return;
+  }
+
+  let steps = `DECIMAL TO BINARY CONVERSION\n`;
+  steps += `Converting: ${num} (decimal) to binary\n`;
+  steps += `Method: Divide by 2, note remainders\n\n`;
+  steps += `Step | Division      | Quotient | Remainder\n`;
+  steps += `-----|---------------|----------|----------\n`;
+
+  let n = num;
+  let remainders = [];
+  let step = 1;
+  while (n > 0) {
+    const q = Math.floor(n / 2);
+    const r = n % 2;
+    remainders.push(r);
+    steps += `  ${step}  | ${String(n).padStart(3)} ÷ 2 = ${String(q).padStart(3)} | ${String(q).padStart(5)}   | ${r}\n`;
+    n = q;
+    step++;
+  }
+
+  steps += `\nRead remainders from BOTTOM to TOP:\n`;
+  steps += `${remainders.reverse().join('')}\n\n`;
+  steps += `Result: ${num} (decimal) = ${remainders.join('')} (binary)\n\n`;
+  steps += `Verification: `;
+  let verify = [];
+  const binary = remainders;
+  for (let i = 0; i < binary.length; i++) {
+    const power = binary.length - 1 - i;
+    if (binary[i] === 1) {
+      verify.push(`${binary[i]}×2^${power}(=${Math.pow(2, power)})`);
+    }
+  }
+  steps += verify.join(' + ') + ' = ' + num;
+
+  out.textContent = steps;
+}
+
+function showBinSteps() {
+  const raw = document.getElementById('binStepInput').value.trim();
+  const out = document.getElementById('binStepsOutput');
+
+  if (!raw || !/^[01]+$/.test(raw)) {
+    out.textContent = 'Please enter a valid binary number (only 0s and 1s).';
+    return;
+  }
+
+  let steps = `BINARY TO DECIMAL CONVERSION\n`;
+  steps += `Converting: ${raw} (binary) to decimal\n`;
+  steps += `Method: Multiply each bit by its power of 2\n\n`;
+  steps += `Position | Bit | Power of 2 | Value\n`;
+  steps += `---------|-----|-----------|------\n`;
+
+  let total = 0;
+  let parts = [];
+  for (let i = 0; i < raw.length; i++) {
+    const bit = parseInt(raw[i]);
+    const power = raw.length - 1 - i;
+    const value = bit * Math.pow(2, power);
+    total += value;
+    steps += `   ${power}     |  ${bit}  | 2^${power} = ${String(Math.pow(2, power)).padStart(4)} | ${bit} × ${Math.pow(2, power)} = ${value}\n`;
+    if (bit === 1) parts.push(String(value));
+  }
+
+  steps += `\nCalculation: ${parts.length > 0 ? parts.join(' + ') : '0'} = ${total}\n\n`;
+  steps += `Result: ${raw} (binary) = ${total} (decimal)`;
+
+  out.textContent = steps;
+}
+
+// Practice problems
+let problems = [];
+
+function generateProblems() {
+  problems = [];
+  const types = [
+    { from: 'Decimal', to: 'Binary', fromBase: 10, toBase: 2 },
+    { from: 'Decimal', to: 'Binary', fromBase: 10, toBase: 2 },
+    { from: 'Binary', to: 'Decimal', fromBase: 2, toBase: 10 },
+    { from: 'Binary', to: 'Decimal', fromBase: 2, toBase: 10 },
+    { from: 'Decimal', to: 'Octal', fromBase: 10, toBase: 8 },
+    { from: 'Decimal', to: 'Hexadecimal', fromBase: 10, toBase: 16 },
+  ];
+
+  types.forEach((t, i) => {
+    let num;
+    if (t.fromBase === 10) {
+      num = Math.floor(Math.random() * 200) + 5;
+    } else if (t.fromBase === 2) {
+      const dec = Math.floor(Math.random() * 60) + 5;
+      num = dec;
+    }
+
+    const inputVal = t.fromBase === 2 ? num.toString(2) : num.toString(10);
+    const answer = t.toBase === 16 ? num.toString(t.toBase).toUpperCase() : num.toString(t.toBase);
+
+    problems.push({
+      question: `Convert ${inputVal} (${t.from}) to ${t.to}`,
+      answer: answer,
+      fromBase: t.fromBase
+    });
+  });
+
+  const container = document.getElementById('problemsContainer');
+  container.innerHTML = '';
+  document.getElementById('scoreResult').innerHTML = '';
+
+  problems.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'question-card';
+    div.innerHTML = `
+      <div class="q-text">Q${i+1}. ${p.question}</div>
+      <input type="text" id="ans-${i}" placeholder="Your answer..." autocomplete="off">
+      <span class="feedback" id="fb-${i}"></span>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function checkAnswers() {
+  if (problems.length === 0) {
+    generateProblems();
+    return;
+  }
+
+  let correct = 0;
+  problems.forEach((p, i) => {
+    const userAns = document.getElementById(`ans-${i}`).value.trim().toUpperCase();
+    const fb = document.getElementById(`fb-${i}`);
+    if (userAns === p.answer.toUpperCase()) {
+      fb.textContent = 'Correct!';
+      fb.className = 'feedback correct';
+      correct++;
+    } else {
+      fb.textContent = `Wrong. Answer: ${p.answer}`;
+      fb.className = 'feedback wrong';
+    }
+  });
+
+  const total = problems.length;
+  const pct = Math.round((correct / total) * 100);
+  const scoreDiv = document.getElementById('scoreResult');
+  let cls = pct >= 80 ? 'good' : (pct >= 50 ? 'ok' : 'bad');
+  scoreDiv.innerHTML = `<div class="score-bar ${cls}">Score: ${correct}/${total} (${pct}%)</div>`;
+}
+
+// Initialize practice problems on first visit
+generateProblems();
+</script>
+</body>
+</html>

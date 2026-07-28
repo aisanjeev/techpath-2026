@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronRight, Plus, Search, X } from 'lucide-react';
+import { ChevronRight, Plus, Search, Trash2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { DataTable, type Column } from '@/components/tables/DataTable';
@@ -148,7 +148,7 @@ export default function AssetLibraryPage() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<AssetType | ''>('');
   const [statusFilter, setStatusFilter] = useState<ContentStatus | ''>('');
-  const [programFilter, setProgramFilter] = useState<number | ''>('');
+  const [programFilter, setProgramFilter] = useState<number | 'unassigned' | ''>('');
   const [moduleFilter, setModuleFilter] = useState<number | ''>('');
   const [filterModules, setFilterModules] = useState<TrainingModule[]>([]);
   const [tagFilter, setTagFilter] = useState('');
@@ -156,6 +156,10 @@ export default function AssetLibraryPage() {
   const [deleting, setDeleting] = useState<LectureAsset | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [assigningAssetId, setAssigningAssetId] = useState<number | null>(null);
+
+  const [selectedKeys, setSelectedKeys] = useState<Set<string | number>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkDeleteBusy, setBulkDeleteBusy] = useState(false);
 
   const limit = 20;
 
@@ -182,7 +186,8 @@ export default function AssetLibraryPage() {
         search: search || undefined,
         asset_type: typeFilter || undefined,
         status: statusFilter || undefined,
-        program_id: programFilter || undefined,
+        program_id: typeof programFilter === 'number' ? programFilter : undefined,
+        unassigned: programFilter === 'unassigned' ? true : undefined,
         module_id: moduleFilter || undefined,
         tag: tagFilter || undefined,
       });
@@ -222,6 +227,44 @@ export default function AssetLibraryPage() {
       toast.error(err instanceof Error ? err.message : 'Could not delete');
     } finally {
       setDeleteBusy(false);
+    }
+  };
+
+  const toggleSelect = (key: string | number) => {
+    setSelectedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = (checked: boolean) => {
+    setSelectedKeys((prev) => {
+      const next = new Set(prev);
+      assets.forEach((a) => (checked ? next.add(a.id) : next.delete(a.id)));
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedKeys.size === 0) return;
+    setBulkDeleteBusy(true);
+    try {
+      const ids = Array.from(selectedKeys).map(Number);
+      const res = await trainingService.bulkDeleteAssets(ids);
+      if (res.in_use > 0) {
+        toast.success(`Deleted ${res.deleted} asset(s). ${res.in_use} in use were skipped.`);
+      } else {
+        toast.success(res.message || `Deleted ${res.deleted} asset(s)`);
+      }
+      setSelectedKeys(new Set());
+      setBulkDeleting(false);
+      void load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not bulk delete assets');
+    } finally {
+      setBulkDeleteBusy(false);
     }
   };
 
@@ -357,18 +400,20 @@ export default function AssetLibraryPage() {
         <Select
           value={programFilter}
           onChange={(e) => {
-            const val = e.target.value ? Number(e.target.value) : '';
+            const raw = e.target.value;
+            const val = raw === 'unassigned' ? 'unassigned' : raw ? Number(raw) : '';
             setProgramFilter(val);
             setModuleFilter('');
             setFilterModules([]);
             setPage(1);
-            if (val) {
+            if (typeof val === 'number' && val) {
               trainingService.listModules(val).then(setFilterModules).catch(() => undefined);
             }
           }}
           className="max-w-[200px]"
         >
           <option value="">All programs</option>
+          <option value="unassigned">Unassigned (No Program)</option>
           {programs.map((p) => (
             <option key={p.id} value={p.id}>
               {p.title}
@@ -439,6 +484,28 @@ export default function AssetLibraryPage() {
         )}
       </div>
 
+      {selectedKeys.size > 0 && (
+        <div className="mb-4 flex items-center justify-between rounded-lg border border-teal-200 bg-teal-50 px-4 py-3">
+          <span className="text-sm font-medium text-teal-800">
+            {selectedKeys.size} {selectedKeys.size === 1 ? 'asset' : 'assets'} selected
+          </span>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => setSelectedKeys(new Set())}>
+              <X className="mr-1 h-4 w-4" />
+              Clear selection
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setBulkDeleting(true)}
+            >
+              <Trash2 className="mr-1 h-4 w-4" />
+              Delete selected ({selectedKeys.size})
+            </Button>
+          </div>
+        </div>
+      )}
+
       <DataTable
         columns={columns}
         data={assets}
@@ -446,6 +513,11 @@ export default function AssetLibraryPage() {
         keyExtractor={(a) => a.id}
         onEdit={(a) => router.push(`/training/assets/${a.id}`)}
         onDelete={(a) => setDeleting(a)}
+        selection={{
+          selectedKeys,
+          onToggle: toggleSelect,
+          onToggleAll: toggleSelectAll,
+        }}
         pagination={{ page, limit, total, onPageChange: setPage }}
         emptyMessage="No assets yet. Create markdown, PDFs, videos, quizzes and more."
       />
@@ -458,6 +530,17 @@ export default function AssetLibraryPage() {
         description={`"${deleting?.title}" will be permanently deleted. If any module still uses it, the delete will be refused — detach it first, or archive it instead.`}
         confirmText="Delete"
         loading={deleteBusy}
+      />
+
+      <ConfirmModal
+        isOpen={bulkDeleting}
+        onClose={() => setBulkDeleting(false)}
+        onConfirm={handleBulkDelete}
+        title="Delete selected assets?"
+        description={`Are you sure you want to delete ${selectedKeys.size} selected asset(s)? If any asset is assigned to a module, it will be skipped automatically.`}
+        confirmText="Delete"
+        variant="danger"
+        loading={bulkDeleteBusy}
       />
     </div>
   );

@@ -107,6 +107,15 @@ export interface TrainingModuleDetail extends TrainingModule {
   assets: ModuleAssetLink[];
 }
 
+export interface BatchProgramSummary {
+  id: number;
+  title: string;
+  summary?: string | null;
+  level?: string | null;
+  module_count: number;
+  asset_count: number;
+}
+
 export interface TrainingProgram {
   id: number;
   title: string;
@@ -171,8 +180,7 @@ export interface TrainingBatch {
   external_id: string;
   name: string;
   code?: string | null;
-  program_id?: number | null;
-  program_title?: string | null;
+  programs: { id: number; title: string }[];
   start_date?: string | null;
   end_date?: string | null;
   timezone?: string | null;
@@ -252,9 +260,10 @@ export interface TrainerBatchSummary {
   start_date?: string | null;
   end_date?: string | null;
   student_count: number;
-  program_id?: number | null;
-  program_title?: string | null;
+  programs: BatchProgramSummary[];
   module_count: number;
+  asset_count: number;
+  completed_module_count: number;
 }
 
 /** Live audio/video for a session. `whip_url` (publish) only ever appears on the

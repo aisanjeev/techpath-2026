@@ -1,0 +1,36 @@
+{
+  "asset_type": "lab",
+  "title": "Windows Troubleshooting and Network Diagnostics",
+  "description": "Practice real-world troubleshooting using Task Manager, CMD network commands, and system tools",
+  "tags": [
+    "troubleshooting",
+    "networking",
+    "cmd",
+    "diagnostics"
+  ],
+  "status": "draft",
+  "objective": "Students will diagnose system performance using Task Manager, run network diagnostic commands, and create a troubleshooting report",
+  "steps": [
+    {
+      "title": "Diagnose System Performance",
+      "instructions": "Open **Task Manager** (Ctrl+Shift+Esc) → **Performance** tab.\n\n1. Note these values:\n   - CPU usage at idle (should be under 10%)\n   - RAM usage at idle (note used/total)\n   - Disk activity (should be 0% when idle)\n\n2. Now open **Chrome with 10 tabs** (any websites). Go back to Task Manager:\n   - How much did CPU usage increase?\n   - How much additional RAM is Chrome using?\n   - Go to **Processes** tab — how many Chrome processes are there?\n\n3. Open **3 more apps** (Word, File Explorer, Calculator). Note RAM usage now.\n\n4. **Screenshot** the Performance tab showing CPU and Memory graphs.\n\nClose the extra apps when done."
+    },
+    {
+      "title": "Investigate Startup Apps",
+      "instructions": "Open Task Manager → **Startup** tab.\n\nCreate a table in your report:\n\n| App Name | Publisher | Status | Impact |\n|----------|-----------|--------|--------|\n| (list each app) | | Enabled/Disabled | High/Medium/Low |\n\nFor each app with **High impact**:\n- Is it essential? (antivirus = yes, Spotify = no)\n- Disable it if not essential (right-click → Disable)\n\n**Before closing:** Note your current boot time estimate.\n**After restarting:** Time how long it takes to reach the desktop.\n\nReport the difference."
+    },
+    {
+      "title": "Network Diagnostics with CMD",
+      "instructions": "Open **Command Prompt** (search 'cmd').\n\nRun each command and document the output:\n\n```cmd\n:: 1. Your IP address\nipconfig\n```\nFind and note: IPv4 Address, Subnet Mask, Default Gateway\n\n```cmd\n:: 2. Test internet connectivity\nping google.com\n```\nNote: Average response time (ms). Under 50ms = great, 50-100ms = good, 100+ = slow.\n\n```cmd\n:: 3. Trace the route to Google\ntracert google.com\n```\nNote: How many hops? Each hop is a router between you and Google.\n\n```cmd\n:: 4. DNS lookup\nnslookup google.com\nnslookup techpath.biz\n```\nNote: What IP addresses are returned?\n\n```cmd\n:: 5. Active network connections\nnetstat -an | findstr ESTABLISHED\n```\nNote: How many established connections? These are apps currently communicating over the network.\n\n**Screenshot** each command's output."
+    },
+    {
+      "title": "Advanced Network Tests",
+      "instructions": "Still in Command Prompt:\n\n```cmd\n:: Check your WiFi signal details\nnetsh wlan show interfaces\n```\nNote: Signal strength (%), Channel, Band (2.4GHz or 5GHz), Speed (Mbps)\n\n```cmd\n:: See all saved WiFi networks\nnetsh wlan show profiles\n```\n\n```cmd\n:: Check which app is using port 80 (web) and 443 (HTTPS)\nnetstat -ano | findstr :80\nnetstat -ano | findstr :443\n```\nThe last number is the PID. Find this PID in Task Manager → Details tab to see which app it is.\n\n```cmd\n:: Full system info\nsysteminfo | findstr /C:\"OS Name\" /C:\"System Type\" /C:\"Total Physical Memory\" /C:\"Network Card\"\n```\n\n**Screenshot** each output."
+    },
+    {
+      "title": "Create Your Troubleshooting Report",
+      "instructions": "Create a document titled **\"System & Network Diagnostic Report\"** with these sections:\n\n1. **System Performance**\n   - CPU, RAM, Disk stats at idle\n   - Impact of opening Chrome + 10 tabs\n   - Number of startup apps disabled and impact\n\n2. **Network Information**\n   - Your IP address and gateway\n   - Ping response time to google.com\n   - Number of hops to Google (tracert)\n   - DNS resolution results for 2 domains\n   - WiFi signal strength and band\n   - Number of active connections\n\n3. **Issues Found** (if any)\n   - High CPU/RAM usage from specific apps\n   - Slow ping times\n   - Device Manager warnings\n\n4. **Fixes Applied**\n   - Startup apps disabled\n   - Any other optimizations\n\n**Submit** the report with all screenshots."
+    }
+  ],
+  "expected_output": "A complete diagnostic report with screenshots showing Task Manager performance data, network command outputs (ipconfig, ping, tracert, nslookup, netstat), and a summary of findings and fixes applied"
+}

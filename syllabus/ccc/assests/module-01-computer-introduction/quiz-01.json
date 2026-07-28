@@ -1,0 +1,94 @@
+{
+  "questions": [
+    {
+      "question": "Who is known as the 'Father of Computer'?",
+      "options": ["Bill Gates", "Charles Babbage", "Tim Berners-Lee", "Steve Jobs"],
+      "correct_index": 1,
+      "explanation": "Charles Babbage is called the Father of Computer because he designed the Analytical Engine, which had all the basic components of a modern computer."
+    },
+    {
+      "question": "What is the full form of CPU?",
+      "options": ["Computer Processing Unit", "Central Processing Unit", "Central Program Utility", "Computer Program Unit"],
+      "correct_index": 1,
+      "explanation": "CPU stands for Central Processing Unit. It is the brain of the computer that processes all data and instructions."
+    },
+    {
+      "question": "Which memory is volatile?",
+      "options": ["ROM", "Hard Disk", "RAM", "Pen Drive"],
+      "correct_index": 2,
+      "explanation": "RAM (Random Access Memory) is volatile, meaning all data stored in it is lost when the computer is turned off. ROM, Hard Disk, and Pen Drive are non-volatile."
+    },
+    {
+      "question": "How many bits are in one byte?",
+      "options": ["2", "4", "8", "16"],
+      "correct_index": 2,
+      "explanation": "1 Byte = 8 Bits. A byte is the basic unit of data storage and can represent one character (like the letter 'A')."
+    },
+    {
+      "question": "First generation computers used which technology?",
+      "options": ["Transistors", "Integrated Circuits", "Vacuum Tubes", "Microprocessors"],
+      "correct_index": 2,
+      "explanation": "First generation computers (1940-1956) used Vacuum Tubes. They were large in size, generated a lot of heat, and consumed huge electricity."
+    },
+    {
+      "question": "Which part of the CPU performs arithmetic and logical operations?",
+      "options": ["Control Unit", "Register", "ALU", "Cache"],
+      "correct_index": 2,
+      "explanation": "ALU (Arithmetic Logic Unit) performs all arithmetic operations (addition, subtraction, multiplication, division) and logical operations (comparisons like greater than, less than, equal to)."
+    },
+    {
+      "question": "How many bytes are in 1 Kilobyte (KB)?",
+      "options": ["100", "1000", "1024", "512"],
+      "correct_index": 2,
+      "explanation": "1 KB = 1024 Bytes. In computing, the conversion factor is always 1024 (which is 2 raised to the power 10), not 1000."
+    },
+    {
+      "question": "Which of the following is an input device?",
+      "options": ["Printer", "Monitor", "Speaker", "Scanner"],
+      "correct_index": 3,
+      "explanation": "A Scanner is an input device that converts physical documents (paper) into digital format. Printer, Monitor, and Speaker are all output devices."
+    },
+    {
+      "question": "MICR is used to read characters on which of the following?",
+      "options": ["Exam answer sheets", "Bank cheques", "Barcodes on products", "Printed books"],
+      "correct_index": 1,
+      "explanation": "MICR (Magnetic Ink Character Recognition) is used to read the special magnetic ink characters printed on bank cheques. OMR is used for exam sheets, and Barcode Reader is for product barcodes."
+    },
+    {
+      "question": "What does GIGO stand for?",
+      "options": ["Get In, Get Out", "Garbage In, Garbage Out", "Go In, Go Out", "General Input, General Output"],
+      "correct_index": 1,
+      "explanation": "GIGO stands for Garbage In, Garbage Out. It means that if incorrect or poor-quality data is entered into a computer, the output will also be incorrect."
+    },
+    {
+      "question": "Which of the following translates a high-level language program line by line?",
+      "options": ["Assembler", "Compiler", "Interpreter", "Linker"],
+      "correct_index": 2,
+      "explanation": "An Interpreter translates and executes a high-level language program one line at a time. A Compiler translates the entire program at once before execution."
+    },
+    {
+      "question": "What is the ASCII value of the character 'A'?",
+      "options": ["55", "65", "97", "48"],
+      "correct_index": 1,
+      "explanation": "The ASCII value of uppercase 'A' is 65. Uppercase letters A-Z have values 65-90. Lowercase 'a' has the value 97."
+    },
+    {
+      "question": "The binary number system has a base of:",
+      "options": ["2", "8", "10", "16"],
+      "correct_index": 0,
+      "explanation": "The binary number system uses base 2 with only two digits: 0 and 1. Computers use binary because electronic circuits have two states — ON (1) and OFF (0)."
+    },
+    {
+      "question": "Which of the following is an example of system software?",
+      "options": ["MS Word", "Google Chrome", "Windows 10", "Tally"],
+      "correct_index": 2,
+      "explanation": "Windows 10 is an Operating System, which is a type of system software. MS Word, Chrome, and Tally are all application software designed for specific user tasks."
+    },
+    {
+      "question": "What is the full form of ICT?",
+      "options": ["Indian Computer Technology", "Information and Communication Technology", "International Computer Technology", "Internet and Computer Technology"],
+      "correct_index": 1,
+      "explanation": "ICT stands for Information and Communication Technology. It refers to all technologies used for handling, processing, and communicating information, including computers, internet, and mobile phones."
+    }
+  ]
+}

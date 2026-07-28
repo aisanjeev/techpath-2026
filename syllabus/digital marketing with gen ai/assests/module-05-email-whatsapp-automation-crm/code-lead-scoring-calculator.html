@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Scoring Calculator — TechPath Academy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.85;
+        }
+
+        .content {
+            padding: 30px 40px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a237e;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e8eaf6;
+        }
+
+        .factor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .factor-grid {
+                grid-template-columns: 1fr;
+            }
+            .content {
+                padding: 20px;
+            }
+            .header {
+                padding: 20px;
+            }
+        }
+
+        .factor-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .factor-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+        }
+
+        .factor-item label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .factor-item select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #333;
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23555' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .factor-item select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        .points-badge {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 5px;
+            font-weight: 600;
+        }
+
+        .points-positive {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .points-negative {
+            background: #fce4ec;
+            color: #c62828;
+        }
+
+        .calculate-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.35);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Results Section */
+        .results {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid #e8eaf6;
+        }
+
+        .results.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .score-number {
+            font-size: 64px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .score-category {
+            display: inline-block;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .category-cold {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .category-warm {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .category-hot {
+            background: #fce4ec;
+            color: #c62828;
+        }
+
+        .category-ready {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .score-bar {
+            width: 100%;
+            height: 12px;
+            background: #e9ecef;
+            border-radius: 6px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.8s ease;
+        }
+
+        .score-bar-markers {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .breakdown-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .breakdown-item .factor-name {
+            color: #555;
+        }
+
+        .breakdown-item .factor-points {
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .recommendation {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f3e5f5;
+            border-left: 4px solid #7b1fa2;
+        }
+
+        .recommendation h4 {
+            font-size: 14px;
+            color: #4a148c;
+            margin-bottom: 6px;
+        }
+
+        .recommendation p {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .reset-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #f5f5f5;
+            color: #666;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #eeeeee;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Lead Scoring Calculator</h1>
+            <p>Score your leads based on demographic and behavioral factors to prioritize follow-ups</p>
+        </div>
+
+        <div class="content">
+            <!-- Demographic Factors -->
+            <div class="section">
+                <h2 class="section-title">Demographic Factors (Who They Are)</h2>
+                <div class="factor-grid">
+                    <div class="factor-item">
+                        <label>Job Title / Role</label>
+                        <select id="job-title">
+                            <option value="0">-- Select --</option>
+                            <option value="20">Decision Maker (CEO, Director, VP, Owner)</option>
+                            <option value="15">Manager (Marketing Mgr, Sales Mgr, Dept Head)</option>
+                            <option value="10">Influencer (Coordinator, Executive, Lead)</option>
+                            <option value="5">Individual Contributor (Analyst, Associate)</option>
+                            <option value="3">Student / Intern / Fresher</option>
+                        </select>
+                    </div>
+                    <div class="factor-item">
+                        <label>Company Size</label>
+                        <select id="company-size">
+                            <option value="0">-- Select --</option>
+                            <option value="15">Enterprise (500+ employees)</option>
+                            <option value="12">Mid-Market (100-499 employees)</option>
+                            <option value="10">Small Business (50-99 employees)</option>
+                            <option value="7">Startup (10-49 employees)</option>
+                            <option value="4">Micro Business (1-9 employees)</option>
+                            <option value="2">Freelancer / Solo</option>
+                        </select>
+                    </div>
+                    <div class="factor-item">
+                        <label>Industry Match</label>
+                        <select id="industry">
+                            <option value="0">-- Select --</option>
+                            <option value="15">Exact Target Industry (IT/SaaS/EdTech)</option>
+                            <option value="10">Related Industry (E-commerce, Digital Agency)</option>
+                            <option value="5">Adjacent Industry (Retail, Finance, Healthcare)</option>
+                            <option value="2">Unrelated Industry</option>
+                        </select>
+                    </div>
+                    <div class="factor-item">
+                        <label>Location</label>
+                        <select id="location">
+                            <option value="0">-- Select --</option>
+                            <option value="10">Target City (Mumbai, Delhi, Bangalore, Pune)</option>
+                            <option value="7">Tier-1 City (Hyderabad, Chennai, Kolkata)</option>
+                            <option value="5">Tier-2 City (Bhopal, Jaipur, Lucknow, Indore)</option>
+                            <option value="3">Tier-3 City or Town</option>
+                            <option value="2">International</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Behavioral Factors -->
+            <div class="section">
+                <h2 class="section-title">Behavioral Factors (What They Do)</h2>
+                <div class="factor-grid">
+                    <div class="factor-item">
+                        <label>Website Visits (Last 30 Days)</label>
+                        <select id="website-visits">
+                            <option value="0">-- Select --</option>
+                            <option value="15">10+ visits (highly engaged)</option>
+                            <option value="10">5-9 visits (engaged)</option>
+                            <option value="5">2-4 visits (interested)</option>
+                            <option value="2">1 visit only</option>
+                            <option value="0">No visits</option>
+                        </select>
+                    </div>
+                    <div class="factor-item">
+                        <label>Email Engagement</label>
+                        <select id="email-opens">
+                            <option value="0">-- Select --</option>
+                            <option value="12">Opens + clicks regularly (80%+ open rate)</option>
+                            <option value="8">Opens most emails (50-80% open rate)</option>
+                            <option value="4">Opens occasionally (20-50% open rate)</option>
+                            <option value="0">Rarely opens (below 20%)</option>
+                            <option value="-5">Never opens / Inactive 60+ days</option>
+                        </select>
+                    </div>
+                    <div class="factor-item">
+                        <label>Content Downloads</label>
+                        <select id="content-downloads">
+                            <option value="0">-- Select --</option>
+                            <option value="12">3+ resources downloaded</option>
+                            <option value="8">2 resources downloaded</option>
+                            <option value="5">1 resource downloaded</option>
+                            <option value="0">No downloads</option>
+                        </select>
+                    </div>
+                    <div class="factor-item">
+                        <label>Webinar / Event Attendance</label>
+                        <select id="webinar-attendance">
+                            <option value="0">-- Select --</option>
+                            <option value="15">Attended 2+ webinars / events</option>
+                            <option value="10">Attended 1 webinar / event</option>
+                            <option value="5">Registered but didn't attend</option>
+                            <option value="0">Never registered</option>
+                        </select>
+                    </div>
+                    <div class="factor-item">
+                        <label>Pricing Page Views</label>
+                        <select id="pricing-views">
+                            <option value="0">-- Select --</option>
+                            <option value="20">Visited pricing page 3+ times</option>
+                            <option value="15">Visited pricing page twice</option>
+                            <option value="10">Visited pricing page once</option>
+                            <option value="0">Never visited pricing page</option>
+                        </select>
+                    </div>
+                    <div class="factor-item">
+                        <label>Form Submissions / Demo Requests</label>
+                        <select id="form-submit">
+                            <option value="0">-- Select --</option>
+                            <option value="25">Requested a demo / consultation</option>
+                            <option value="15">Submitted contact form</option>
+                            <option value="8">Submitted inquiry on WhatsApp</option>
+                            <option value="0">No form submissions</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateScore()">Calculate Lead Score</button>
+
+            <!-- Results Section -->
+            <div class="results" id="results">
+                <div class="score-display">
+                    <div class="score-number" id="total-score">0</div>
+                    <div class="score-label">out of 100</div>
+                    <div class="score-category" id="score-category">--</div>
+                </div>
+
+                <div class="score-bar">
+                    <div class="score-bar-fill" id="score-bar-fill"></div>
+                </div>
+                <div class="score-bar-markers">
+                    <span>0 (Cold)</span>
+                    <span>30 (Warm)</span>
+                    <span>60 (Hot)</span>
+                    <span>80 (Sales-Ready)</span>
+                    <span>100</span>
+                </div>
+
+                <div style="margin-top: 25px;">
+                    <div class="breakdown-title">Score Breakdown — Top Contributing Factors</div>
+                    <div id="breakdown-list"></div>
+                </div>
+
+                <div class="recommendation" id="recommendation">
+                    <h4>Recommended Action</h4>
+                    <p id="recommendation-text"></p>
+                </div>
+
+                <button class="reset-btn" onclick="resetCalculator()">Reset and Score Another Lead</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            TechPath Academy — Digital Marketing with Gen AI Program | Lead Scoring Calculator Tool
+        </div>
+    </div>
+
+    <script>
+        function calculateScore() {
+            const factors = [
+                { id: 'job-title', name: 'Job Title / Role', type: 'demographic' },
+                { id: 'company-size', name: 'Company Size', type: 'demographic' },
+                { id: 'industry', name: 'Industry Match', type: 'demographic' },
+                { id: 'location', name: 'Location', type: 'demographic' },
+                { id: 'website-visits', name: 'Website Visits', type: 'behavioral' },
+                { id: 'email-opens', name: 'Email Engagement', type: 'behavioral' },
+                { id: 'content-downloads', name: 'Content Downloads', type: 'behavioral' },
+                { id: 'webinar-attendance', name: 'Webinar Attendance', type: 'behavioral' },
+                { id: 'pricing-views', name: 'Pricing Page Views', type: 'behavioral' },
+                { id: 'form-submit', name: 'Form Submissions', type: 'behavioral' }
+            ];
+
+            let totalScore = 0;
+            let scoreBreakdown = [];
+
+            factors.forEach(factor => {
+                const element = document.getElementById(factor.id);
+                const points = parseInt(element.value) || 0;
+                totalScore += points;
+                if (points !== 0) {
+                    scoreBreakdown.push({
+                        name: factor.name,
+                        points: points,
+                        type: factor.type
+                    });
+                }
+            });
+
+            // Cap score at 100
+            totalScore = Math.min(totalScore, 100);
+            totalScore = Math.max(totalScore, 0);
+
+            // Display score
+            const scoreElement = document.getElementById('total-score');
+            scoreElement.textContent = totalScore;
+
+            // Score category
+            let category, categoryClass, barColor, recommendation;
+            if (totalScore <= 30) {
+                category = 'COLD LEAD';
+                categoryClass = 'category-cold';
+                barColor = '#42a5f5';
+                recommendation = 'This lead needs more nurturing. Add them to an educational email sequence, share valuable blog content, and invite them to free webinars. Do not pitch your product yet — focus on building trust and awareness first. Check back in 2-3 weeks.';
+            } else if (totalScore <= 60) {
+                category = 'WARM LEAD';
+                categoryClass = 'category-warm';
+                barColor = '#ff9800';
+                recommendation = 'This lead is showing interest! Increase engagement by sharing case studies, customer testimonials, and comparison content. Consider sending a personalized email or WhatsApp message. They are not ready for a sales call yet, but are moving in the right direction.';
+            } else if (totalScore <= 80) {
+                category = 'HOT LEAD';
+                categoryClass = 'category-hot';
+                barColor = '#ef5350';
+                recommendation = 'Alert your sales team! This lead is highly engaged and likely evaluating options. Reach out within 24 hours with a personalized message. Offer a free consultation or demo. Share a relevant case study from their industry. Timing is critical — do not delay.';
+            } else {
+                category = 'SALES-READY';
+                categoryClass = 'category-ready';
+                barColor = '#43a047';
+                recommendation = 'Immediate action required! This lead is ready to buy. Call them within 1 hour if possible. Prepare a custom proposal or pricing. They have shown all buying signals — decision maker, engaged with content, visited pricing, and reached out. Close this deal!';
+            }
+
+            const categoryElement = document.getElementById('score-category');
+            categoryElement.textContent = category;
+            categoryElement.className = 'score-category ' + categoryClass;
+
+            // Score bar
+            const barFill = document.getElementById('score-bar-fill');
+            barFill.style.width = totalScore + '%';
+            barFill.style.background = barColor;
+
+            // Breakdown
+            scoreBreakdown.sort((a, b) => Math.abs(b.points) - Math.abs(a.points));
+            const breakdownList = document.getElementById('breakdown-list');
+            breakdownList.innerHTML = '';
+
+            scoreBreakdown.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'breakdown-item';
+                const pointsClass = item.points > 0 ? 'points-positive' : 'points-negative';
+                const pointsText = item.points > 0 ? '+' + item.points : item.points;
+                div.innerHTML = `
+                    <span class="factor-name">${item.name} <small style="color:#999">(${item.type})</small></span>
+                    <span class="factor-points ${pointsClass}">${pointsText} pts</span>
+                `;
+                breakdownList.appendChild(div);
+            });
+
+            // Recommendation
+            document.getElementById('recommendation-text').textContent = recommendation;
+
+            // Show results
+            document.getElementById('results').classList.add('show');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function resetCalculator() {
+            // Reset all selects
+            const selects = document.querySelectorAll('select');
+            selects.forEach(select => select.value = '0');
+
+            // Hide results
+            document.getElementById('results').classList.remove('show');
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

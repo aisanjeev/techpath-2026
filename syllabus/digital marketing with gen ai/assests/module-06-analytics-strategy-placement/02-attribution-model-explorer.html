@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attribution Model Explorer | TechPath Academy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;padding:20px;max-width:900px;margin:0 auto}
+header{text-align:center;padding:20px 0;border-bottom:1px solid #1e293b;margin-bottom:30px}
+header h1{font-size:1.6rem;color:#38bdf8}
+header p{font-size:0.85rem;color:#64748b;margin-top:4px}
+h2{color:#f8fafc;font-size:1.3rem;margin-bottom:15px}
+.section{background:#1e293b;border-radius:12px;padding:24px;margin-bottom:24px}
+.journey-timeline{display:flex;align-items:center;justify-content:space-between;padding:20px 0;overflow-x:auto;gap:4px}
+.touchpoint{text-align:center;flex:1;min-width:80px;position:relative}
+.touchpoint-icon{width:48px;height:48px;border-radius:50%;background:#334155;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:1.3rem;border:2px solid #475569;transition:all 0.4s}
+.touchpoint-name{font-size:0.75rem;color:#94a3b8}
+.touchpoint-credit{font-size:0.85rem;font-weight:700;color:#38bdf8;margin-top:4px;min-height:20px;transition:all 0.3s}
+.connector{width:100%;height:2px;background:linear-gradient(90deg,#334155,#475569);position:absolute;top:24px;left:50%;z-index:0}
+.touchpoint:last-child .connector{display:none}
+.model-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.model-tab{padding:10px 16px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#94a3b8;cursor:pointer;font-size:0.85rem;transition:all 0.2s}
+.model-tab:hover{border-color:#38bdf8;color:#e2e8f0}
+.model-tab.active{background:#1a2744;border-color:#2563eb;color:#60a5fa}
+.model-desc{padding:16px;background:#0f172a;border-radius:8px;border:1px solid #334155;margin-bottom:20px;font-size:0.85rem;color:#94a3b8;min-height:60px;transition:all 0.3s}
+.model-desc strong{color:#e2e8f0;display:block;margin-bottom:4px}
+.bar-chart{display:flex;align-items:flex-end;justify-content:space-around;height:180px;padding:20px 0;gap:8px}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1}
+.bar{width:100%;max-width:60px;background:#2563eb;border-radius:6px 6px 0 0;transition:height 0.6s ease,background 0.4s;min-height:2px;position:relative}
+.bar-label{font-size:0.7rem;color:#94a3b8;margin-top:8px;text-align:center}
+.bar-value{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:0.75rem;font-weight:600;color:#38bdf8;white-space:nowrap}
+.exercise-item{background:#0f172a;border:1px solid #334155;border-radius:10px;padding:16px;margin-bottom:14px}
+.exercise-item p{font-size:0.9rem;margin-bottom:12px}
+.quiz-option{display:block;padding:10px 14px;margin:6px 0;border-radius:8px;border:1px solid #334155;cursor:pointer;transition:all 0.2s;font-size:0.85rem}
+.quiz-option:hover{border-color:#38bdf8;background:#1a2744}
+.quiz-option.correct{border-color:#22c55e;background:#052e16}
+.quiz-option.wrong{border-color:#ef4444;background:#2d0a0a}
+.feedback{font-size:0.82rem;margin-top:8px;padding:10px;border-radius:6px;display:none}
+.feedback.correct{background:#052e16;color:#4ade80;display:block}
+.feedback.wrong{background:#2d0a0a;color:#fca5a5;display:block}
+.best-for{margin-top:8px;padding:8px 12px;background:#1a2744;border-radius:6px;font-size:0.8rem;color:#60a5fa}
+@media(max-width:600px){
+  body{padding:12px}
+  .section{padding:16px}
+  .journey-timeline{flex-wrap:wrap;gap:12px}
+  .touchpoint{min-width:60px}
+  .touchpoint-icon{width:40px;height:40px;font-size:1rem}
+  .bar-chart{height:140px}
+  .model-tabs{gap:6px}
+  .model-tab{padding:8px 12px;font-size:0.8rem}
+}
+</style>
+</head>
+<body>
+<header>
+<h1>Attribution Model Explorer</h1>
+<p>TechPath Academy - Module 6: Analytics & Strategy</p>
+</header>
+
+<div class="section">
+<h2>Customer Journey</h2>
+<p style="color:#94a3b8;font-size:0.85rem;margin-bottom:16px">A customer makes a purchase of <strong style="color:#4ade80">₹5,000</strong> after these 5 touchpoints:</p>
+<div class="journey-timeline" id="timeline">
+<div class="touchpoint"><div class="touchpoint-icon">🔍</div><div class="touchpoint-name">Google Ad</div><div class="touchpoint-credit" id="credit0"></div></div>
+<div class="touchpoint"><div class="touchpoint-icon">📝</div><div class="touchpoint-name">Blog Post</div><div class="touchpoint-credit" id="credit1"></div></div>
+<div class="touchpoint"><div class="touchpoint-icon">📸</div><div class="touchpoint-name">Instagram Ad</div><div class="touchpoint-credit" id="credit2"></div></div>
+<div class="touchpoint"><div class="touchpoint-icon">📧</div><div class="touchpoint-name">Email</div><div class="touchpoint-credit" id="credit3"></div></div>
+<div class="touchpoint"><div class="touchpoint-icon">🌐</div><div class="touchpoint-name">Direct Visit</div><div class="touchpoint-credit" id="credit4"></div></div>
+</div>
+</div>
+
+<div class="section">
+<h2>Select Attribution Model</h2>
+<div class="model-tabs" id="modelTabs"></div>
+<div class="model-desc" id="modelDesc">
+<strong>Choose a model above</strong>
+Click any attribution model to see how the ₹5,000 conversion credit is distributed across the customer journey.
+</div>
+<div class="bar-chart" id="barChart">
+<div class="bar-col"><div class="bar" id="bar0" style="height:0"><span class="bar-value"></span></div><div class="bar-label">Google Ad</div></div>
+<div class="bar-col"><div class="bar" id="bar1" style="height:0"><span class="bar-value"></span></div><div class="bar-label">Blog</div></div>
+<div class="bar-col"><div class="bar" id="bar2" style="height:0"><span class="bar-value"></span></div><div class="bar-label">Instagram</div></div>
+<div class="bar-col"><div class="bar" id="bar3" style="height:0"><span class="bar-value"></span></div><div class="bar-label">Email</div></div>
+<div class="bar-col"><div class="bar" id="bar4" style="height:0"><span class="bar-value"></span></div><div class="bar-label">Direct</div></div>
+</div>
+<div class="best-for" id="bestFor"></div>
+</div>
+
+<div class="section">
+<h2>Practice Exercise</h2>
+<p style="color:#94a3b8;font-size:0.85rem;margin-bottom:16px">Your client spent ₹1,00,000 across 3 channels. Determine which channel gets the most credit under each model.</p>
+<div id="exercises"></div>
+</div>
+
+<script>
+const totalRevenue=5000;
+const touchpoints=['Google Ad','Blog Post','Instagram Ad','Email','Direct Visit'];
+const models={
+first:{name:'First Click',credits:[5000,0,0,0,0],desc:'All credit goes to the first touchpoint that introduced the customer to your brand. Ignores all subsequent interactions.',bestFor:'Best for: Understanding which channels drive awareness and bring new audiences. Useful for top-of-funnel budget decisions.'},
+last:{name:'Last Click',credits:[0,0,0,0,5000],desc:'All credit goes to the last touchpoint before conversion. The default in most analytics tools (including GA4 for some reports).',bestFor:'Best for: Direct-response campaigns, e-commerce with short purchase cycles, understanding what closes the deal.'},
+linear:{name:'Linear',credits:[1000,1000,1000,1000,1000],desc:'Equal credit distributed across all touchpoints. Every interaction is valued the same regardless of position or timing.',bestFor:'Best for: Long sales cycles (B2B, education, high-ticket items) where multiple touches are needed. Fair but overly simplistic.'},
+timeDecay:{name:'Time Decay',credits:[250,500,1000,1500,1750],desc:'More credit to touchpoints closer to conversion. Recent interactions are weighted higher because they drove the final decision.',bestFor:'Best for: Short consideration cycles, promotional campaigns, and when recency matters more than discovery.'},
+position:{name:'Position-Based',credits:[2000,333,334,333,2000],desc:'40% to first touch, 40% to last touch, remaining 20% split among middle touchpoints. Also called U-shaped attribution.',bestFor:'Best for: Balanced view giving credit to both discovery and conversion while acknowledging the assist touches in between.'},
+dataDriven:{name:'Data-Driven',credits:[800,600,1800,1200,600],desc:'Uses machine learning to analyze your actual conversion paths and assign credit based on incremental impact. Requires significant data volume (300+ conversions/month in GA4).',bestFor:'Best for: Mature businesses with large data sets. Most accurate but requires volume. Available in GA4 as default for paid channels.'}
+};
+
+const tabsContainer=document.getElementById('modelTabs');
+Object.keys(models).forEach(key=>{
+const tab=document.createElement('div');
+tab.className='model-tab';tab.textContent=models[key].name;tab.dataset.model=key;
+tab.addEventListener('click',()=>selectModel(key));
+tabsContainer.appendChild(tab);
+});
+
+function selectModel(key){
+document.querySelectorAll('.model-tab').forEach(t=>t.classList.remove('active'));
+document.querySelector(`[data-model="${key}"]`).classList.add('active');
+const model=models[key];
+document.getElementById('modelDesc').innerHTML=`<strong>${model.name}</strong>${model.desc}`;
+document.getElementById('bestFor').textContent=model.bestFor;
+const maxCredit=Math.max(...model.credits);
+model.credits.forEach((credit,i)=>{
+const bar=document.getElementById(`bar${i}`);
+const pct=maxCredit>0?(credit/maxCredit)*100:0;
+bar.style.height=Math.max(pct,3)+'%';
+bar.querySelector('.bar-value').textContent=credit>0?`₹${credit.toLocaleString('en-IN')}`:'';
+bar.style.background=credit===maxCredit&&credit>0?'#22c55e':credit>0?'#2563eb':'#334155';
+document.getElementById(`credit${i}`).textContent=credit>0?`₹${credit.toLocaleString('en-IN')}`:'—';
+});
+const icons=document.querySelectorAll('.touchpoint-icon');
+model.credits.forEach((credit,i)=>{
+icons[i].style.borderColor=credit===maxCredit&&credit>0?'#22c55e':credit>0?'#2563eb':'#475569';
+icons[i].style.background=credit===maxCredit&&credit>0?'#052e16':'#334155';
+});
+}
+
+const exerciseData=[
+{scenario:'Journey: Facebook Ad → Google Search → Direct Visit → Purchase. Model: First Click. Budget spent: Facebook ₹40,000, Google ₹35,000, Direct ₹25,000.',question:'Which channel gets the MOST credit?',options:['Google Search','Facebook Ad','Direct Visit','All equal'],correct:1,explanation:'First Click gives 100% credit to the first touchpoint. Facebook Ad introduced the customer, so it gets all the conversion credit regardless of budget spent.'},
+{scenario:'Journey: Email → Blog → Instagram → Purchase. Model: Last Click. Channels: Email ₹20,000, Content ₹30,000, Instagram ₹50,000.',question:'Which channel gets the MOST credit?',options:['Email','Blog/Content','Instagram','Split between all'],correct:2,explanation:'Last Click gives 100% credit to the final touchpoint before conversion. Instagram was the last interaction, so it gets all credit.'},
+{scenario:'Journey: LinkedIn Ad → Webinar → Email → Sales Call → Purchase. Model: Position-Based (U-shaped). Budget: LinkedIn ₹25,000, Webinar ₹30,000, Email ₹20,000, Sales ₹25,000.',question:'Which TWO channels together get 80% of credit?',options:['LinkedIn + Webinar','Webinar + Sales Call','LinkedIn + Sales Call','Email + Sales Call'],correct:2,explanation:'Position-Based gives 40% to first touch (LinkedIn Ad) and 40% to last touch (Sales Call). Together they get 80% of the credit. Middle touches share the remaining 20%.'},
+{scenario:'Journey: 5 touchpoints over 30 days, conversion happened today. Model: Time Decay. Most recent touchpoint was a WhatsApp message sent yesterday.',question:'Which touchpoint gets the MOST credit?',options:['The first touchpoint (30 days ago)','The middle touchpoint (15 days ago)','The WhatsApp message (yesterday)','All get equal credit'],correct:2,explanation:'Time Decay weights recent interactions highest. The WhatsApp message sent just yesterday is closest to the conversion moment and receives the most credit.'}
+];
+const exContainer=document.getElementById('exercises');
+exerciseData.forEach((ex,i)=>{
+const div=document.createElement('div');div.className='exercise-item';
+div.innerHTML=`<p style="color:#64748b;font-size:0.8rem;margin-bottom:6px">${ex.scenario}</p>
+<p><strong>${ex.question}</strong></p>
+${ex.options.map((o,j)=>`<label class="quiz-option" id="ex${i}o${j}" onclick="answerExercise(${i},${j})">${o}</label>`).join('')}
+<div class="feedback" id="exfb${i}"></div>`;
+exContainer.appendChild(div);
+});
+function answerExercise(qi,oi){
+const ex=exerciseData[qi];
+document.querySelectorAll(`[id^="ex${qi}o"]`).forEach(el=>{el.className='quiz-option';el.style.pointerEvents='none';});
+const sel=document.getElementById(`ex${qi}o${oi}`);
+sel.classList.add(oi===ex.correct?'correct':'wrong');
+if(oi!==ex.correct)document.getElementById(`ex${qi}o${ex.correct}`).classList.add('correct');
+const fb=document.getElementById(`exfb${qi}`);
+fb.className='feedback '+(oi===ex.correct?'correct':'wrong');
+fb.textContent=ex.explanation;
+fb.style.display='block';
+}
+
+selectModel('first');
+</script>
+</body>
+</html>

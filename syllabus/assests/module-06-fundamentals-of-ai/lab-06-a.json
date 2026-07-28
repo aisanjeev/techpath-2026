@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Prompt Engineering Workshop",
+  "description": "Master the art of writing effective AI prompts through structured practice with ChatGPT or Claude",
+  "tags": [
+    "ai",
+    "prompt-engineering",
+    "chatgpt",
+    "claude",
+    "practical"
+  ],
+  "status": "draft",
+  "objective": "Students will learn and practice 6 prompt engineering techniques — specificity, role-playing, few-shot examples, chain-of-thought, constraints, and iterative refinement",
+  "steps": [
+    {
+      "title": "Technique 1: Be Specific",
+      "instructions": "Open ChatGPT (chat.openai.com) or Claude (claude.ai).\n\n**Bad prompt:**\n```\nTell me about Python\n```\n\n**Good prompt:**\n```\nExplain Python's list comprehension feature to someone who knows basic Python (loops, lists). Include 3 examples: basic, with condition, and nested. Keep it under 200 words.\n```\n\nTry both prompts. Compare the outputs.\n\n**Your turn:** Write a specific prompt asking the AI to explain any concept from Module 01-05. Paste your prompt and the result."
+    },
+    {
+      "title": "Technique 2: Role-Playing",
+      "instructions": "Give the AI a persona:\n\n```\nYou are a senior Python developer at a tech company in Pune with 10 years of experience. A fresher just joined your team and asks: \"What should I learn first to become a good developer?\" Answer in a friendly, practical way with a 3-month learning plan.\n```\n\nNow try:\n```\nYou are an IT recruiter at an Indian MNC. Review this resume summary and suggest 3 specific improvements:\n\n\"I am a computer science student with knowledge of Python and HTML. I want to work in IT.\"\n```\n\n**Your turn:** Create a role-playing prompt where the AI acts as a client reviewing your website design. Paste the interaction."
+    },
+    {
+      "title": "Technique 3: Few-Shot Examples",
+      "instructions": "Show the AI the pattern you want:\n\n```\nConvert these informal descriptions into professional LinkedIn headlines:\n\nInput: I make websites for small businesses\nOutput: Freelance Web Developer | Helping Small Businesses Build Their Online Presence\n\nInput: I know Python and data stuff\nOutput: Python Developer | Data Analysis & Automation Specialist\n\nInput: I just finished my computer course and want a job\nOutput:\n```\n\nThe AI follows the pattern and generates a professional headline.\n\n**Your turn:** Create a few-shot prompt for any conversion task (e.g., casual email → professional email, raw data → formatted table). Show 2 examples, then let the AI complete the 3rd."
+    },
+    {
+      "title": "Technique 4: Chain of Thought",
+      "instructions": "Ask the AI to think step by step:\n\n```\nA training institute has 3 batches:\n- Batch A: 25 students, ₹35,000 per student\n- Batch B: 18 students, ₹18,000 per student  \n- Batch C: 30 students, ₹8,000 per student\n\nMonthly expenses: ₹2,50,000\nInstructor salaries: ₹1,80,000\n\nThink step by step:\n1. Calculate total revenue from each batch\n2. Calculate total revenue\n3. Calculate total costs\n4. Calculate profit/loss\n5. Calculate profit margin percentage\n6. Suggest whether the business is sustainable\n```\n\nCompare this with just asking \"Is this business profitable?\" — the step-by-step approach gives much better reasoning.\n\n**Your turn:** Create a chain-of-thought prompt for a technical problem (e.g., debugging code, designing a database schema)."
+    },
+    {
+      "title": "Technique 5: Constraints + Iteration",
+      "instructions": "Set clear boundaries:\n\n```\nWrite a product description for the TechPath ADCA course.\n\nConstraints:\n- Exactly 3 paragraphs\n- Each paragraph under 50 words\n- Include at least 2 statistics\n- Use persuasive language aimed at parents of 18-22 year olds\n- Mention placement support\n- End with a clear call-to-action\n- Tone: professional but warm\n```\n\nAfter getting the result, **iterate**:\n```\nGood start, but:\n1. Make the first paragraph more attention-grabbing\n2. Change the CTA to include a phone number\n3. Add mention of AI tools training\n```\n\n**Your turn:** Write a constrained prompt → get result → refine it at least twice. Show all 3 versions and explain what improved each time.\n\n**Submit:** A document with all 5 techniques practiced — each showing your prompt, the AI's output, and your reflection on what made the prompt effective."
+    }
+  ],
+  "expected_output": "A document demonstrating 5 prompt engineering techniques with actual prompts, AI responses, and student reflections — including at least one iterative refinement showing improvement"
+}

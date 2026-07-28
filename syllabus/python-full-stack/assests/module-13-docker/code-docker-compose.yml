@@ -1,0 +1,216 @@
+# =============================================================
+# docker-compose.yml — Multi-Service Application Stack
+# TechPath Institute — Module 13: Docker & Containerization
+#
+# This file defines ALL the services your app needs:
+#   1. web      — FastAPI application (your Python code)
+#   2. db       — PostgreSQL database (stores student data)
+#   3. cache    — Redis (caching & session storage)
+#   4. worker   — Background task worker (Celery)
+#
+# Usage:
+#   docker compose up -d          Start all services
+#   docker compose down           Stop all services
+#   docker compose logs -f web    Watch web service logs
+#   docker compose ps             List running services
+#
+# TechPath Student Management System
+# Manages students, courses, batches, and marks
+# for TechPath Institute branches across India
+# =============================================================
+
+services:
+
+  # -----------------------------------------------------------
+  # SERVICE 1: FastAPI Web Application
+  # This is your main Python API that handles HTTP requests.
+  # It connects to PostgreSQL for data and Redis for caching.
+  # -----------------------------------------------------------
+  web:
+    # Build the image from the Dockerfile in the current directory
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: techpath-api
+
+    # Port mapping: host_port:container_port
+    # Access the API at http://localhost:8000
+    ports:
+      - "8000:8000"
+
+    # Environment variables for the FastAPI application
+    environment:
+      - DATABASE_URL=postgresql://rahul:techpath_secure_2024@db:5432/techpath_db
+      - REDIS_URL=redis://cache:6379/0
+      - SECRET_KEY=my-secret-key-change-in-production
+      - DEBUG=true
+      - APP_NAME=TechPath Student API
+      - DEFAULT_CITY=Bhopal
+      - INSTITUTE_NAME=TechPath Institute
+
+    # Alternative: Load from a .env file
+    # env_file:
+    #   - .env
+
+    # Volumes — mount directories from host into container
+    volumes:
+      # Mount source code for live reload during development
+      - .:/app
+      # Named volume for uploaded files (persists across restarts)
+      - uploads:/app/uploads
+
+    # depends_on — start db and cache BEFORE starting web
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started
+
+    # Override CMD for development (auto-reload on code changes)
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+    # Restart automatically if the container crashes
+    restart: unless-stopped
+
+    # Health check — Docker checks if the API is responding
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+    networks:
+      - techpath-network
+
+
+  # -----------------------------------------------------------
+  # SERVICE 2: PostgreSQL Database
+  # Stores all student data: names, courses, marks, etc.
+  # Data persists in a named volume (survives container restarts)
+  # -----------------------------------------------------------
+  db:
+    image: postgres:16
+    container_name: techpath-db
+
+    environment:
+      POSTGRES_USER: rahul
+      POSTGRES_PASSWORD: techpath_secure_2024
+      POSTGRES_DB: techpath_db
+
+    # Persist database data in a named volume
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+    ports:
+      - "5432:5432"
+
+    # Health check — verify database is ready
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rahul -d techpath_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    restart: unless-stopped
+
+    networks:
+      - techpath-network
+
+
+  # -----------------------------------------------------------
+  # SERVICE 3: Redis Cache
+  # Fast in-memory store for caching and session storage
+  # -----------------------------------------------------------
+  cache:
+    image: redis:7-alpine
+    container_name: techpath-cache
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis_data:/data
+
+    # Enable persistence + set memory limit
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+
+    restart: unless-stopped
+
+    networks:
+      - techpath-network
+
+
+  # -----------------------------------------------------------
+  # SERVICE 4: Background Worker (Celery)
+  # Handles long-running tasks:
+  #   - Sending welcome emails to new students
+  #   - Generating PDF report cards
+  #   - Processing bulk student data imports
+  # -----------------------------------------------------------
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: techpath-worker
+
+    # Run Celery worker instead of uvicorn
+    command: celery -A app.worker worker --loglevel=info --concurrency=2
+
+    environment:
+      - DATABASE_URL=postgresql://rahul:techpath_secure_2024@db:5432/techpath_db
+      - REDIS_URL=redis://cache:6379/0
+      - CELERY_BROKER_URL=redis://cache:6379/1
+
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started
+
+    volumes:
+      - .:/app
+
+    restart: unless-stopped
+
+    networks:
+      - techpath-network
+
+
+# =============================================================
+# VOLUMES — Named volumes for persistent data
+# =============================================================
+volumes:
+  pg_data:
+    driver: local
+  redis_data:
+    driver: local
+  uploads:
+    driver: local
+
+
+# =============================================================
+# NETWORKS — Custom network for service communication
+# Services on the same network can reach each other by name.
+# Example: web connects to db using hostname "db"
+# =============================================================
+networks:
+  techpath-network:
+    driver: bridge
+
+
+# =============================================================
+# HOW TO USE
+# =============================================================
+# Start:    docker compose up -d
+# Status:   docker compose ps
+# Logs:     docker compose logs -f web
+# Shell:    docker compose exec web bash
+# DB:       docker compose exec db psql -U rahul -d techpath_db
+# Rebuild:  docker compose up -d --build
+# Stop:     docker compose down
+# Nuke:     docker compose down -v   (deletes all data!)
+# =============================================================

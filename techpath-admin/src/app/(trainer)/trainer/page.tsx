@@ -181,11 +181,10 @@ export default function TrainerHomePage() {
                   {/* Without a linked programme there is nothing to teach from, and
                       that's an admin fix — so say so plainly rather than showing an
                       empty module list later. */}
-                  {batch.program_id ? (
-                    <p className="mt-3 text-xs text-gray-600">
-                      {batch.program_title} · {batch.module_count} module
-                      {batch.module_count === 1 ? '' : 's'}
-                    </p>
+                  {batch.programs && batch.programs.length > 0 ? (
+                    <Badge variant="info" className="w-fit mt-3">
+                      {batch.programs.length} program{batch.programs.length === 1 ? '' : 's'} linked
+                    </Badge>
                   ) : (
                     <p className="mt-3 flex items-center gap-1 text-xs text-amber-600">
                       <AlertTriangle className="h-3.5 w-3.5" />

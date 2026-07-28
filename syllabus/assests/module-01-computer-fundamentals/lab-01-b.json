@@ -1,0 +1,36 @@
+{
+  "asset_type": "lab",
+  "title": "Number System Conversions — Hands-On Practice",
+  "description": "Practice converting between binary, decimal, octal, and hexadecimal number systems using manual methods and verification tools",
+  "tags": [
+    "number-systems",
+    "binary",
+    "hexadecimal",
+    "conversions"
+  ],
+  "status": "draft",
+  "objective": "Students will manually convert numbers between binary, decimal, octal, and hexadecimal systems, then verify their answers using Windows Calculator and command-line tools",
+  "steps": [
+    {
+      "title": "Open Windows Calculator in Programmer Mode",
+      "instructions": "Press **Win + S**, search **Calculator**, and open it.\n\nClick the **hamburger menu** (☰) at the top-left → select **Programmer**.\n\nYou'll see buttons for:\n- **HEX** (Hexadecimal)\n- **DEC** (Decimal)\n- **OCT** (Octal)\n- **BIN** (Binary)\n\nTry this: Click **DEC**, type `42`, then click **BIN** — you'll see the binary equivalent instantly. This is your verification tool."
+    },
+    {
+      "title": "Manual Binary to Decimal Conversion",
+      "instructions": "Convert these binary numbers to decimal **on paper first**, then verify with Calculator:\n\n**Method:** Multiply each digit by its place value (powers of 2) and add.\n\n```\nExample: 1101₂\n= 1×8 + 1×4 + 0×2 + 1×1\n= 8 + 4 + 0 + 1\n= 13₁₀\n```\n\nConvert these:\n1. `1010` = ?\n2. `11111` = ?\n3. `10000000` = ?\n4. `11001010` = ?\n5. `01000001` = ? (This is ASCII for 'A')\n\nVerify each answer in Calculator (Programmer mode → BIN → type number → click DEC)."
+    },
+    {
+      "title": "Manual Decimal to Binary Conversion",
+      "instructions": "Convert these decimal numbers to binary **on paper first**:\n\n**Method:** Repeatedly divide by 2, write the remainders bottom-to-top.\n\n```\nExample: 25₁₀\n25 ÷ 2 = 12 remainder 1\n12 ÷ 2 = 6  remainder 0\n6  ÷ 2 = 3  remainder 0\n3  ÷ 2 = 1  remainder 1\n1  ÷ 2 = 0  remainder 1\nRead bottom to top: 11001₂\n```\n\nConvert these:\n1. `10` = ?\n2. `50` = ?\n3. `127` = ?\n4. `192` = ? (First octet of 192.168.x.x IP address)\n5. `255` = ? (Max value in one byte)\n\nVerify each answer in Calculator."
+    },
+    {
+      "title": "Hexadecimal Conversions",
+      "instructions": "Hexadecimal (base 16) uses: 0-9 and A=10, B=11, C=12, D=13, E=14, F=15.\n\n**Hex to Decimal (on paper):**\n```\nExample: 2F₁₆\n= 2×16 + 15×1\n= 32 + 15\n= 47₁₀\n```\n\nConvert:\n1. `1A` = ?\n2. `FF` = ? (Max byte value)\n3. `64` = ?\n4. `C0` = ? (Part of IP 192.168...)\n\n**Decimal to Hex (on paper):**\n1. `100` = ?\n2. `200` = ?\n3. `255` = ?\n\n**Real-world connection:** Open any website → press F12 → look at CSS colors. `#FF5733` means Red=FF(255), Green=57(87), Blue=33(51).\n\nVerify all answers in Calculator."
+    },
+    {
+      "title": "Verify with Command Prompt",
+      "instructions": "Open Command Prompt and try Python as a calculator:\n\n```\npython -c \"print(bin(42))\"        # Decimal to binary\npython -c \"print(int('101010',2))\"  # Binary to decimal\npython -c \"print(hex(255))\"         # Decimal to hex\npython -c \"print(int('FF',16))\"     # Hex to decimal\npython -c \"print(oct(8))\"           # Decimal to octal\n```\n\nIf Python is not installed, use Windows Calculator Programmer mode for all verifications.\n\n**Submit:** A document showing all your manual calculations with answers verified. Mark any you got wrong and write the correct working."
+    }
+  ],
+  "expected_output": "A document showing manual conversion working for at least 15 conversions between binary, decimal, and hexadecimal, with verification screenshots from Calculator"
+}

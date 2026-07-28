@@ -1,0 +1,146 @@
+{
+  "01-web-browsers-overview.md": {
+    "title": "Web Browsers Overview",
+    "description": "Module 06 \u2014 CCC Exam Preparation | Topic 1 --- A web browser is a software application that allows you to access and view websites on the internet. It reads the code (HTML, CSS, JavaScript) that makes up a web page and displays it as text, images, videos, and interactive elements on your screen. Simple Definition: A web browser is a program that lets you visit websites by typing their address (URL) or clicking links. Think of it like this: The...",
+    "asset_type": "markdown",
+    "tags": [
+      "web-browsers",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "02-browser-configuration.md": {
+    "title": "Browser Configuration",
+    "description": "Module 06 \u2014 CCC Exam Preparation | Topic 2 --- A web browser is not just for opening websites \u2014 you can customize and configure it to suit your needs. In this topic, you will learn how to set your homepage, manage privacy settings, handle cookies, use incognito mode, and manage extensions. These are important topics for the CCC exam. --- The homepage is the first web page that opens when you start your browser or click the Home button. 1. Click...",
+    "asset_type": "markdown",
+    "tags": [
+      "web-browsers",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "03-search-engines.md": {
+    "title": "Search Engines",
+    "description": "Module 06 \u2014 CCC Exam Preparation | Topic 3 --- A search engine is a website or software that helps you find information on the internet by searching through billions of web pages. You type a query (what you want to find), and the search engine returns a list of relevant results. Simple Definition: A search engine is like a librarian for the entire internet \u2014 you ask a question, and it finds the best answers from billions of web pages. CCC Exam...",
+    "asset_type": "markdown",
+    "tags": [
+      "web-browsers",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "04-bookmarks-downloads.md": {
+    "title": "Bookmarks and Downloads",
+    "description": "Module 06 \u2014 CCC Exam Preparation | Topic 4 --- A bookmark (also called a favorite in some browsers) is a saved shortcut to a web page. Instead of typing the full URL every time you want to visit a website, you can simply click the bookmark. Simple Analogy: A bookmark in a browser works just like a bookmark in a physical book \u2014 it marks a page so you can quickly find it again later. --- 1. Open the website you want to bookmark 2. Press Ctrl + D...",
+    "asset_type": "markdown",
+    "tags": [
+      "web-browsers",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "05-printing-web-content.md": {
+    "title": "Printing and Saving Web Content",
+    "description": "Module 06 \u2014 CCC Exam Preparation | Topic 5 --- Sometimes you need to print information from a website \u2014 a train ticket from IRCTC, an admit card from NIELIT, a form from a government website, or study notes for exam preparation. In this topic, you will learn how to print web pages, save them for offline use, and use important browser keyboard shortcuts. --- Method 1: Keyboard Shortcut 1. Open the web page you want to print 2. Press Ctrl + P 3....",
+    "asset_type": "markdown",
+    "tags": [
+      "web-browsers",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "06-url-anatomy-explorer.html": {
+    "title": "URL Anatomy Explorer \u2014 TechPath CCC",
+    "description": "Interactive URL Anatomy Explorer \u2014 TechPath CCC exercise for Web Browsers",
+    "asset_type": "html_bundle",
+    "tags": [
+      "web-browsers",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "assignment-06.md": {
+    "title": "Assignment: WWW and Web Browsers",
+    "description": "Module 06 \u2014 CCC Exam Preparation --- Complete all four tasks below. For each task, write down your observations and take screenshots where indicated. Submit your completed assignment to your trainer. --- Objective: Master Google search operators to find information quickly and accurately. 1. Exact Phrase Search: - Open Google and search for: \"Domain Name System\" - How many results did you get? _______________ - Now search WITHOUT quotes: Domain...",
+    "asset_type": "assignment",
+    "tags": [
+      "web-browsers",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "cheatsheet-06.md": {
+    "title": "Cheatsheet 06",
+    "description": "Learning material for Cheatsheet 06",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "web-browsers",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "lab-06-a.json": {
+    "title": "Web Browsing, Searching, and Bookmarks",
+    "description": "Master browser navigation, Google search operators, and bookmark organization",
+    "asset_type": "lab",
+    "tags": [
+      "web-browser",
+      "search-engine",
+      "bookmarks",
+      "google",
+      "ccc-exam"
+    ]
+  },
+  "lab-06-b.json": {
+    "title": "Downloading, Saving, and Printing Web Content",
+    "description": "Practice downloading files, saving web pages, and printing content from the browser",
+    "asset_type": "lab",
+    "tags": [
+      "downloads",
+      "printing",
+      "save-page",
+      "pdf",
+      "ccc-exam"
+    ]
+  },
+  "notes-06.md": {
+    "title": "Comprehensive Notes: WWW and Web Browsers",
+    "description": "Module 06 \u2014 CCC Exam Preparation --- A web browser is a software application used to access, view, and interact with websites on the internet. It reads HTML code and displays it as formatted text, images, and interactive elements. A browser is NOT a search engine \u2014 Chrome is a browser, Google is a search engine. Google Chrome (by Google, 2008) - Most popular browser worldwide with over 65% market share - Syncs data across devices via Google...",
+    "asset_type": "notes",
+    "tags": [
+      "web-browsers",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-06.json": {
+    "title": "Quiz 06",
+    "description": "Learning material for Quiz 06",
+    "asset_type": "quiz",
+    "tags": [
+      "web-browsers",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-06.md": {
+    "title": "Quiz: WWW and Web Browsers",
+    "description": "Module 06 \u2014 CCC Exam Preparation --- - A) Google Chrome - B) Mozilla Firefox - C) Google \u2705 - D) Microsoft Edge > Explanation: Google is a search engine, not a web browser. Chrome, Firefox, and Edge are web browsers (software used to view websites). Google is a website used to search for information. --- - A) Downloads the current page - B) Deletes the current tab - C) Adds the current page as a bookmark \u2705 - D) Opens the browser settings >...",
+    "asset_type": "markdown",
+    "tags": [
+      "web-browsers",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "resources-06.md": {
+    "title": "Resources: WWW and Web Browsers",
+    "description": "Module 06 \u2014 CCC Exam Preparation --- 1. NIELIT Official Website \u2014 https://www.nielit.gov.in - CCC syllabus, exam schedule, sample papers 2. NIELIT Student Portal \u2014 https://student.nielit.gov.in - Register for CCC exam, check results, download certificates --- 3. Browser Basics (GCFGlobal) - https://edu.gcfglobal.org/en/chrome/ - Free interactive tutorials for Google Chrome \u2014 tabs, bookmarks, downloads, settings 4. Firefox Tutorial for Beginners...",
+    "asset_type": "notes",
+    "tags": [
+      "web-browsers",
+      "ccc",
+      "computer-concepts"
+    ]
+  }
+}

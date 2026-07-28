@@ -1,0 +1,41 @@
+{
+  "title": "Build Your AI Marketing Assistant",
+  "module": 1,
+  "duration_minutes": 90,
+  "difficulty": "beginner",
+  "description": "Create a Custom GPT in ChatGPT that acts as your personal marketing assistant — trained on your brand voice, business context, and marketing frameworks.",
+  "prerequisites": [
+    "ChatGPT Plus account (or free account for basic version)",
+    "A business idea or brand to build the assistant for",
+    "Completed notes on CRAFT framework and buyer personas"
+  ],
+  "learning_outcomes": [
+    "Understand how to create and configure Custom GPTs",
+    "Write effective system instructions for AI assistants",
+    "Upload knowledge files to improve AI responses",
+    "Test and iterate on AI assistant behavior",
+    "Share your Custom GPT with others"
+  ],
+  "steps": [
+    {
+      "title": "Set Up Your Custom GPT",
+      "instructions": "1. Go to chat.openai.com and click on 'Explore GPTs' in the sidebar.\n2. Click 'Create' to start building your Custom GPT.\n3. Give it a name: '[YourBrand] Marketing Assistant' (e.g., 'Chai pe Charcha Marketing Bot').\n4. Write a short description: 'A marketing assistant trained to help [business name] create social media content, write ad copy, and plan campaigns for [target audience] in [city].'\n5. Upload a profile picture — use Canva to create a simple logo or icon for your bot.\n6. Choose the conversation style: select 'More creative' for marketing content generation.\n\nNote: If you are on the free plan, you can simulate this exercise by creating a detailed system prompt in a regular ChatGPT conversation and saving it in a document for reuse."
+    },
+    {
+      "title": "Define Instructions and Brand Context",
+      "instructions": "1. In the 'Instructions' field, write a detailed system prompt. Use this template:\n\n---\nYou are the marketing assistant for [Business Name], a [business type] located in [city, India].\n\nBrand Voice: [describe — e.g., friendly, youthful, uses Hinglish]\nTarget Audience: [describe your primary buyer persona]\nProducts/Services: [list main offerings with prices in ₹]\nCompetitors: [list 2-3 competitors]\nGoals: [what the business wants to achieve]\n\nWhen creating content:\n- Always use simple language that a college student would understand\n- Include Indian cultural references and festivals where relevant\n- Use the CRAFT framework for all outputs\n- Follow the 4-1-1 rule for social media content suggestions\n- Mention prices in ₹ (Indian Rupees)\n- Suggest hashtags relevant to the Indian market\n---\n\n2. Add 3-5 specific rules (e.g., 'Never use American spellings', 'Always suggest posting times in IST', 'Include at least one Hindi word or phrase in captions').\n3. Preview by sending a test message and checking if the bot follows your instructions."
+    },
+    {
+      "title": "Add Knowledge Files",
+      "instructions": "1. Prepare 2-3 knowledge documents to upload:\n   - Document 1: Your buyer personas (from Assignment Task 2)\n   - Document 2: Your brand guidelines (name, colors, voice, dos and don'ts)\n   - Document 3: A list of your products/services with descriptions and pricing\n\n2. Create these as simple .txt or .pdf files. Example for Document 2:\n   - Brand Name: Chai pe Charcha\n   - Tagline: 'Where every cup starts a conversation'\n   - Colors: Warm orange (#FF6B35), Cream (#FFF5E1)\n   - Voice: Friendly, funny, uses Hinglish, references Bollywood\n   - Do: Use local Bhopal references, mention student discounts\n   - Don't: Be formal, use complex English, ignore festivals\n\n3. Upload all files in the 'Knowledge' section of your Custom GPT.\n4. In the instructions, add: 'Refer to the uploaded knowledge files for brand-specific information before generating any content.'\n5. Test by asking: 'Write an Instagram caption for our new monsoon special chai' — the response should match your brand voice."
+    },
+    {
+      "title": "Test with Real Marketing Tasks",
+      "instructions": "1. Test your Custom GPT with these 5 marketing scenarios:\n\n   Test 1 — Social Media: 'Write 3 Instagram captions for our Raksha Bandhan special offer'\n   Test 2 — Ad Copy: 'Write a Facebook ad promoting our new cold coffee for college students'\n   Test 3 — Email: 'Write a WhatsApp broadcast message for our loyalty customers about 20% off'\n   Test 4 — Strategy: 'Suggest 5 content ideas for this week based on trending topics'\n   Test 5 — Response: 'A customer complained about slow service on Google Reviews. Draft a reply.'\n\n2. For each test, evaluate:\n   - Did it follow the brand voice? (Yes/No)\n   - Did it use Indian context? (Yes/No)\n   - Was the output usable without major editing? (Yes/No)\n   - Rate quality: 1 (poor) to 5 (excellent)\n\n3. Fill in this scorecard in a document.\n4. If any test scored below 3, refine your instructions and test again.\n5. Make note of what changes improved the output (this is prompt engineering in action)."
+    },
+    {
+      "title": "Share and Document Your Assistant",
+      "instructions": "1. Once satisfied with your Custom GPT's performance, click 'Save' and choose sharing settings:\n   - 'Only me' — for personal use\n   - 'Anyone with a link' — to share with classmates or the business owner\n   - 'Public' — if you want it discoverable by others\n\n2. Create a documentation page (Google Doc or Notion) with:\n   - Assistant Name and Purpose\n   - Link to the Custom GPT\n   - Instructions you used (copy-paste)\n   - Knowledge files list\n   - 5 best prompts that work well with your assistant\n   - 3 limitations you discovered (things it gets wrong or needs human review)\n\n3. Record a 2-minute screen recording showing:\n   - Opening your Custom GPT\n   - Giving it a marketing task\n   - Showing the output\n   - Explaining one refinement you made\n\n4. Share the documentation and recording link with your trainer.\n\nBonus: Create a second Custom GPT for a different business type (e.g., if you did a cafe, try a coaching institute) and compare how different instructions produce different outputs."
+    }
+  ]
+}

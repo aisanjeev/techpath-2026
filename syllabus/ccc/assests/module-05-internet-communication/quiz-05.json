@@ -1,0 +1,94 @@
+{
+  "questions": [
+    {
+      "question": "LAN (Local Area Network) typically covers which area?",
+      "options": ["An entire country", "A single building or office", "A city or metropolitan area", "The entire world"],
+      "correct_index": 1,
+      "explanation": "LAN (Local Area Network) covers a small area such as a single building, office, school lab, or campus. It is the most common type of network you use daily."
+    },
+    {
+      "question": "What is the full form of DNS?",
+      "options": ["Data Network System", "Domain Name System", "Digital Network Service", "Direct Name Server"],
+      "correct_index": 1,
+      "explanation": "DNS stands for Domain Name System. It converts human-readable domain names (like google.com) into IP addresses (like 142.250.77.110) that computers understand."
+    },
+    {
+      "question": "What does a modem convert?",
+      "options": ["AC current to DC current", "Digital signals to analog signals and vice versa", "Text to images", "Sound to light signals"],
+      "correct_index": 1,
+      "explanation": "A modem (Modulator-Demodulator) converts digital signals from your computer into analog signals for transmission over phone lines, and converts incoming analog signals back to digital."
+    },
+    {
+      "question": "Which protocol is used to send emails?",
+      "options": ["HTTP", "FTP", "SMTP", "POP3"],
+      "correct_index": 2,
+      "explanation": "SMTP (Simple Mail Transfer Protocol) is used to send emails. POP3 and IMAP are used to receive emails. Remember: SMTP = Sending Mail To People."
+    },
+    {
+      "question": "What is the full form of ISP?",
+      "options": ["Internet Service Protocol", "Internet Service Provider", "Internal System Protocol", "International Service Provider"],
+      "correct_index": 1,
+      "explanation": "ISP stands for Internet Service Provider. It is a company (like Jio, Airtel, BSNL) that provides you access to the internet."
+    },
+    {
+      "question": "What is the largest network in the world?",
+      "options": ["LAN", "MAN", "The Internet", "ARPANET"],
+      "correct_index": 2,
+      "explanation": "The Internet is the world's largest network. It is a global WAN (Wide Area Network) that connects billions of computers and devices worldwide."
+    },
+    {
+      "question": "What does UMANG stand for?",
+      "options": ["United Mobile Application for National Governance", "Unified Mobile Application for New-age Governance", "Universal Mobile App for Next Generation", "Unified Management Application for Government"],
+      "correct_index": 1,
+      "explanation": "UMANG stands for Unified Mobile Application for New-age Governance. It is a single app that provides access to multiple government services like Aadhaar, PAN, passport, EPFO, and more."
+    },
+    {
+      "question": "In Star topology, what happens when the central hub fails?",
+      "options": ["Only one computer is affected", "The entire network goes down", "The network switches to Ring topology", "Nothing happens, network continues working"],
+      "correct_index": 1,
+      "explanation": "In Star topology, all devices connect to a central hub or switch. If this central device fails, the entire network goes down because all communication passes through it."
+    },
+    {
+      "question": "Which year was ARPANET — the ancestor of the Internet — created?",
+      "options": ["1959", "1969", "1979", "1989"],
+      "correct_index": 1,
+      "explanation": "ARPANET was created in 1969 by the US Department of Defense. It initially connected 4 universities and is considered the ancestor of today's Internet."
+    },
+    {
+      "question": "Who invented the World Wide Web (WWW)?",
+      "options": ["Bill Gates", "Steve Jobs", "Tim Berners-Lee", "Mark Zuckerberg"],
+      "correct_index": 2,
+      "explanation": "Tim Berners-Lee invented the World Wide Web (WWW) in 1989 at CERN, Switzerland. Note: WWW and Internet are not the same — Internet is the network, WWW is a service running on it."
+    },
+    {
+      "question": "What is the maximum speed of a dial-up internet connection?",
+      "options": ["56 Kbps", "1 Mbps", "10 Mbps", "100 Mbps"],
+      "correct_index": 0,
+      "explanation": "Dial-up connection has a maximum speed of 56 Kbps (kilobits per second), making it the slowest type of internet connection. It uses a regular telephone line and you cannot use the phone while connected."
+    },
+    {
+      "question": "Fiber optic cables transmit data using which medium?",
+      "options": ["Electrical signals through copper wire", "Radio waves through air", "Light signals through glass fibers", "Sound waves through cable"],
+      "correct_index": 2,
+      "explanation": "Fiber optic cables use thin glass or plastic fibers to transmit data as pulses of light. This makes fiber optic the fastest and most reliable type of internet connection."
+    },
+    {
+      "question": "A firewall is used to:",
+      "options": ["Speed up the internet connection", "Block unauthorized access and filter network traffic", "Convert digital signals to analog", "Store files on the cloud"],
+      "correct_index": 1,
+      "explanation": "A firewall is a security system that monitors and controls incoming and outgoing network traffic. It acts as a barrier between your trusted network and the untrusted internet, blocking unauthorized access."
+    },
+    {
+      "question": "What is the difference between a virus and a worm?",
+      "options": ["A virus is harmful but a worm is not", "A virus needs a host file to spread; a worm spreads on its own", "A worm is faster than a virus", "There is no difference"],
+      "correct_index": 1,
+      "explanation": "A computer virus attaches itself to a host file and spreads when that file is opened or shared. A worm can replicate and spread on its own through networks without needing a host file."
+    },
+    {
+      "question": "DigiLocker is used for:",
+      "options": ["Making online payments", "Video conferencing", "Storing government documents digitally in the cloud", "Sending emails to government offices"],
+      "correct_index": 2,
+      "explanation": "DigiLocker is a Digital India initiative that provides a cloud-based platform to store and share official documents like Aadhaar, PAN card, driving license, and mark sheets digitally."
+    }
+  ]
+}

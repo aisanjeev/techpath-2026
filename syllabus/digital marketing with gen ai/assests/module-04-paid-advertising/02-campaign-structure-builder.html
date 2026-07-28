@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Structure Builder — TechPath Academy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; padding: 20px 0; border-bottom: 1px solid #1e293b; }
+        .brand { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        h1 { font-size: 1.8rem; color: #f8fafc; margin-bottom: 8px; }
+        .subtitle { color: #94a3b8; font-size: 0.95rem; }
+        .card { background: #1e293b; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid #334155; }
+        .card h2 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 16px; }
+        .platform-toggle {
+            display: flex; gap: 0; margin-bottom: 20px; background: #0f172a;
+            border-radius: 8px; overflow: hidden; border: 1px solid #334155;
+        }
+        .platform-btn {
+            flex: 1; padding: 12px; text-align: center; cursor: pointer;
+            font-weight: 600; font-size: 0.9rem; transition: all 0.2s; border: none; color: #94a3b8; background: transparent;
+        }
+        .platform-btn.active { background: #3b82f6; color: #fff; }
+        .platform-btn:hover:not(.active) { background: #334155; }
+        .step-indicator {
+            display: flex; gap: 4px; margin-bottom: 20px; align-items: center;
+        }
+        .step-dot {
+            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 0.8rem; font-weight: 700;
+            background: #334155; color: #64748b; transition: all 0.3s;
+        }
+        .step-dot.active { background: #3b82f6; color: #fff; }
+        .step-dot.done { background: #10b981; color: #fff; }
+        .step-line { flex: 1; height: 2px; background: #334155; }
+        .step-line.done { background: #10b981; }
+        .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+        .option-card {
+            background: #0f172a; border: 2px solid #334155; border-radius: 8px;
+            padding: 16px; cursor: pointer; transition: all 0.2s; text-align: center;
+        }
+        .option-card:hover { border-color: #475569; background: #334155; }
+        .option-card.selected { border-color: #3b82f6; background: #1e3a5f; }
+        .option-card .icon { font-size: 1.5rem; margin-bottom: 8px; }
+        .option-card .name { font-weight: 600; font-size: 0.9rem; color: #f1f5f9; }
+        .option-card .desc { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
+        .btn {
+            padding: 12px 24px; background: #3b82f6; color: #fff; border: none;
+            border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s;
+        }
+        .btn:hover { background: #2563eb; }
+        .btn:disabled { background: #475569; cursor: not-allowed; }
+        .btn-sm { padding: 8px 16px; font-size: 0.85rem; }
+        .btn-outline { background: transparent; border: 1px solid #3b82f6; color: #3b82f6; }
+        .btn-outline:hover { background: #3b82f6; color: #fff; }
+        .btn-danger { background: #ef4444; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-success { background: #10b981; }
+        .btn-success:hover { background: #059669; }
+        .adset-container { margin: 16px 0; }
+        .adset-card {
+            background: #0f172a; border: 1px solid #334155; border-radius: 8px;
+            padding: 16px; margin-bottom: 12px; border-left: 3px solid #8b5cf6;
+        }
+        .adset-card h4 { color: #c4b5fd; margin-bottom: 10px; font-size: 0.95rem; }
+        .ad-item {
+            background: #1e293b; border: 1px solid #334155; border-radius: 6px;
+            padding: 10px 14px; margin: 6px 0; display: flex; justify-content: space-between; align-items: center;
+            border-left: 3px solid #10b981;
+        }
+        .ad-item span { font-size: 0.85rem; color: #cbd5e1; }
+        .input-row { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+        .input-field {
+            flex: 1; min-width: 150px; padding: 10px 14px; background: #1e293b;
+            border: 1px solid #475569; border-radius: 6px; color: #e2e8f0; font-size: 0.9rem; outline: none;
+        }
+        .input-field:focus { border-color: #3b82f6; }
+        .input-field::placeholder { color: #64748b; }
+        select.input-field { cursor: pointer; }
+        .tree-view { padding: 16px; background: #0f172a; border-radius: 8px; border: 1px solid #334155; margin: 16px 0; }
+        .tree-node { padding-left: 24px; position: relative; }
+        .tree-node::before {
+            content: ''; position: absolute; left: 8px; top: 0; bottom: 0;
+            width: 2px; background: #334155;
+        }
+        .tree-node::after {
+            content: ''; position: absolute; left: 8px; top: 14px;
+            width: 12px; height: 2px; background: #334155;
+        }
+        .tree-item {
+            padding: 6px 12px; margin: 4px 0; border-radius: 4px;
+            font-size: 0.85rem; display: inline-block;
+        }
+        .tree-campaign { background: #1e40af; color: #93c5fd; font-weight: 600; }
+        .tree-adset { background: #5b21b6; color: #c4b5fd; }
+        .tree-ad { background: #065f46; color: #6ee7b7; }
+        .validation-msg {
+            padding: 10px 14px; border-radius: 6px; margin: 8px 0;
+            font-size: 0.85rem; animation: slideIn 0.3s;
+        }
+        .val-error { background: #7f1d1d; border: 1px solid #ef4444; color: #fca5a5; }
+        .val-success { background: #14532d; border: 1px solid #10b981; color: #86efac; }
+        .val-warning { background: #713f12; border: 1px solid #f59e0b; color: #fde68a; }
+        .budget-section { margin-top: 20px; }
+        .budget-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 12px 0; }
+        .budget-stat { background: #0f172a; border-radius: 8px; padding: 14px; text-align: center; border: 1px solid #334155; }
+        .budget-stat .value { font-size: 1.3rem; font-weight: 700; color: #3b82f6; }
+        .budget-stat .label { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
+        .summary-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #334155;
+            border-radius: 12px; padding: 24px; margin-top: 20px;
+        }
+        .summary-card h3 { color: #f8fafc; margin-bottom: 16px; font-size: 1.1rem; }
+        .hidden { display: none; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .options-grid { grid-template-columns: 1fr 1fr; }
+            .input-row { flex-direction: column; }
+            .budget-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="brand">TechPath Academy</div>
+        <h1>Campaign Structure Builder</h1>
+        <p class="subtitle">Build a Meta or Google Ads campaign step-by-step and visualize the complete hierarchy</p>
+    </div>
+
+    <div class="card">
+        <h2>Select Platform</h2>
+        <div class="platform-toggle">
+            <button class="platform-btn active" onclick="setPlatform('meta')">Meta Ads (Facebook/Instagram)</button>
+            <button class="platform-btn" onclick="setPlatform('google')">Google Ads</button>
+        </div>
+        <div class="step-indicator" id="steps">
+            <div class="step-dot active">1</div><div class="step-line"></div>
+            <div class="step-dot">2</div><div class="step-line"></div>
+            <div class="step-dot">3</div><div class="step-line"></div>
+            <div class="step-dot">4</div>
+        </div>
+        <p style="color:#94a3b8;font-size:0.85rem;text-align:center;" id="stepLabel">Step 1: Choose Campaign Objective</p>
+    </div>
+
+    <!-- Step 1: Objective -->
+    <div class="card" id="step1">
+        <h2>Campaign Objective</h2>
+        <p style="color:#94a3b8;font-size:0.9rem;margin-bottom:12px;" id="objDesc">What's the primary goal of your campaign?</p>
+        <div class="options-grid" id="objectiveGrid"></div>
+        <div style="text-align:right;margin-top:12px;">
+            <button class="btn" id="nextBtn1" onclick="nextStep(2)" disabled>Next: Ad Sets</button>
+        </div>
+    </div>
+
+    <!-- Step 2: Ad Sets -->
+    <div class="card hidden" id="step2">
+        <h2 id="adsetTitle">Ad Sets</h2>
+        <p style="color:#94a3b8;font-size:0.9rem;margin-bottom:12px;">Create at least 2 ad sets with different targeting for A/B testing</p>
+        <div class="adset-container" id="adsetContainer"></div>
+        <button class="btn btn-outline btn-sm" onclick="addAdSet()" id="addAdSetBtn">+ Add Ad Set</button>
+        <div id="adsetValidation"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:16px;">
+            <button class="btn btn-outline btn-sm" onclick="prevStep(1)">Back</button>
+            <button class="btn" id="nextBtn2" onclick="nextStep(3)" disabled>Next: Create Ads</button>
+        </div>
+    </div>
+
+    <!-- Step 3: Ads -->
+    <div class="card hidden" id="step3">
+        <h2>Create Ads</h2>
+        <p style="color:#94a3b8;font-size:0.9rem;margin-bottom:12px;">Add at least 2 ads per ad set for proper testing</p>
+        <div id="adsContainer"></div>
+        <div id="adsValidation"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:16px;">
+            <button class="btn btn-outline btn-sm" onclick="prevStep(2)">Back</button>
+            <button class="btn btn-success" id="nextBtn3" onclick="nextStep(4)" disabled>Build Campaign</button>
+        </div>
+    </div>
+
+    <!-- Step 4: Summary -->
+    <div class="card hidden" id="step4">
+        <h2>Campaign Structure — Complete</h2>
+        <div class="tree-view" id="treeView"></div>
+        <div class="budget-section">
+            <h3 style="color:#f1f5f9;margin-bottom:12px;font-size:1rem;">Budget Estimator (Indian Market)</h3>
+            <div class="input-row">
+                <input type="number" class="input-field" id="dailyBudget" placeholder="Daily budget (₹)" value="500" oninput="updateBudget()">
+                <select class="input-field" id="budgetObjective" onchange="updateBudget()">
+                    <option value="traffic">Optimize for Traffic</option>
+                    <option value="leads">Optimize for Leads</option>
+                    <option value="sales">Optimize for Sales</option>
+                </select>
+            </div>
+            <div class="budget-grid" id="budgetGrid"></div>
+        </div>
+        <div class="summary-card" id="summaryCard"></div>
+        <div style="text-align:center;margin-top:16px;">
+            <button class="btn btn-outline" onclick="resetBuilder()">Start Over</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let platform = 'meta';
+let currentStep = 1;
+let selectedObjective = null;
+let adSets = [];
+let adSetCounter = 0;
+
+const objectives = {
+    meta: [
+        { id: 'awareness', icon: '📢', name: 'Awareness', desc: 'Reach people likely to remember your brand' },
+        { id: 'traffic', icon: '🔗', name: 'Traffic', desc: 'Drive visits to your website or app' },
+        { id: 'leads', icon: '📋', name: 'Leads', desc: 'Collect leads via forms or messages' },
+        { id: 'sales', icon: '🛒', name: 'Sales', desc: 'Drive purchases or conversions' }
+    ],
+    google: [
+        { id: 'awareness', icon: '📢', name: 'Brand Awareness', desc: 'Increase reach and impressions' },
+        { id: 'traffic', icon: '🔗', name: 'Website Traffic', desc: 'Drive clicks to your site' },
+        { id: 'leads', icon: '📋', name: 'Lead Generation', desc: 'Get calls, form fills, sign-ups' },
+        { id: 'sales', icon: '🛒', name: 'Sales/Conversions', desc: 'Drive purchases or sign-ups' }
+    ]
+};
+
+const targetingOptions = {
+    meta: ['18-24 year olds, Bhopal', '25-34 professionals, MP', 'Interest: Digital Marketing', 'Lookalike: Past students', 'Retargeting: Website visitors', 'Custom: Email list'],
+    google: ['Keywords: digital marketing course', 'Keywords: learn SEO online', 'Audience: In-market for education', 'Demographics: 18-35, Bhopal', 'Placement: YouTube channels', 'Remarketing: Site visitors']
+};
+
+const adFormats = {
+    meta: ['Single Image Ad', 'Carousel Ad', 'Video Ad (15s)', 'Video Ad (30s)', 'Story Ad', 'Reel Ad'],
+    google: ['Responsive Search Ad', 'Expanded Text Ad', 'Display Banner Ad', 'Video Ad (YouTube)', 'Discovery Ad', 'Call-only Ad']
+};
+
+function setPlatform(p) {
+    platform = p;
+    document.querySelectorAll('.platform-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', (i === 0 && p === 'meta') || (i === 1 && p === 'google'));
+    });
+    document.getElementById('adsetTitle').textContent = p === 'meta' ? 'Ad Sets' : 'Ad Groups';
+    resetBuilder();
+    renderObjectives();
+}
+
+function renderObjectives() {
+    const grid = document.getElementById('objectiveGrid');
+    grid.innerHTML = objectives[platform].map(obj => `
+        <div class="option-card" data-id="${obj.id}" onclick="selectObjective('${obj.id}')">
+            <div class="icon">${obj.icon}</div>
+            <div class="name">${obj.name}</div>
+            <div class="desc">${obj.desc}</div>
+        </div>
+    `).join('');
+}
+
+function selectObjective(id) {
+    selectedObjective = id;
+    document.querySelectorAll('#objectiveGrid .option-card').forEach(c => {
+        c.classList.toggle('selected', c.dataset.id === id);
+    });
+    document.getElementById('nextBtn1').disabled = false;
+}
+
+function addAdSet() {
+    adSetCounter++;
+    const targeting = targetingOptions[platform];
+    adSets.push({ id: adSetCounter, name: `${platform === 'meta' ? 'Ad Set' : 'Ad Group'} ${adSetCounter}`, targeting: '', ads: [] });
+    renderAdSets();
+    validateAdSets();
+}
+
+function renderAdSets() {
+    const container = document.getElementById('adsetContainer');
+    const targeting = targetingOptions[platform];
+    container.innerHTML = adSets.map((as, i) => `
+        <div class="adset-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <h4>${as.name}</h4>
+                <button class="btn btn-danger btn-sm" onclick="removeAdSet(${i})" style="padding:4px 10px;font-size:0.75rem;">Remove</button>
+            </div>
+            <div class="input-row">
+                <input class="input-field" placeholder="Name this ad set..." value="${as.name}" onchange="adSets[${i}].name=this.value">
+                <select class="input-field" onchange="adSets[${i}].targeting=this.value;validateAdSets()">
+                    <option value="">Select targeting...</option>
+                    ${targeting.map(t => `<option value="${t}" ${as.targeting === t ? 'selected' : ''}>${t}</option>`).join('')}
+                </select>
+            </div>
+        </div>
+    `).join('');
+    if (adSets.length >= 4) document.getElementById('addAdSetBtn').style.display = 'none';
+    else document.getElementById('addAdSetBtn').style.display = '';
+}
+
+function removeAdSet(idx) {
+    adSets.splice(idx, 1);
+    renderAdSets();
+    validateAdSets();
+}
+
+function validateAdSets() {
+    const val = document.getElementById('adsetValidation');
+    const allTargeted = adSets.every(as => as.targeting);
+    if (adSets.length < 2) {
+        val.innerHTML = '<div class="validation-msg val-warning">You need at least 2 ad sets for A/B testing</div>';
+        document.getElementById('nextBtn2').disabled = true;
+    } else if (!allTargeted) {
+        val.innerHTML = '<div class="validation-msg val-warning">Select targeting for all ad sets</div>';
+        document.getElementById('nextBtn2').disabled = true;
+    } else {
+        val.innerHTML = '<div class="validation-msg val-success">Looking good! ' + adSets.length + ' ad sets ready for testing</div>';
+        document.getElementById('nextBtn2').disabled = false;
+    }
+}
+
+function renderAdsStep() {
+    const container = document.getElementById('adsContainer');
+    const formats = adFormats[platform];
+    container.innerHTML = adSets.map((as, ai) => `
+        <div class="adset-card">
+            <h4>${as.name} — Ads</h4>
+            <p style="color:#94a3b8;font-size:0.8rem;margin-bottom:8px;">Targeting: ${as.targeting}</p>
+            <div id="ads-${ai}">
+                ${as.ads.map((ad, adi) => `
+                    <div class="ad-item">
+                        <span>${ad.format}: ${ad.headline || 'Untitled'}</span>
+                        <button onclick="removeAd(${ai},${adi})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:1rem;">×</button>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="input-row" style="margin-top:8px;">
+                <select class="input-field" id="adFormat-${ai}">
+                    ${formats.map(f => `<option value="${f}">${f}</option>`).join('')}
+                </select>
+                <input class="input-field" id="adHeadline-${ai}" placeholder="Ad headline...">
+                <button class="btn btn-sm" onclick="addAd(${ai})">Add</button>
+            </div>
+        </div>
+    `).join('');
+    validateAds();
+}
+
+function addAd(asIdx) {
+    const format = document.getElementById(`adFormat-${asIdx}`).value;
+    const headline = document.getElementById(`adHeadline-${asIdx}`).value || 'Ad ' + (adSets[asIdx].ads.length + 1);
+    adSets[asIdx].ads.push({ format, headline });
+    renderAdsStep();
+}
+
+function removeAd(asIdx, adIdx) {
+    adSets[asIdx].ads.splice(adIdx, 1);
+    renderAdsStep();
+}
+
+function validateAds() {
+    const val = document.getElementById('adsValidation');
+    const allHaveTwo = adSets.every(as => as.ads.length >= 2);
+    const someEmpty = adSets.some(as => as.ads.length === 0);
+    if (someEmpty) {
+        val.innerHTML = '<div class="validation-msg val-warning">Each ad set needs at least 2 ads for testing</div>';
+        document.getElementById('nextBtn3').disabled = true;
+    } else if (!allHaveTwo) {
+        val.innerHTML = '<div class="validation-msg val-warning">Add at least 2 ads per ad set — more variations = better testing</div>';
+        document.getElementById('nextBtn3').disabled = true;
+    } else {
+        val.innerHTML = '<div class="validation-msg val-success">Campaign ready! All ad sets have 2+ ads for split testing</div>';
+        document.getElementById('nextBtn3').disabled = false;
+    }
+}
+
+function nextStep(step) {
+    document.getElementById(`step${currentStep}`).classList.add('hidden');
+    document.getElementById(`step${step}`).classList.remove('hidden');
+    currentStep = step;
+    updateStepIndicator();
+
+    if (step === 2 && adSets.length === 0) { addAdSet(); addAdSet(); }
+    if (step === 3) renderAdsStep();
+    if (step === 4) { renderTree(); updateBudget(); renderSummary(); }
+}
+
+function prevStep(step) {
+    document.getElementById(`step${currentStep}`).classList.add('hidden');
+    document.getElementById(`step${step}`).classList.remove('hidden');
+    currentStep = step;
+    updateStepIndicator();
+}
+
+function updateStepIndicator() {
+    const labels = ['Choose Campaign Objective', `Create ${platform === 'meta' ? 'Ad Sets' : 'Ad Groups'}`, 'Add Ads to Each Set', 'Review & Estimate Budget'];
+    document.getElementById('stepLabel').textContent = `Step ${currentStep}: ${labels[currentStep - 1]}`;
+    document.querySelectorAll('.step-dot').forEach((dot, i) => {
+        dot.classList.remove('active', 'done');
+        if (i + 1 === currentStep) dot.classList.add('active');
+        else if (i + 1 < currentStep) dot.classList.add('done');
+    });
+    document.querySelectorAll('.step-line').forEach((line, i) => {
+        line.classList.toggle('done', i + 1 < currentStep);
+    });
+}
+
+function renderTree() {
+    const tree = document.getElementById('treeView');
+    const obj = objectives[platform].find(o => o.id === selectedObjective);
+    let html = `<div class="tree-item tree-campaign">${obj.icon} Campaign: ${obj.name}</div>`;
+    adSets.forEach(as => {
+        html += `<div class="tree-node"><div class="tree-item tree-adset">${as.name} — ${as.targeting}</div>`;
+        as.ads.forEach(ad => {
+            html += `<div class="tree-node"><div class="tree-item tree-ad">${ad.format}: ${ad.headline}</div></div>`;
+        });
+        html += '</div>';
+    });
+    tree.innerHTML = html;
+}
+
+function updateBudget() {
+    const daily = parseInt(document.getElementById('dailyBudget').value) || 500;
+    const optGoal = document.getElementById('budgetObjective').value;
+
+    const benchmarks = {
+        traffic: { cpc: 5, ctr: 2.5, convRate: 2 },
+        leads: { cpc: 25, ctr: 1.8, convRate: 5 },
+        sales: { cpc: 40, ctr: 1.5, convRate: 1.5 }
+    };
+    const b = benchmarks[optGoal];
+    const clicks = Math.floor(daily / b.cpc);
+    const impressions = Math.floor(clicks / (b.ctr / 100));
+    const conversions = Math.floor(clicks * (b.convRate / 100));
+    const monthly = daily * 30;
+
+    document.getElementById('budgetGrid').innerHTML = `
+        <div class="budget-stat"><div class="value">₹${daily}</div><div class="label">Daily Spend</div></div>
+        <div class="budget-stat"><div class="value">₹${monthly.toLocaleString()}</div><div class="label">Monthly Spend</div></div>
+        <div class="budget-stat"><div class="value">${impressions.toLocaleString()}</div><div class="label">Est. Daily Impressions</div></div>
+        <div class="budget-stat"><div class="value">${clicks}</div><div class="label">Est. Daily Clicks</div></div>
+        <div class="budget-stat"><div class="value">₹${b.cpc}</div><div class="label">Avg CPC (India)</div></div>
+        <div class="budget-stat"><div class="value">${conversions}</div><div class="label">Est. Daily Conversions</div></div>
+    `;
+}
+
+function renderSummary() {
+    const obj = objectives[platform].find(o => o.id === selectedObjective);
+    const totalAds = adSets.reduce((sum, as) => sum + as.ads.length, 0);
+    document.getElementById('summaryCard').innerHTML = `
+        <h3>Campaign Summary</h3>
+        <p style="color:#94a3b8;margin-bottom:12px;">Platform: <strong style="color:#f1f5f9">${platform === 'meta' ? 'Meta Ads' : 'Google Ads'}</strong></p>
+        <p style="color:#94a3b8;margin-bottom:12px;">Objective: <strong style="color:#f1f5f9">${obj.icon} ${obj.name}</strong></p>
+        <p style="color:#94a3b8;margin-bottom:12px;">${platform === 'meta' ? 'Ad Sets' : 'Ad Groups'}: <strong style="color:#f1f5f9">${adSets.length}</strong></p>
+        <p style="color:#94a3b8;margin-bottom:12px;">Total Ads: <strong style="color:#f1f5f9">${totalAds}</strong></p>
+        <p style="color:#94a3b8;">Structure: <strong style="color:#10b981">Valid — ready to launch</strong></p>
+    `;
+}
+
+function resetBuilder() {
+    currentStep = 1;
+    selectedObjective = null;
+    adSets = [];
+    adSetCounter = 0;
+    [1,2,3,4].forEach(i => document.getElementById(`step${i}`).classList.toggle('hidden', i !== 1));
+    document.getElementById('nextBtn1').disabled = true;
+    updateStepIndicator();
+    renderObjectives();
+}
+
+// Initialize
+renderObjectives();
+</script>
+</body>
+</html>

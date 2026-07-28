@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Excel Pivot Table & Dashboard from Scratch",
+  "description": "Build a complete pivot table and dashboard using sample sales data",
+  "tags": [
+    "excel",
+    "pivot-table",
+    "dashboard",
+    "charts",
+    "data-analysis"
+  ],
+  "status": "draft",
+  "objective": "Students will create a dataset, build pivot tables to answer business questions, create charts, and assemble a professional dashboard in Excel",
+  "steps": [
+    {
+      "title": "Create the Dataset",
+      "instructions": "Open Excel and create a new workbook. Name Sheet1 as **\"Sales Data\"**.\n\nCreate these column headers in Row 1:\n`Date | Salesperson | Region | Product | Units | Price | Revenue`\n\nEnter at least 40 rows of data. Use these values:\n- **Dates:** Jan 2026 to Mar 2026 (mix of dates)\n- **Salesperson:** Rahul, Priya, Amit, Sneha\n- **Region:** North, South, West\n- **Product:** Laptop, Mouse, Keyboard, Monitor, Headphones\n- **Units:** Random numbers 1-20\n- **Price:** Laptop=45000, Mouse=500, Keyboard=1200, Monitor=12000, Headphones=2000\n- **Revenue:** Formula `=E2*F2` (drag down for all rows)\n\nFormat the Revenue column as Currency (₹).\nFormat the Date column as DD-MMM-YYYY."
+    },
+    {
+      "title": "Build the Pivot Table",
+      "instructions": "Select your entire data range (Ctrl+A on the data).\n\nGo to **Insert → PivotTable → New Worksheet**.\n\nRename the new sheet as **\"Analysis\"**.\n\n**Pivot Table 1 — Revenue by Salesperson:**\n- Drag **Salesperson** to Rows\n- Drag **Revenue** to Values (should show Sum)\n\n**Pivot Table 2 — Monthly Revenue by Region:**\n- Create a new PivotTable on the same sheet\n- Drag **Date** to Rows → right-click → Group → Months\n- Drag **Region** to Columns\n- Drag **Revenue** to Values\n\n**Pivot Table 3 — Product Performance:**\n- Create a third PivotTable\n- Drag **Product** to Rows\n- Drag **Units** to Values (Sum)\n- Drag **Revenue** to Values (Sum)\n- Sort by Revenue descending"
+    },
+    {
+      "title": "Add Slicers for Interactive Filtering",
+      "instructions": "Click on Pivot Table 1. Go to **PivotTable Analyze → Insert Slicer**.\n\nCheck: **Region** and **Product** → OK.\n\nTwo slicer panels appear. Click \"North\" in the Region slicer — watch the pivot table filter instantly!\n\nHold Ctrl and click multiple items to multi-select.\n\nTo connect a slicer to multiple pivot tables:\n- Right-click the slicer → **Report Connections**\n- Check all three PivotTables\n\nNow clicking one slicer filters ALL pivot tables simultaneously."
+    },
+    {
+      "title": "Create Charts",
+      "instructions": "Click on Pivot Table 1 → **Insert → Chart**:\n- Choose **Bar Chart** → Title: \"Revenue by Salesperson\"\n- Add data labels (click chart → + icon → Data Labels)\n\nClick on Pivot Table 2 → **Insert → Chart**:\n- Choose **Line Chart** → Title: \"Monthly Revenue Trend\"\n- Each region becomes a separate line\n\nClick on Pivot Table 3 → **Insert → Chart**:\n- Choose **Pie Chart** for Revenue → Title: \"Revenue by Product\"\n- Show percentages (Format Data Labels → check Percentage)\n\nFormat all charts:\n- Remove chart borders\n- Use consistent colors\n- Make fonts readable (12pt+)"
+    },
+    {
+      "title": "Assemble the Dashboard",
+      "instructions": "Create a new sheet → name it **\"Dashboard\"**.\n\n1. Add a title row: **\"Sales Dashboard — Q1 2026\"** (Merge & Center, bold, 18pt)\n\n2. Add KPI boxes at the top using cells:\n   - Total Revenue: `=SUM('Sales Data'!G:G)` formatted as ₹\n   - Total Units: `=SUM('Sales Data'!E:E)`\n   - Average Order: `=AVERAGE('Sales Data'!G:G)` formatted as ₹\n   - Top Salesperson: `=INDEX('Sales Data'!B:B,MATCH(MAX('Sales Data'!G:G),'Sales Data'!G:G,0))`\n\n3. Move your 3 charts to this sheet (right-click chart → Move Chart → Dashboard sheet)\n\n4. Move slicers to the dashboard\n\n5. Arrange everything neatly:\n   - KPIs at top\n   - Bar chart and line chart side by side\n   - Pie chart and slicers below\n\n6. Remove gridlines: View → uncheck Gridlines\n\n7. Add a light background color to the KPI cells\n\n**Screenshot your finished dashboard and submit the Excel file.**"
+    }
+  ],
+  "expected_output": "An Excel workbook with 4 sheets: Sales Data (40+ rows), Analysis (3 pivot tables), charts, and a formatted Dashboard sheet with KPIs, charts, and interactive slicers"
+}

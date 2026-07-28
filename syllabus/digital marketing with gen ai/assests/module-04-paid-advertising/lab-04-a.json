@@ -1,0 +1,49 @@
+{
+  "title": "Set Up Meta Pixel and Google Tag via GTM",
+  "module": 4,
+  "duration": "90 minutes",
+  "difficulty": "Intermediate",
+  "description": "In this lab, you will set up Google Tag Manager from scratch, then install both the Meta Pixel and Google Ads Conversion Tag through GTM. You will test everything using GTM's Preview Mode to ensure tags fire correctly. This is a foundational skill — without proper tracking, you cannot measure or optimize any ad campaign.",
+  "prerequisites": [
+    "A website you have access to edit (your portfolio, blog, or a free site on Carrd/Google Sites)",
+    "A Google account (for GTM and Google Ads)",
+    "A Facebook account with access to Meta Business Suite",
+    "Chrome browser (for debugging extensions)"
+  ],
+  "steps": [
+    {
+      "title": "Create Google Tag Manager Account & Container",
+      "instructions": "Go to tagmanager.google.com and sign in with your Google account. Click 'Create Account'. Fill in: Account Name = your business name (e.g., 'TechPath Academy'), Country = India. Under Container Setup: Container name = your website domain (e.g., 'techpath.biz'), Target platform = Web. Click Create and accept the Terms of Service. You will now see your GTM container code — two snippets of code. The FIRST snippet (starts with <!-- Google Tag Manager -->) goes in the <head> section of your website. The SECOND snippet (starts with <!-- Google Tag Manager (noscript) -->) goes immediately after the opening <body> tag. Copy both snippets and save them in a text file. Note your Container ID — it looks like GTM-XXXXXXX (you will need this later). Now install the code on your website. If using WordPress: install the 'Insert Headers and Footers' plugin, paste snippet 1 in Header and snippet 2 in Body. If using Carrd or Google Sites: paste in the custom code/HTML section. If using plain HTML: paste directly into your index.html file. After installation, visit your website and right-click > View Page Source. Search for 'GTM-' to confirm the code is present on the page."
+    },
+    {
+      "title": "Install GTM Code on Website and Verify",
+      "instructions": "Now verify that GTM is working correctly. In GTM, click the 'Preview' button (top right of the GTM dashboard). A new tab called 'Tag Assistant' will open. Enter your website URL in the Tag Assistant connection window and click 'Connect'. Your website will open in a new tab with a debug banner at the bottom saying 'Tag Assistant Connected'. Go back to the Tag Assistant tab — you should see 'Container Loaded' event with a green checkmark. If you see this, GTM is installed correctly. TROUBLESHOOTING: If Tag Assistant shows 'No container found': (1) Check if the GTM code is in the right location (<head> section), (2) Clear browser cache and try again, (3) Make sure you're visiting the exact same URL where you installed the code. Now create a basic 'GA4 Configuration' tag as a first test: Go to Tags > New > Tag Configuration > Google Analytics: GA4 Configuration. Enter your GA4 Measurement ID (format: G-XXXXXXXXXX — create one at analytics.google.com if you don't have one). Triggering: select 'All Pages'. Name the tag 'GA4 - Configuration'. Click Save. Click 'Submit' (top right) to publish the container. Version Name: 'Initial setup with GA4'. Publish. Go back to Preview mode and verify the GA4 tag fires on page load."
+    },
+    {
+      "title": "Set Up Meta Pixel Tag in GTM",
+      "instructions": "First, get your Meta Pixel ID. Go to business.facebook.com > Events Manager (left sidebar). If you don't have a Pixel yet: click 'Connect Data Sources' > Web > Meta Pixel > give it a name (e.g., 'TechPath Website Pixel') > Create. Copy your Pixel ID (a 15-16 digit number like 1234567890123456). Now set up the Pixel in GTM. In your GTM container: Go to Tags > New. Tag name: 'Meta Pixel - Base Code'. Tag type: Custom HTML. Paste this code (replace YOUR_PIXEL_ID with your actual Pixel ID): <script> !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','YOUR_PIXEL_ID');fbq('track','PageView');</script>. Trigger: All Pages. Save. Now create a CONVERSION event tag. Go to Tags > New. Tag name: 'Meta Pixel - Lead Event'. Tag type: Custom HTML. Code: <script>fbq('track','Lead');</script>. Trigger: Create a new trigger > Page View > Some Page Views > Page URL contains 'thank-you' (or whatever your conversion page URL is). Save. Submit and publish. Test: Go to Preview mode, visit your website, then visit your thank-you page. Verify both tags fire at the right time. Also install the 'Meta Pixel Helper' Chrome extension — visit your site and check it shows a green icon with 'PageView' event detected."
+    },
+    {
+      "title": "Set Up Google Ads Conversion Tag",
+      "instructions": "First, get your Google Ads Conversion tracking details. Go to ads.google.com > Tools & Settings (wrench icon) > Measurement > Conversions. Click '+ New conversion action' > Website. Enter your website URL and click Scan (it will check your site). Click 'Add a conversion action manually'. Configure: Conversion name = 'Form Submission' (or 'Lead'). Category = 'Submit lead form'. Value = select 'Use the same value for each conversion' and enter an estimated lead value (e.g., ₹500). Count = 'One' (count one conversion per click). Click-through window = 30 days. Save and continue. On the 'Set up your tag' screen, select 'Use Google Tag Manager'. You will see two values: Conversion ID (format: AW-XXXXXXXXX) and Conversion Label (format: random string like 'AbCdEf123'). Copy both. Now in GTM: Go to Tags > New. Tag name: 'Google Ads - Form Submission Conversion'. Tag type: Google Ads Conversion Tracking. Paste your Conversion ID and Conversion Label. Conversion Value: 500 (or your chosen value). Currency Code: INR. Trigger: Same as Meta Lead — Page URL contains 'thank-you'. Save. Also create a Google Ads Remarketing tag: Tags > New > 'Google Ads Remarketing'. Tag type: Google Ads Remarketing. Enter your Conversion ID (same as above, AW-XXXXXXXXX). Trigger: All Pages. Save. Submit and publish the container."
+    },
+    {
+      "title": "Test All Tags Using GTM Preview Mode",
+      "instructions": "Now perform a complete verification of all tags. In GTM, click Preview. Connect to your website. STEP 1 - Test PageView tags: Visit your homepage. In Tag Assistant, verify these tags fired under 'Tags Fired': (1) GA4 - Configuration [should fire on every page], (2) Meta Pixel - Base Code [should fire on every page], (3) Google Ads Remarketing [should fire on every page]. STEP 2 - Test Conversion tags: Navigate to your thank-you/conversion page. In Tag Assistant, verify these ADDITIONAL tags fired: (4) Meta Pixel - Lead Event [should fire only on thank-you page], (5) Google Ads - Form Submission Conversion [should fire only on thank-you page]. STEP 3 - Cross-verify with platform tools: Install and check these Chrome extensions: (a) Meta Pixel Helper — should show green icon, list 'PageView' on all pages and 'Lead' on thank-you page. (b) Google Tag Assistant Legacy — should show your GA4 and Google Ads tags. STEP 4 - Verify in platform dashboards: Go to Meta Events Manager > Test Events tab — you should see 'PageView' and 'Lead' events appearing in real-time as you browse. Go to Google Ads > Tools > Conversions — status should change from 'Unverified' to 'No recent conversions' (which means the tag is detected but no real conversion happened yet — this is correct). TROUBLESHOOTING common issues: Tag not firing? Check trigger conditions (URL matching, case sensitivity). Pixel Helper showing no pixel? Check for typos in Pixel ID. GA4 not receiving data? Verify Measurement ID is correct (G-XXXXXXXXXX format). Document all your results in a table: Tag Name | Expected Trigger | Actual Result | Status (Pass/Fail)."
+    }
+  ],
+  "deliverables": [
+    "GTM container published with all 5 tags configured",
+    "Screenshot of GTM Preview showing all tags firing correctly",
+    "Screenshot of Meta Pixel Helper showing events",
+    "Screenshot of Google Ads conversion status",
+    "Verification results table (Tag Name, Trigger, Result, Status)"
+  ],
+  "assessment_criteria": [
+    "GTM container installed correctly on website (code in right location)",
+    "All 5 tags created with correct configuration (IDs, triggers, events)",
+    "Tags fire at correct times (page view tags on all pages, conversion tags only on thank-you page)",
+    "Cross-verification done with platform-specific tools (Pixel Helper, Tag Assistant)",
+    "Documentation complete with screenshots and status table"
+  ]
+}

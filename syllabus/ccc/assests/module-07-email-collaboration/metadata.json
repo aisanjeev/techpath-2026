@@ -1,0 +1,147 @@
+{
+  "01-email-basics.md": {
+    "title": "Email Basics",
+    "description": "Module 07 \u2014 CCC Exam Preparation | Topic 1 --- Email (Electronic Mail) is a method of sending and receiving messages over the internet using electronic devices like computers, smartphones, and tablets. It is one of the oldest and most widely used internet services. Think of email as a digital version of a physical letter. Instead of writing on paper and posting it at a post office, you type your message on a computer and send it instantly over...",
+    "asset_type": "markdown",
+    "tags": [
+      "email-collaboration",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "02-email-operations.md": {
+    "title": "Email Operations",
+    "description": "Module 07 \u2014 CCC Exam Preparation | Topic 2 --- Composing an email means writing a new email message. In Gmail, you click the Compose button (usually a large button with a \"+\" or pencil icon) to start writing a new email. When you click Compose in Gmail, a new window appears with these fields: CCC Exam Tip: Know all the fields in a compose window. The To field is mandatory \u2014 you must enter at least one recipient. The Subject field is optional but...",
+    "asset_type": "markdown",
+    "tags": [
+      "email-collaboration",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "03-mailbox-management.md": {
+    "title": "Mailbox Management",
+    "description": "Module 07 \u2014 CCC Exam Preparation | Topic 3 --- Every email account has a set of standard folders that help organize your messages. Think of these folders like different trays on a desk \u2014 each tray holds a different type of mail. CCC Exam Tip: \"Emails that have been composed but not yet sent are stored in ___\" \u2014 Answer: Drafts folder. \"Deleted emails are moved to ___\" \u2014 Answer: Trash/Bin folder. These are very commonly asked. --- - This is the...",
+    "asset_type": "markdown",
+    "tags": [
+      "email-collaboration",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "04-email-protocols.md": {
+    "title": "Email Protocols",
+    "description": "Module 07 \u2014 CCC Exam Preparation | Topic 4 --- A protocol is a set of rules that computers follow to communicate with each other. Email protocols are the rules that govern how emails are sent, received, and stored on the internet. Think of protocols like traffic rules \u2014 just as vehicles follow traffic rules to move safely on roads, computers follow protocols to exchange emails correctly. There are three main email protocols you need to know for...",
+    "asset_type": "markdown",
+    "tags": [
+      "email-collaboration",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "05-netiquette-messaging.md": {
+    "title": "Netiquette and Instant Messaging",
+    "description": "Module 07 \u2014 CCC Exam Preparation | Topic 5 --- Netiquette is short for Network Etiquette (or Internet Etiquette). It refers to the set of informal rules and guidelines for polite and respectful behavior when communicating on the internet. Just as there are manners for face-to-face conversations (like saying \"please\" and \"thank you\"), there are manners for online communication. Following netiquette makes the internet a better place for everyone....",
+    "asset_type": "markdown",
+    "tags": [
+      "email-collaboration",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "06-email-anatomy-explorer.html": {
+    "title": "Email Anatomy Explorer \u2014 TechPath CCC",
+    "description": "Interactive Email Anatomy Explorer \u2014 TechPath CCC exercise for Email Collaboration",
+    "asset_type": "html_bundle",
+    "tags": [
+      "email-collaboration",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "assignment-07.md": {
+    "title": "Assignment \u2014 Module 07: Communication & Collaboration (Email)",
+    "description": "CCC Exam Preparation \u2014 Practical Exercises --- Complete the following four tasks to build practical email skills. Each task covers important concepts that are tested in the CCC exam. Submission: Take screenshots of each completed task and share with your trainer. --- Objective: Learn to create an email account and compose a professional email. 1. Open Google Chrome and go to www.gmail.com 2. Click Create Account and follow the registration...",
+    "asset_type": "assignment",
+    "tags": [
+      "email-collaboration",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "cheatsheet-07.md": {
+    "title": "Cheatsheet 07",
+    "description": "Learning material for Cheatsheet 07",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "email-collaboration",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "lab-07-a.json": {
+    "title": "Setting Up Email and Composing Messages",
+    "description": "Create a Gmail account and practice composing professional emails with CC, BCC, and attachments",
+    "asset_type": "lab",
+    "tags": [
+      "email",
+      "gmail",
+      "compose",
+      "cc-bcc",
+      "ccc-exam"
+    ]
+  },
+  "lab-07-b.json": {
+    "title": "Email Management, Attachments, and Organization",
+    "description": "Organize your inbox with labels, stars, filters, and practice searching and managing emails",
+    "asset_type": "lab",
+    "tags": [
+      "email",
+      "gmail",
+      "inbox-management",
+      "labels",
+      "filters",
+      "ccc-exam"
+    ]
+  },
+  "notes-07.md": {
+    "title": "Module 07 \u2014 Communication & Collaboration: Email",
+    "description": "Comprehensive Notes \u2014 CCC Exam Preparation Expected Exam Weight: 6-8 MCQs out of 100 --- Email (Electronic Mail) is a method of exchanging digital messages over the internet. It was one of the first services on the internet and remains one of the most important tools for both personal and professional communication. Email allows users to: - Send and receive text messages instantly - Attach files (documents, images, videos) - Communicate with one...",
+    "asset_type": "notes",
+    "tags": [
+      "email-collaboration",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-07.json": {
+    "title": "Quiz 07",
+    "description": "Learning material for Quiz 07",
+    "asset_type": "quiz",
+    "tags": [
+      "email-collaboration",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-07.md": {
+    "title": "Quiz: Communication & Collaboration \u2014 Email",
+    "description": "Module 07 \u2014 CCC Exam Preparation --- - A) Computer Copy - B) Carbon Copy \u2705 - C) Certified Copy - D) Central Copy > Explanation: CC stands for Carbon Copy. It is used to send a copy of the email to additional recipients, and all recipients can see who is in the CC field. --- - A) All recipients - B) Only CC recipients - C) Only the sender - D) No one except the sender \u2705 > Explanation: BCC stands for Blind Carbon Copy. BCC recipients are hidden...",
+    "asset_type": "markdown",
+    "tags": [
+      "email-collaboration",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "resources-07.md": {
+    "title": "Resources \u2014 Module 07: Communication & Collaboration (Email)",
+    "description": "CCC Exam Preparation \u2014 Curated Learning Resources --- 1. NIELIT CCC Study Material (Official) - NIELIT Official Website: https://www.nielit.gov.in - Download the official CCC syllabus and study guides - Module: Communication and Collaboration 2. Gmail Help Center (Google) - https://support.google.com/mail - Official guide covering all Gmail features - Topics: Compose, Send, Receive, Labels, Filters, Settings 3. Google Workspace Learning Center -...",
+    "asset_type": "notes",
+    "tags": [
+      "email-collaboration",
+      "ccc",
+      "computer-concepts"
+    ]
+  }
+}

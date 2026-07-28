@@ -1,0 +1,363 @@
+# =============================================================================
+# GitHub Actions Workflow: Deploy to Azure Container Apps
+# =============================================================================
+#
+# This workflow automatically deploys your FastAPI app to Azure every time
+# you push code to the "main" branch.
+#
+# What it does (step by step):
+#   1. Checks out your code from GitHub
+#   2. Logs into Azure using saved credentials
+#   3. Builds a Docker image of your app
+#   4. Pushes the image to Azure Container Registry (ACR)
+#   5. Deploys the new image to Azure Container Apps
+#
+# Analogy: Think of this like an automatic courier service.
+#   You write code (pack the parcel) → Push to GitHub (hand it to the courier)
+#   → GitHub Actions (the courier) delivers it to Azure (the customer's door).
+#
+# Example: Deploying TechPath Institute's student portal API
+# (serving students across Bhopal, Delhi, Pune, and Mumbai campuses).
+#
+# File location: .github/workflows/deploy-azure.yml
+# =============================================================================
+
+name: Deploy to Azure Container Apps
+
+# =============================================================================
+# TRIGGERS — When should this workflow run?
+# =============================================================================
+on:
+  push:
+    branches:
+      - main                           # Only deploy when code is pushed to "main"
+                                        # Pushes to "develop" or feature branches
+                                        # will NOT trigger deployment.
+                                        #
+                                        # Why? "main" is your production branch.
+                                        # You don't want half-finished features
+                                        # going live while Rahul is still coding!
+
+  # Optional: Allow manual deployment from GitHub UI
+  # Useful when Ananya wants to re-deploy without pushing new code
+  workflow_dispatch:                    # Adds a "Run workflow" button in GitHub
+
+# =============================================================================
+# ENVIRONMENT VARIABLES — Shared across all jobs
+# =============================================================================
+# These values are used in multiple steps below.
+# Change them to match YOUR Azure setup.
+# =============================================================================
+env:
+  # Azure Container Registry (ACR) — where Docker images are stored
+  # Think of ACR as a "warehouse" for your Docker images
+  REGISTRY_NAME: techpathregistry      # Your ACR name (must be globally unique)
+  IMAGE_NAME: techpath-api             # Name for your Docker image
+
+  # Azure Container Apps — where your app actually runs
+  CONTAINER_APP_NAME: techpath-api     # Name of your Container App
+  RESOURCE_GROUP: techpath-rg          # Azure Resource Group (folder for resources)
+  CONTAINER_ENV: techpath-env          # Container Apps Environment name
+
+  # Azure region — "centralindia" is the closest to most Indian cities
+  # Available India regions: centralindia, southindia, westindia
+  LOCATION: centralindia
+
+# =============================================================================
+# JOBS — The actual work that happens
+# =============================================================================
+jobs:
+
+  # ---------------------------------------------------------------------------
+  # Job 1: Build and Deploy
+  # ---------------------------------------------------------------------------
+  # This job runs on an Ubuntu virtual machine provided by GitHub (free!).
+  # It builds your Docker image and deploys it to Azure.
+  # ---------------------------------------------------------------------------
+  build-and-deploy:
+    name: Build Docker Image & Deploy to Azure
+    runs-on: ubuntu-latest             # Use GitHub's free Ubuntu VM
+                                        # This VM has Docker, Python, Node.js
+                                        # pre-installed — no setup needed!
+
+    steps:
+      # -----------------------------------------------------------------------
+      # Step 1: Checkout Code
+      # -----------------------------------------------------------------------
+      # This pulls your latest code from GitHub into the VM.
+      # Without this step, the VM has no idea what your code looks like!
+      # -----------------------------------------------------------------------
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        # v4 is the latest version of the checkout action.
+        # Always use @v4 (not @v3 or @v2) for best performance.
+
+      # -----------------------------------------------------------------------
+      # Step 2: Log into Azure
+      # -----------------------------------------------------------------------
+      # This step authenticates with Azure using credentials stored in
+      # GitHub Secrets. It's like showing your ID card at the office door.
+      #
+      # HOW TO GET AZURE_CREDENTIALS:
+      # Run this command in Azure CLI (one time only):
+      #
+      #   az ad sp create-for-rbac \
+      #     --name "github-actions-deploy" \
+      #     --role contributor \
+      #     --scopes /subscriptions/<YOUR_SUBSCRIPTION_ID>/resourceGroups/techpath-rg \
+      #     --json-auth
+      #
+      # Copy the entire JSON output and save it as a GitHub Secret
+      # named "AZURE_CREDENTIALS".
+      #
+      # Go to: GitHub Repo → Settings → Secrets → Actions → New Secret
+      # Name:  AZURE_CREDENTIALS
+      # Value: (paste the JSON here)
+      # -----------------------------------------------------------------------
+      - name: Log into Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          # This secret contains a JSON with:
+          # - clientId      (like a username)
+          # - clientSecret  (like a password)
+          # - subscriptionId
+          # - tenantId
+          # NEVER commit this JSON to your code! Always use GitHub Secrets.
+
+      # -----------------------------------------------------------------------
+      # Step 3: Log into Azure Container Registry (ACR)
+      # -----------------------------------------------------------------------
+      # Before we can push our Docker image, we need to log into ACR.
+      # Think of it like logging into a cloud storage service before
+      # uploading files.
+      #
+      # HOW TO GET THESE SECRETS:
+      # Go to Azure Portal → Container Registry → Access Keys
+      # Copy the "Login server", "Username", and "Password"
+      # Save each as a GitHub Secret.
+      # -----------------------------------------------------------------------
+      - name: Log into Azure Container Registry
+        uses: azure/docker-login@v2
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          # Example: techpathregistry.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          # Usually same as REGISTRY_NAME
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          # From ACR Access Keys page
+
+      # -----------------------------------------------------------------------
+      # Step 4: Build and Push Docker Image
+      # -----------------------------------------------------------------------
+      # This step does TWO things:
+      #   a) Builds a Docker image from your Dockerfile
+      #   b) Pushes (uploads) it to Azure Container Registry
+      #
+      # The image is tagged with the Git commit SHA — this means every
+      # deployment has a unique tag, so you can always roll back to a
+      # previous version if something goes wrong.
+      #
+      # Example tag: techpathregistry.azurecr.io/techpath-api:a1b2c3d
+      #
+      # Analogy: Neha bakes a cake (builds the image), labels it with
+      # today's date (the commit SHA), and puts it in the fridge (ACR).
+      # -----------------------------------------------------------------------
+      - name: Build and push Docker image
+        run: |
+          # Create the full image name with registry URL
+          IMAGE_TAG="${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          LATEST_TAG="${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest"
+
+          echo "Building Docker image: $IMAGE_TAG"
+
+          # Build the Docker image
+          # -t = tag (name) the image
+          # . = use the Dockerfile in the current directory
+          docker build -t "$IMAGE_TAG" -t "$LATEST_TAG" .
+
+          echo "Pushing image to Azure Container Registry..."
+
+          # Push both tags to ACR
+          docker push "$IMAGE_TAG"
+          docker push "$LATEST_TAG"
+
+          echo "Image pushed successfully!"
+
+          # Save the image tag for the next step
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+      # -----------------------------------------------------------------------
+      # Step 5: Deploy to Azure Container Apps
+      # -----------------------------------------------------------------------
+      # This is the final step — it tells Azure Container Apps to use
+      # the new Docker image we just pushed.
+      #
+      # Azure Container Apps will:
+      #   a) Pull the new image from ACR
+      #   b) Start a new container with the new image
+      #   c) Run health checks to make sure it works
+      #   d) Switch traffic from the old container to the new one
+      #   e) Stop the old container
+      #
+      # This is "zero-downtime deployment" — users never see an error!
+      #
+      # Analogy: Like swapping a tyre while the car is still moving
+      # (okay, not exactly, but the passengers don't feel the bump).
+      # -----------------------------------------------------------------------
+      - name: Deploy to Azure Container Apps
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          # Which Container App to update
+          containerAppName: ${{ env.CONTAINER_APP_NAME }}
+          # Which Resource Group it belongs to
+          resourceGroup: ${{ env.RESOURCE_GROUP }}
+          # The new Docker image to deploy
+          imageToDeploy: ${{ env.IMAGE_TAG }}
+
+          # -----------------------------------------------------------------
+          # Environment Variables for the Container
+          # -----------------------------------------------------------------
+          # These are passed to your FastAPI app as environment variables.
+          # Sensitive values (DATABASE_URL, SECRET_KEY) come from
+          # GitHub Secrets — they are encrypted and never visible in logs.
+          #
+          # Non-sensitive values (APP_ENV, LOG_LEVEL) can be set directly.
+          # -----------------------------------------------------------------
+          environmentVariables: |
+            DATABASE_URL=secretref:database-url
+            SECRET_KEY=secretref:secret-key
+            APP_ENV=production
+            LOG_LEVEL=INFO
+            CORS_ORIGINS=https://techpath.biz,https://admin.techpath.biz
+
+      # -----------------------------------------------------------------------
+      # Step 6: Verify Deployment
+      # -----------------------------------------------------------------------
+      # After deploying, we check if the app is actually running by
+      # hitting the health check endpoint.
+      #
+      # If the health check fails, the workflow will show a warning
+      # (but won't fail — the app might still be starting up).
+      # -----------------------------------------------------------------------
+      - name: Verify deployment
+        run: |
+          echo "Fetching Container App URL..."
+
+          # Get the app's public URL from Azure
+          APP_URL=$(az containerapp show \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --query "properties.configuration.ingress.fqdn" \
+            --output tsv)
+
+          echo "App URL: https://$APP_URL"
+
+          # Wait a moment for the new container to start
+          echo "Waiting 30 seconds for the container to be ready..."
+          sleep 30
+
+          # Check the health endpoint
+          echo "Checking health endpoint..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://$APP_URL/health" || echo "000")
+
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "Deployment successful! Health check returned 200 OK"
+            echo "Your app is live at: https://$APP_URL"
+          else
+            echo "Warning: Health check returned HTTP $HTTP_STATUS"
+            echo "The app might still be starting up. Check Azure Portal for details."
+            echo "URL: https://portal.azure.com → Container Apps → ${{ env.CONTAINER_APP_NAME }}"
+          fi
+
+      # -----------------------------------------------------------------------
+      # Step 7: Post Deployment Summary
+      # -----------------------------------------------------------------------
+      # Adds a nice summary to the GitHub Actions run page.
+      # Vikram can see exactly what was deployed and where.
+      # -----------------------------------------------------------------------
+      - name: Post deployment summary
+        run: |
+          APP_URL=$(az containerapp show \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --query "properties.configuration.ingress.fqdn" \
+            --output tsv)
+
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **App** | ${{ env.CONTAINER_APP_NAME }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Image** | ${{ env.IMAGE_NAME }}:${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Region** | ${{ env.LOCATION }} (Central India) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **URL** | https://$APP_URL |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Deployed by** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Time** | $(date -u '+%Y-%m-%d %H:%M:%S UTC') |" >> $GITHUB_STEP_SUMMARY
+
+      # -----------------------------------------------------------------------
+      # Cleanup: Logout from Azure
+      # -----------------------------------------------------------------------
+      # Always log out after you're done, even if previous steps failed.
+      # This is a security best practice — like locking the door when
+      # you leave the office.
+      # -----------------------------------------------------------------------
+      - name: Azure logout
+        if: always()                   # Run this step even if previous steps failed
+        run: az logout
+
+
+# =============================================================================
+# SETUP CHECKLIST (do these ONE TIME before the workflow works):
+# =============================================================================
+#
+# 1. Create Azure resources:
+#    az group create --name techpath-rg --location centralindia
+#    az acr create --name techpathregistry --resource-group techpath-rg --sku Basic
+#    az containerapp env create --name techpath-env --resource-group techpath-rg --location centralindia
+#
+# 2. Create a service principal for GitHub:
+#    az ad sp create-for-rbac \
+#      --name "github-actions-deploy" \
+#      --role contributor \
+#      --scopes /subscriptions/<SUB_ID>/resourceGroups/techpath-rg \
+#      --json-auth
+#
+# 3. Enable ACR admin access:
+#    az acr update --name techpathregistry --admin-enabled true
+#
+# 4. Get ACR credentials:
+#    az acr credential show --name techpathregistry
+#
+# 5. Add GitHub Secrets (Repo → Settings → Secrets → Actions):
+#    - AZURE_CREDENTIALS      → JSON from step 2
+#    - REGISTRY_LOGIN_SERVER  → techpathregistry.azurecr.io
+#    - REGISTRY_USERNAME      → from step 4
+#    - REGISTRY_PASSWORD      → from step 4
+#
+# 6. Make sure your repo has a Dockerfile in the root directory.
+#
+# 7. Push to main — the workflow runs automatically!
+#
+# =============================================================================
+#
+# TROUBLESHOOTING (problems Priya from Delhi encountered):
+#
+# Problem: "Login failed — AZURE_CREDENTIALS secret not found"
+# Fix:     Check that you added the secret in GitHub (not Azure)
+#          Go to: GitHub Repo → Settings → Secrets → Actions
+#
+# Problem: "Docker build failed — Dockerfile not found"
+# Fix:     Make sure Dockerfile is in the ROOT of your repo, not in a subfolder
+#
+# Problem: "Container App not accessible — 502 Bad Gateway"
+# Fix:     Check the app logs: az containerapp logs show --name techpath-api
+#          Common issue: wrong port. Make sure --target-port matches your app.
+#
+# Problem: "Image push failed — unauthorized"
+# Fix:     ACR admin access might be disabled. Run:
+#          az acr update --name techpathregistry --admin-enabled true
+#
+# =============================================================================

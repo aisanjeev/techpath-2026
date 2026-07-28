@@ -1,0 +1,76 @@
+{
+  "questions": [
+    {
+      "question": "What is NumPy used for?",
+      "options": ["Web development", "Fast math on arrays and matrices", "Database management", "File compression"],
+      "correct_index": 1,
+      "explanation": "NumPy provides fast math operations on arrays and matrices — much faster than regular Python lists for numerical work."
+    },
+    {
+      "question": "What is a Pandas DataFrame?",
+      "options": ["A type of graph", "A table-like data structure with rows and columns", "A database engine", "A web framework"],
+      "correct_index": 1,
+      "explanation": "A DataFrame is like an Excel spreadsheet in Python — rows and columns with labels. Created with pd.DataFrame()."
+    },
+    {
+      "question": "How do you read a CSV file in Pandas?",
+      "options": ["pd.open_csv()", "pd.read_csv()", "pd.load_csv()", "pd.import_csv()"],
+      "correct_index": 1,
+      "explanation": "pd.read_csv('file.csv') reads a CSV file into a DataFrame. Similarly, pd.read_excel() for Excel files."
+    },
+    {
+      "question": "Which library creates charts and graphs in Python?",
+      "options": ["NumPy", "Pandas", "Matplotlib", "Requests"],
+      "correct_index": 2,
+      "explanation": "Matplotlib (matplotlib.pyplot) creates line charts, bar charts, pie charts, and more with plt.plot(), plt.bar(), etc."
+    },
+    {
+      "question": "What does df.describe() show?",
+      "options": ["Column names only", "Statistical summary (mean, min, max, count)", "Data types", "First 5 rows"],
+      "correct_index": 1,
+      "explanation": "df.describe() shows count, mean, std, min, max, and quartiles for all numeric columns in the DataFrame."
+    },
+    {
+      "question": "How do you filter rows where marks > 80 in Pandas?",
+      "options": ["df.filter(marks > 80)", "df[df['Marks'] > 80]", "df.where('Marks', 80)", "df.select(marks > 80)"],
+      "correct_index": 1,
+      "explanation": "df[df['Marks'] > 80] filters the DataFrame to only show rows where the Marks column is greater than 80."
+    },
+    {
+      "question": "What does requests.get(url) do?",
+      "options": ["Downloads a file", "Sends an HTTP GET request to a URL", "Opens a browser", "Creates a web server"],
+      "correct_index": 1,
+      "explanation": "requests.get(url) sends an HTTP GET request and returns the response. Use .json() to parse JSON responses."
+    },
+    {
+      "question": "What is BeautifulSoup used for?",
+      "options": ["Making soups", "Parsing HTML to extract data from web pages", "Creating web pages", "Styling web pages"],
+      "correct_index": 1,
+      "explanation": "BeautifulSoup parses HTML content and lets you find elements by tag, class, or ID — essential for web scraping."
+    },
+    {
+      "question": "Which command installs a Python package?",
+      "options": ["python install package", "pip install package", "npm install package", "apt install package"],
+      "correct_index": 1,
+      "explanation": "pip is Python's package manager. pip install package_name downloads and installs from PyPI."
+    },
+    {
+      "question": "What does json.dumps() do?",
+      "options": ["Deletes JSON", "Converts Python dict to JSON string", "Reads a JSON file", "Dumps data to database"],
+      "correct_index": 1,
+      "explanation": "json.dumps() converts a Python dictionary to a JSON string. json.loads() does the reverse (string to dict)."
+    },
+    {
+      "question": "What is a virtual environment in Python?",
+      "options": ["A virtual reality tool", "An isolated space for project-specific packages", "A cloud server", "A virtual machine"],
+      "correct_index": 1,
+      "explanation": "A virtual environment (venv) keeps each project's dependencies separate so they don't conflict with each other."
+    },
+    {
+      "question": "What does df.groupby('Course')['Marks'].mean() do?",
+      "options": ["Groups data and calculates average marks per course", "Creates a new column", "Sorts by course name", "Deletes the course column"],
+      "correct_index": 0,
+      "explanation": "groupby groups rows by Course, then .mean() calculates the average Marks for each group."
+    }
+  ]
+}

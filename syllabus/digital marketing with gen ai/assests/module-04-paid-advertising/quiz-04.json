@@ -1,0 +1,124 @@
+{
+  "questions": [
+    {
+      "question": "In Google Ads, what determines your Ad Rank?",
+      "options": ["Only your bid amount", "Bid amount × Quality Score", "Only your Quality Score", "Total daily budget × CTR"],
+      "correct_index": 1,
+      "explanation": "Ad Rank = Bid × Quality Score (plus ad extensions impact). A higher Quality Score lets you pay less and still rank above competitors."
+    },
+    {
+      "question": "Which three factors make up Google Ads Quality Score?",
+      "options": ["Budget, bid, and ad size", "Expected CTR, ad relevance, and landing page experience", "Impressions, clicks, and conversions", "Keywords, location, and device"],
+      "correct_index": 1,
+      "explanation": "Quality Score (1-10) is based on expected CTR, ad relevance to the keyword, and landing page experience. Improving these lowers your cost per click."
+    },
+    {
+      "question": "What is the correct campaign structure hierarchy in Meta (Facebook/Instagram) Ads?",
+      "options": ["Ad > Ad Set > Campaign", "Campaign > Ad > Ad Set", "Campaign > Ad Set > Ad", "Ad Set > Campaign > Ad"],
+      "correct_index": 2,
+      "explanation": "Meta Ads follow Campaign (objective) > Ad Set (audience, budget, schedule) > Ad (creative and copy). Each level controls different settings."
+    },
+    {
+      "question": "A shoe brand spends ₹50,000 on Google Ads and generates ₹2,00,000 in revenue. What is the ROAS?",
+      "options": ["2x", "4x", "5x", "25%"],
+      "correct_index": 1,
+      "explanation": "ROAS = Revenue ÷ Ad Spend = ₹2,00,000 ÷ ₹50,000 = 4x. This means every ₹1 spent returned ₹4 in revenue."
+    },
+    {
+      "question": "What does Google Tag Manager (GTM) primarily help you do?",
+      "options": ["Design ad creatives", "Manage and deploy tracking codes without editing website code", "Automatically optimize bids", "Create landing pages"],
+      "correct_index": 1,
+      "explanation": "GTM is a tag management system that lets marketers add tracking pixels (Google Ads, Meta Pixel, analytics) without asking developers to change code."
+    },
+    {
+      "question": "What is the Meta Pixel used for?",
+      "options": ["Editing Facebook page cover photos", "Tracking user actions on your website for ad optimization and retargeting", "Creating Instagram Reels", "Managing Facebook Groups"],
+      "correct_index": 1,
+      "explanation": "The Meta Pixel is a JavaScript snippet placed on your website that tracks conversions, builds retargeting audiences, and helps Meta optimize ad delivery."
+    },
+    {
+      "question": "An ad gets 200 clicks from 10,000 impressions. What is the CTR?",
+      "options": ["0.2%", "2%", "5%", "20%"],
+      "correct_index": 1,
+      "explanation": "CTR = (Clicks ÷ Impressions) × 100 = (200 ÷ 10,000) × 100 = 2%. A 2% CTR is considered good for search ads."
+    },
+    {
+      "question": "Which Google Ads campaign type shows product images, prices, and store name directly in search results?",
+      "options": ["Search Ads", "Display Ads", "Shopping Ads", "Discovery Ads"],
+      "correct_index": 2,
+      "explanation": "Google Shopping Ads pull product data from Merchant Center to show images, prices, and store names — ideal for e-commerce businesses."
+    },
+    {
+      "question": "What is a Lookalike Audience in Meta Ads?",
+      "options": ["People who already bought from you", "A new audience that resembles your existing customers based on data patterns", "People who liked your Facebook page", "Manually uploaded email list"],
+      "correct_index": 1,
+      "explanation": "Lookalike Audiences use Meta's algorithm to find new people who share characteristics with your best existing customers, expanding your reach to similar prospects."
+    },
+    {
+      "question": "You spent ₹30,000 on ads and got 150 conversions. What is your CPA?",
+      "options": ["₹100", "₹150", "₹200", "₹300"],
+      "correct_index": 2,
+      "explanation": "CPA (Cost Per Acquisition) = Total Spend ÷ Conversions = ₹30,000 ÷ 150 = ₹200. Lower CPA means more efficient spending."
+    },
+    {
+      "question": "Which YouTube ad format can be skipped after 5 seconds?",
+      "options": ["Bumper Ads", "Non-skippable In-stream Ads", "TrueView In-stream Ads", "Masthead Ads"],
+      "correct_index": 2,
+      "explanation": "TrueView In-stream ads play before/during videos and can be skipped after 5 seconds. You only pay when viewers watch 30 seconds or interact."
+    },
+    {
+      "question": "What is the maximum duration of a YouTube Bumper Ad?",
+      "options": ["5 seconds", "6 seconds", "15 seconds", "30 seconds"],
+      "correct_index": 1,
+      "explanation": "Bumper Ads are non-skippable and limited to 6 seconds. They are best for brand awareness with a short, memorable message."
+    },
+    {
+      "question": "Which bidding strategy should you use if your goal is to get maximum conversions within a fixed budget?",
+      "options": ["Manual CPC", "Maximize Clicks", "Maximize Conversions", "Target Impression Share"],
+      "correct_index": 2,
+      "explanation": "Maximize Conversions uses Google's AI to automatically set bids that get the most conversions within your daily budget."
+    },
+    {
+      "question": "In A/B testing ads, what is the correct approach?",
+      "options": ["Change headline, image, CTA, and audience all at once", "Change only one variable at a time to identify what works", "Run both ads for 1 hour and pick the winner", "Always test with the lowest possible budget"],
+      "correct_index": 1,
+      "explanation": "A/B testing changes one variable at a time (e.g., only the headline) so you can clearly attribute performance differences to that specific change."
+    },
+    {
+      "question": "A local coaching class in Pune wants to target students within 5 km. Which targeting option is most appropriate?",
+      "options": ["Interest targeting for education", "Location targeting with radius", "Lookalike audience", "Keyword targeting for 'coaching'"],
+      "correct_index": 1,
+      "explanation": "Location/radius targeting lets you show ads only to people within a specific distance from your business — perfect for local services."
+    },
+    {
+      "question": "What does CPM stand for in advertising?",
+      "options": ["Cost Per Message", "Cost Per Mile", "Cost Per Mille (thousand impressions)", "Clicks Per Minute"],
+      "correct_index": 2,
+      "explanation": "CPM = Cost Per Mille (1,000 impressions). If CPM is ₹100, you pay ₹100 for every 1,000 times your ad is shown, regardless of clicks."
+    },
+    {
+      "question": "Which LinkedIn Ad format works best for generating B2B leads with a form that auto-fills user data?",
+      "options": ["Text Ads", "Sponsored Content", "Lead Gen Forms", "Dynamic Ads"],
+      "correct_index": 2,
+      "explanation": "LinkedIn Lead Gen Forms pre-fill the user's profile data (name, email, company) making it easy to submit — resulting in higher conversion rates for B2B."
+    },
+    {
+      "question": "What is Google Performance Max?",
+      "options": ["A manual campaign type for search only", "An AI-driven campaign that runs across all Google channels automatically", "A tool for keyword research", "A landing page builder"],
+      "correct_index": 1,
+      "explanation": "Performance Max uses Google's AI to run ads across Search, Display, YouTube, Gmail, Maps, and Discover from a single campaign, optimizing for your conversion goals."
+    },
+    {
+      "question": "An e-commerce store has 1,000 website visitors but only 20 purchases. They want to bring back the other 980 visitors. Which strategy should they use?",
+      "options": ["Broad audience targeting", "Retargeting/Remarketing ads", "Increasing daily budget", "Changing the product price"],
+      "correct_index": 1,
+      "explanation": "Retargeting shows ads to people who already visited your site but didn't convert. These warm audiences typically convert at 3-5x higher rates than cold audiences."
+    },
+    {
+      "question": "If your Google Ads campaign has a daily budget of ₹1,000 and your average CPC is ₹10, approximately how many clicks can you expect per day?",
+      "options": ["10 clicks", "50 clicks", "100 clicks", "1,000 clicks"],
+      "correct_index": 2,
+      "explanation": "Expected clicks = Daily Budget ÷ Avg CPC = ₹1,000 ÷ ₹10 = 100 clicks. This helps you forecast traffic before launching."
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "01-powerpoint-basics.md": {
+    "title": "PowerPoint Basics",
+    "description": "Module 08 \u2014 CCC Exam Preparation | Topic 1 --- Microsoft PowerPoint is a presentation software developed by Microsoft. It is part of the Microsoft Office suite and is used to create visual presentations made up of individual slides. These presentations are used for: - Classroom teaching and lectures - Business meetings and project reports - Conference talks and seminars - Personal projects like photo albums and event planning PowerPoint files...",
+    "asset_type": "markdown",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "02-creating-presentations.md": {
+    "title": "Creating Presentations",
+    "description": "Module 08 \u2014 CCC Exam Preparation | Topic 2 --- When you open PowerPoint and select Blank Presentation, you get a fresh presentation with one slide using the Title Slide layout. 1. Open Microsoft PowerPoint 2. Click Blank Presentation 3. On the first slide (Title Slide layout): - Click \"Click to add title\" and type your presentation title - Click \"Click to add subtitle\" and type your name or description 4. Add more slides as needed (explained...",
+    "asset_type": "markdown",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "03-inserting-objects.md": {
+    "title": "Inserting Objects in Slides",
+    "description": "Module 08 \u2014 CCC Exam Preparation | Topic 3 --- PowerPoint slides can contain much more than just text. You can insert various objects to make your presentations visually engaging and informative. All insertion tools are found in the Insert tab of the Ribbon. Objects you can insert: - Tables (from Word or directly) - Excel Worksheets/Charts - Pictures and Clip Art - Shapes and Lines - SmartArt Graphics - WordArt (decorative text) --- Tables are...",
+    "asset_type": "markdown",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "04-slide-design-themes.md": {
+    "title": "Slide Design and Themes",
+    "description": "Module 08 \u2014 CCC Exam Preparation | Topic 4 --- A theme in PowerPoint is a coordinated set of design elements that gives your presentation a consistent and professional look. A theme includes: - Colors \u2014 A palette of coordinated colors for text, backgrounds, and accents - Fonts \u2014 A pair of fonts (one for headings, one for body text) - Effects \u2014 Visual effects for shapes and objects (shadows, reflections, etc.) - Background styles \u2014 Slide...",
+    "asset_type": "markdown",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "05-animations-transitions.md": {
+    "title": "Animations and Transitions",
+    "description": "Module 08 \u2014 CCC Exam Preparation | Topic 5 --- This is one of the most important distinctions in the CCC exam. Many students confuse transitions with animations. CCC Exam Tip: This is VERY frequently asked. \"A transition is applied between ___\" \u2014 Answer: Slides. \"An animation is applied to ___\" \u2014 Answer: Objects within a slide. Remember: Transition = between slides, Animation = within a slide. --- A slide transition is a visual effect that...",
+    "asset_type": "markdown",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "06-slideshow-delivery.md": {
+    "title": "Slide Show and Delivery",
+    "description": "Module 08 \u2014 CCC Exam Preparation | Topic 6 --- The Slide Show is the final output of your presentation \u2014 it displays your slides in full screen mode for the audience. This is the most important section for the CCC exam, with several frequently asked questions. CCC Exam Tip: This is the MOST frequently asked question from this module. \"F5 in PowerPoint does ___\" \u2014 Answer: Starts slide show from the beginning. \"Shift+F5 does ___\" \u2014 Answer: Starts...",
+    "asset_type": "markdown",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "07-presentation-builder.html": {
+    "title": "Presentation Builder \u2014 TechPath CCC",
+    "description": "Interactive Presentation Builder \u2014 TechPath CCC exercise for Presentations",
+    "asset_type": "html_bundle",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "assignment-08.md": {
+    "title": "Assignment \u2014 Module 08: Making Small Presentations",
+    "description": "CCC Exam Preparation \u2014 Practical Exercises --- Complete the following four tasks to build hands-on PowerPoint skills. This module carries 14-16 marks in the CCC exam \u2014 practice is essential. Submission: Save each completed presentation as a .pptx file and submit to your trainer. --- Objective: Practice creating a complete presentation with text, images, themes, and slide layouts. Create a PowerPoint presentation about your city (e.g., Bhopal,...",
+    "asset_type": "assignment",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "cheatsheet-08.md": {
+    "title": "Cheatsheet 08",
+    "description": "Learning material for Cheatsheet 08",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "lab-08-a.json": {
+    "title": "Create a Presentation with Text, Images, and Tables",
+    "description": "Build a 6-slide presentation about 'My City' using multiple layouts, themes, images, tables, and SmartArt",
+    "asset_type": "lab",
+    "tags": [
+      "powerpoint",
+      "presentation",
+      "slides",
+      "themes",
+      "smartart",
+      "ccc-exam"
+    ]
+  },
+  "lab-08-b.json": {
+    "title": "Animations, Transitions, and Slide Show Delivery",
+    "description": "Apply transitions and animations, practice slide show delivery, use Presenter View, and print handouts",
+    "asset_type": "lab",
+    "tags": [
+      "powerpoint",
+      "animations",
+      "transitions",
+      "slideshow",
+      "handouts",
+      "ccc-exam"
+    ]
+  },
+  "notes-08.md": {
+    "title": "Module 08 \u2014 Making Small Presentations",
+    "description": "Comprehensive Notes \u2014 CCC Exam Preparation Expected Exam Weight: 14-16 MCQs out of 100 (VERY HIGH PRIORITY) This is the third highest scoring unit in the CCC exam. Master every detail here \u2014 especially keyboard shortcuts, view types, and the difference between transitions and animations. --- Microsoft PowerPoint is presentation software used to create slide-based visual presentations. It is part of the Microsoft Office suite. Key exam fact:...",
+    "asset_type": "notes",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-08.json": {
+    "title": "Quiz 08",
+    "description": "Learning material for Quiz 08",
+    "asset_type": "quiz",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-08.md": {
+    "title": "Quiz: Making Small Presentations",
+    "description": "Module 08 \u2014 CCC Exam Preparation --- - A) The current slide - B) The last slide - C) The first slide \u2705 - D) A random slide > Explanation: F5 starts the slide show from the very first slide (beginning of the presentation). To start from the current slide, use Shift+F5. --- - A) The first slide - B) The current slide \u2705 - C) The last slide - D) Slide number 5 > Explanation: Shift+F5 starts the slide show from the currently selected (active) slide....",
+    "asset_type": "markdown",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "resources-08.md": {
+    "title": "Resources \u2014 Module 08: Making Small Presentations",
+    "description": "CCC Exam Preparation \u2014 Curated Learning Resources --- 1. NIELIT CCC Study Material (Official) - NIELIT Official Website: https://www.nielit.gov.in - Download the official CCC syllabus and study guides - Module: Making Small Presentations 2. Microsoft PowerPoint Help Center - https://support.microsoft.com/en-us/powerpoint - Official Microsoft documentation for all PowerPoint features - Covers: Creating, designing, animating, and presenting 3....",
+    "asset_type": "notes",
+    "tags": [
+      "presentations",
+      "ccc",
+      "computer-concepts"
+    ]
+  }
+}

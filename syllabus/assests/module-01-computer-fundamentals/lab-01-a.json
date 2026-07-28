@@ -1,0 +1,36 @@
+{
+  "asset_type": "lab",
+  "title": "Explore Your Computer's Hardware",
+  "description": "Use built-in Windows tools to discover and document your computer's hardware specifications",
+  "tags": [
+    "hardware",
+    "system-info",
+    "task-manager",
+    "beginner"
+  ],
+  "status": "draft",
+  "objective": "Students will use Task Manager, System Information, and Device Manager to identify CPU, RAM, storage, and GPU specifications of their own computer",
+  "steps": [
+    {
+      "title": "Open System Information",
+      "instructions": "Press **Win + R**, type `msinfo32`, and press Enter.\n\nIn the System Information window, find and write down:\n- **OS Name** (e.g., Microsoft Windows 11 Pro)\n- **Processor** (e.g., Intel Core i5-12400 @ 2.50GHz)\n- **Installed Physical Memory (RAM)** (e.g., 16.0 GB)\n- **BaseBoard Manufacturer** (your motherboard brand)\n\nTake a screenshot of this window."
+    },
+    {
+      "title": "Explore Task Manager Performance",
+      "instructions": "Press **Ctrl + Shift + Esc** to open Task Manager.\n\nClick the **Performance** tab and explore each section:\n\n1. **CPU** — Note the speed (GHz), cores, logical processors, and current usage %\n2. **Memory** — Note total RAM, how much is in use, and available\n3. **Disk** — Note if it says SSD or HDD, read/write speeds\n4. **GPU** — Note the graphics card name and dedicated memory\n\nTake a screenshot of each section."
+    },
+    {
+      "title": "Check Device Manager",
+      "instructions": "Right-click the **Start button** → click **Device Manager** (or press Win + X → M).\n\nExpand these categories and note what's listed:\n- **Display adapters** — Your graphics card\n- **Network adapters** — WiFi and Ethernet cards\n- **Disk drives** — Storage devices\n- **Processors** — How many entries (this shows logical cores)\n\nLook for any yellow triangle ⚠️ icons — these mean a driver problem.\n\nTake a screenshot if you find any warnings."
+    },
+    {
+      "title": "Check Storage Health",
+      "instructions": "Open **Settings** (Win + I) → **System** → **Storage**.\n\n1. Note total capacity and free space on C: drive\n2. Click **Temporary files** — how much space can you reclaim?\n3. Click **Show more categories** — what's using the most space?\n\nNow open **Command Prompt** (search 'cmd') and type:\n```\nwmic diskdrive get model,size,mediaType\n```\nThis shows your exact drive model. Search this model online to confirm if it's SSD or HDD."
+    },
+    {
+      "title": "Create Your System Report",
+      "instructions": "Open Command Prompt and run:\n```\nsysteminfo > C:\\Users\\%USERNAME%\\Desktop\\my-system-report.txt\n```\n\nOpen the file from your Desktop. This contains EVERYTHING about your system.\n\nNow create a summary document (Word or Notepad) with:\n- Computer name\n- OS version\n- CPU (name, speed, cores)\n- RAM (total, type if visible)\n- Storage (type, capacity, free space)\n- GPU (name, memory)\n- Any issues found (yellow triangles in Device Manager)\n\n**Submit this summary document as your lab report.**"
+    }
+  ],
+  "expected_output": "A system summary document containing accurate hardware specifications discovered using msinfo32, Task Manager, Device Manager, and systeminfo command"
+}

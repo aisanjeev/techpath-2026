@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSI Model — Interactive Explorer</title>
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --card-hover: #334155;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --accent: #38bdf8;
+  --success: #4ade80;
+  --danger: #f87171;
+  --warning: #fbbf24;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; }
+h1 { text-align: center; font-size: 1.6rem; margin-bottom: 6px; }
+.subtitle { text-align: center; color: var(--text-dim); font-size: 0.95rem; margin-bottom: 24px; }
+
+.container { max-width: 900px; margin: 0 auto; }
+
+/* Tabs */
+.tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; justify-content: center; }
+.tab-btn { padding: 10px 20px; border: 2px solid var(--card-hover); background: var(--card); color: var(--text-dim); border-radius: 8px; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; }
+.tab-btn:hover { border-color: var(--accent); color: var(--text); }
+.tab-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* OSI Stack */
+.osi-stack { display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
+.osi-layer { display: flex; align-items: center; padding: 14px 18px; border-radius: 10px; cursor: pointer; transition: all 0.25s; border: 2px solid transparent; }
+.osi-layer:hover { transform: translateX(6px); }
+.osi-layer.selected { border-color: #fff; transform: translateX(10px); box-shadow: 0 0 20px rgba(56,189,248,0.3); }
+.layer-num { font-size: 1.5rem; font-weight: 700; width: 40px; text-align: center; margin-right: 14px; opacity: 0.7; }
+.layer-info { flex: 1; }
+.layer-name { font-weight: 600; font-size: 1.1rem; }
+.layer-short { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; }
+.layer-icon { font-size: 1.5rem; margin-left: 10px; }
+
+.l7 { background: #dc2626; } .l6 { background: #ea580c; } .l5 { background: #d97706; }
+.l4 { background: #65a30d; } .l3 { background: #0891b2; } .l2 { background: #2563eb; }
+.l1 { background: #7c3aed; }
+
+/* Detail panel */
+.detail-panel { background: var(--card); border-radius: 12px; padding: 24px; margin-top: 16px; min-height: 180px; }
+.detail-panel h3 { color: var(--accent); margin-bottom: 12px; font-size: 1.2rem; }
+.detail-panel .what { margin-bottom: 12px; line-height: 1.6; }
+.detail-panel .examples { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.detail-panel .tag { background: var(--card-hover); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; }
+.detail-panel .analogy { margin-top: 14px; padding: 12px 16px; background: rgba(56,189,248,0.1); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; font-style: italic; }
+
+.mnemonic { text-align: center; margin: 20px 0; padding: 16px; background: var(--card); border-radius: 10px; }
+.mnemonic span { font-weight: 700; color: var(--accent); font-size: 1.1rem; }
+
+/* Data Journey */
+.journey-container { position: relative; }
+.journey-step { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 8px; padding: 14px; background: var(--card); border-radius: 10px; opacity: 0.4; transition: all 0.4s; border-left: 4px solid var(--card-hover); }
+.journey-step.active { opacity: 1; border-left-color: var(--accent); background: var(--card-hover); }
+.journey-step.done { opacity: 0.7; border-left-color: var(--success); }
+.step-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; background: var(--card-hover); }
+.journey-step.active .step-num { background: var(--accent); color: var(--bg); }
+.journey-step.done .step-num { background: var(--success); color: var(--bg); }
+.step-text h4 { font-size: 0.95rem; margin-bottom: 4px; }
+.step-text p { font-size: 0.85rem; color: var(--text-dim); }
+
+.journey-controls { display: flex; gap: 12px; justify-content: center; margin: 20px 0; }
+.j-btn { padding: 10px 24px; border-radius: 8px; border: none; font-size: 0.95rem; cursor: pointer; font-weight: 600; transition: 0.2s; }
+.j-btn.primary { background: var(--accent); color: var(--bg); }
+.j-btn.secondary { background: var(--card-hover); color: var(--text); }
+.j-btn:hover { opacity: 0.85; }
+.j-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* Quiz */
+.quiz-q { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.quiz-q h4 { margin-bottom: 14px; font-size: 1rem; }
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt { padding: 12px 16px; background: var(--card-hover); border: 2px solid transparent; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
+.quiz-opt:hover { border-color: var(--accent); }
+.quiz-opt.correct { background: rgba(74,222,128,0.15); border-color: var(--success); }
+.quiz-opt.wrong { background: rgba(248,113,113,0.15); border-color: var(--danger); }
+.quiz-opt.disabled { pointer-events: none; }
+.quiz-feedback { margin-top: 10px; padding: 10px 14px; border-radius: 8px; font-size: 0.9rem; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.right { background: rgba(74,222,128,0.1); color: var(--success); }
+.quiz-feedback.wrong-fb { background: rgba(248,113,113,0.1); color: var(--danger); }
+
+.score-bar { text-align: center; padding: 16px; background: var(--card); border-radius: 10px; margin-bottom: 20px; font-size: 1.1rem; }
+.score-bar span { color: var(--accent); font-weight: 700; font-size: 1.3rem; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  body { padding: 12px; }
+  h1 { font-size: 1.3rem; }
+  .osi-layer { padding: 10px 12px; }
+  .layer-num { font-size: 1.2rem; width: 30px; margin-right: 10px; }
+  .layer-name { font-size: 0.95rem; }
+  .tab-btn { padding: 8px 14px; font-size: 0.85rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>OSI Model — Interactive Explorer</h1>
+  <p class="subtitle">Click layers to learn, watch data travel, then test yourself</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('explore')">Explore Layers</button>
+    <button class="tab-btn" onclick="showTab('journey')">Data Journey</button>
+    <button class="tab-btn" onclick="showTab('quiz')">Quick Quiz</button>
+  </div>
+
+  <!-- Tab 1: Explore -->
+  <div id="tab-explore" class="tab-content active">
+    <div class="mnemonic">
+      <span>A</span>ll <span>P</span>eople <span>S</span>eem <span>T</span>o <span>N</span>eed <span>D</span>ata <span>P</span>rocessing
+    </div>
+
+    <div class="osi-stack" id="osiStack"></div>
+    <div class="detail-panel" id="detailPanel">
+      <h3>Click any layer above to explore it</h3>
+      <p class="what">Each layer of the OSI model has a specific job. Click a layer to see what it does, real-world examples, and a simple analogy.</p>
+    </div>
+  </div>
+
+  <!-- Tab 2: Journey -->
+  <div id="tab-journey" class="tab-content">
+    <p style="text-align:center;color:var(--text-dim);margin-bottom:16px;">Watch what happens when you send a WhatsApp message</p>
+    <div class="journey-container" id="journeyContainer"></div>
+    <div class="journey-controls">
+      <button class="j-btn secondary" id="btnPrev" onclick="journeyStep(-1)" disabled>Previous</button>
+      <button class="j-btn primary" id="btnNext" onclick="journeyStep(1)">Next Step</button>
+      <button class="j-btn secondary" onclick="resetJourney()">Reset</button>
+    </div>
+  </div>
+
+  <!-- Tab 3: Quiz -->
+  <div id="tab-quiz" class="tab-content">
+    <div class="score-bar">Score: <span id="quizScore">0</span> / <span id="quizTotal">0</span></div>
+    <div id="quizContainer"></div>
+  </div>
+</div>
+
+<script>
+const layers = [
+  { num: 7, name: "Application", cls: "l7", icon: "🌐",
+    short: "What you see and use",
+    what: "This is the layer closest to YOU. It provides the interface for apps like browsers, email, and WhatsApp to access the network.",
+    examples: ["Chrome", "Gmail", "WhatsApp", "HTTP", "HTTPS", "FTP", "SMTP", "DNS"],
+    analogy: "Writing a letter — you decide what to say and who to send it to."
+  },
+  { num: 6, name: "Presentation", cls: "l6", icon: "🔐",
+    short: "Formats, encrypts, compresses data",
+    what: "Translates data into a format both computers understand. Handles encryption (HTTPS/SSL), compression, and encoding (JPEG, UTF-8).",
+    examples: ["SSL/TLS", "JPEG", "PNG", "MP4", "UTF-8", "Encryption", "Compression"],
+    analogy: "Translating your letter into a language both sides understand, and sealing it in a secure envelope."
+  },
+  { num: 5, name: "Session", cls: "l5", icon: "🤝",
+    short: "Opens and manages connections",
+    what: "Creates, manages, and closes sessions (connections) between two devices. Handles login sessions, checkpoints, and reconnection.",
+    examples: ["Login sessions", "Video call setup", "API sessions", "Checkpoints"],
+    analogy: "Starting a phone call — dialing, talking, then hanging up. The session layer manages this whole conversation."
+  },
+  { num: 4, name: "Transport", cls: "l4", icon: "📦",
+    short: "Reliable delivery of data",
+    what: "Breaks data into segments, ensures they arrive correctly and in order (TCP) or quickly without checking (UDP). Adds port numbers.",
+    examples: ["TCP", "UDP", "Port 80", "Port 443", "Port 22", "Segments"],
+    analogy: "The postal service — TCP is registered post (guaranteed delivery), UDP is dropping a postcard in the box (faster, no guarantee)."
+  },
+  { num: 3, name: "Network", cls: "l3", icon: "🗺️",
+    short: "Routing — finds the best path",
+    what: "Adds IP addresses and finds the best route from source to destination. Routers work at this layer.",
+    examples: ["IP addresses", "Routers", "IPv4", "IPv6", "ICMP", "Packets"],
+    analogy: "GPS navigation — it knows the destination address and picks the best route through the city."
+  },
+  { num: 2, name: "Data Link", cls: "l2", icon: "🔗",
+    short: "Device-to-device transfer",
+    what: "Handles direct communication between connected devices using MAC addresses. Switches work here. Adds error detection.",
+    examples: ["MAC address", "Switches", "Ethernet", "WiFi frames", "Error checking"],
+    analogy: "Street signs and traffic lights — they guide traffic between directly connected roads (devices)."
+  },
+  { num: 1, name: "Physical", cls: "l1", icon: "🔌",
+    short: "Cables, signals, hardware",
+    what: "The actual physical connection — electrical signals through cables, light through fiber optics, or radio waves for WiFi. Converts data to bits (0s and 1s).",
+    examples: ["Ethernet cable", "Fiber optic", "WiFi radio", "USB", "Hubs", "Bits"],
+    analogy: "The road itself — the physical path that trucks (data) drive on."
+  }
+];
+
+// Tab switching
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Build OSI stack
+const stackEl = document.getElementById('osiStack');
+layers.forEach((l, i) => {
+  const div = document.createElement('div');
+  div.className = `osi-layer ${l.cls}`;
+  div.onclick = () => selectLayer(i);
+  div.innerHTML = `
+    <div class="layer-num">${l.num}</div>
+    <div class="layer-info">
+      <div class="layer-name">${l.name}</div>
+      <div class="layer-short">${l.short}</div>
+    </div>
+    <div class="layer-icon">${l.icon}</div>
+  `;
+  stackEl.appendChild(div);
+});
+
+function selectLayer(idx) {
+  document.querySelectorAll('.osi-layer').forEach(el => el.classList.remove('selected'));
+  stackEl.children[idx].classList.add('selected');
+  const l = layers[idx];
+  document.getElementById('detailPanel').innerHTML = `
+    <h3>Layer ${l.num}: ${l.name} ${l.icon}</h3>
+    <p class="what">${l.what}</p>
+    <div class="examples">${l.examples.map(e => `<span class="tag">${e}</span>`).join('')}</div>
+    <div class="analogy">💡 ${l.analogy}</div>
+  `;
+}
+
+// Data Journey
+const journeySteps = [
+  { title: "You type a message in WhatsApp", desc: "Layer 7 (Application) — The app takes your text and prepares to send it." },
+  { title: "Message is encrypted", desc: "Layer 6 (Presentation) — WhatsApp encrypts your message so nobody in between can read it." },
+  { title: "Session is established", desc: "Layer 5 (Session) — A connection is opened between your phone and WhatsApp's server." },
+  { title: "Data is split into segments", desc: "Layer 4 (Transport) — TCP breaks your message into numbered segments and adds port info." },
+  { title: "IP address is added", desc: "Layer 3 (Network) — Your phone's IP and WhatsApp server's IP are added. Router finds the best path." },
+  { title: "MAC address is added", desc: "Layer 2 (Data Link) — Your phone's MAC address and your WiFi router's MAC address are added." },
+  { title: "Sent as electrical/radio signals", desc: "Layer 1 (Physical) — Data converted to radio waves (WiFi) and sent to your router." },
+  { title: "Travels across the internet", desc: "Signals hop through routers, cables, and fiber optics across cities and countries." },
+  { title: "Arrives at WhatsApp's server", desc: "The process reverses — Layer 1 up to Layer 7. Server reads your message." },
+  { title: "Friend receives it!", desc: "Server sends message to your friend's phone, same process. They see your message in WhatsApp! ✅" }
+];
+
+let currentStep = -1;
+const journeyEl = document.getElementById('journeyContainer');
+
+journeySteps.forEach((s, i) => {
+  const div = document.createElement('div');
+  div.className = 'journey-step';
+  div.id = 'jstep-' + i;
+  div.innerHTML = `
+    <div class="step-num">${i + 1}</div>
+    <div class="step-text"><h4>${s.title}</h4><p>${s.desc}</p></div>
+  `;
+  journeyEl.appendChild(div);
+});
+
+function journeyStep(dir) {
+  if (dir === 1 && currentStep < journeySteps.length - 1) {
+    if (currentStep >= 0) document.getElementById('jstep-' + currentStep).className = 'journey-step done';
+    currentStep++;
+    document.getElementById('jstep-' + currentStep).className = 'journey-step active';
+    document.getElementById('jstep-' + currentStep).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else if (dir === -1 && currentStep > 0) {
+    document.getElementById('jstep-' + currentStep).className = 'journey-step';
+    currentStep--;
+    document.getElementById('jstep-' + currentStep).className = 'journey-step active';
+  }
+  document.getElementById('btnPrev').disabled = currentStep <= 0;
+  document.getElementById('btnNext').disabled = currentStep >= journeySteps.length - 1;
+}
+
+function resetJourney() {
+  currentStep = -1;
+  document.querySelectorAll('.journey-step').forEach(el => el.className = 'journey-step');
+  document.getElementById('btnPrev').disabled = true;
+  document.getElementById('btnNext').disabled = false;
+}
+
+// Quiz
+const quizQs = [
+  { q: "Which layer does your web browser (Chrome) work at?", opts: ["Physical", "Network", "Application", "Transport"], ans: 2 },
+  { q: "Which layer adds IP addresses and handles routing?", opts: ["Data Link", "Network", "Transport", "Session"], ans: 1 },
+  { q: "TCP and UDP work at which layer?", opts: ["Application", "Physical", "Network", "Transport"], ans: 3 },
+  { q: "What does the Physical layer deal with?", opts: ["IP addresses", "Encryption", "Cables and signals", "Web browsers"], ans: 2 },
+  { q: "Which memory trick helps remember OSI layers (top to bottom)?", opts: ["Please Do Not Touch", "All People Seem To Need Data Processing", "Open Systems Interconnect", "TCP/IP Model"], ans: 1 },
+  { q: "Encryption happens at which layer?", opts: ["Application", "Presentation", "Network", "Physical"], ans: 1 },
+  { q: "MAC addresses are used at which layer?", opts: ["Network", "Physical", "Data Link", "Transport"], ans: 2 },
+  { q: "How many layers does the TCP/IP model have?", opts: ["7", "5", "4", "3"], ans: 2 }
+];
+
+let score = 0, answered = 0;
+const quizEl = document.getElementById('quizContainer');
+
+quizQs.forEach((q, qi) => {
+  const div = document.createElement('div');
+  div.className = 'quiz-q';
+  div.innerHTML = `
+    <h4>${qi + 1}. ${q.q}</h4>
+    <div class="quiz-opts">${q.opts.map((o, oi) =>
+      `<div class="quiz-opt" onclick="checkAns(${qi},${oi},this)">${o}</div>`
+    ).join('')}</div>
+    <div class="quiz-feedback" id="fb-${qi}"></div>
+  `;
+  quizEl.appendChild(div);
+});
+document.getElementById('quizTotal').textContent = quizQs.length;
+
+function checkAns(qi, oi, el) {
+  const q = quizQs[qi];
+  const fb = document.getElementById('fb-' + qi);
+  const opts = el.parentElement.querySelectorAll('.quiz-opt');
+  if (el.classList.contains('disabled')) return;
+  opts.forEach(o => o.classList.add('disabled'));
+  opts[q.ans].classList.add('correct');
+  answered++;
+  if (oi === q.ans) {
+    score++;
+    fb.textContent = "✅ Correct!";
+    fb.className = "quiz-feedback show right";
+  } else {
+    el.classList.add('wrong');
+    fb.textContent = "❌ Wrong — correct answer: " + q.opts[q.ans];
+    fb.className = "quiz-feedback show wrong-fb";
+  }
+  document.getElementById('quizScore').textContent = score;
+}
+</script>
+
+</body>
+</html>

@@ -34,7 +34,7 @@ function paginate<T>(response: {
 
 /**
  * Batches and students are mirrored from an external system and are read-only here.
- * There is no create/update/delete — the only writable field is a batch's program_id,
+ * There is no create/update/delete — the only writable field is a batch's programs,
  * which is ours.
  */
 export const trainingRosterService = {
@@ -75,11 +75,11 @@ export const trainingRosterService = {
     }
   },
 
-  async linkProgram(batchId: number, programId: number | null): Promise<TrainingBatch> {
+  async linkPrograms(batchId: number, programIds: number[]): Promise<TrainingBatch> {
     try {
       const response = await apiClient.patch<TrainingBatch>(
         `/api/v1/training/batches/${batchId}/program`,
-        { program_id: programId }
+        { program_ids: programIds }
       );
       return response.data;
     } catch (error) {

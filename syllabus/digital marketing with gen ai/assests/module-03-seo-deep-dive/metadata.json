@@ -1,0 +1,152 @@
+{
+  "01-keyword-research-simulator.html": {
+    "title": "Keyword Research Simulator \u2014 TechPath Academy",
+    "description": "Interactive Keyword Research Simulator \u2014 TechPath Academy exercise for SEO Deep Dive",
+    "asset_type": "html_bundle",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "01-search-engines-and-keyword-research.md": {
+    "title": "Search Engines & Keyword Research",
+    "description": "Module 03 \u2014 SEO Deep Dive | Topic 1 --- Every time you search on Google, three things have already happened behind the scenes: Crawling, Indexing, and Ranking. Understanding this process is the foundation of all SEO work. Google sends out automated programs called spiders or bots (the main one is called Googlebot) to discover web pages. - Googlebot follows links from page to page, just like you clicking links - It reads the HTML code, text,...",
+    "asset_type": "markdown",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "02-on-page-seo.md": {
+    "title": "On-Page SEO",
+    "description": "Module 03 \u2014 SEO Deep Dive | Topic 2 --- On-Page SEO means optimising the elements on your own web page to help search engines understand your content and rank it higher. Unlike off-page SEO (backlinks), on-page SEO is 100% in your control. > Simple Analogy: Think of on-page SEO like dressing up for a job interview. You control your outfit, your resume, and how you present yourself. Off-page SEO is like the reference letter someone else writes...",
+    "asset_type": "markdown",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "02-serp-features-explorer.html": {
+    "title": "SERP Features Explorer \u2014 TechPath Academy",
+    "description": "Interactive SERP Features Explorer \u2014 TechPath Academy exercise for SEO Deep Dive",
+    "asset_type": "html_bundle",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "03-technical-seo.md": {
+    "title": "Technical SEO",
+    "description": "Module 03 \u2014 SEO Deep Dive | Topic 3 --- Technical SEO covers all the behind-the-scenes work that helps search engines crawl, index, and render your website properly. Even the best content will not rank if Google cannot access or understand your pages. > Simple Analogy: On-page SEO is the design of your shop and the products inside. Technical SEO is the plumbing, electricity, and road access that makes the shop functional. If the road is broken,...",
+    "asset_type": "markdown",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "04-off-page-and-local-seo.md": {
+    "title": "Off-Page SEO & Local SEO",
+    "description": "Module 03 \u2014 SEO Deep Dive | Topic 4 --- Off-Page SEO refers to everything you do outside your own website to improve your search rankings. The biggest off-page factor is backlinks \u2014 links from other websites pointing to yours. > Simple Analogy: On-page SEO is your resume. Off-page SEO is your reputation \u2014 what other people say about you. If 10 respected professionals recommend you, employers trust you more. Similarly, if 10 authoritative...",
+    "asset_type": "markdown",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "assignment-03.md": {
+    "title": "Module 3: Assignment \u2014 Search Engine Optimization",
+    "description": "Total Marks: 100 Submission Deadline: End of Week 15 Format: Google Sheet + Google Doc (share link with view access) --- Build a comprehensive 100-keyword research sheet for the niche: \"Coaching Classes in Varanasi\" Create a Google Sheet with the following columns for each keyword: - 30 long-tail keywords (4+ words) - 30 medium-tail keywords (2-3 words) - 20 question-based keywords (\"how to,\" \"what is,\" \"which is best\") - 10 local intent...",
+    "asset_type": "assignment",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "cheatsheet-03.md": {
+    "title": "Cheatsheet 03",
+    "description": "Learning material for Cheatsheet 03",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "code-schema-generator.html": {
+    "title": "Schema Markup Generator \u2014 TechPath Academy",
+    "description": "Interactive Schema Markup Generator \u2014 TechPath Academy exercise for SEO Deep Dive",
+    "asset_type": "html_bundle",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "code-seo-audit-checklist.html": {
+    "title": "SEO Audit Checklist \u2014 TechPath Academy",
+    "description": "Interactive SEO Audit Checklist \u2014 TechPath Academy exercise for SEO Deep Dive",
+    "asset_type": "html_bundle",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "lab-03-a.json": {
+    "title": "Complete On-Page SEO Optimization",
+    "description": "In this lab, you will optimize a real webpage from scratch \u2014 from keyword research to schema markup. You will apply on-page SEO best practices to make the page rank-ready.",
+    "asset_type": "lab",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "lab-03-b.json": {
+    "title": "Technical SEO Audit Using Free Tools",
+    "description": "In this lab, you will perform a complete technical SEO audit of a real website using only free tools. You will crawl the site, check Core Web Vitals, validate technical files, test mobile-friendliness, and produce a professional audit report with actionable recommendations.",
+    "asset_type": "lab",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "notes-03.md": {
+    "title": "Module 3: Search Engine Optimization (Deep Dive)",
+    "description": "--- Search engines work in 3 stages: - Search engines send \"spiders\" or \"bots\" (like Googlebot) to discover new and updated pages - Bots follow links from one page to another - They read the code (HTML, CSS, JavaScript) of every page they find - Crawl budget = how many pages Google will crawl on your site in a given time - After crawling, Google stores (indexes) the page content in a massive database - Google decides what the page is about...",
+    "asset_type": "notes",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "quiz-03.json": {
+    "title": "Quiz 03",
+    "description": "Learning material for Quiz 03",
+    "asset_type": "quiz",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "resources-03.md": {
+    "title": "Module 3: SEO Resources & Tools",
+    "description": "--- --- --- --- --- --- --- --- --- Use these types of sites to practice your SEO audit skills: - Your own blog or portfolio site - Local business websites in your city (restaurants, coaching classes, gyms) - Small e-commerce sites - College/university websites - NGO/nonprofit websites Note: Always ask permission before sharing audit results publicly or contacting website owners with recommendations.",
+    "asset_type": "notes",
+    "tags": [
+      "seo-deep-dive",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  }
+}

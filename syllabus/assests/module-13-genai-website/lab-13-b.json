@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Build a Multi-Section Website with AI Component Generation",
+  "description": "Use v0.dev or Claude to generate individual components, then assemble them into a complete website",
+  "tags": [
+    "genai",
+    "components",
+    "tailwind",
+    "responsive",
+    "workflow"
+  ],
+  "status": "draft",
+  "objective": "Students will use AI tools to generate individual website components (navbar, hero, cards, FAQ, footer), review and customize each one, assemble into a complete page, and document their AI-assisted workflow",
+  "steps": [
+    {
+      "title": "Plan Your Website Sections",
+      "instructions": "Before using any AI tool, plan your website on paper:\n\n**Business:** Choose a local business (restaurant, gym, salon, clinic, tuition center)\n\n**Sections needed:**\n1. Navbar with logo and links\n2. Hero with heading and CTA\n3. Services/Features (4 cards)\n4. About section\n5. FAQ (accordion)\n6. Contact with form\n7. Footer\n\nFor each section, write a one-line description of what it should contain.\n\nCreate a file `plan.md` with your section plan."
+    },
+    {
+      "title": "Generate Components One by One",
+      "instructions": "Instead of generating the entire page at once, generate each section separately. This gives you more control.\n\n**Prompt for Navbar:**\n```\nCreate a responsive navbar using HTML + Tailwind CSS for a [YOUR BUSINESS]. \nInclude: logo text on left, 4 nav links on right, mobile hamburger menu. \nFixed position, white background with shadow.\n```\n\n**Prompt for Hero:**\n```\nCreate a hero section for [YOUR BUSINESS] using Tailwind CSS. \nInclude: large heading, subtitle, two buttons (primary CTA + secondary), \nand a background gradient. Centered text.\n```\n\n**Prompt for FAQ:**\n```\nCreate an FAQ accordion section using HTML + Tailwind CSS + vanilla JavaScript. \n5 questions about [YOUR BUSINESS]. Click to expand/collapse. \nOnly one answer visible at a time.\n```\n\nFor each section:\n1. Paste the AI output into a temporary HTML file\n2. Open with Live Server to preview\n3. Modify colors, text, and spacing\n4. Copy the working section into your main `index.html`"
+    },
+    {
+      "title": "Assemble and Customize",
+      "instructions": "Create your main `index.html` with the Tailwind CDN and paste all sections in order.\n\nNow customize beyond what AI generated:\n\n1. **Consistent color scheme** — make sure all sections use the same primary color\n2. **Spacing** — add consistent `py-20 px-4` to each section\n3. **Alternate backgrounds** — use `bg-white` and `bg-gray-50` alternately\n4. **Add transitions** — `transition hover:-translate-y-1 hover:shadow-lg` on cards\n5. **Test mobile** — open DevTools (F12) → device mode → check each section\n\nFix any issues:\n- Text too small on mobile? Increase `text-base` or remove extra small sizes\n- Images overflowing? Add `max-w-full` or `w-full`\n- Navbar overlapping content? Make sure first section has `pt-20` padding"
+    },
+    {
+      "title": "Document and Deploy",
+      "instructions": "Create a `PROCESS.md` file documenting your workflow:\n\n```markdown\n# AI-Assisted Website — Process Document\n\n## Business: [Name]\n\n## Tools Used\n- AI Tool: [Claude / ChatGPT / v0.dev]\n- Editor: VS Code\n- Deployment: GitHub Pages\n\n## Section-by-Section\n\n### 1. Navbar\n- **AI Prompt:** [paste your prompt]\n- **AI Output:** [worked / needed fixes]\n- **Manual Changes:** [what you changed]\n\n### 2. Hero\n- **AI Prompt:** ...\n...\n\n## What I Learned\n- [What AI did well]\n- [What AI got wrong]\n- [What I had to fix manually]\n```\n\nDeploy to GitHub Pages:\n```bash\ngit init\ngit add .\ngit commit -m \"AI-assisted business website\"\ngit remote add origin [your-repo-url]\ngit push -u origin main\n```\n\nEnable GitHub Pages in Settings.\n\n**Submit:** GitHub repo link + live URL + PROCESS.md document."
+    },
+    {
+      "title": "Test Responsiveness and Fix Issues",
+      "instructions": "Open Chrome DevTools (F12) → click the **device toggle** icon (Ctrl+Shift+M).\n\nTest on these devices:\n\n| Device | Width | Check |\n|--------|-------|-------|\n| iPhone SE | 375px | All sections stack, text readable, no overflow |\n| iPad | 768px | 2-column layouts where appropriate |\n| Desktop | 1280px | Full layout, proper spacing |\n\nCommon mobile issues to fix:\n- Text overflowing the screen → add `overflow-x: hidden` to body or use `max-w-full`\n- Images too wide → add `max-w-full` or `w-full`\n- Buttons too small to tap → make at least `py-3 px-6` on mobile\n- Navbar links not visible → add a hamburger menu or stack links vertically\n- Font too small → use at least `text-base` (16px) for body text\n\nAlso test:\n- Does smooth scrolling work on all links?\n- Does the contact form fit on mobile?\n- Are all images loading?\n\nFix any issues, commit, push, and verify on the live URL from your phone.\n\n**Final Submit:** GitHub repo + live URL + PROCESS.md + mobile screenshot from your actual phone."
+    }
+  ],
+  "expected_output": "A complete multi-section website assembled from AI-generated components, with manual customizations, responsive design, and a documented process showing the AI prompts used and changes made"
+}

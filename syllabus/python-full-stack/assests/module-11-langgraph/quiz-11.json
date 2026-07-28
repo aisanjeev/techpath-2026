@@ -1,0 +1,94 @@
+{
+  "questions": [
+    {
+      "question": "What is an AI agent?",
+      "options": ["A simple chatbot that answers questions", "An LLM that can decide, use tools, and loop until done", "A database management system", "A web scraping tool"],
+      "correct_index": 1,
+      "explanation": "An AI agent is an LLM with the ability to decide what to do next, use tools to take actions, and loop through think-act-observe cycles until the task is complete."
+    },
+    {
+      "question": "What does ReAct stand for?",
+      "options": ["React JavaScript Framework", "Reasoning + Acting", "Read and Compute", "Retrieve and Cache"],
+      "correct_index": 1,
+      "explanation": "ReAct = Reasoning + Acting. The agent reasons about what to do, acts (uses a tool), observes the result, and repeats until done."
+    },
+    {
+      "question": "What is LangGraph used for?",
+      "options": ["Building static websites", "Creating charts and graphs", "Building stateful, multi-step AI workflows", "Managing databases"],
+      "correct_index": 2,
+      "explanation": "LangGraph is a Python library for building stateful, multi-step AI workflows with loops, conditions, and state management -- things that simple LangChain chains cannot do."
+    },
+    {
+      "question": "In LangGraph, what is a 'node'?",
+      "options": ["A database record", "A function that processes the graph's state", "A type of LLM model", "A CSS styling element"],
+      "correct_index": 1,
+      "explanation": "A node is a Python function that takes the current state, does some processing (like calling an LLM or running a tool), and returns updated state."
+    },
+    {
+      "question": "What does the add_messages annotation do in LangGraph state?",
+      "options": ["Deletes old messages", "Replaces the message list entirely", "Appends new messages to the existing list", "Converts messages to embeddings"],
+      "correct_index": 2,
+      "explanation": "The add_messages annotation tells LangGraph to append new messages to the existing list instead of replacing it, preserving the conversation history."
+    },
+    {
+      "question": "What is the purpose of a conditional edge in LangGraph?",
+      "options": ["To always go to the same next node", "To choose the next node based on the current state", "To delete a node from the graph", "To create a new LLM instance"],
+      "correct_index": 1,
+      "explanation": "A conditional edge uses a routing function to examine the state and decide which node to go to next -- for example, going to 'tools' if the LLM made a tool call, or to END if it gave a final answer."
+    },
+    {
+      "question": "Why is a clear docstring important when creating a tool?",
+      "options": ["It makes the code look professional", "The LLM reads it to decide when and how to use the tool", "It is required by Python syntax", "It speeds up execution"],
+      "correct_index": 1,
+      "explanation": "The LLM reads the tool's docstring to understand what the tool does, when to use it, and what arguments to pass. A vague docstring leads to wrong tool selection."
+    },
+    {
+      "question": "What is a checkpoint in LangGraph?",
+      "options": ["A debugging breakpoint in code", "A saved snapshot of the graph's state that can be resumed", "A type of unit test", "A code review step"],
+      "correct_index": 1,
+      "explanation": "A checkpoint saves the graph's state (messages, variables, progress) at a point in time, allowing you to resume the conversation later or implement human-in-the-loop approval."
+    },
+    {
+      "question": "What is the Supervisor pattern in multi-agent systems?",
+      "options": ["One agent does everything alone", "A central agent that routes tasks to specialized agents", "Agents compete to answer first", "Users manually pick which agent to use"],
+      "correct_index": 1,
+      "explanation": "In the Supervisor pattern, a central supervisor agent receives tasks, decides which specialist agent should handle each part, and coordinates the overall workflow."
+    },
+    {
+      "question": "When should you use human-in-the-loop?",
+      "options": ["For every single agent action", "Only for answering FAQ questions", "For irreversible actions or those involving money and people", "Never -- agents should be fully autonomous"],
+      "correct_index": 2,
+      "explanation": "Human-in-the-loop should be used when the action is irreversible (like sending emails), involves money (refunds), or affects people (enrollment changes)."
+    },
+    {
+      "question": "What does interrupt_before do in LangGraph?",
+      "options": ["Cancels the graph execution", "Pauses the graph before a specific node runs", "Speeds up execution", "Deletes the node from the graph"],
+      "correct_index": 1,
+      "explanation": "interrupt_before pauses the graph execution right before the specified node runs, allowing a human to review and approve the planned action before it happens."
+    },
+    {
+      "question": "What is LangSmith used for?",
+      "options": ["Writing Python code", "Monitoring, debugging, and testing AI agents", "Creating vector databases", "Building web frontends"],
+      "correct_index": 1,
+      "explanation": "LangSmith is a platform for monitoring (tracking every step), debugging (finding errors), and testing (automated evaluations) of AI agents and LLM chains."
+    },
+    {
+      "question": "What is the difference between regular RAG and Agentic RAG?",
+      "options": ["There is no difference", "Agentic RAG can rewrite queries, grade documents, and verify answers", "Regular RAG is more accurate", "Agentic RAG does not use a vector store"],
+      "correct_index": 1,
+      "explanation": "Agentic RAG adds intelligence to the RAG pipeline -- it can rewrite poor queries, grade document relevance, retry searches, and verify answer quality before responding."
+    },
+    {
+      "question": "What type of memory stores facts about users across sessions?",
+      "options": ["Short-term memory", "Long-term memory (vector store)", "Episodic memory", "Buffer memory"],
+      "correct_index": 1,
+      "explanation": "Long-term memory uses a vector store to persist facts (like 'Rahul prefers morning batches') across sessions, so the agent remembers users even days later."
+    },
+    {
+      "question": "Why should you set a recursion_limit or max retries in agent graphs?",
+      "options": ["To make the agent run faster", "To prevent infinite loops where the agent keeps retrying forever", "To reduce memory usage", "To improve answer quality"],
+      "correct_index": 1,
+      "explanation": "Without a limit, agents can get stuck in loops -- calling the same tool repeatedly or rewriting queries endlessly. A recursion_limit (e.g., 20) or max retry count (e.g., 3) prevents this."
+    }
+  ]
+}

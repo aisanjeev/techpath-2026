@@ -1,0 +1,730 @@
+<title>SQL Query Playground — TechPath Institute</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 20px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 1.8rem; margin-bottom: 5px; color: #38bdf8; }
+  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 24px; font-size: 0.95rem; }
+  .layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
+  @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }
+
+  .panel { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 16px; }
+  .panel h2 { font-size: 1rem; color: #38bdf8; margin-bottom: 12px; }
+  .panel h3 { font-size: 0.85rem; color: #94a3b8; margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .schema-table { margin-bottom: 14px; background: #0f172a; border-radius: 8px; overflow: hidden; }
+  .schema-table .table-header { background: #334155; padding: 8px 12px; font-weight: 600; font-size: 0.85rem; color: #f1f5f9; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .schema-table .table-header:hover { background: #3b4d6b; }
+  .schema-table .table-header .arrow { transition: transform 0.2s; }
+  .schema-table .table-header.open .arrow { transform: rotate(90deg); }
+  .schema-table .cols { padding: 6px 12px; display: none; }
+  .schema-table .cols.show { display: block; }
+  .schema-table .col-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 0.8rem; }
+  .schema-table .col-row input[type="checkbox"] { accent-color: #38bdf8; }
+  .col-type { color: #64748b; font-size: 0.72rem; }
+  .col-key { font-size: 0.65rem; padding: 1px 5px; border-radius: 3px; font-weight: 600; }
+  .col-key.pk { background: #854d0e; color: #fef08a; }
+  .col-key.fk { background: #164e63; color: #67e8f9; }
+
+  .builder { display: flex; flex-direction: column; gap: 14px; }
+  .builder-section { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px; }
+  .builder-section label { font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  select, input[type="text"], input[type="number"] { background: #0f172a; color: #e2e8f0; border: 1px solid #475569; border-radius: 6px; padding: 8px 10px; font-size: 0.85rem; width: 100%; outline: none; }
+  select:focus, input:focus { border-color: #38bdf8; }
+
+  .row-group { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+  .row-group select { flex: 1; min-width: 80px; }
+  .row-group input { flex: 1; min-width: 80px; }
+
+  .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: all 0.15s; }
+  .btn-primary { background: #2563eb; color: white; }
+  .btn-primary:hover { background: #3b82f6; }
+  .btn-secondary { background: #334155; color: #e2e8f0; }
+  .btn-secondary:hover { background: #475569; }
+  .btn-danger { background: #991b1b; color: white; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-sm { padding: 5px 10px; font-size: 0.75rem; }
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .sql-output { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 14px; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.6; white-space: pre-wrap; word-break: break-all; min-height: 80px; color: #a5f3fc; position: relative; }
+  .sql-output .keyword { color: #c084fc; font-weight: 600; }
+  .sql-output .table-name { color: #fbbf24; }
+  .sql-output .col-name { color: #34d399; }
+  .sql-output .value { color: #fb923c; }
+  .sql-output .operator { color: #f87171; }
+
+  .copy-btn { position: absolute; top: 8px; right: 8px; background: #334155; color: #94a3b8; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.72rem; cursor: pointer; }
+  .copy-btn:hover { background: #475569; color: #e2e8f0; }
+
+  .result-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; overflow-x: auto; display: block; }
+  .result-table th { background: #334155; color: #94a3b8; padding: 8px 10px; text-align: left; font-weight: 600; position: sticky; top: 0; }
+  .result-table td { padding: 7px 10px; border-bottom: 1px solid #1e293b; }
+  .result-table tr:hover td { background: #1e293b; }
+  .result-wrap { max-height: 250px; overflow: auto; border-radius: 8px; border: 1px solid #334155; }
+
+  .join-visual { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+  .join-badge { background: #1e293b; border: 1px solid #475569; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
+  .join-badge:hover, .join-badge.active { border-color: #38bdf8; color: #38bdf8; }
+
+  .tabs { display: flex; gap: 0; margin-bottom: -1px; position: relative; z-index: 1; }
+  .tab { padding: 8px 18px; font-size: 0.82rem; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 6px 6px 0 0; color: #94a3b8; }
+  .tab:hover { color: #e2e8f0; }
+  .tab.active { background: #1e293b; border-color: #334155; color: #38bdf8; }
+</style>
+
+<div class="container">
+  <h1>SQL Query Playground</h1>
+  <p class="subtitle">Build SQL queries visually — TechPath Institute</p>
+
+  <div class="layout">
+    <div class="panel" id="schema-panel">
+      <h2>Schema</h2>
+      <div id="schema-tables"></div>
+    </div>
+
+    <div class="builder">
+      <div class="builder-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <label style="margin:0">Query Type</label>
+          <div class="btn-group">
+            <button class="btn btn-secondary btn-sm" onclick="resetBuilder()">Reset</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary query-type-btn active" data-type="SELECT" onclick="setQueryType('SELECT')">SELECT</button>
+          <button class="btn btn-secondary query-type-btn" data-type="INSERT" onclick="setQueryType('INSERT')">INSERT</button>
+          <button class="btn btn-secondary query-type-btn" data-type="UPDATE" onclick="setQueryType('UPDATE')">UPDATE</button>
+          <button class="btn btn-secondary query-type-btn" data-type="DELETE" onclick="setQueryType('DELETE')">DELETE</button>
+        </div>
+      </div>
+
+      <div class="builder-section">
+        <label>From Table</label>
+        <select id="main-table" onchange="onMainTableChange()">
+          <option value="">-- Select a table --</option>
+        </select>
+
+        <div id="join-section" style="margin-top:12px;display:none;">
+          <label>JOIN</label>
+          <div id="joins-container"></div>
+          <button class="btn btn-secondary btn-sm" onclick="addJoin()" style="margin-top:8px;">+ Add JOIN</button>
+        </div>
+      </div>
+
+      <div class="builder-section" id="columns-section">
+        <label>Columns</label>
+        <div id="column-checkboxes" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      </div>
+
+      <div class="builder-section" id="where-section">
+        <label>WHERE Conditions</label>
+        <div id="where-container"></div>
+        <button class="btn btn-secondary btn-sm" onclick="addWhere()" style="margin-top:8px;">+ Add Condition</button>
+      </div>
+
+      <div class="builder-section" id="insert-section" style="display:none;">
+        <label>VALUES</label>
+        <div id="insert-values"></div>
+      </div>
+
+      <div class="builder-section" id="update-section" style="display:none;">
+        <label>SET Values</label>
+        <div id="update-values"></div>
+      </div>
+
+      <div class="builder-section" id="extras-section">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:150px;">
+            <label>ORDER BY</label>
+            <select id="order-col"><option value="">None</option></select>
+          </div>
+          <div style="flex:0 0 100px;">
+            <label>Direction</label>
+            <select id="order-dir"><option value="ASC">ASC</option><option value="DESC">DESC</option></select>
+          </div>
+          <div style="flex:0 0 80px;">
+            <label>LIMIT</label>
+            <input type="number" id="limit-val" placeholder="10" min="1">
+          </div>
+          <div id="group-by-wrap" style="flex:1;min-width:150px;">
+            <label>GROUP BY</label>
+            <select id="group-col"><option value="">None</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="builder-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <label style="margin:0">Generated SQL</label>
+          <button class="btn btn-primary btn-sm" onclick="runQuery()">Run Query</button>
+        </div>
+        <div class="sql-output" id="sql-output">
+          <button class="copy-btn" onclick="copySQL()">Copy</button>
+          <span id="sql-text">-- Select a table to start building your query</span>
+        </div>
+      </div>
+
+      <div class="builder-section" id="results-section" style="display:none;">
+        <label>Query Results (Sample Data)</label>
+        <div class="result-wrap">
+          <table class="result-table" id="result-table"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const schema = {
+  students: {
+    columns: [
+      { name: 'id', type: 'INT AUTO_INCREMENT', key: 'PK' },
+      { name: 'name', type: 'VARCHAR(100)', key: null },
+      { name: 'email', type: 'VARCHAR(150)', key: null },
+      { name: 'city', type: 'VARCHAR(50)', key: null },
+      { name: 'fee_paid', type: 'DECIMAL(10,2)', key: null },
+      { name: 'is_active', type: 'BOOLEAN', key: null },
+      { name: 'created_at', type: 'TIMESTAMP', key: null }
+    ],
+    data: [
+      { id: 1, name: 'Rahul Sharma', email: 'rahul@email.com', city: 'Bhopal', fee_paid: 15000, is_active: true, created_at: '2026-01-15' },
+      { id: 2, name: 'Priya Patel', email: 'priya@email.com', city: 'Pune', fee_paid: 18000, is_active: true, created_at: '2026-01-20' },
+      { id: 3, name: 'Amit Kumar', email: 'amit@email.com', city: 'Delhi', fee_paid: 15000, is_active: true, created_at: '2026-02-01' },
+      { id: 4, name: 'Sneha Gupta', email: 'sneha@email.com', city: 'Bhopal', fee_paid: 20000, is_active: true, created_at: '2026-02-10' },
+      { id: 5, name: 'Ananya Singh', email: 'ananya@email.com', city: 'Pune', fee_paid: 22000, is_active: false, created_at: '2026-02-15' },
+      { id: 6, name: 'Vikram Joshi', email: 'vikram@email.com', city: 'Mumbai', fee_paid: 17000, is_active: true, created_at: '2026-03-01' }
+    ]
+  },
+  courses: {
+    columns: [
+      { name: 'id', type: 'INT AUTO_INCREMENT', key: 'PK' },
+      { name: 'title', type: 'VARCHAR(200)', key: null },
+      { name: 'price', type: 'DECIMAL(10,2)', key: null },
+      { name: 'duration_weeks', type: 'INT', key: null },
+      { name: 'instructor_id', type: 'INT', key: 'FK' },
+      { name: 'is_published', type: 'BOOLEAN', key: null }
+    ],
+    data: [
+      { id: 1, title: 'Python Full Stack', price: 25000, duration_weeks: 16, instructor_id: 1, is_published: true },
+      { id: 2, title: 'React Masterclass', price: 20000, duration_weeks: 12, instructor_id: 2, is_published: true },
+      { id: 3, title: 'Data Science', price: 30000, duration_weeks: 20, instructor_id: 1, is_published: false },
+      { id: 4, title: 'DevOps with Docker', price: 18000, duration_weeks: 10, instructor_id: 3, is_published: true }
+    ]
+  },
+  enrollments: {
+    columns: [
+      { name: 'id', type: 'INT AUTO_INCREMENT', key: 'PK' },
+      { name: 'student_id', type: 'INT', key: 'FK' },
+      { name: 'course_id', type: 'INT', key: 'FK' },
+      { name: 'enrolled_on', type: 'DATE', key: null },
+      { name: 'status', type: 'VARCHAR(20)', key: null }
+    ],
+    data: [
+      { id: 1, student_id: 1, course_id: 1, enrolled_on: '2026-01-15', status: 'active' },
+      { id: 2, student_id: 1, course_id: 2, enrolled_on: '2026-01-15', status: 'active' },
+      { id: 3, student_id: 2, course_id: 1, enrolled_on: '2026-01-20', status: 'completed' },
+      { id: 4, student_id: 3, course_id: 2, enrolled_on: '2026-02-01', status: 'active' },
+      { id: 5, student_id: 4, course_id: 1, enrolled_on: '2026-02-10', status: 'active' },
+      { id: 6, student_id: 4, course_id: 3, enrolled_on: '2026-02-10', status: 'dropped' },
+      { id: 7, student_id: 5, course_id: 2, enrolled_on: '2026-02-15', status: 'active' },
+      { id: 8, student_id: 6, course_id: 1, enrolled_on: '2026-03-01', status: 'active' }
+    ]
+  },
+  instructors: {
+    columns: [
+      { name: 'id', type: 'INT AUTO_INCREMENT', key: 'PK' },
+      { name: 'name', type: 'VARCHAR(100)', key: null },
+      { name: 'email', type: 'VARCHAR(150)', key: null },
+      { name: 'speciality', type: 'VARCHAR(100)', key: null }
+    ],
+    data: [
+      { id: 1, name: 'Dr. Anil Verma', email: 'anil@techpath.biz', speciality: 'Python & AI' },
+      { id: 2, name: 'Meera Iyer', email: 'meera@techpath.biz', speciality: 'Web Development' },
+      { id: 3, name: 'Suresh Nair', email: 'suresh@techpath.biz', speciality: 'DevOps' }
+    ]
+  }
+};
+
+const joinMap = {
+  'students-enrollments': { left: 'students.id', right: 'enrollments.student_id' },
+  'enrollments-students': { left: 'enrollments.student_id', right: 'students.id' },
+  'courses-enrollments': { left: 'courses.id', right: 'enrollments.course_id' },
+  'enrollments-courses': { left: 'enrollments.course_id', right: 'courses.id' },
+  'courses-instructors': { left: 'courses.instructor_id', right: 'instructors.id' },
+  'instructors-courses': { left: 'instructors.id', right: 'courses.instructor_id' }
+};
+
+let state = { queryType: 'SELECT', mainTable: '', joins: [], wheres: [], selectedCols: new Set() };
+
+function initSchema() {
+  const container = document.getElementById('schema-tables');
+  container.innerHTML = '';
+  for (const [tbl, info] of Object.entries(schema)) {
+    const div = document.createElement('div');
+    div.className = 'schema-table';
+    div.innerHTML = `
+      <div class="table-header" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('show')">
+        <span>${tbl}</span><span class="arrow">&#9654;</span>
+      </div>
+      <div class="cols">
+        ${info.columns.map(c => `
+          <div class="col-row">
+            <span>${c.name}</span>
+            <span class="col-type">${c.type}</span>
+            ${c.key ? `<span class="col-key ${c.key.toLowerCase()}">${c.key}</span>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(div);
+  }
+
+  const mainSel = document.getElementById('main-table');
+  mainSel.innerHTML = '<option value="">-- Select a table --</option>';
+  for (const tbl of Object.keys(schema)) {
+    mainSel.innerHTML += `<option value="${tbl}">${tbl}</option>`;
+  }
+}
+
+function setQueryType(type) {
+  state.queryType = type;
+  document.querySelectorAll('.query-type-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+    b.classList.toggle('btn-primary', b.dataset.type === type);
+    b.classList.toggle('btn-secondary', b.dataset.type !== type);
+  });
+  const isSelect = type === 'SELECT';
+  const isInsert = type === 'INSERT';
+  const isUpdate = type === 'UPDATE';
+  document.getElementById('columns-section').style.display = isSelect ? '' : 'none';
+  document.getElementById('extras-section').style.display = isSelect ? '' : 'none';
+  document.getElementById('join-section').style.display = isSelect ? '' : 'none';
+  document.getElementById('insert-section').style.display = isInsert ? '' : 'none';
+  document.getElementById('update-section').style.display = isUpdate ? '' : 'none';
+  document.getElementById('where-section').style.display = (isSelect || type === 'UPDATE' || type === 'DELETE') ? '' : 'none';
+  if (isInsert) buildInsertValues();
+  if (isUpdate) buildUpdateValues();
+  generateSQL();
+}
+
+function onMainTableChange() {
+  state.mainTable = document.getElementById('main-table').value;
+  state.joins = [];
+  state.selectedCols = new Set();
+  buildColumnCheckboxes();
+  buildJoins();
+  buildWhereOptions();
+  buildOrderOptions();
+  if (state.queryType === 'INSERT') buildInsertValues();
+  if (state.queryType === 'UPDATE') buildUpdateValues();
+  generateSQL();
+}
+
+function getAllColumns() {
+  const cols = [];
+  if (state.mainTable && schema[state.mainTable]) {
+    schema[state.mainTable].columns.forEach(c => cols.push({ table: state.mainTable, col: c.name }));
+  }
+  state.joins.forEach(j => {
+    if (j.table && schema[j.table]) {
+      schema[j.table].columns.forEach(c => cols.push({ table: j.table, col: c.name }));
+    }
+  });
+  return cols;
+}
+
+function buildColumnCheckboxes() {
+  const container = document.getElementById('column-checkboxes');
+  const cols = getAllColumns();
+  container.innerHTML = cols.map(c => `
+    <label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;cursor:pointer;background:#0f172a;padding:4px 8px;border-radius:4px;">
+      <input type="checkbox" onchange="toggleCol('${c.table}.${c.col}', this.checked)" ${state.selectedCols.has(c.table+'.'+c.col)?'checked':''}>
+      ${state.joins.length > 0 ? c.table+'.' : ''}${c.col}
+    </label>
+  `).join('');
+}
+
+function toggleCol(key, checked) {
+  if (checked) state.selectedCols.add(key); else state.selectedCols.delete(key);
+  generateSQL();
+}
+
+function buildJoins() {
+  document.getElementById('joins-container').innerHTML = '';
+  document.getElementById('join-section').style.display = state.queryType === 'SELECT' ? '' : 'none';
+  state.joins.forEach((j, i) => renderJoinRow(i));
+}
+
+function addJoin() {
+  state.joins.push({ type: 'INNER JOIN', table: '' });
+  renderJoinRow(state.joins.length - 1);
+}
+
+function renderJoinRow(idx) {
+  const container = document.getElementById('joins-container');
+  const div = document.createElement('div');
+  div.className = 'row-group';
+  div.id = `join-${idx}`;
+  const tables = Object.keys(schema).filter(t => t !== state.mainTable);
+  div.innerHTML = `
+    <select onchange="updateJoin(${idx},'type',this.value)" style="flex:0 0 130px;">
+      <option ${state.joins[idx].type==='INNER JOIN'?'selected':''}>INNER JOIN</option>
+      <option ${state.joins[idx].type==='LEFT JOIN'?'selected':''}>LEFT JOIN</option>
+      <option ${state.joins[idx].type==='RIGHT JOIN'?'selected':''}>RIGHT JOIN</option>
+    </select>
+    <select onchange="updateJoin(${idx},'table',this.value)">
+      <option value="">-- table --</option>
+      ${tables.map(t => `<option value="${t}" ${state.joins[idx].table===t?'selected':''}>${t}</option>`).join('')}
+    </select>
+    <button class="btn btn-danger btn-sm" onclick="removeJoin(${idx})">X</button>
+  `;
+  container.appendChild(div);
+}
+
+function updateJoin(idx, field, value) {
+  state.joins[idx][field] = value;
+  buildColumnCheckboxes();
+  buildWhereOptions();
+  buildOrderOptions();
+  generateSQL();
+}
+
+function removeJoin(idx) {
+  state.joins.splice(idx, 1);
+  document.getElementById('joins-container').innerHTML = '';
+  state.joins.forEach((j, i) => renderJoinRow(i));
+  buildColumnCheckboxes();
+  buildWhereOptions();
+  buildOrderOptions();
+  generateSQL();
+}
+
+function buildWhereOptions() {
+  document.getElementById('where-container').innerHTML = '';
+  state.wheres = [];
+}
+
+function addWhere() {
+  const cols = state.mainTable ? getAllColumns() : [];
+  if (cols.length === 0) return;
+  const idx = state.wheres.length;
+  state.wheres.push({ col: '', op: '=', val: '' });
+  const container = document.getElementById('where-container');
+  const div = document.createElement('div');
+  div.className = 'row-group';
+  div.innerHTML = `
+    ${idx > 0 ? '<select onchange="updateWhere('+idx+',\'logic\',this.value)" style="flex:0 0 70px;"><option>AND</option><option>OR</option></select>' : ''}
+    <select onchange="updateWhere(${idx},'col',this.value)">
+      <option value="">-- column --</option>
+      ${cols.map(c => `<option value="${c.table}.${c.col}">${state.joins.length > 0 ? c.table+'.' : ''}${c.col}</option>`).join('')}
+    </select>
+    <select onchange="updateWhere(${idx},'op',this.value)" style="flex:0 0 80px;">
+      <option>=</option><option>!=</option><option>></option><option>>=</option><option><</option><option><=</option><option>LIKE</option><option>IN</option><option>IS NULL</option><option>IS NOT NULL</option>
+    </select>
+    <input type="text" placeholder="value" onchange="updateWhere(${idx},'val',this.value)" style="flex:1;">
+    <button class="btn btn-danger btn-sm" onclick="removeWhere(${idx})">X</button>
+  `;
+  container.appendChild(div);
+}
+
+function updateWhere(idx, field, value) {
+  state.wheres[idx][field] = value;
+  generateSQL();
+}
+
+function removeWhere(idx) {
+  state.wheres.splice(idx, 1);
+  document.getElementById('where-container').innerHTML = '';
+  state.wheres.forEach((w, i) => {
+    addWhereRow(i);
+  });
+  generateSQL();
+}
+
+function addWhereRow(i) {
+  // Re-add existing where rows is complex; simpler to just rebuild
+}
+
+function buildOrderOptions() {
+  const cols = getAllColumns();
+  const orderSel = document.getElementById('order-col');
+  const groupSel = document.getElementById('group-col');
+  orderSel.innerHTML = '<option value="">None</option>';
+  groupSel.innerHTML = '<option value="">None</option>';
+  cols.forEach(c => {
+    const label = state.joins.length > 0 ? c.table+'.'+c.col : c.col;
+    orderSel.innerHTML += `<option value="${c.table}.${c.col}">${label}</option>`;
+    groupSel.innerHTML += `<option value="${c.table}.${c.col}">${label}</option>`;
+  });
+}
+
+function buildInsertValues() {
+  const container = document.getElementById('insert-values');
+  if (!state.mainTable || !schema[state.mainTable]) { container.innerHTML = ''; return; }
+  const cols = schema[state.mainTable].columns.filter(c => c.key !== 'PK');
+  container.innerHTML = cols.map(c => `
+    <div class="row-group">
+      <span style="flex:0 0 130px;font-size:0.82rem;color:#94a3b8;">${c.name}</span>
+      <input type="text" class="insert-val" data-col="${c.name}" placeholder="${c.type}" oninput="generateSQL()">
+    </div>
+  `).join('');
+}
+
+function buildUpdateValues() {
+  const container = document.getElementById('update-values');
+  if (!state.mainTable || !schema[state.mainTable]) { container.innerHTML = ''; return; }
+  const cols = schema[state.mainTable].columns.filter(c => c.key !== 'PK');
+  container.innerHTML = cols.map(c => `
+    <div class="row-group">
+      <span style="flex:0 0 130px;font-size:0.82rem;color:#94a3b8;">${c.name}</span>
+      <input type="text" class="update-val" data-col="${c.name}" placeholder="new value" oninput="generateSQL()">
+    </div>
+  `).join('');
+}
+
+function generateSQL() {
+  if (!state.mainTable) {
+    document.getElementById('sql-text').innerHTML = '-- Select a table to start building your query';
+    return;
+  }
+
+  let sql = '';
+  const tbl = state.mainTable;
+
+  if (state.queryType === 'SELECT') {
+    let cols = '*';
+    if (state.selectedCols.size > 0) {
+      cols = [...state.selectedCols].join(', ');
+    }
+    sql = `SELECT ${cols}\nFROM ${tbl}`;
+    state.joins.forEach(j => {
+      if (j.table) {
+        const mapKey = tbl + '-' + j.table;
+        const altKey = j.table + '-' + tbl;
+        const jm = joinMap[mapKey] || joinMap[altKey];
+        const onClause = jm ? `ON ${jm.left} = ${jm.right}` : `ON ${tbl}.id = ${j.table}.${tbl.slice(0,-1)}_id`;
+        sql += `\n${j.type} ${j.table} ${onClause}`;
+      }
+    });
+    sql += buildWherePart();
+    const groupCol = document.getElementById('group-col').value;
+    if (groupCol) sql += `\nGROUP BY ${groupCol}`;
+    const orderCol = document.getElementById('order-col').value;
+    if (orderCol) sql += `\nORDER BY ${orderCol} ${document.getElementById('order-dir').value}`;
+    const limitVal = document.getElementById('limit-val').value;
+    if (limitVal) sql += `\nLIMIT ${limitVal}`;
+  }
+  else if (state.queryType === 'INSERT') {
+    const inputs = document.querySelectorAll('.insert-val');
+    const cols = [], vals = [];
+    inputs.forEach(inp => {
+      if (inp.value.trim()) {
+        cols.push(inp.dataset.col);
+        const v = isNaN(inp.value) ? `'${inp.value}'` : inp.value;
+        vals.push(v);
+      }
+    });
+    if (cols.length) {
+      sql = `INSERT INTO ${tbl} (${cols.join(', ')})\nVALUES (${vals.join(', ')});`;
+    } else {
+      sql = `INSERT INTO ${tbl} (...)\nVALUES (...);`;
+    }
+  }
+  else if (state.queryType === 'UPDATE') {
+    const inputs = document.querySelectorAll('.update-val');
+    const sets = [];
+    inputs.forEach(inp => {
+      if (inp.value.trim()) {
+        const v = isNaN(inp.value) ? `'${inp.value}'` : inp.value;
+        sets.push(`${inp.dataset.col} = ${v}`);
+      }
+    });
+    sql = `UPDATE ${tbl}\nSET ${sets.length ? sets.join(', ') : '...'}`;
+    sql += buildWherePart();
+    sql += ';';
+  }
+  else if (state.queryType === 'DELETE') {
+    sql = `DELETE FROM ${tbl}`;
+    sql += buildWherePart();
+    sql += ';';
+  }
+
+  document.getElementById('sql-text').innerHTML = highlightSQL(sql);
+}
+
+function buildWherePart() {
+  const validWheres = state.wheres.filter(w => w.col);
+  if (validWheres.length === 0) return '';
+  let s = '\nWHERE ';
+  validWheres.forEach((w, i) => {
+    if (i > 0) s += ` ${w.logic || 'AND'} `;
+    if (w.op === 'IS NULL' || w.op === 'IS NOT NULL') {
+      s += `${w.col} ${w.op}`;
+    } else if (w.op === 'IN') {
+      s += `${w.col} IN (${w.val})`;
+    } else {
+      const v = isNaN(w.val) && w.val !== 'TRUE' && w.val !== 'FALSE' && w.val !== 'true' && w.val !== 'false' ? `'${w.val}'` : w.val || "'...'";
+      s += `${w.col} ${w.op} ${v}`;
+    }
+  });
+  return s;
+}
+
+function highlightSQL(sql) {
+  const keywords = ['SELECT','FROM','WHERE','INSERT INTO','VALUES','UPDATE','SET','DELETE FROM','INNER JOIN','LEFT JOIN','RIGHT JOIN','FULL OUTER JOIN','CROSS JOIN','ON','AND','OR','ORDER BY','GROUP BY','HAVING','LIMIT','OFFSET','AS','DISTINCT','COUNT','SUM','AVG','MIN','MAX','IN','LIKE','IS NULL','IS NOT NULL','BETWEEN','NOT','ASC','DESC'];
+  let result = sql.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  keywords.forEach(kw => {
+    const regex = new RegExp('\\b' + kw.replace(/ /g, '\\s+') + '\\b', 'gi');
+    result = result.replace(regex, match => `<span class="keyword">${match.toUpperCase()}</span>`);
+  });
+  result = result.replace(/'([^']*)'/g, `<span class="value">'$1'</span>`);
+  return result;
+}
+
+function copySQL() {
+  const text = document.getElementById('sql-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+function runQuery() {
+  if (!state.mainTable || state.queryType !== 'SELECT') {
+    document.getElementById('results-section').style.display = 'none';
+    return;
+  }
+
+  let data = [...schema[state.mainTable].data];
+
+  // Apply joins (simplified simulation)
+  if (state.joins.length > 0) {
+    let joinedData = data.map(row => ({...row}));
+    state.joins.forEach(j => {
+      if (j.table && schema[j.table]) {
+        const mapKey = state.mainTable + '-' + j.table;
+        const jm = joinMap[mapKey];
+        if (jm) {
+          const leftCol = jm.left.split('.')[1];
+          const rightCol = jm.right.split('.')[1];
+          const newData = [];
+          joinedData.forEach(lRow => {
+            const matches = schema[j.table].data.filter(rRow => lRow[leftCol] == rRow[rightCol]);
+            if (matches.length) {
+              matches.forEach(rRow => {
+                const merged = {...lRow};
+                schema[j.table].columns.forEach(c => {
+                  merged[j.table + '.' + c.name] = rRow[c.name];
+                });
+                newData.push(merged);
+              });
+            } else if (j.type === 'LEFT JOIN') {
+              const merged = {...lRow};
+              schema[j.table].columns.forEach(c => { merged[j.table + '.' + c.name] = null; });
+              newData.push(merged);
+            }
+          });
+          joinedData = newData;
+        }
+      }
+    });
+    data = joinedData;
+  }
+
+  // Apply WHERE (simplified)
+  const validWheres = state.wheres.filter(w => w.col && w.val);
+  validWheres.forEach(w => {
+    data = data.filter(row => {
+      const colName = w.col.includes('.') ? w.col.split('.')[1] : w.col;
+      let rv = row[w.col] !== undefined ? row[w.col] : row[colName];
+      const cv = w.val;
+      if (rv === undefined) return true;
+      const rvs = String(rv).toLowerCase();
+      const cvs = String(cv).toLowerCase();
+      switch (w.op) {
+        case '=': return rvs === cvs;
+        case '!=': return rvs !== cvs;
+        case '>': return Number(rv) > Number(cv);
+        case '>=': return Number(rv) >= Number(cv);
+        case '<': return Number(rv) < Number(cv);
+        case '<=': return Number(rv) <= Number(cv);
+        case 'LIKE': return rvs.includes(cvs.replace(/%/g, ''));
+        default: return true;
+      }
+    });
+  });
+
+  // Apply ORDER BY
+  const orderCol = document.getElementById('order-col').value;
+  if (orderCol) {
+    const colName = orderCol.includes('.') ? orderCol : orderCol;
+    const dir = document.getElementById('order-dir').value;
+    data.sort((a, b) => {
+      const av = a[colName] ?? a[orderCol.split('.')[1]];
+      const bv = b[colName] ?? b[orderCol.split('.')[1]];
+      if (av < bv) return dir === 'ASC' ? -1 : 1;
+      if (av > bv) return dir === 'ASC' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  // Apply LIMIT
+  const limitVal = parseInt(document.getElementById('limit-val').value);
+  if (limitVal) data = data.slice(0, limitVal);
+
+  // Determine columns to show
+  let showCols;
+  if (state.selectedCols.size > 0) {
+    showCols = [...state.selectedCols].map(c => {
+      const parts = c.split('.');
+      return { full: c, label: parts.length > 1 && state.joins.length > 0 ? c : parts[parts.length-1] };
+    });
+  } else {
+    showCols = Object.keys(data[0] || {}).map(k => ({ full: k, label: k }));
+  }
+
+  // Render table
+  const table = document.getElementById('result-table');
+  let html = '<thead><tr>';
+  showCols.forEach(c => html += `<th>${c.label}</th>`);
+  html += '</tr></thead><tbody>';
+  data.forEach(row => {
+    html += '<tr>';
+    showCols.forEach(c => {
+      const val = row[c.full] !== undefined ? row[c.full] : row[c.full.split('.')[1]];
+      html += `<td>${val === null ? '<span style="color:#64748b">NULL</span>' : val}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+
+  document.getElementById('results-section').style.display = '';
+}
+
+function resetBuilder() {
+  state = { queryType: 'SELECT', mainTable: '', joins: [], wheres: [], selectedCols: new Set() };
+  document.getElementById('main-table').value = '';
+  document.getElementById('joins-container').innerHTML = '';
+  document.getElementById('where-container').innerHTML = '';
+  document.getElementById('column-checkboxes').innerHTML = '';
+  document.getElementById('order-col').innerHTML = '<option value="">None</option>';
+  document.getElementById('group-col').innerHTML = '<option value="">None</option>';
+  document.getElementById('limit-val').value = '';
+  document.getElementById('results-section').style.display = 'none';
+  document.getElementById('insert-section').style.display = 'none';
+  document.getElementById('update-section').style.display = 'none';
+  setQueryType('SELECT');
+  generateSQL();
+}
+
+// Listen for changes on ORDER BY, GROUP BY, LIMIT
+['order-col', 'order-dir', 'limit-val', 'group-col'].forEach(id => {
+  document.getElementById(id).addEventListener('change', generateSQL);
+  document.getElementById(id).addEventListener('input', generateSQL);
+});
+
+initSchema();
+</script>

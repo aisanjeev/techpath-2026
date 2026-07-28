@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Copy Generator — TechPath Academy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #1a1a2e;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container { max-width: 950px; margin: 0 auto; }
+        h1 { text-align: center; color: #1a1a2e; margin-bottom: 5px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 0.95rem; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #1a1a2e;
+            border-bottom: 2px solid #4361ee;
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { font-weight: 500; font-size: 0.85rem; margin-bottom: 5px; color: #444; }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px 12px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #4361ee;
+        }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+        .btn-generate {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #4361ee;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+        .btn-generate:hover { background: #3451d1; }
+        .output-section { display: none; }
+        .output-section.visible { display: block; }
+        .framework-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .framework-tab {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .framework-tab:hover { border-color: #4361ee; color: #4361ee; }
+        .framework-tab.active { background: #4361ee; color: white; border-color: #4361ee; }
+        .framework-content { display: none; }
+        .framework-content.active { display: block; }
+        .copy-block {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        .copy-block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .copy-block-header h4 {
+            font-size: 0.82rem;
+            color: #4361ee;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .copy-block-header .char-count {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        .copy-block-header .char-count.over { color: #ef4444; font-weight: 600; }
+        .copy-text {
+            font-size: 0.92rem;
+            color: #1f2937;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        .btn-copy {
+            padding: 5px 12px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .btn-copy:hover { background: #059669; }
+        .btn-copy.copied { background: #6b7280; }
+        .section-divider {
+            border: none;
+            border-top: 2px dashed #e5e7eb;
+            margin: 25px 0;
+        }
+        .google-section h3 {
+            font-size: 1rem;
+            color: #1a1a2e;
+            margin-bottom: 15px;
+        }
+        .headline-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .tip-box {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-top: 15px;
+            font-size: 0.82rem;
+            color: #92400e;
+        }
+        .tip-box strong { display: block; margin-bottom: 3px; }
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .headline-grid { grid-template-columns: 1fr; }
+            .framework-tabs { flex-direction: column; }
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ad Copy Generator</h1>
+        <p class="subtitle">TechPath Academy — Generate ad copy in multiple frameworks for Meta & Google Ads</p>
+
+        <div class="card">
+            <h2>Enter Product/Service Details</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Product / Service Name *</label>
+                    <input type="text" id="product" placeholder="Digital Marketing Course">
+                </div>
+                <div class="form-group">
+                    <label>Brand Name</label>
+                    <input type="text" id="brand" placeholder="TechPath Academy">
+                </div>
+                <div class="form-group">
+                    <label>Target Audience *</label>
+                    <input type="text" id="audience" placeholder="Students & freshers, 18-28, Bhopal">
+                </div>
+                <div class="form-group">
+                    <label>Key Benefit *</label>
+                    <input type="text" id="benefit" placeholder="Get placed in 6 months with 100% placement assistance">
+                </div>
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="text" id="price" placeholder="₹45,000">
+                </div>
+                <div class="form-group">
+                    <label>Offer / Discount</label>
+                    <input type="text" id="offer" placeholder="20% early bird discount, EMI available">
+                </div>
+                <div class="form-group">
+                    <label>Social Proof (numbers, testimonials)</label>
+                    <input type="text" id="proof" placeholder="500+ students placed, 4.8/5 rating">
+                </div>
+                <div class="form-group">
+                    <label>Urgency / Scarcity</label>
+                    <input type="text" id="urgency" placeholder="Only 30 seats, batch starts Aug 1">
+                </div>
+            </div>
+            <button class="btn-generate" onclick="generateCopy()">Generate Ad Copy</button>
+        </div>
+
+        <div class="output-section" id="output-section">
+            <div class="card">
+                <h2>Generated Ad Copy</h2>
+
+                <div class="framework-tabs">
+                    <button class="framework-tab active" onclick="switchTab('aida')">AIDA</button>
+                    <button class="framework-tab" onclick="switchTab('pas')">PAS</button>
+                    <button class="framework-tab" onclick="switchTab('pppp')">Pain-Promise-Proof-Push</button>
+                    <button class="framework-tab" onclick="switchTab('meta')">Meta Ad Format</button>
+                    <button class="framework-tab" onclick="switchTab('google')">Google RSA</button>
+                </div>
+
+                <div class="framework-content active" id="tab-aida"></div>
+                <div class="framework-content" id="tab-pas"></div>
+                <div class="framework-content" id="tab-pppp"></div>
+                <div class="framework-content" id="tab-meta"></div>
+                <div class="framework-content" id="tab-google"></div>
+
+                <div class="tip-box">
+                    <strong>Pro Tips:</strong>
+                    Always test 2-3 copy variations against each other. What sounds good to you may not resonate with your audience. Let the data decide — run each variation for at least 3 days before picking a winner.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.framework-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.framework-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        function copyText(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+            });
+        }
+
+        function createCopyBlock(label, text, limit) {
+            const charCount = text.length;
+            const isOver = limit && charCount > limit;
+            const countClass = isOver ? 'char-count over' : 'char-count';
+            const countText = limit ? `${charCount}/${limit} chars${isOver ? ' (over limit!)' : ''}` : `${charCount} chars`;
+
+            return `
+                <div class="copy-block">
+                    <div class="copy-block-header">
+                        <h4>${label}</h4>
+                        <span class="${countClass}">${countText}</span>
+                    </div>
+                    <div class="copy-text">${text}</div>
+                    <button class="btn-copy" onclick="copyText(this, '${text.replace(/'/g, "\\'")}')">Copy</button>
+                </div>
+            `;
+        }
+
+        function truncate(text, limit) {
+            if (text.length <= limit) return text;
+            return text.substring(0, limit - 3) + '...';
+        }
+
+        function generateCopy() {
+            const product = document.getElementById('product').value.trim() || 'Digital Marketing Course';
+            const brand = document.getElementById('brand').value.trim() || 'TechPath Academy';
+            const audience = document.getElementById('audience').value.trim() || 'students and freshers';
+            const benefit = document.getElementById('benefit').value.trim() || 'get placed in top companies';
+            const price = document.getElementById('price').value.trim() || '';
+            const offer = document.getElementById('offer').value.trim() || '';
+            const proof = document.getElementById('proof').value.trim() || '';
+            const urgency = document.getElementById('urgency').value.trim() || '';
+
+            // Extract first word of benefit for conciseness
+            const shortBenefit = benefit.split(',')[0];
+
+            // AIDA Framework
+            const aidaFull = `Struggling to land your dream job after graduation?\n\n${brand}'s ${product} teaches you ${shortBenefit} — with live projects and industry mentors.\n\n${proof ? proof + '. ' : ''}${price ? 'Starting at just ' + price + '. ' : ''}${offer ? offer + '. ' : ''}\n\n${urgency ? urgency + '. ' : ''}Register for free demo class today!`;
+
+            document.getElementById('tab-aida').innerHTML = `
+                <p style="font-size:0.85rem;color:#666;margin-bottom:15px;"><strong>AIDA</strong> = Attention → Interest → Desire → Action. Best for cold audiences who don't know your brand.</p>
+                ${createCopyBlock('Full AIDA Copy (Facebook Primary Text)', aidaFull, 300)}
+                ${createCopyBlock('Attention (Hook)', `Struggling to land your dream job after graduation?`, 50)}
+                ${createCopyBlock('Interest', `${brand}'s ${product} teaches you ${shortBenefit} — with live projects and industry mentors.`, 150)}
+                ${createCopyBlock('Desire', `${proof ? proof + '. ' : ''}${price ? 'Starting at just ' + price + '.' : ''}${offer ? ' ' + offer + '.' : ''}`, 150)}
+                ${createCopyBlock('Action (CTA)', `${urgency ? urgency + '. ' : ''}Register for free demo class today!`, 80)}
+            `;
+
+            // PAS Framework
+            const pasFull = `73% of graduates don't get a job in their field.\n\nEvery month without a relevant skill = lost salary + lost confidence.\n\n${brand}'s ${product} takes you from zero to job-ready. ${shortBenefit}. ${proof ? proof + '. ' : ''}${price ? price + '. ' : ''}${offer ? offer + '. ' : ''}${urgency ? urgency + '.' : 'Start today.'}`;
+
+            document.getElementById('tab-pas').innerHTML = `
+                <p style="font-size:0.85rem;color:#666;margin-bottom:15px;"><strong>PAS</strong> = Problem → Agitate → Solution. Best for audiences who feel the pain but haven't found a solution.</p>
+                ${createCopyBlock('Full PAS Copy (Facebook Primary Text)', pasFull, 300)}
+                ${createCopyBlock('Problem', `73% of graduates don't get a job in their field.`, 80)}
+                ${createCopyBlock('Agitate', `Every month without a relevant skill = lost salary + lost confidence.`, 100)}
+                ${createCopyBlock('Solution', `${brand}'s ${product} takes you from zero to job-ready. ${shortBenefit}. ${price ? price + '.' : ''} ${urgency ? urgency + '.' : 'Start today.'}`, 200)}
+            `;
+
+            // Pain-Promise-Proof-Push
+            const ppppFull = `Tired of sending 100 applications with zero callbacks?\n\nWhat if you could land a high-paying job in just 6 months?\n\n${proof ? proof + '. ' : ''}${brand}'s ${product} — ${shortBenefit}.\n\n${urgency ? urgency + '. ' : ''}${offer ? offer + '. ' : ''}Register now — your career transformation starts here.`;
+
+            document.getElementById('tab-pppp').innerHTML = `
+                <p style="font-size:0.85rem;color:#666;margin-bottom:15px;"><strong>Pain-Promise-Proof-Push</strong> = Name the pain → Promise the outcome → Prove it → Push to act. Best for high-competition markets.</p>
+                ${createCopyBlock('Full Pain-Promise-Proof-Push Copy', ppppFull, 300)}
+                ${createCopyBlock('Pain', `Tired of sending 100 applications with zero callbacks?`, 70)}
+                ${createCopyBlock('Promise', `What if you could land a high-paying job in just 6 months?`, 70)}
+                ${createCopyBlock('Proof', `${proof ? proof + '. ' : ''}${brand}'s ${product} — ${shortBenefit}.`, 150)}
+                ${createCopyBlock('Push (CTA)', `${urgency ? urgency + '. ' : ''}Register now — your career transformation starts here.`, 100)}
+            `;
+
+            // Meta Ad Format
+            const metaPrimary = truncate(`${proof ? proof + '. ' : ''}${brand}'s ${product}. ${shortBenefit}. ${urgency ? urgency + '.' : 'Join today.'}`, 125);
+            const metaHeadline = truncate(`${product}${brand ? ' | ' + brand : ''}`, 40);
+            const metaDesc = truncate(`${price ? price + ' ' : ''}${offer ? '| ' + offer : '| Enroll Now'}`, 30);
+
+            document.getElementById('tab-meta').innerHTML = `
+                <p style="font-size:0.85rem;color:#666;margin-bottom:15px;">Formatted for <strong>Meta (Facebook/Instagram) Ads</strong> — character limits enforced.</p>
+                ${createCopyBlock('Primary Text (visible without "See More")', metaPrimary, 125)}
+                ${createCopyBlock('Headline', metaHeadline, 40)}
+                ${createCopyBlock('Description', metaDesc, 30)}
+                <hr class="section-divider">
+                <h4 style="margin-bottom:10px;font-size:0.9rem;">Alternative Primary Texts (A/B test these):</h4>
+                ${createCopyBlock('Variation 2 (Question Hook)', truncate(`Want to ${shortBenefit}? ${brand}'s ${product} has helped ${proof || '500+ students'}. ${urgency || 'Start today.'}`, 125), 125)}
+                ${createCopyBlock('Variation 3 (Social Proof Lead)', truncate(`${proof || 'Hundreds of students'} chose ${brand}. Now it's your turn. ${product} — ${shortBenefit}.`, 125), 125)}
+            `;
+
+            // Google RSA
+            const headlines = [
+                truncate(`${product}`, 30),
+                truncate(`${brand} ${product.split(' ')[0]}`, 30),
+                truncate(`${shortBenefit.split(' ').slice(0, 4).join(' ')}`, 30),
+                truncate(`${proof ? proof.split(',')[0] : '500+ Students Placed'}`, 30),
+                truncate(`${price ? price + ' | EMI Available' : 'Affordable Fee | EMI'}`, 30),
+                truncate(`Free Demo Class`, 30),
+                truncate(`${brand} — Enroll Now`, 30),
+                truncate(`100% Placement Assistance`, 30),
+                truncate(`Live Projects + Internship`, 30),
+                truncate(`${urgency ? urgency.split(',')[0] : 'Limited Seats Available'}`, 30)
+            ];
+
+            const descriptions = [
+                truncate(`Join ${brand}'s ${product}. ${shortBenefit}. ${proof ? proof.split(',')[0] + '.' : ''} Enroll today!`, 90),
+                truncate(`Master in-demand skills with live projects and expert mentors. ${price ? price + '.' : ''} ${offer ? offer + '.' : 'EMI available.'} Register now.`, 90)
+            ];
+
+            let googleHTML = `
+                <p style="font-size:0.85rem;color:#666;margin-bottom:15px;">Formatted for <strong>Google Responsive Search Ads (RSA)</strong> — 30 chars per headline, 90 chars per description.</p>
+                <div class="google-section">
+                    <h3>Headlines (30 characters max each)</h3>
+                    <div class="headline-grid">
+                        ${headlines.map((h, i) => createCopyBlock(`Headline ${i + 1}`, h, 30)).join('')}
+                    </div>
+                    <hr class="section-divider">
+                    <h3>Descriptions (90 characters max each)</h3>
+                    ${descriptions.map((d, i) => createCopyBlock(`Description ${i + 1}`, d, 90)).join('')}
+                </div>
+            `;
+
+            document.getElementById('tab-google').innerHTML = googleHTML;
+
+            document.getElementById('output-section').classList.add('visible');
+            document.getElementById('output-section').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

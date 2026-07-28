@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Prepare Your Job Application Kit",
+  "description": "Create a complete job application package: resume, cover letter, LinkedIn profile, and practice interview answers",
+  "tags": [
+    "resume",
+    "interview",
+    "linkedin",
+    "career",
+    "job-search"
+  ],
+  "status": "draft",
+  "objective": "Students will create a professional resume PDF, write a tailored cover letter, optimize their LinkedIn profile, and prepare answers for common interview questions",
+  "steps": [
+    {
+      "title": "Create Your Resume",
+      "instructions": "Use a clean template (Google Docs, Canva, or plain text in VS Code).\n\nFollow this structure:\n\n```\nYOUR NAME\nPhone | Email | LinkedIn | GitHub | Portfolio\n\nSUMMARY\n2 lines: who you are + top skills + what you're looking for\n\nSKILLS\nLanguages: Python, JavaScript, HTML, CSS, SQL\nFrameworks: FastAPI, Django, Bootstrap, Tailwind CSS\nTools: Git, GitHub, VS Code, Docker, Postman, Figma\nSoft Skills: Problem Solving, Team Collaboration, Communication\n\nPROJECTS\n1. Student Management API | FastAPI, SQLite\n   - Built a REST API with 5 CRUD endpoints and Pydantic validation\n   - Deployed to Render with environment-based configuration\n   - GitHub: link | Live: link\n\n2. Portfolio Website | HTML, Tailwind CSS\n   - Designed and built a responsive portfolio with 4 project showcases\n   - Achieved 90+ Lighthouse score on performance and accessibility\n   - Live: link\n\n3. Expense Analyzer | Python, Pandas, Matplotlib\n   - Created a data analysis tool that reads CSV and generates 3 chart types\n   - Processed 100+ expense records with category-wise breakdowns\n\nEDUCATION\nAdvanced Diploma in Computer Applications (ADCA) | TechPath Institute | 2026\n[Degree] | [College] | [Year]\n\nCERTIFICATIONS (if any)\n- freeCodeCamp: Responsive Web Design\n- HackerRank: Python (Basic)\n```\n\nExport as PDF: `YourName_Resume.pdf`\n\nProofread checklist:\n- [ ] No spelling errors\n- [ ] No \"I\" statements\n- [ ] Action verbs used (Built, Developed, Deployed)\n- [ ] Fits on 1 page\n- [ ] Phone number and email are correct"
+    },
+    {
+      "title": "Write a Cover Letter Template",
+      "instructions": "Create a template you can customize for each application:\n\n```\nDear Hiring Manager,\n\nI am writing to apply for the [Job Title] position at [Company Name]. \nAs a recent ADCA graduate from TechPath Institute with hands-on experience \nin Python, FastAPI, and web development, I am excited about the opportunity \nto contribute to your team.\n\nDuring my training, I built [number] real-world projects including \n[Project Name], a [brief description]. This project involved [tech stack] \nand taught me [skill]. I also [another achievement].\n\nI am particularly interested in [Company Name] because [specific reason — \ntheir product, mission, technology]. I believe my skills in [relevant skills] \nalign well with what you're looking for.\n\nI would welcome the opportunity to discuss how I can contribute to your team. \nPlease find my resume attached.\n\nThank you for your time.\n\nBest regards,\n[Your Name]\n[Phone] | [Email] | [Portfolio URL]\n```\n\nSave as `CoverLetter_Template.md`.\n\nFor each application, change: Company Name, Job Title, and the \"particularly interested\" paragraph."
+    },
+    {
+      "title": "Optimize LinkedIn Profile",
+      "instructions": "Log into LinkedIn and update:\n\n1. **Headline:** \"Full Stack Developer | Python | FastAPI | HTML/CSS/JS | Open to Opportunities\"\n\n2. **About (Summary):**\n```\nRecent ADCA graduate from TechPath Institute with hands-on experience \nbuilding web applications and REST APIs. Skilled in Python, FastAPI, \nJavaScript, HTML/CSS, and SQL. Built 6 real-world projects during \ntraining including a deployed Student Management API and a responsive \nportfolio website.\n\nLooking for opportunities where I can apply my full-stack development \nskills and grow as a developer.\n\nOpen to: Full-time roles, Internships, Freelance projects\nSkills: Python, FastAPI, Django, HTML, CSS, JavaScript, SQL, Git\n```\n\n3. **Custom URL:** linkedin.com/in/yourname (Settings → Edit public profile URL)\n\n4. **Add projects:** Each with description, tech stack, and links\n\n5. **Add skills:** Python, FastAPI, HTML, CSS, JavaScript, SQL, Git\n\n6. **Ask 2-3 batchmates** to endorse your skills\n\nScreenshot your completed profile."
+    },
+    {
+      "title": "Practice Interview Questions",
+      "instructions": "Write answers to these 10 questions (50-100 words each):\n\n1. **Tell me about yourself.** (Use the 30-second pitch)\n2. **What is your strongest technical skill?** (Give an example project)\n3. **Explain REST API to a non-technical person.**\n4. **What's the difference between Python list and dictionary?**\n5. **How do you make a website responsive?**\n6. **Describe a project you're proud of. What challenges did you face?**\n7. **What is Git and why is version control important?**\n8. **How do you stay updated with new technologies?**\n9. **Where do you see yourself in 2 years?**\n10. **Why should we hire you?**\n\nPractice:\n- Read your answers out loud 3 times\n- Time your \"Tell me about yourself\" — should be under 60 seconds\n- Record yourself on your phone and watch it back\n- Practice with a batchmate — take turns asking each other"
+    },
+    {
+      "title": "Apply to 3 Real Opportunities",
+      "instructions": "Put your job kit into action:\n\n1. **Find 3 job listings** on any of these platforms:\n   - Internshala (internshala.com) — internships\n   - LinkedIn Jobs — entry-level developer roles\n   - Naukri.com — IT jobs in your city\n\n2. **For each job, prepare:**\n   - Customize the cover letter (change company name, why you're interested)\n   - Check that your resume matches the job requirements\n   - Note which of your projects are most relevant\n\n3. **Apply to all 3** (yes, actually apply!)\n\n4. **Document your applications:**\n\n```markdown\n## Job Applications Log\n\n### Application 1\n- Company: [Name]\n- Role: [Title]\n- Platform: [Internshala/LinkedIn/Naukri]\n- Date Applied: [Date]\n- Why this role: [1 sentence]\n- Relevant projects: [Which of your projects match]\n\n### Application 2\n...\n```\n\nSave this as `applications.md`.\n\nTips for first-time applicants:\n- Apply to internships first (lower bar, great learning)\n- Don't wait to be \"ready\" — apply now and learn from the process\n- Follow up after 1 week if no response\n- Track every application in a spreadsheet\n\n**Submit:** Resume PDF + Cover Letter + LinkedIn URL + 10 interview answers + `applications.md` with 3 real applications."
+    }
+  ],
+  "expected_output": "A complete job application kit: professional 1-page resume PDF, customizable cover letter template, optimized LinkedIn profile, and prepared answers for 10 common interview questions"
+}

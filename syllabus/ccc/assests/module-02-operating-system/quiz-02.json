@@ -1,0 +1,94 @@
+{
+  "questions": [
+    {
+      "question": "What is the full form of GUI?",
+      "options": ["General User Interface", "Graphical Unified Interface", "Graphical User Interface", "General Utility Interface"],
+      "correct_index": 2,
+      "explanation": "GUI stands for Graphical User Interface. It allows users to interact with the computer using visual elements like windows, icons, menus, and a pointer (WIMP) instead of typing text commands."
+    },
+    {
+      "question": "What happens when you press Shift + Delete on a file?",
+      "options": ["File goes to Recycle Bin", "File is permanently deleted", "File is copied", "File is renamed"],
+      "correct_index": 1,
+      "explanation": "Shift + Delete permanently deletes a file without sending it to the Recycle Bin. The file cannot be recovered through normal means. The regular Delete key sends files to the Recycle Bin."
+    },
+    {
+      "question": "The shortcut key to open Task Manager directly is:",
+      "options": ["Ctrl + Alt + Delete", "Ctrl + Shift + Esc", "Alt + F4", "Ctrl + Alt + Esc"],
+      "correct_index": 1,
+      "explanation": "Ctrl + Shift + Esc opens Task Manager directly. Ctrl + Alt + Delete opens a security screen where Task Manager is one of the options. Ctrl + Shift + Esc is the faster method."
+    },
+    {
+      "question": "Which of the following is the function of the Recycle Bin?",
+      "options": ["Permanently deletes files", "Stores deleted files temporarily", "Compresses files", "Scans for viruses"],
+      "correct_index": 1,
+      "explanation": "The Recycle Bin temporarily stores files that have been deleted using the Delete key. Files can be restored to their original location from the Recycle Bin, or permanently deleted by emptying it."
+    },
+    {
+      "question": "The file extension .exe represents:",
+      "options": ["A text file", "An image file", "An executable (program) file", "A compressed file"],
+      "correct_index": 2,
+      "explanation": "The .exe extension stands for Executable. It is a program file that runs when double-clicked. Examples include setup files for installing software and application programs."
+    },
+    {
+      "question": "The keyboard shortcut to open File Explorer in Windows is:",
+      "options": ["Windows + D", "Windows + E", "Windows + F", "Windows + R"],
+      "correct_index": 1,
+      "explanation": "Windows + E opens File Explorer (formerly called Windows Explorer). Windows + D shows the desktop, Windows + R opens the Run dialog, and Windows + F was used for search in older Windows versions."
+    },
+    {
+      "question": "Linux Operating System is an example of:",
+      "options": ["Proprietary software", "Open source software", "Application software", "Firmware"],
+      "correct_index": 1,
+      "explanation": "Linux is open source software — its source code is freely available for anyone to view, modify, and distribute. It was created by Linus Torvalds in 1991. In contrast, Windows is proprietary (paid, closed source)."
+    },
+    {
+      "question": "Which power option saves the current state to the hard disk and uses no power?",
+      "options": ["Sleep", "Hibernate", "Shut Down", "Lock"],
+      "correct_index": 1,
+      "explanation": "Hibernate saves all open programs and data to the hard disk, then turns off the computer completely (using no power). Sleep keeps data in RAM and uses a small amount of power for faster wake-up."
+    },
+    {
+      "question": "What does the keyboard shortcut Ctrl + Z do?",
+      "options": ["Zoom in", "Close the program", "Undo the last action", "Select all"],
+      "correct_index": 2,
+      "explanation": "Ctrl + Z undoes the last action. For example, if you accidentally delete text, pressing Ctrl + Z will bring it back. It works in most Windows applications."
+    },
+    {
+      "question": "The shortcut key F2 is used to:",
+      "options": ["Delete a file", "Open a file", "Rename a file", "Copy a file"],
+      "correct_index": 2,
+      "explanation": "Pressing F2 when a file or folder is selected allows you to rename it. You can type the new name and press Enter to confirm."
+    },
+    {
+      "question": "Which of the following is NOT a type of operating system?",
+      "options": ["Batch Operating System", "Real-Time Operating System", "Microsoft Word", "Network Operating System"],
+      "correct_index": 2,
+      "explanation": "Microsoft Word is application software (a word processor), not an operating system. Batch, Real-Time, and Network are all types of operating systems."
+    },
+    {
+      "question": "The Indian Linux distribution developed by C-DAC is called:",
+      "options": ["Ubuntu", "Red Hat", "BOSS", "Fedora"],
+      "correct_index": 2,
+      "explanation": "BOSS (Bharat Operating System Solutions) is an Indian Linux distribution developed by C-DAC (Centre for Development of Advanced Computing). It was developed as part of India's push for open source and self-reliance in IT."
+    },
+    {
+      "question": "Ctrl + Shift + N is used to:",
+      "options": ["Open a new window", "Create a new folder", "Create a new file", "Open Notepad"],
+      "correct_index": 1,
+      "explanation": "Ctrl + Shift + N creates a new folder in the current location in File Explorer. Ctrl + N opens a new window in most applications."
+    },
+    {
+      "question": "Which of the following file extensions is associated with Microsoft Excel?",
+      "options": [".docx", ".pptx", ".xlsx", ".txt"],
+      "correct_index": 2,
+      "explanation": ".xlsx is the file extension for Microsoft Excel spreadsheets. .docx is for Word documents, .pptx is for PowerPoint presentations, and .txt is for plain text files."
+    },
+    {
+      "question": "What is the shortcut to lock the Windows computer screen?",
+      "options": ["Windows + D", "Windows + L", "Windows + E", "Ctrl + L"],
+      "correct_index": 1,
+      "explanation": "Windows + L locks the computer screen. You will need to enter your password or PIN to unlock it. This is useful when you leave your computer temporarily and want to protect your work."
+    }
+  ]
+}

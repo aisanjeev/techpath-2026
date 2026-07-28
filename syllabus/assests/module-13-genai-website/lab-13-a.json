@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Build a Landing Page with AI + Tailwind CSS",
+  "description": "Use AI tools to generate a landing page, then customize and deploy it",
+  "tags": [
+    "genai",
+    "tailwind",
+    "html",
+    "deployment",
+    "ai-tools"
+  ],
+  "status": "draft",
+  "objective": "Students will use an AI tool to generate a landing page, customize the design manually, add responsive behavior, and deploy to GitHub Pages",
+  "steps": [
+    {
+      "title": "Generate the Initial Page with AI",
+      "instructions": "Open **Claude** (claude.ai) or **ChatGPT** and use this prompt:\n\n```\nCreate a responsive landing page for a computer training institute called \"TechPath\" in Bhopal. \n\nUse HTML + Tailwind CSS (CDN). Include:\n1. Fixed navbar with logo and navigation links\n2. Hero section with heading, subtext, and CTA button\n3. 3 course cards (ADCA ₹35,000, DCA ₹18,000, Tally ₹8,000)\n4. Testimonials section with 3 student reviews\n5. Contact form with name, phone, course dropdown\n6. Footer with copyright and social links\n\nUse indigo-600 as primary color. Mobile responsive.\n```\n\nCopy the generated code into a file called `index.html`. Open with Live Server and check if it works."
+    },
+    {
+      "title": "Review and Understand the Code",
+      "instructions": "Before changing anything, read through the generated code:\n\n1. Find the Tailwind CDN link in `<head>` — this is what makes Tailwind classes work\n2. Identify each section: navbar, hero, courses, testimonials, contact, footer\n3. Look at responsive classes: `md:grid-cols-3` means 3 columns on medium screens\n4. Find the color classes: `bg-indigo-600`, `text-white`, `hover:bg-indigo-700`\n5. Notice the layout pattern: `max-w-6xl mx-auto px-4` (centered container)\n\nIn your notebook, write:\n- What Tailwind classes control the layout?\n- What classes handle responsive design?\n- What would you change to make it look more professional?"
+    },
+    {
+      "title": "Customize the Design",
+      "instructions": "Make these changes manually (not with AI):\n\n1. **Change colors** — Replace indigo with your own theme:\n   - Primary: change `indigo-600` to `violet-600` or any color you like\n   - Background sections: alternate between `bg-white` and `bg-gray-50`\n\n2. **Add a stats section** below the hero:\n```html\n<div class=\"flex justify-center gap-8 mt-12\">\n    <div class=\"text-center\">\n        <span class=\"text-3xl font-bold block\">500+</span>\n        <span class=\"text-gray-500 text-sm\">Students</span>\n    </div>\n    <div class=\"text-center\">\n        <span class=\"text-3xl font-bold block\">95%</span>\n        <span class=\"text-gray-500 text-sm\">Placement</span>\n    </div>\n    <div class=\"text-center\">\n        <span class=\"text-3xl font-bold block\">4.8</span>\n        <span class=\"text-gray-500 text-sm\">Rating</span>\n    </div>\n</div>\n```\n\n3. **Add hover effects** to course cards:\n```html\n<div class=\"... hover:shadow-xl hover:-translate-y-1 transition\">\n```\n\n4. **Add smooth scrolling** with JavaScript:\n```html\n<script>\ndocument.querySelectorAll('a[href^=\"#\"]').forEach(link => {\n    link.addEventListener('click', (e) => {\n        e.preventDefault();\n        document.querySelector(link.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });\n    });\n});\n</script>\n```\n\n5. **Add meta tags** for SEO in `<head>`:\n```html\n<meta name=\"description\" content=\"TechPath — Best computer training institute in Bhopal\">\n<meta property=\"og:title\" content=\"TechPath — Computer Training Institute\">\n```"
+    },
+    {
+      "title": "Deploy to GitHub Pages",
+      "instructions": "Open terminal in your project folder:\n\n```bash\ngit init\ngit add .\ngit commit -m \"TechPath landing page\"\n```\n\nGo to **github.com** → New Repository → name it `techpath-landing`.\n\n```bash\ngit remote add origin https://github.com/YOUR_USERNAME/techpath-landing.git\ngit push -u origin main\n```\n\nOn GitHub:\n1. Go to repository **Settings** → **Pages**\n2. Source: Deploy from a branch → **main** → **/ (root)** → Save\n3. Wait 1-2 minutes\n4. Your site is live at: `https://YOUR_USERNAME.github.io/techpath-landing/`\n\nTest the live URL on:\n- Desktop browser\n- Mobile phone (open the URL on your phone)\n- Chrome DevTools device mode\n\nRun **Lighthouse** (F12 → Lighthouse tab → Generate Report).\n\n**Submit:** GitHub repo link + live URL + Lighthouse screenshot."
+    },
+    {
+      "title": "Run Lighthouse Audit and Fix Issues",
+      "instructions": "Open the deployed site in Chrome → press F12 → click the **Lighthouse** tab.\n\nClick **Analyze page load** (check all categories).\n\nCommon issues and fixes:\n\n| Issue | Fix |\n|-------|-----|\n| Missing meta description | Add `<meta name=\"description\" content=\"...\">` |\n| Images without alt text | Add `alt=\"description\"` to all `<img>` tags |\n| Low contrast text | Make sure text color has 4.5:1 ratio with background |\n| Missing lang attribute | Add `<html lang=\"en\">` |\n| Tap targets too small | Make buttons/links at least 44x44px on mobile |\n| No viewport meta | Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">` |\n\nFix the issues, push again, wait for deploy, and re-run Lighthouse.\n\nTarget scores:\n- Performance: 80+\n- Accessibility: 90+\n- Best Practices: 90+\n- SEO: 90+\n\nScreenshot both the before and after Lighthouse reports.\n\n**Final Submit:** GitHub repo + live URL + before/after Lighthouse screenshots."
+    }
+  ],
+  "expected_output": "A live deployed landing page built with AI assistance and manually customized with Tailwind CSS, responsive design, smooth scrolling, SEO meta tags, and Lighthouse score 80+"
+}

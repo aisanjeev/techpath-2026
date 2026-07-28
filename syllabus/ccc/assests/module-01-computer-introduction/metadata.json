@@ -1,0 +1,146 @@
+{
+  "01-what-is-computer.md": {
+    "title": "What is a Computer?",
+    "description": "Module 01 \u2014 CCC Exam Preparation | Topic 1 --- A computer is an electronic device that accepts data as input, processes it according to a set of instructions (called a program), and produces meaningful output (called information). It can also store data for future use. In simple words: A computer takes raw data, works on it, and gives you useful results. CCC Exam Tip: The definition of a computer is frequently asked. Remember the keywords \u2014...",
+    "asset_type": "markdown",
+    "tags": [
+      "computer-introduction",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "02-computer-components.md": {
+    "title": "Computer Components",
+    "description": "Module 01 \u2014 CCC Exam Preparation | Topic 2 --- A computer system is made up of several components that work together. These components can be grouped into four main categories: 1. Central Processing Unit (CPU) \u2014 the brain of the computer 2. Input Devices \u2014 devices used to enter data into the computer 3. Output Devices \u2014 devices used to display or produce results 4. Memory/Storage \u2014 where data and instructions are stored --- The CPU is called the...",
+    "asset_type": "markdown",
+    "tags": [
+      "computer-introduction",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "03-hardware-software.md": {
+    "title": "Hardware and Software",
+    "description": "Module 01 \u2014 CCC Exam Preparation | Topic 3 --- Hardware refers to all the physical parts of a computer that you can see and touch. If you can hold it in your hand, it is hardware. Examples of Hardware: - Monitor, Keyboard, Mouse, Printer, Speaker - CPU, Motherboard, RAM stick, Hard Disk - Pen Drive, CD/DVD, Scanner, Webcam Think of hardware as the body of a computer \u2014 without hardware, there is nothing to run programs on. --- Software is a set...",
+    "asset_type": "markdown",
+    "tags": [
+      "computer-introduction",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "04-data-representation.md": {
+    "title": "Data Representation in Computers",
+    "description": "Module 01 \u2014 CCC Exam Preparation | Topic 4 --- Computers understand only two things: 0 and 1. Everything \u2014 text, images, videos, music \u2014 is stored as combinations of 0s and 1s inside the computer. This is because computers use electrical signals, and a signal can be either ON (1) or OFF (0). --- - The smallest unit of data in a computer - A bit can hold only one of two values: 0 or 1 - \"Bit\" comes from Binary Digit - A group of 8 bits = 1 Byte -...",
+    "asset_type": "markdown",
+    "tags": [
+      "computer-introduction",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "05-ict-applications.md": {
+    "title": "ICT Applications in Daily Life",
+    "description": "Module 01 \u2014 CCC Exam Preparation | Topic 5 --- ICT stands for Information and Communication Technology. It refers to all technologies used for handling, processing, storing, and communicating information. ICT includes computers, the internet, mobile phones, software, and networks. In simple words, ICT is the use of computers and the internet to make our daily tasks easier, faster, and more efficient. CCC Exam Tip: The full form of ICT \u2014...",
+    "asset_type": "markdown",
+    "tags": [
+      "computer-introduction",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "06-number-system-converter.html": {
+    "title": "Number System Converter \u2014 TechPath CCC Module 01",
+    "description": "Interactive Number System Converter \u2014 TechPath CCC Module 01 exercise for Computer Introduction",
+    "asset_type": "html_bundle",
+    "tags": [
+      "computer-introduction",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "assignment-01.md": {
+    "title": "Module 01: Introduction to Computer \u2014 Assignment",
+    "description": "CCC Exam Preparation | TechPath Institute --- Complete all 4 tasks below. Each task is hands-on and practical. Take screenshots or write down your observations as instructed. Submit your work to your trainer at the next class. --- Objective: Identify the physical components (hardware) of a desktop or laptop computer. What to Do: 1. Look at the computer in your lab or at home. 2. Identify and list the following parts: - Monitor (screen) -...",
+    "asset_type": "assignment",
+    "tags": [
+      "computer-introduction",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "cheatsheet-01.md": {
+    "title": "Cheatsheet 01",
+    "description": "Learning material for Cheatsheet 01",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "computer-introduction",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "lab-01-a.json": {
+    "title": "Identify Computer Parts and Boot Process",
+    "description": "Hands-on exploration of computer hardware components and the startup process",
+    "asset_type": "lab",
+    "tags": [
+      "hardware",
+      "components",
+      "boot-process",
+      "CPU",
+      "beginner"
+    ]
+  },
+  "lab-01-b.json": {
+    "title": "Practice Keyboard Typing and System Exploration",
+    "description": "Learn keyboard layout, practice typing skills, and explore basic system tools",
+    "asset_type": "lab",
+    "tags": [
+      "keyboard",
+      "typing",
+      "system-tools",
+      "notepad",
+      "beginner"
+    ]
+  },
+  "notes-01.md": {
+    "title": "Module 01: Introduction to Computer \u2014 Comprehensive Notes",
+    "description": "CCC Exam Preparation | TechPath Institute --- A computer is an electronic device that accepts data (input), processes it according to a set of instructions (program), and produces useful information (output). It can also store data for future use. Key definition keywords for exam: Electronic + Data + Processing + Output + Storage Charles Babbage is called the Father of Computer because he designed the Analytical Engine (1837), which had all the...",
+    "asset_type": "notes",
+    "tags": [
+      "computer-introduction",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-01.json": {
+    "title": "Quiz 01",
+    "description": "Learning material for Quiz 01",
+    "asset_type": "quiz",
+    "tags": [
+      "computer-introduction",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-01.md": {
+    "title": "Quiz: Introduction to Computer",
+    "description": "Module 01 \u2014 CCC Exam Preparation --- - A) Bill Gates - B) Charles Babbage \u2705 - C) Tim Berners-Lee - D) Steve Jobs > Explanation: Charles Babbage is called the Father of Computer because he designed the Analytical Engine, which had all the basic components of a modern computer. --- - A) Computer Processing Unit - B) Central Processing Unit \u2705 - C) Central Program Utility - D) Computer Program Unit > Explanation: CPU stands for Central Processing...",
+    "asset_type": "markdown",
+    "tags": [
+      "computer-introduction",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "resources-01.md": {
+    "title": "Module 01: Introduction to Computer \u2014 Resources",
+    "description": "CCC Exam Preparation | TechPath Institute --- - NIELIT Official Website \u2014 https://www.nielit.gov.in/ - CCC syllabus, exam schedule, sample papers, and registration - NIELIT Student Portal \u2014 https://student.nielit.gov.in/ - Exam results, certificate download, admit card - NIELIT CCC Study Material \u2014 https://www.nielit.gov.in/content/course-computer-concepts-ccc - Official syllabus and course outline --- - SWAYAM \u2014 https://swayam.gov.in/ - Free...",
+    "asset_type": "notes",
+    "tags": [
+      "computer-introduction",
+      "ccc",
+      "computer-concepts"
+    ]
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "question": "What is v0.dev used for?",
+      "options": ["Video editing", "Generating React UI components from text descriptions", "Database management", "Email marketing"],
+      "correct_index": 1,
+      "explanation": "v0.dev by Vercel generates production-ready React components from text descriptions — describe what you want and get code."
+    },
+    {
+      "question": "Which platform offers free static website hosting?",
+      "options": ["AWS Lambda", "GitHub Pages", "Google Cloud", "Azure VMs"],
+      "correct_index": 1,
+      "explanation": "GitHub Pages hosts static sites for free at username.github.io. Vercel and Netlify also offer free tiers."
+    },
+    {
+      "question": "What is the correct AI-assisted development workflow?",
+      "options": ["Copy AI code without reading it", "Plan → Generate → Customize → Debug → Deploy", "Let AI build everything alone", "Only use AI for design"],
+      "correct_index": 1,
+      "explanation": "The best workflow: Plan your project, generate code with AI, customize it, debug issues, then deploy."
+    },
+    {
+      "question": "What does SEO stand for?",
+      "options": ["System Engine Output", "Search Engine Optimization", "Site Enhancement Operation", "Server Entry Object"],
+      "correct_index": 1,
+      "explanation": "SEO = Search Engine Optimization — techniques to make your website rank higher on Google search results."
+    },
+    {
+      "question": "Which meta tag is most important for SEO?",
+      "options": ["meta charset", "meta viewport", "meta description", "meta author"],
+      "correct_index": 2,
+      "explanation": "The meta description appears in Google search results below your title. It should summarize your page in under 160 chars."
+    },
+    {
+      "question": "What is GitHub Copilot?",
+      "options": ["A GitHub app for mobile", "An AI that auto-completes code in your editor", "A GitHub project manager", "A code review tool"],
+      "correct_index": 1,
+      "explanation": "GitHub Copilot is an AI coding assistant that suggests code completions as you type in VS Code. Free for students."
+    },
+    {
+      "question": "Which is the easiest way to deploy a website for free?",
+      "options": ["Buy a dedicated server", "Use Vercel with git push", "Set up Apache manually", "Use FTP upload"],
+      "correct_index": 1,
+      "explanation": "Vercel deploys automatically when you push to git — no server setup needed. Just connect your repo and push."
+    },
+    {
+      "question": "What is Bolt.new?",
+      "options": ["A CSS framework", "An AI tool that generates full-stack web apps from prompts", "A JavaScript library", "A hosting platform"],
+      "correct_index": 1,
+      "explanation": "Bolt.new generates complete web applications from text descriptions — frontend, backend, and database included."
+    },
+    {
+      "question": "Why should you understand AI-generated code?",
+      "options": ["To impress others", "To debug issues and customize it for your needs", "It's not necessary", "To write documentation"],
+      "correct_index": 1,
+      "explanation": "AI code may have bugs or not match your needs exactly. Understanding it lets you debug, customize, and maintain it."
+    },
+    {
+      "question": "What is responsive design?",
+      "options": ["A design that responds to clicks", "A design that looks good on all screen sizes", "A design made with AI", "A design that loads fast"],
+      "correct_index": 1,
+      "explanation": "Responsive design adapts to different screen sizes (mobile, tablet, desktop) using media queries and flexible layouts."
+    }
+  ]
+}

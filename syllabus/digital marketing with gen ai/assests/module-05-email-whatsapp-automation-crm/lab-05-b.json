@@ -1,0 +1,36 @@
+{
+  "title": "Create a Multi-Channel Automation with Zapier",
+  "module": 5,
+  "lab": "B",
+  "duration": "75 minutes",
+  "tools_required": ["Zapier (free account)", "Google Forms", "Google Sheets", "MailerLite (from Lab A)", "Slack (free workspace)"],
+  "learning_outcomes": [
+    "Connect multiple apps using Zapier triggers and actions",
+    "Map data fields correctly between different platforms",
+    "Build multi-step automations that handle lead capture",
+    "Test automations and troubleshoot data flow issues",
+    "Document automation workflows for team reference"
+  ],
+  "steps": [
+    {
+      "title": "Set Up Zapier Account and Connect Apps",
+      "instructions": "1. Go to zapier.com and sign up for a free account.\n2. Complete the onboarding wizard — select 'Marketing' as your use case.\n3. Connect the following apps to Zapier (go to My Apps > Add Connection):\n   - Google Account (for Forms and Sheets)\n   - MailerLite (use API key from Settings > Integrations > API)\n   - Slack (create a free workspace at slack.com first if you don't have one — name it 'TechPath Marketing Team')\n4. In Slack, create a channel called '#new-leads'.\n5. Create a Google Sheet called 'Lead Tracker - TechPath' with columns: Timestamp, Full Name, Email, Phone, Source, Interest, Status.\n6. Create a Google Form called 'TechPath Course Interest Form' with fields:\n   - Full Name (short answer, required)\n   - Email Address (short answer, required)\n   - Phone Number (short answer, required)\n   - How did you hear about us? (dropdown: Google Search, Instagram, YouTube, Friend's Referral, WhatsApp)\n   - Which course interests you? (dropdown: Digital Marketing, Web Development, Data Analytics, UI/UX Design)\n7. Verify all 4 apps show 'Connected' status in Zapier.\n8. Take a screenshot showing all connected apps."
+    },
+    {
+      "title": "Build Zap 1: Form Submission to Email List",
+      "instructions": "1. Click 'Create Zap' in Zapier.\n2. Set Trigger:\n   - App: Google Forms\n   - Event: New Response in Spreadsheet\n   - Account: Select your Google account\n   - Form: Select 'TechPath Course Interest Form'\n   - Test trigger: Submit a test response in your Google Form first, then click 'Test trigger' in Zapier\n3. Set Action:\n   - App: MailerLite\n   - Event: Add Subscriber to Group\n   - Account: Select your MailerLite account\n   - Group: Select 'Welcome Sequence Leads' (from Lab A)\n   - Map fields:\n     * Email: Map to form's Email field\n     * Name: Map to form's Full Name field\n   - Add custom field: Map 'Interest' to Course Interest answer\n4. Test the action — verify the subscriber appears in MailerLite.\n5. Name this Zap: 'Form to MailerLite - Lead Capture'.\n6. Keep the Zap OFF for now (we will turn it on after building all Zaps).\n7. Take a screenshot of the completed Zap with test success."
+    },
+    {
+      "title": "Build Zap 2: New Subscriber to Welcome Email",
+      "instructions": "1. Create a new Zap.\n2. Set Trigger:\n   - App: MailerLite\n   - Event: Subscriber Added to Group\n   - Account: Select your MailerLite account\n   - Group: 'Welcome Sequence Leads'\n   - Test trigger: Use the subscriber you added in the previous step\n3. Set Action:\n   - App: MailerLite\n   - Event: Send Campaign to Group (or use 'Add to Automation' if available)\n   - If 'Send Campaign' is not available on free tier, use this alternative:\n     * App: Email by Zapier (built-in)\n     * Event: Send Outbound Email\n     * To: Map to subscriber's email\n     * Subject: 'Welcome to TechPath Academy, {{name}}!'\n     * Body: Write a brief welcome message (3-4 sentences welcoming them and telling them to check their inbox for the toolkit)\n4. Test the action — check if the email sends correctly.\n5. Name this Zap: 'New Subscriber - Send Welcome'.\n6. Take a screenshot showing the Zap trigger and action configured.\n7. Note: If you set up the automation in Lab A correctly, MailerLite will already send the welcome sequence. This Zap adds an immediate confirmation email as a backup."
+    },
+    {
+      "title": "Build Zap 3: Email Open to CRM Update",
+      "instructions": "1. Create a new Zap.\n2. Set Trigger:\n   - App: Google Forms\n   - Event: New Response in Spreadsheet (same form as Zap 1)\n   - This simulates the CRM update flow — in a real setup, you would trigger on email opens\n3. Set Action 1:\n   - App: Google Sheets\n   - Event: Create Spreadsheet Row\n   - Account: Select your Google account\n   - Spreadsheet: 'Lead Tracker - TechPath'\n   - Sheet: Sheet1\n   - Map columns:\n     * Timestamp: Use Zap's built-in timestamp\n     * Full Name: Map from form\n     * Email: Map from form\n     * Phone: Map from form\n     * Source: Map from 'How did you hear about us?'\n     * Interest: Map from 'Which course interests you?'\n     * Status: Type 'New Lead' (static value)\n4. Add Action 2 (click the + button):\n   - App: Slack\n   - Event: Send Channel Message\n   - Channel: #new-leads\n   - Message Text: '🆕 *New Lead Alert!*\n     Name: {{Full Name}}\n     Email: {{Email}}\n     Phone: {{Phone}}\n     Source: {{Source}}\n     Interest: {{Interest}}\n     Time: {{Timestamp}}'\n5. Test both actions.\n6. Name this Zap: 'Form to Sheet + Slack Notification'.\n7. Take screenshots of: Google Sheet with new row, Slack message received."
+    },
+    {
+      "title": "Test All Zaps End-to-End and Document",
+      "instructions": "1. Turn ON all three Zaps.\n2. Submit 3 different test entries through your Google Form using different data:\n   - Test 1: Rahul Verma, Google Search, Digital Marketing\n   - Test 2: Priya Nair, Instagram, Web Development\n   - Test 3: Amit Saxena, Friend's Referral, Data Analytics\n3. Wait 2-3 minutes for Zaps to process.\n4. Verify the complete flow for each submission:\n   - [ ] Contact added to MailerLite group (check subscriber list)\n   - [ ] Welcome email received (check test inboxes or MailerLite activity)\n   - [ ] Row added to Google Sheet (check the spreadsheet)\n   - [ ] Slack notification posted (check #new-leads channel)\n5. Go to Zapier > Zap History and verify all tasks show 'Success' status.\n6. Take screenshots of:\n   - Zap History showing all successful runs\n   - Google Sheet with all 3 entries\n   - Slack channel with all 3 notifications\n   - MailerLite subscriber list with new contacts\n7. Create a simple documentation (in Google Doc or Notion):\n   - Title: 'Lead Automation Workflow Documentation'\n   - Include: Workflow diagram (draw a simple flowchart), what each Zap does, how to troubleshoot if something breaks, and any limitations of the free tier.\n8. Write a reflection (3-4 sentences): How would you improve this automation for a real business? What additional steps would you add?"
+    }
+  ]
+}

@@ -1,0 +1,382 @@
+<title>API Request Builder — TechPath Institute</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 20px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 1.8rem; color: #38bdf8; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 22px; font-size: 0.95rem; }
+
+  .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+
+  .panel { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 16px; }
+  .panel h2 { font-size: 0.95rem; color: #38bdf8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  label { font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  select, input[type="text"], textarea { background: #0f172a; color: #e2e8f0; border: 1px solid #475569; border-radius: 6px; padding: 9px 11px; font-size: 0.85rem; width: 100%; outline: none; font-family: inherit; }
+  select:focus, input:focus, textarea:focus { border-color: #38bdf8; }
+  textarea { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.82rem; min-height: 100px; resize: vertical; }
+
+  .method-bar { display: flex; gap: 8px; margin-bottom: 14px; }
+  .method-btn { padding: 8px 16px; border: 1px solid #475569; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 700; background: #0f172a; color: #94a3b8; transition: all 0.15s; }
+  .method-btn:hover { color: #e2e8f0; }
+  .method-btn.active { border-width: 2px; }
+  .method-btn.GET.active { border-color: #22c55e; color: #22c55e; background: #22c55e11; }
+  .method-btn.POST.active { border-color: #f59e0b; color: #f59e0b; background: #f59e0b11; }
+  .method-btn.PUT.active { border-color: #3b82f6; color: #3b82f6; background: #3b82f611; }
+  .method-btn.PATCH.active { border-color: #a855f7; color: #a855f7; background: #a855f711; }
+  .method-btn.DELETE.active { border-color: #ef4444; color: #ef4444; background: #ef444411; }
+
+  .url-bar { display: flex; gap: 8px; margin-bottom: 14px; }
+  .url-bar input { flex: 1; }
+  .send-btn { padding: 9px 20px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+  .send-btn:hover { background: #3b82f6; }
+
+  .section { margin-bottom: 14px; }
+
+  .kv-row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
+  .kv-row input { flex: 1; padding: 7px 9px; font-size: 0.8rem; }
+  .kv-remove { background: #991b1b; border: none; color: white; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+  .kv-add { background: #334155; border: none; color: #94a3b8; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; margin-top: 4px; }
+  .kv-add:hover { background: #475569; color: #e2e8f0; }
+
+  .tabs { display: flex; gap: 0; margin-bottom: -1px; position: relative; z-index: 1; }
+  .tab { padding: 7px 14px; font-size: 0.8rem; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 6px 6px 0 0; color: #94a3b8; }
+  .tab:hover { color: #e2e8f0; }
+  .tab.active { background: #1e293b; border-color: #334155; color: #38bdf8; }
+
+  .response-panel { margin-top: 18px; }
+  .status-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-weight: 700; font-size: 0.82rem; }
+  .status-2xx { background: #14532d; color: #4ade80; }
+  .status-4xx { background: #7f1d1d; color: #fca5a5; }
+  .status-5xx { background: #7f1d1d; color: #fca5a5; }
+
+  .code-block { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 14px; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.6; white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow: auto; }
+  .json-key { color: #38bdf8; }
+  .json-str { color: #4ade80; }
+  .json-num { color: #fbbf24; }
+  .json-bool { color: #c084fc; }
+  .json-null { color: #64748b; }
+
+  .preset-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .preset-btn { padding: 5px 10px; border: 1px solid #334155; border-radius: 4px; background: #1e293b; color: #94a3b8; cursor: pointer; font-size: 0.75rem; }
+  .preset-btn:hover { border-color: #38bdf8; color: #38bdf8; }
+
+  .raw-view { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 14px; font-family: 'Cascadia Code', monospace; font-size: 0.78rem; line-height: 1.5; white-space: pre-wrap; color: #94a3b8; max-height: 200px; overflow: auto; }
+  .req-method { color: #22c55e; font-weight: 700; }
+  .req-path { color: #38bdf8; }
+  .req-header { color: #64748b; }
+  .req-header-val { color: #e2e8f0; }
+</style>
+
+<div class="container">
+  <h1>API Request Builder</h1>
+  <p class="subtitle">Build and simulate HTTP requests visually — TechPath Institute</p>
+
+  <div style="margin-bottom:10px;">
+    <label>Quick Presets</label>
+    <div class="preset-bar">
+      <button class="preset-btn" onclick="loadPreset('list')">GET Students</button>
+      <button class="preset-btn" onclick="loadPreset('get')">GET Student by ID</button>
+      <button class="preset-btn" onclick="loadPreset('create')">POST Create Student</button>
+      <button class="preset-btn" onclick="loadPreset('update')">PATCH Update Student</button>
+      <button class="preset-btn" onclick="loadPreset('delete')">DELETE Student</button>
+      <button class="preset-btn" onclick="loadPreset('login')">POST Login</button>
+      <button class="preset-btn" onclick="loadPreset('search')">GET Search</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <h2>Request</h2>
+
+        <div class="method-bar">
+          <button class="method-btn GET active" onclick="setMethod('GET')">GET</button>
+          <button class="method-btn POST" onclick="setMethod('POST')">POST</button>
+          <button class="method-btn PUT" onclick="setMethod('PUT')">PUT</button>
+          <button class="method-btn PATCH" onclick="setMethod('PATCH')">PATCH</button>
+          <button class="method-btn DELETE" onclick="setMethod('DELETE')">DELETE</button>
+        </div>
+
+        <div class="url-bar">
+          <input type="text" id="url-input" value="http://localhost:8000/api/v1/students" placeholder="Enter URL">
+          <button class="send-btn" onclick="sendRequest()">Send</button>
+        </div>
+
+        <div class="section">
+          <label>Headers</label>
+          <div id="headers-container">
+            <div class="kv-row">
+              <input type="text" value="Content-Type" placeholder="Key" class="header-key">
+              <input type="text" value="application/json" placeholder="Value" class="header-val">
+              <button class="kv-remove" onclick="this.parentElement.remove();updateRaw()">x</button>
+            </div>
+          </div>
+          <button class="kv-add" onclick="addHeader()">+ Add Header</button>
+        </div>
+
+        <div class="section" id="body-section">
+          <label>Body (JSON)</label>
+          <textarea id="body-input" placeholder='{"name": "Rahul", "email": "rahul@email.com"}' oninput="updateRaw()"></textarea>
+        </div>
+
+        <div class="section">
+          <label>Raw Request Preview</label>
+          <div class="raw-view" id="raw-request"></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel response-panel" id="response-panel">
+        <h2>Response</h2>
+        <div id="response-placeholder" style="color:#64748b;text-align:center;padding:40px 0;">
+          Click <strong>Send</strong> or choose a preset to see the simulated response.
+        </div>
+        <div id="response-content" style="display:none;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <span class="status-badge" id="status-badge">200 OK</span>
+            <span style="color:#64748b;font-size:0.8rem;" id="response-time">42ms</span>
+          </div>
+
+          <div class="section">
+            <label>Response Headers</label>
+            <div class="code-block" id="response-headers" style="max-height:100px;font-size:0.75rem;"></div>
+          </div>
+
+          <div class="section">
+            <label>Response Body</label>
+            <div class="code-block" id="response-body"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentMethod = 'GET';
+
+const sampleData = {
+  students: [
+    { id: 1, name: "Rahul Sharma", email: "rahul@email.com", city: "Bhopal", fee_paid: 15000, is_active: true, created_at: "2026-01-15T10:30:00", updated_at: "2026-01-15T10:30:00" },
+    { id: 2, name: "Priya Patel", email: "priya@email.com", city: "Pune", fee_paid: 18000, is_active: true, created_at: "2026-01-20T14:00:00", updated_at: "2026-02-10T09:15:00" },
+    { id: 3, name: "Amit Kumar", email: "amit@email.com", city: "Delhi", fee_paid: 15000, is_active: true, created_at: "2026-02-01T11:45:00", updated_at: "2026-02-01T11:45:00" },
+    { id: 4, name: "Sneha Gupta", email: "sneha@email.com", city: "Bhopal", fee_paid: 20000, is_active: true, created_at: "2026-02-10T16:20:00", updated_at: "2026-03-05T08:30:00" },
+    { id: 5, name: "Ananya Singh", email: "ananya@email.com", city: "Pune", fee_paid: 22000, is_active: false, created_at: "2026-02-15T09:00:00", updated_at: "2026-04-01T12:00:00" }
+  ]
+};
+
+function setMethod(method) {
+  currentMethod = method;
+  document.querySelectorAll('.method-btn').forEach(b => {
+    b.classList.remove('active');
+    if (b.textContent === method) b.classList.add('active');
+  });
+  document.getElementById('body-section').style.display =
+    ['POST', 'PUT', 'PATCH'].includes(method) ? '' : 'none';
+  updateRaw();
+}
+
+function addHeader() {
+  const container = document.getElementById('headers-container');
+  const div = document.createElement('div');
+  div.className = 'kv-row';
+  div.innerHTML = `
+    <input type="text" placeholder="Key" class="header-key" oninput="updateRaw()">
+    <input type="text" placeholder="Value" class="header-val" oninput="updateRaw()">
+    <button class="kv-remove" onclick="this.parentElement.remove();updateRaw()">x</button>
+  `;
+  container.appendChild(div);
+}
+
+function getHeaders() {
+  const rows = document.querySelectorAll('#headers-container .kv-row');
+  const headers = {};
+  rows.forEach(row => {
+    const key = row.querySelector('.header-key').value.trim();
+    const val = row.querySelector('.header-val').value.trim();
+    if (key) headers[key] = val;
+  });
+  return headers;
+}
+
+function updateRaw() {
+  const url = document.getElementById('url-input').value;
+  let path;
+  try { path = new URL(url).pathname + new URL(url).search; } catch { path = url; }
+  const headers = getHeaders();
+  const body = document.getElementById('body-input').value.trim();
+
+  let raw = `<span class="req-method">${currentMethod}</span> <span class="req-path">${path}</span> HTTP/1.1\n`;
+  try { raw += `<span class="req-header">Host:</span> <span class="req-header-val">${new URL(url).host}</span>\n`; } catch {}
+  for (const [k, v] of Object.entries(headers)) {
+    raw += `<span class="req-header">${k}:</span> <span class="req-header-val">${v}</span>\n`;
+  }
+  if (body && ['POST', 'PUT', 'PATCH'].includes(currentMethod)) {
+    raw += `\n${body}`;
+  }
+  document.getElementById('raw-request').innerHTML = raw;
+}
+
+function highlightJSON(obj, indent = 0) {
+  const json = JSON.stringify(obj, null, 2);
+  return json
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
+    .replace(/: "([^"]*)"/g, ': <span class="json-str">"$1"</span>')
+    .replace(/: (\d+\.?\d*)/g, ': <span class="json-num">$1</span>')
+    .replace(/: (true|false)/g, ': <span class="json-bool">$1</span>')
+    .replace(/: (null)/g, ': <span class="json-null">null</span>');
+}
+
+function sendRequest() {
+  const url = document.getElementById('url-input').value;
+  const body = document.getElementById('body-input').value.trim();
+  const time = Math.floor(Math.random() * 80 + 15);
+
+  let status = 200;
+  let statusText = 'OK';
+  let responseBody = {};
+  let respHeaders = {
+    'content-type': 'application/json',
+    'x-request-id': Math.random().toString(36).substring(2, 10),
+    'x-process-time': (time / 1000).toFixed(4) + 's'
+  };
+
+  const path = url.replace(/https?:\/\/[^/]+/, '');
+
+  // Simulate responses
+  if (currentMethod === 'GET' && path.match(/\/students\/(\d+)/)) {
+    const id = parseInt(path.match(/\/students\/(\d+)/)[1]);
+    const student = sampleData.students.find(s => s.id === id);
+    if (student) {
+      responseBody = student;
+    } else {
+      status = 404; statusText = 'Not Found';
+      responseBody = { detail: `Student with id ${id} not found` };
+    }
+  } else if (currentMethod === 'GET' && path.includes('/students')) {
+    const params = new URLSearchParams(url.split('?')[1] || '');
+    let data = [...sampleData.students];
+    if (params.get('city')) data = data.filter(s => s.city.toLowerCase() === params.get('city').toLowerCase());
+    if (params.get('search')) data = data.filter(s => s.name.toLowerCase().includes(params.get('search').toLowerCase()));
+    if (params.get('is_active') === 'false') data = data.filter(s => !s.is_active);
+    else if (params.get('is_active') === 'true') data = data.filter(s => s.is_active);
+    const limit = parseInt(params.get('limit') || '10');
+    const skip = parseInt(params.get('skip') || '0');
+    respHeaders['x-total-count'] = String(data.length);
+    responseBody = data.slice(skip, skip + limit);
+  } else if (currentMethod === 'POST' && path.includes('/auth/login')) {
+    try {
+      const d = JSON.parse(body);
+      if (d.email === 'rahul@email.com' && d.password === 'SecurePass123') {
+        responseBody = { access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyYWh1bEBlbWFpbC5jb20iLCJ1c2VyX2lkIjoxLCJyb2xlIjoic3R1ZGVudCIsImV4cCI6MTcyMTkwMDAwMH0.fake_signature', token_type: 'bearer' };
+      } else {
+        status = 401; statusText = 'Unauthorized';
+        responseBody = { detail: 'Invalid email or password' };
+      }
+    } catch {
+      status = 422; statusText = 'Unprocessable Entity';
+      responseBody = { detail: [{ msg: 'Invalid JSON body', type: 'json_invalid' }] };
+    }
+  } else if (currentMethod === 'POST' && path.includes('/students')) {
+    status = 201; statusText = 'Created';
+    try {
+      const d = JSON.parse(body);
+      if (!d.name || !d.email) {
+        status = 422; statusText = 'Unprocessable Entity';
+        const missing = [];
+        if (!d.name) missing.push({ loc: ['body', 'name'], msg: 'Field required', type: 'missing' });
+        if (!d.email) missing.push({ loc: ['body', 'email'], msg: 'Field required', type: 'missing' });
+        responseBody = { detail: missing };
+      } else if (sampleData.students.find(s => s.email === d.email)) {
+        status = 409; statusText = 'Conflict';
+        responseBody = { detail: 'A student with this email already exists' };
+      } else {
+        responseBody = { id: 6, name: d.name, email: d.email, city: d.city || 'Bhopal', fee_paid: d.fee_paid || 0, is_active: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+      }
+    } catch {
+      status = 422; statusText = 'Unprocessable Entity';
+      responseBody = { detail: [{ msg: 'Invalid JSON body', type: 'json_invalid' }] };
+    }
+  } else if (currentMethod === 'PATCH' && path.match(/\/students\/(\d+)/)) {
+    const id = parseInt(path.match(/\/students\/(\d+)/)[1]);
+    const student = sampleData.students.find(s => s.id === id);
+    if (!student) {
+      status = 404; statusText = 'Not Found';
+      responseBody = { detail: `Student with id ${id} not found` };
+    } else {
+      try {
+        const d = JSON.parse(body);
+        responseBody = { ...student, ...d, updated_at: new Date().toISOString() };
+      } catch {
+        status = 422; statusText = 'Unprocessable Entity';
+        responseBody = { detail: [{ msg: 'Invalid JSON body', type: 'json_invalid' }] };
+      }
+    }
+  } else if (currentMethod === 'DELETE' && path.match(/\/students\/(\d+)/)) {
+    const id = parseInt(path.match(/\/students\/(\d+)/)[1]);
+    const student = sampleData.students.find(s => s.id === id);
+    if (!student) {
+      status = 404; statusText = 'Not Found';
+      responseBody = { detail: `Student with id ${id} not found` };
+    } else {
+      status = 204; statusText = 'No Content';
+      responseBody = null;
+    }
+  } else {
+    status = 404; statusText = 'Not Found';
+    responseBody = { detail: 'Endpoint not found' };
+  }
+
+  // Render response
+  document.getElementById('response-placeholder').style.display = 'none';
+  document.getElementById('response-content').style.display = '';
+
+  const badge = document.getElementById('status-badge');
+  badge.textContent = `${status} ${statusText}`;
+  badge.className = 'status-badge ' + (status < 300 ? 'status-2xx' : 'status-4xx');
+
+  document.getElementById('response-time').textContent = `${time}ms`;
+
+  let headerText = '';
+  for (const [k, v] of Object.entries(respHeaders)) {
+    headerText += `${k}: ${v}\n`;
+  }
+  document.getElementById('response-headers').textContent = headerText;
+
+  if (responseBody === null) {
+    document.getElementById('response-body').innerHTML = '<span class="json-null">(No content)</span>';
+  } else {
+    document.getElementById('response-body').innerHTML = highlightJSON(responseBody);
+  }
+}
+
+function loadPreset(name) {
+  const presets = {
+    list: { method: 'GET', url: 'http://localhost:8000/api/v1/students', body: '' },
+    get: { method: 'GET', url: 'http://localhost:8000/api/v1/students/1', body: '' },
+    create: { method: 'POST', url: 'http://localhost:8000/api/v1/students', body: JSON.stringify({ name: 'Vikram Joshi', email: 'vikram@email.com', city: 'Mumbai', fee_paid: 17000 }, null, 2) },
+    update: { method: 'PATCH', url: 'http://localhost:8000/api/v1/students/1', body: JSON.stringify({ city: 'Indore', fee_paid: 20000 }, null, 2) },
+    delete: { method: 'DELETE', url: 'http://localhost:8000/api/v1/students/5', body: '' },
+    login: { method: 'POST', url: 'http://localhost:8000/api/v1/auth/login', body: JSON.stringify({ email: 'rahul@email.com', password: 'SecurePass123' }, null, 2) },
+    search: { method: 'GET', url: 'http://localhost:8000/api/v1/students?city=Bhopal&is_active=true', body: '' }
+  };
+
+  const p = presets[name];
+  if (!p) return;
+
+  setMethod(p.method);
+  document.getElementById('url-input').value = p.url;
+  document.getElementById('body-input').value = p.body;
+  updateRaw();
+  sendRequest();
+}
+
+// Init
+document.getElementById('url-input').addEventListener('input', updateRaw);
+document.getElementById('body-input').addEventListener('input', updateRaw);
+updateRaw();
+</script>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTM Campaign Tracker | TechPath Academy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;padding:20px;max-width:900px;margin:0 auto}
+header{text-align:center;padding:20px 0;border-bottom:1px solid #1e293b;margin-bottom:30px}
+header h1{font-size:1.6rem;color:#38bdf8}
+header p{font-size:0.85rem;color:#64748b;margin-top:4px}
+h2{color:#f8fafc;font-size:1.3rem;margin-bottom:15px}
+.section{background:#1e293b;border-radius:12px;padding:24px;margin-bottom:24px}
+label{display:block;font-size:0.85rem;color:#94a3b8;margin-bottom:4px;margin-top:12px}
+input[type="text"],select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:0.9rem;transition:border-color 0.3s}
+input[type="text"]:focus,select:focus{outline:none;border-color:#38bdf8}
+select{cursor:pointer}
+.url-preview{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:14px;margin-top:16px;word-break:break-all;font-size:0.85rem;font-family:monospace;position:relative}
+.url-preview .param{color:#38bdf8}
+.url-preview .value{color:#4ade80}
+.copy-btn{position:absolute;top:8px;right:8px;background:#334155;border:none;color:#e2e8f0;padding:6px 10px;border-radius:6px;font-size:0.75rem;cursor:pointer;transition:background 0.2s}
+.copy-btn:hover{background:#475569}
+.copy-btn.copied{background:#22c55e}
+.exercise-item{background:#0f172a;border:1px solid #334155;border-radius:10px;padding:16px;margin-bottom:14px}
+.exercise-url{font-family:monospace;font-size:0.82rem;color:#94a3b8;word-break:break-all;margin-bottom:12px;padding:8px;background:#1e293b;border-radius:6px}
+.answer-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.answer-grid input{padding:8px;font-size:0.82rem}
+.check-btn{background:#2563eb;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:0.85rem;cursor:pointer;margin-top:12px;transition:background 0.3s}
+.check-btn:hover{background:#1d4ed8}
+.feedback{font-size:0.82rem;margin-top:8px;padding:8px;border-radius:6px}
+.feedback.correct{background:#052e16;color:#4ade80}
+.feedback.wrong{background:#2d0a0a;color:#fca5a5}
+.dashboard-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:12px}
+.dashboard-table th,.dashboard-table td{padding:10px 8px;text-align:left;border-bottom:1px solid #334155}
+.dashboard-table th{color:#94a3b8;font-weight:600;font-size:0.75rem;text-transform:uppercase}
+.dashboard-table tr:hover{background:#0f172a}
+.metric-good{color:#4ade80}
+.metric-bad{color:#fca5a5}
+.quiz-option{display:block;padding:10px 14px;margin:6px 0;border-radius:8px;border:1px solid #334155;cursor:pointer;transition:all 0.2s;font-size:0.85rem}
+.quiz-option:hover{border-color:#38bdf8;background:#1a2744}
+.quiz-option.selected{border-color:#2563eb;background:#1a2744}
+.quiz-option.correct{border-color:#22c55e;background:#052e16}
+.quiz-option.wrong{border-color:#ef4444;background:#2d0a0a}
+.naming-guide{background:#0f172a;border-left:3px solid #38bdf8;padding:14px;border-radius:0 8px 8px 0;margin-top:16px;font-size:0.85rem}
+.naming-guide code{background:#334155;padding:2px 6px;border-radius:4px;font-size:0.8rem}
+.score-badge{display:inline-block;background:#2563eb;color:#fff;padding:4px 12px;border-radius:20px;font-size:0.85rem;font-weight:600}
+@media(max-width:600px){
+  body{padding:12px}
+  .section{padding:16px}
+  .answer-grid{grid-template-columns:1fr}
+  .dashboard-table{font-size:0.75rem}
+  .dashboard-table th,.dashboard-table td{padding:6px 4px}
+}
+</style>
+</head>
+<body>
+<header>
+<h1>UTM Campaign Tracker</h1>
+<p>TechPath Academy - Module 6: Analytics & Strategy</p>
+</header>
+
+<div class="section">
+<h2>1. UTM Builder</h2>
+<p style="color:#94a3b8;font-size:0.85rem;margin-bottom:8px">Build campaign-tagged URLs for accurate attribution in Google Analytics.</p>
+<label>Website URL *</label>
+<input type="text" id="utmUrl" placeholder="https://www.yoursite.com/landing-page" oninput="buildUTM()">
+<label>Campaign Source * (utm_source)</label>
+<select id="utmSource" onchange="buildUTM()">
+<option value="">Select or type below</option>
+<option value="google">google</option><option value="facebook">facebook</option><option value="instagram">instagram</option><option value="linkedin">linkedin</option><option value="email">email</option><option value="whatsapp">whatsapp</option><option value="twitter">twitter</option><option value="youtube">youtube</option>
+</select>
+<input type="text" id="utmSourceCustom" placeholder="Or type custom source..." oninput="buildUTM()" style="margin-top:4px">
+<label>Campaign Medium * (utm_medium)</label>
+<select id="utmMedium" onchange="buildUTM()">
+<option value="">Select or type below</option>
+<option value="cpc">cpc</option><option value="organic">organic</option><option value="social">social</option><option value="email">email</option><option value="referral">referral</option><option value="display">display</option><option value="video">video</option><option value="affiliate">affiliate</option>
+</select>
+<input type="text" id="utmMediumCustom" placeholder="Or type custom medium..." oninput="buildUTM()" style="margin-top:4px">
+<label>Campaign Name * (utm_campaign)</label>
+<input type="text" id="utmCampaign" placeholder="e.g., summer-sale-2025" oninput="buildUTM()">
+<label>Campaign Content (utm_content) — optional</label>
+<input type="text" id="utmContent" placeholder="e.g., hero-banner, sidebar-cta" oninput="buildUTM()">
+<label>Campaign Term (utm_term) — optional</label>
+<input type="text" id="utmTerm" placeholder="e.g., digital-marketing-course" oninput="buildUTM()">
+<div class="url-preview" id="utmPreview">
+<button class="copy-btn" onclick="copyUTM()">Copy</button>
+<span style="color:#475569">Fill in the fields above to generate your UTM URL</span>
+</div>
+</div>
+
+<div class="section">
+<h2>2. Read This UTM</h2>
+<p style="color:#94a3b8;font-size:0.85rem;margin-bottom:14px">Identify the source, medium, and campaign from each URL. Score: <span class="score-badge" id="utmScore">0/5</span></p>
+<div id="utmExercises"></div>
+</div>
+
+<div class="section">
+<h2>3. Campaign Performance Dashboard</h2>
+<p style="color:#94a3b8;font-size:0.85rem;margin-bottom:14px">Analyze these campaigns and answer the questions below.</p>
+<div style="overflow-x:auto">
+<table class="dashboard-table">
+<thead><tr><th>Campaign</th><th>Source/Medium</th><th>Sessions</th><th>Bounce Rate</th><th>Conversions</th><th>Revenue (₹)</th></tr></thead>
+<tbody>
+<tr><td>summer-sale</td><td>google/cpc</td><td>12,400</td><td class="metric-good">32%</td><td>186</td><td>4,65,000</td></tr>
+<tr><td>diwali-offer</td><td>facebook/social</td><td>8,200</td><td>45%</td><td>98</td><td>2,94,000</td></tr>
+<tr><td>blog-seo</td><td>google/organic</td><td>15,600</td><td class="metric-good">28%</td><td>62</td><td>1,86,000</td></tr>
+<tr><td>influencer-collab</td><td>instagram/referral</td><td>3,100</td><td class="metric-bad">68%</td><td>12</td><td>36,000</td></tr>
+<tr><td>newsletter-weekly</td><td>email/email</td><td>2,800</td><td class="metric-good">22%</td><td>84</td><td>2,52,000</td></tr>
+<tr><td>whatsapp-blast</td><td>whatsapp/social</td><td>1,900</td><td class="metric-bad">72%</td><td>8</td><td>24,000</td></tr>
+</tbody>
+</table>
+</div>
+<div id="dashboardQuiz" style="margin-top:20px"></div>
+</div>
+
+<div class="section">
+<h2>Naming Convention Guide</h2>
+<div class="naming-guide">
+<p><strong>Rules for consistent UTM naming:</strong></p>
+<ul style="margin:10px 0 0 20px;color:#94a3b8">
+<li>Always use <code>lowercase</code> — UTMs are case-sensitive in GA4</li>
+<li>Use <code>hyphens</code> instead of spaces or underscores</li>
+<li>Keep a consistent format: <code>campaign-type-month-year</code></li>
+<li>Document all UTMs in a shared spreadsheet</li>
+<li>Never use special characters or Indian rupee symbol in UTMs</li>
+<li>Examples: <code>utm_campaign=diwali-sale-oct-2025</code>, <code>utm_source=linkedin</code></li>
+</ul>
+</div>
+</div>
+
+<script>
+function buildUTM(){
+const url=document.getElementById('utmUrl').value.trim();
+const source=document.getElementById('utmSourceCustom').value.trim()||document.getElementById('utmSource').value;
+const medium=document.getElementById('utmMediumCustom').value.trim()||document.getElementById('utmMedium').value;
+const campaign=document.getElementById('utmCampaign').value.trim();
+const content=document.getElementById('utmContent').value.trim();
+const term=document.getElementById('utmTerm').value.trim();
+const preview=document.getElementById('utmPreview');
+if(!url){preview.innerHTML='<button class="copy-btn" onclick="copyUTM()">Copy</button><span style="color:#475569">Fill in the fields above to generate your UTM URL</span>';return;}
+let params=[];
+if(source)params.push(`<span class="param">utm_source</span>=<span class="value">${source}</span>`);
+if(medium)params.push(`<span class="param">utm_medium</span>=<span class="value">${medium}</span>`);
+if(campaign)params.push(`<span class="param">utm_campaign</span>=<span class="value">${campaign}</span>`);
+if(content)params.push(`<span class="param">utm_content</span>=<span class="value">${content}</span>`);
+if(term)params.push(`<span class="param">utm_term</span>=<span class="value">${term}</span>`);
+const sep=url.includes('?')?'&':'?';
+preview.innerHTML=`<button class="copy-btn" onclick="copyUTM()">Copy</button>${url}${params.length?sep+params.join('&amp;'):''}`;
+}
+function copyUTM(){
+const url=document.getElementById('utmUrl').value.trim();
+const source=document.getElementById('utmSourceCustom').value.trim()||document.getElementById('utmSource').value;
+const medium=document.getElementById('utmMediumCustom').value.trim()||document.getElementById('utmMedium').value;
+const campaign=document.getElementById('utmCampaign').value.trim();
+const content=document.getElementById('utmContent').value.trim();
+const term=document.getElementById('utmTerm').value.trim();
+let params=[];
+if(source)params.push(`utm_source=${source}`);
+if(medium)params.push(`utm_medium=${medium}`);
+if(campaign)params.push(`utm_campaign=${campaign}`);
+if(content)params.push(`utm_content=${content}`);
+if(term)params.push(`utm_term=${term}`);
+const sep=url.includes('?')?'&':'?';
+const full=url+(params.length?sep+params.join('&'):'');
+navigator.clipboard.writeText(full).then(()=>{
+const btn=document.querySelector('.copy-btn');btn.textContent='Copied!';btn.classList.add('copied');
+setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);
+});
+}
+
+const utmQuizData=[
+{url:'https://shop.example.com/shoes?utm_source=instagram&utm_medium=social&utm_campaign=monsoon-clearance',source:'instagram',medium:'social',campaign:'monsoon-clearance'},
+{url:'https://courses.techpath.biz/enroll?utm_source=google&utm_medium=cpc&utm_campaign=brand-search-jul-2025',source:'google',medium:'cpc',campaign:'brand-search-jul-2025'},
+{url:'https://blog.startup.in/ai-guide?utm_source=linkedin&utm_medium=organic&utm_campaign=thought-leadership',source:'linkedin',medium:'organic',campaign:'thought-leadership'},
+{url:'https://www.brand.co.in/sale?utm_source=email&utm_medium=email&utm_campaign=diwali-offer-2025&utm_content=header-banner',source:'email',medium:'email',campaign:'diwali-offer-2025'},
+{url:'https://app.saas.io/signup?utm_source=youtube&utm_medium=video&utm_campaign=product-demo&utm_term=crm-software',source:'youtube',medium:'video',campaign:'product-demo'}
+];
+let utmAnswers=new Array(5).fill(null);
+const exContainer=document.getElementById('utmExercises');
+utmQuizData.forEach((q,i)=>{
+const div=document.createElement('div');div.className='exercise-item';
+div.innerHTML=`<div class="exercise-url">${q.url}</div>
+<div class="answer-grid">
+<div><label style="margin:0">Source</label><input type="text" id="q${i}s" placeholder="source?"></div>
+<div><label style="margin:0">Medium</label><input type="text" id="q${i}m" placeholder="medium?"></div>
+<div><label style="margin:0">Campaign</label><input type="text" id="q${i}c" placeholder="campaign?"></div>
+</div>
+<button class="check-btn" onclick="checkUTMAnswer(${i})">Check</button>
+<div class="feedback" id="fb${i}" style="display:none"></div>`;
+exContainer.appendChild(div);
+});
+function checkUTMAnswer(i){
+const q=utmQuizData[i];
+const s=document.getElementById(`q${i}s`).value.trim().toLowerCase();
+const m=document.getElementById(`q${i}m`).value.trim().toLowerCase();
+const c=document.getElementById(`q${i}c`).value.trim().toLowerCase();
+const fb=document.getElementById(`fb${i}`);fb.style.display='block';
+const correct=s===q.source&&m===q.medium&&c===q.campaign;
+utmAnswers[i]=correct;
+fb.className='feedback '+(correct?'correct':'wrong');
+fb.textContent=correct?'Correct! Well done.':
+`Not quite. Answer: source=${q.source}, medium=${q.medium}, campaign=${q.campaign}`;
+const score=utmAnswers.filter(a=>a===true).length;
+document.getElementById('utmScore').textContent=score+'/5';
+}
+
+const dashQuestions=[
+{q:'Which campaign has the best ROI (revenue per session)?',options:['summer-sale (google/cpc)','newsletter-weekly (email)','blog-seo (organic)','diwali-offer (facebook)'],correct:1,explanation:'Newsletter: ₹2,52,000 / 2,800 = ₹90 per session. Summer-sale: ₹37.50/session. Email has highest efficiency.'},
+{q:'Which campaign should you PAUSE immediately?',options:['blog-seo','influencer-collab','whatsapp-blast','diwali-offer'],correct:2,explanation:'WhatsApp-blast has 72% bounce rate, only 8 conversions, and ₹24,000 revenue — lowest performance across all metrics.'},
+{q:'Which campaign should you SCALE with more budget?',options:['summer-sale (google/cpc)','newsletter-weekly (email)','whatsapp-blast','influencer-collab'],correct:0,explanation:'Summer-sale has high volume (12,400 sessions), low bounce (32%), strong conversions (186), and highest absolute revenue (₹4,65,000). Proven at scale.'},
+{q:'What does the low bounce rate on newsletter-weekly tell you?',options:['The emails are poorly written','Subscribers are highly engaged and relevant','The landing page is broken','The campaign is too expensive'],correct:1,explanation:'22% bounce rate is excellent — email subscribers already know your brand, making them a warm, engaged audience with high intent.'}
+];
+const dqContainer=document.getElementById('dashboardQuiz');
+dashQuestions.forEach((q,i)=>{
+const div=document.createElement('div');div.style.marginBottom='20px';
+div.innerHTML=`<p style="font-weight:600;margin-bottom:8px;font-size:0.9rem">${q.q}</p>
+${q.options.map((o,j)=>`<label class="quiz-option" id="dq${i}o${j}" onclick="selectDashAnswer(${i},${j})">${o}</label>`).join('')}
+<div class="feedback" id="dfb${i}" style="display:none"></div>`;
+dqContainer.appendChild(div);
+});
+function selectDashAnswer(qi,oi){
+const q=dashQuestions[qi];
+document.querySelectorAll(`[id^="dq${qi}o"]`).forEach(el=>{el.className='quiz-option';});
+const sel=document.getElementById(`dq${qi}o${oi}`);
+sel.classList.add(oi===q.correct?'correct':'wrong');
+if(oi!==q.correct)document.getElementById(`dq${qi}o${q.correct}`).classList.add('correct');
+const fb=document.getElementById(`dfb${qi}`);fb.style.display='block';
+fb.className='feedback '+(oi===q.correct?'correct':'wrong');
+fb.textContent=q.explanation;
+}
+</script>
+</body>
+</html>

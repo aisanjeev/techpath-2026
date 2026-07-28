@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Git Workflow — Branching, Merging, and Pull Requests",
+  "description": "Practice the full Git workflow: init, branch, commit, merge, push, and create a Pull Request on GitHub",
+  "tags": [
+    "git",
+    "github",
+    "branching",
+    "pull-request",
+    "workflow"
+  ],
+  "status": "draft",
+  "objective": "Students will initialize a Git repo, create feature branches, make commits with meaningful messages, merge branches, push to GitHub, and create a Pull Request",
+  "steps": [
+    {
+      "title": "Initialize a Git Repository",
+      "instructions": "Create a project folder and initialize Git:\n```bash\nmkdir my-project\ncd my-project\ngit init\n```\n\nCreate initial files:\n```bash\necho \"# My Project\" > README.md\necho \"__pycache__/\" > .gitignore\necho \".env\" >> .gitignore\necho \"node_modules/\" >> .gitignore\n```\n\nMake your first commit:\n```bash\ngit add README.md .gitignore\ngit commit -m \"Initial commit: add README and .gitignore\"\n```\n\nCheck status and log:\n```bash\ngit status\ngit log --oneline\n```\n\nYou should see 1 commit in the log."
+    },
+    {
+      "title": "Create a Feature Branch",
+      "instructions": "Create and switch to a new branch:\n```bash\ngit branch feature-homepage\ngit checkout feature-homepage\n```\n\n(Shortcut: `git checkout -b feature-homepage` does both)\n\nNow create an `index.html` file:\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>My Project</title>\n</head>\n<body>\n    <h1>Welcome to My Project</h1>\n    <p>This is the homepage.</p>\n</body>\n</html>\n```\n\nCommit it:\n```bash\ngit add index.html\ngit commit -m \"Add homepage with basic HTML structure\"\n```\n\nAdd a stylesheet and commit:\n```bash\nmkdir css\n```\nCreate `css/style.css` with basic styles.\n```bash\ngit add css/style.css\ngit commit -m \"Add stylesheet with body and heading styles\"\n```\n\nCheck the branch difference:\n```bash\ngit log --oneline --all --graph\n```\n\nYou should see `feature-homepage` is 2 commits ahead of `main`."
+    },
+    {
+      "title": "Merge and Handle Conflicts",
+      "instructions": "Switch back to main and merge:\n```bash\ngit checkout main\ngit merge feature-homepage\n```\n\nThis should merge cleanly. Now let's simulate a conflict:\n\n```bash\n# Create another branch\ngit checkout -b feature-about\n```\n\nAdd an `about.html` file and commit.\n\nNow switch to main and make a conflicting change:\n```bash\ngit checkout main\n```\n\nEdit `README.md` on main:\n```markdown\n# My Project\nA demo project for learning Git.\n```\nCommit it.\n\nNow edit `README.md` differently on feature-about:\n```bash\ngit checkout feature-about\n```\nChange `README.md` to:\n```markdown\n# My Project\nThis project demonstrates Git branching and merging.\n```\nCommit it.\n\nMerge into main:\n```bash\ngit checkout main\ngit merge feature-about\n```\n\nIf there's a conflict, Git will show:\n```\n<<<<<<< HEAD\nA demo project for learning Git.\n=======\nThis project demonstrates Git branching and merging.\n>>>>>>> feature-about\n```\n\nResolve by keeping what you want, then:\n```bash\ngit add README.md\ngit commit -m \"Merge feature-about: resolve README conflict\"\n```"
+    },
+    {
+      "title": "Push to GitHub and Create Pull Request",
+      "instructions": "Create a new repository on **github.com** (no README, no .gitignore).\n\n```bash\ngit remote add origin https://github.com/YOUR_USERNAME/my-project.git\ngit push -u origin main\n```\n\nRefresh your GitHub repo page — all files should be there.\n\nNow create a feature branch for a PR:\n```bash\ngit checkout -b feature-contact\n```\n\nAdd a `contact.html` file, commit, and push:\n```bash\ngit add contact.html\ngit commit -m \"Add contact page with form\"\ngit push -u origin feature-contact\n```\n\nOn GitHub:\n1. You'll see a \"Compare & pull request\" button — click it\n2. Title: \"Add contact page\"\n3. Description: What you added and why\n4. Click \"Create Pull Request\"\n5. Review the changes in the \"Files changed\" tab\n6. Click \"Merge pull request\" → \"Confirm merge\"\n\nPull the merged changes locally:\n```bash\ngit checkout main\ngit pull origin main\n```"
+    },
+    {
+      "title": "Review Git History and Clean Up",
+      "instructions": "Review your complete Git history:\n```bash\n# View commit graph\ngit log --oneline --all --graph\n\n# See which files changed in each commit\ngit log --oneline --stat\n\n# See the diff for a specific commit\ngit show HEAD\n\n# List all branches (local and remote)\ngit branch -a\n\n# Delete merged feature branches (cleanup)\ngit branch -d feature-homepage\ngit branch -d feature-about\ngit branch -d feature-contact\n```\n\nVerify on GitHub:\n1. Go to your repo → **Insights** → **Network** — see the branch/merge graph\n2. Click **Pull requests** → **Closed** — see your merged PR\n3. Click **Commits** — see the full history\n\nYour final repo should have:\n- [ ] At least 6 meaningful commits\n- [ ] Evidence of branching and merging in the graph\n- [ ] 1 merged Pull Request\n- [ ] Clean main branch (no unmerged branches)\n- [ ] Proper `.gitignore`\n\n**Submit:** Your GitHub repo URL showing commit history, branch graph, and merged PR."
+    }
+  ],
+  "expected_output": "A GitHub repository with meaningful commit history, at least 2 branches, a resolved merge conflict, and a merged Pull Request — demonstrating the full Git workflow"
+}

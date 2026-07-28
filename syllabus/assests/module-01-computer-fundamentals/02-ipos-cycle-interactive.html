@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPOS Cycle — Interactive</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:24px;min-height:100vh}
+h1{text-align:center;font-size:22px;margin-bottom:6px;color:#fff}
+.subtitle{text-align:center;font-size:14px;color:#94a3b8;margin-bottom:32px}
+
+/* Cycle Diagram */
+.cycle{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:40px}
+.step{
+  width:150px;padding:20px 16px;border-radius:12px;text-align:center;
+  cursor:pointer;transition:all .3s;border:2px solid transparent;
+  position:relative;
+}
+.step:hover{transform:translateY(-4px)}
+.step.active{border-color:#fff;transform:translateY(-6px);box-shadow:0 8px 25px rgba(0,0,0,.4)}
+.step-icon{font-size:32px;margin-bottom:8px}
+.step-label{font-size:15px;font-weight:700;color:#fff}
+.step-hint{font-size:11px;margin-top:4px;opacity:.7}
+.arrow{font-size:24px;color:#475569;flex-shrink:0}
+
+.s-input{background:rgba(59,130,246,.15)}
+.s-process{background:rgba(167,139,250,.15)}
+.s-output{background:rgba(34,197,94,.15)}
+.s-storage{background:rgba(245,158,11,.15)}
+
+/* Detail Panel */
+.detail{
+  background:#1e293b;border:1px solid #334155;border-radius:12px;
+  padding:24px;max-width:600px;margin:0 auto 40px;
+  min-height:120px;transition:all .3s;
+}
+.detail h3{font-size:17px;margin-bottom:10px;color:#fff}
+.detail p{font-size:14px;color:#94a3b8;line-height:1.7;margin-bottom:8px}
+.detail .examples{
+  background:#0f172a;border-radius:8px;padding:14px;margin-top:12px;
+  font-size:13px;color:#cbd5e1;
+}
+.detail .examples strong{color:#60a5fa;display:block;margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+
+/* Drag & Drop Exercise */
+.exercise{max-width:600px;margin:0 auto}
+.exercise h2{font-size:18px;margin-bottom:6px;color:#fff}
+.exercise .ex-desc{font-size:13px;color:#94a3b8;margin-bottom:20px}
+
+.drag-items{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;min-height:44px;padding:8px;background:#1e293b;border-radius:10px}
+.drag-item{
+  padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;
+  cursor:grab;user-select:none;transition:all .2s;
+}
+.drag-item:active{cursor:grabbing;opacity:.8}
+.drag-item.d-input{background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3)}
+.drag-item.d-process{background:rgba(167,139,250,.2);color:#a78bfa;border:1px solid rgba(167,139,250,.3)}
+.drag-item.d-output{background:rgba(34,197,94,.2);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.drag-item.d-storage{background:rgba(245,158,11,.2);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
+.drag-item.placed{opacity:.4;cursor:default}
+
+.drop-zones{display:flex;flex-direction:column;gap:10px}
+.drop-zone{
+  display:flex;align-items:center;gap:12px;padding:14px 18px;
+  background:#1e293b;border:2px dashed #334155;border-radius:10px;
+  min-height:50px;transition:all .2s;
+}
+.drop-zone.over{border-color:#60a5fa;background:rgba(59,130,246,.08)}
+.drop-zone.correct{border-color:#22c55e;border-style:solid;background:rgba(34,197,94,.08)}
+.drop-zone.wrong{border-color:#ef4444;border-style:solid;background:rgba(239,68,68,.08)}
+.drop-zone .zone-label{font-size:14px;color:#94a3b8;flex:1}
+.drop-zone .zone-answer{font-size:13px;font-weight:600;padding:6px 14px;border-radius:6px}
+
+.result-msg{text-align:center;margin-top:20px;font-size:15px;font-weight:600;min-height:24px}
+.result-msg.win{color:#22c55e}
+.result-msg.try{color:#f59e0b}
+
+.reset-btn{
+  display:block;margin:16px auto 0;padding:10px 24px;border-radius:8px;
+  background:#334155;border:1px solid #475569;color:#e2e8f0;font-size:13px;
+  cursor:pointer;transition:all .2s;
+}
+.reset-btn:hover{background:#475569}
+
+@media(max-width:640px){
+  .cycle{flex-direction:column;gap:4px}
+  .arrow{transform:rotate(90deg)}
+  .step{width:100%;max-width:280px}
+}
+</style>
+</head>
+<body>
+
+<h1>IPOS Cycle — How Every Computer Works</h1>
+<p class="subtitle">Click each step to learn. Then try the drag-and-drop exercise below!</p>
+
+<!-- Animated Cycle Diagram -->
+<div class="cycle">
+  <div class="step s-input active" onclick="showDetail(0)" id="step-0">
+    <div class="step-icon">&#9000;</div>
+    <div class="step-label">INPUT</div>
+    <div class="step-hint">Click to learn</div>
+  </div>
+  <div class="arrow">&#10132;</div>
+  <div class="step s-process" onclick="showDetail(1)" id="step-1">
+    <div class="step-icon">&#9881;</div>
+    <div class="step-label">PROCESS</div>
+    <div class="step-hint">Click to learn</div>
+  </div>
+  <div class="arrow">&#10132;</div>
+  <div class="step s-output" onclick="showDetail(2)" id="step-2">
+    <div class="step-icon">&#128424;</div>
+    <div class="step-label">OUTPUT</div>
+    <div class="step-hint">Click to learn</div>
+  </div>
+  <div class="arrow">&#10132;</div>
+  <div class="step s-storage" onclick="showDetail(3)" id="step-3">
+    <div class="step-icon">&#128190;</div>
+    <div class="step-label">STORAGE</div>
+    <div class="step-hint">Click to learn</div>
+  </div>
+</div>
+
+<!-- Detail Panel -->
+<div class="detail" id="detailPanel">
+  <h3 id="detailTitle">Input — Data Goes In</h3>
+  <p id="detailText">Input means giving data to the computer. You use input devices like keyboard, mouse, microphone, or camera to send information to the computer.</p>
+  <div class="examples">
+    <strong id="exTitle">Examples of Input</strong>
+    <span id="exText">Typing on keyboard, clicking mouse, speaking into mic, scanning a document, tapping on touchscreen</span>
+  </div>
+</div>
+
+<!-- Drag & Drop Exercise -->
+<div class="exercise">
+  <h2>Exercise: Match the Example</h2>
+  <p class="ex-desc">Drag each item to the correct IPOS step. Which step does each example belong to?</p>
+
+  <div class="drag-items" id="dragItems">
+    <div class="drag-item d-output" draggable="true" data-answer="output" id="d1">Printer printing</div>
+    <div class="drag-item d-input" draggable="true" data-answer="input" id="d2">Typing name</div>
+    <div class="drag-item d-storage" draggable="true" data-answer="storage" id="d3">Save to pendrive</div>
+    <div class="drag-item d-process" draggable="true" data-answer="process" id="d4">CPU adding numbers</div>
+    <div class="drag-item d-input" draggable="true" data-answer="input" id="d5">Clicking mouse</div>
+    <div class="drag-item d-output" draggable="true" data-answer="output" id="d6">Sound from speaker</div>
+    <div class="drag-item d-storage" draggable="true" data-answer="storage" id="d7">File saved on hard disk</div>
+    <div class="drag-item d-process" draggable="true" data-answer="process" id="d8">Sorting a list</div>
+  </div>
+
+  <div class="drop-zones">
+    <div class="drop-zone" data-accepts="input" id="zone-input">
+      <span class="zone-label">&#9000; <strong>INPUT</strong> — Drop here</span>
+    </div>
+    <div class="drop-zone" data-accepts="process" id="zone-process">
+      <span class="zone-label">&#9881; <strong>PROCESS</strong> — Drop here</span>
+    </div>
+    <div class="drop-zone" data-accepts="output" id="zone-output">
+      <span class="zone-label">&#128424; <strong>OUTPUT</strong> — Drop here</span>
+    </div>
+    <div class="drop-zone" data-accepts="storage" id="zone-storage">
+      <span class="zone-label">&#128190; <strong>STORAGE</strong> — Drop here</span>
+    </div>
+  </div>
+
+  <div class="result-msg" id="resultMsg"></div>
+  <button class="reset-btn" onclick="resetExercise()">Reset Exercise</button>
+</div>
+
+<script>
+// Detail data
+const details = [
+  {
+    title: "Input — Data Goes In",
+    text: "Input means giving data to the computer. You use input devices like keyboard, mouse, microphone, or camera to send information.",
+    exTitle: "Examples of Input Devices",
+    exText: "Keyboard, Mouse, Microphone, Scanner, Webcam, Touchscreen, Barcode reader, Joystick"
+  },
+  {
+    title: "Process — Computer Thinks",
+    text: "The CPU (brain of computer) takes the input data and follows instructions to calculate, compare, or change the data. This is the thinking step.",
+    exTitle: "Examples of Processing",
+    exText: "Adding two numbers, sorting a list, checking password, converting image to black-and-white, spell checking"
+  },
+  {
+    title: "Output — Result Comes Out",
+    text: "After processing, the computer shows you the result using output devices like monitor, speaker, or printer.",
+    exTitle: "Examples of Output Devices",
+    exText: "Monitor (screen), Speaker, Printer, Headphones, Projector, LED display"
+  },
+  {
+    title: "Storage — Saved for Later",
+    text: "The computer saves data so you can use it again later. Storage can be inside the computer (hard disk, SSD) or outside (pendrive, cloud).",
+    exTitle: "Examples of Storage",
+    exText: "Hard Disk (HDD), SSD, Pendrive/USB drive, Memory card, Google Drive (cloud), DVD"
+  }
+];
+
+function showDetail(idx) {
+  document.querySelectorAll('.step').forEach((s,i) => {
+    s.classList.toggle('active', i === idx);
+  });
+  const d = details[idx];
+  document.getElementById('detailTitle').textContent = d.title;
+  document.getElementById('detailText').textContent = d.text;
+  document.getElementById('exTitle').textContent = d.exTitle;
+  document.getElementById('exText').textContent = d.exText;
+}
+
+// Auto-cycle animation
+let cycleIdx = 0;
+setInterval(() => {
+  if (!document.querySelector('.step:hover')) {
+    cycleIdx = (cycleIdx + 1) % 4;
+    showDetail(cycleIdx);
+  }
+}, 4000);
+
+// Drag & Drop
+let placed = 0;
+const totalItems = 8;
+
+document.querySelectorAll('.drag-item').forEach(item => {
+  item.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', item.id);
+  });
+});
+
+document.querySelectorAll('.drop-zone').forEach(zone => {
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('over');
+    const id = e.dataTransfer.getData('text/plain');
+    const item = document.getElementById(id);
+    if (!item || item.classList.contains('placed')) return;
+
+    const correct = item.dataset.answer === zone.dataset.accepts;
+    const tag = document.createElement('span');
+    tag.className = 'zone-answer';
+    tag.textContent = (correct ? '✓ ' : '✗ ') + item.textContent;
+    tag.style.background = correct ? 'rgba(34,197,94,.15)' : 'rgba(239,68,68,.15)';
+    tag.style.color = correct ? '#22c55e' : '#ef4444';
+    zone.appendChild(tag);
+
+    item.classList.add('placed');
+    placed++;
+
+    if (correct) zone.classList.add('correct');
+    else zone.classList.add('wrong');
+
+    if (placed === totalItems) {
+      const wrongs = document.querySelectorAll('.drop-zone.wrong').length;
+      const msg = document.getElementById('resultMsg');
+      if (wrongs === 0) {
+        msg.textContent = 'All correct! You understand the IPOS cycle very well!';
+        msg.className = 'result-msg win';
+      } else {
+        msg.textContent = wrongs + ' wrong. Click Reset and try again!';
+        msg.className = 'result-msg try';
+      }
+    }
+  });
+});
+
+function resetExercise() {
+  placed = 0;
+  document.getElementById('resultMsg').textContent = '';
+  document.getElementById('resultMsg').className = 'result-msg';
+  document.querySelectorAll('.drag-item').forEach(i => i.classList.remove('placed'));
+  document.querySelectorAll('.drop-zone').forEach(z => {
+    z.classList.remove('correct','wrong','over');
+    z.querySelectorAll('.zone-answer').forEach(a => a.remove());
+  });
+  // Shuffle drag items
+  const container = document.getElementById('dragItems');
+  const items = Array.from(container.children);
+  items.sort(() => Math.random() - 0.5);
+  items.forEach(i => container.appendChild(i));
+}
+
+// Initial shuffle
+resetExercise();
+</script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+{
+  "questions": [
+    {
+      "question": "What is the correct order of how a search engine works?",
+      "options": [
+        "Ranking → Indexing → Crawling",
+        "Crawling → Indexing → Ranking",
+        "Indexing → Crawling → Ranking",
+        "Ranking → Crawling → Indexing"
+      ],
+      "correct_index": 1,
+      "explanation": "Search engines first crawl (discover pages via links), then index (store and organize content), and finally rank (order results by relevance and quality)."
+    },
+    {
+      "question": "A keyword has 12,000 monthly search volume and 85 Keyword Difficulty (KD). What does this mean for a new blog?",
+      "options": [
+        "Target it immediately — high volume means guaranteed traffic",
+        "High volume but very competitive — a new site should target lower KD keywords first",
+        "KD doesn't matter if the content is good",
+        "The keyword is too popular to ever rank for"
+      ],
+      "correct_index": 1,
+      "explanation": "KD of 85 means top-ranking pages have strong backlink profiles. New sites should start with KD below 30-40 and build authority before targeting high-KD terms."
+    },
+    {
+      "question": "Which of the following is a 'transactional' search intent keyword?",
+      "options": [
+        "What is digital marketing",
+        "Digital marketing course fees in Delhi",
+        "History of SEO",
+        "Buy digital marketing course online with certificate"
+      ],
+      "correct_index": 3,
+      "explanation": "Transactional intent means the user wants to take action (buy, sign up, download). 'Buy digital marketing course online' clearly shows purchase intent."
+    },
+    {
+      "question": "What is the recommended length for a title tag in SEO?",
+      "options": [
+        "10-20 characters",
+        "50-60 characters",
+        "100-150 characters",
+        "200+ characters"
+      ],
+      "correct_index": 1,
+      "explanation": "Title tags should be 50-60 characters to display fully in Google search results. Longer titles get truncated with '...' which reduces click-through rates."
+    },
+    {
+      "question": "A website's page loads in 8 seconds. How does this affect SEO?",
+      "options": [
+        "Speed doesn't affect SEO at all",
+        "It's a positive signal — Google prefers slower sites",
+        "It hurts rankings because Core Web Vitals penalize slow-loading pages, and users bounce",
+        "Only mobile speed matters, not desktop"
+      ],
+      "correct_index": 2,
+      "explanation": "Page speed is a ranking factor. Google's Core Web Vitals measure loading performance (LCP should be under 2.5s). Slow pages also increase bounce rate, further hurting rankings."
+    },
+    {
+      "question": "What does the robots.txt file do?",
+      "options": [
+        "It creates robots that automatically write content",
+        "It tells search engine crawlers which pages they can or cannot access/crawl",
+        "It speeds up your website loading time",
+        "It blocks hackers from accessing your site"
+      ],
+      "correct_index": 1,
+      "explanation": "Robots.txt is a text file at your site's root that instructs search engine bots which URLs they're allowed or disallowed from crawling. It doesn't guarantee pages won't be indexed."
+    },
+    {
+      "question": "Which Core Web Vital measures the largest content element loading time?",
+      "options": [
+        "FID (First Input Delay)",
+        "CLS (Cumulative Layout Shift)",
+        "LCP (Largest Contentful Paint)",
+        "TTFB (Time to First Byte)"
+      ],
+      "correct_index": 2,
+      "explanation": "LCP (Largest Contentful Paint) measures how long the biggest visible element (hero image, headline) takes to load. Google recommends LCP under 2.5 seconds."
+    },
+    {
+      "question": "Internal linking in SEO helps by:",
+      "options": [
+        "Making your website look more colorful",
+        "Distributing page authority, helping crawlers discover content, and improving user navigation",
+        "Replacing the need for external backlinks entirely",
+        "Automatically boosting your Domain Authority by 50 points"
+      ],
+      "correct_index": 1,
+      "explanation": "Internal links pass authority between pages, help Google's crawler discover and understand site structure, and keep users engaged by guiding them to related content."
+    },
+    {
+      "question": "A bakery in Mumbai wants more local customers. Which SEO action should they prioritize?",
+      "options": [
+        "Write a blog about bakeries in Paris",
+        "Create and optimize their Google Business Profile with photos, reviews, and correct NAP",
+        "Buy 1,000 backlinks from random websites",
+        "Target keywords like 'how to bake bread at home'"
+      ],
+      "correct_index": 1,
+      "explanation": "Local SEO starts with Google Business Profile — correct Name, Address, Phone (NAP), photos, business hours, and encouraging customer reviews for local pack visibility."
+    },
+    {
+      "question": "What is Domain Rating (DR) or Domain Authority (DA)?",
+      "options": [
+        "A Google-official ranking score from 1-100",
+        "A third-party metric (by Ahrefs/Moz) estimating a website's backlink strength on a 0-100 scale",
+        "The age of a domain in years",
+        "The number of pages on a website"
+      ],
+      "correct_index": 1,
+      "explanation": "DR (Ahrefs) and DA (Moz) are third-party metrics that estimate backlink profile strength. They're not official Google metrics but help compare site authority."
+    },
+    {
+      "question": "Which HTML tag is MOST important for on-page SEO?",
+      "options": [
+        "<footer>",
+        "<title>",
+        "<div>",
+        "<span>"
+      ],
+      "correct_index": 1,
+      "explanation": "The <title> tag is the most important on-page SEO element — it appears in search results as the clickable blue link and heavily influences rankings and CTR."
+    },
+    {
+      "question": "Schema markup (structured data) helps search engines by:",
+      "options": [
+        "Making your website load faster",
+        "Providing explicit information about page content so search engines can show rich results",
+        "Blocking competitors from copying your content",
+        "Automatically translating your site into multiple languages"
+      ],
+      "correct_index": 1,
+      "explanation": "Schema markup is code that gives search engines explicit context about your content (recipes, reviews, events, FAQs), enabling rich snippets in search results."
+    },
+    {
+      "question": "An XML sitemap is important because:",
+      "options": [
+        "It makes your website design look better",
+        "It helps search engines discover and crawl all important pages on your site efficiently",
+        "It replaces the need for robots.txt",
+        "It directly improves your ranking position"
+      ],
+      "correct_index": 1,
+      "explanation": "An XML sitemap lists all important URLs on your site, helping search engine crawlers find pages — especially useful for large sites or pages with few internal links."
+    },
+    {
+      "question": "Which type of backlink is most valuable for SEO?",
+      "options": [
+        "A link from a random blog comment",
+        "A contextual dofollow link from a high-authority relevant website",
+        "100 links from the same low-quality directory",
+        "A link hidden in white text on a page"
+      ],
+      "correct_index": 1,
+      "explanation": "A dofollow link from a relevant, high-authority site passes the most 'link juice.' Quality and relevance matter far more than quantity in modern SEO."
+    },
+    {
+      "question": "What is 'keyword cannibalization'?",
+      "options": [
+        "Using too many keywords in one page",
+        "When multiple pages on your site compete for the same keyword, confusing Google about which to rank",
+        "Stealing keywords from competitors",
+        "When a keyword becomes too expensive in Google Ads"
+      ],
+      "correct_index": 1,
+      "explanation": "Keyword cannibalization occurs when two or more pages target the same keyword, splitting authority and confusing Google about which page deserves to rank."
+    },
+    {
+      "question": "Google Search Console is used to:",
+      "options": [
+        "Design your website layout",
+        "Monitor search performance, fix indexing issues, submit sitemaps, and check Core Web Vitals",
+        "Buy Google Ads",
+        "Create social media posts"
+      ],
+      "correct_index": 1,
+      "explanation": "Google Search Console is a free tool showing how Google sees your site — search queries, click data, indexing status, mobile usability, and Core Web Vitals reports."
+    },
+    {
+      "question": "A page has good content but isn't ranking. The meta description is 350 characters long. What should you fix?",
+      "options": [
+        "Nothing — longer meta descriptions rank better",
+        "Shorten it to 150-160 characters with the target keyword and a compelling CTA",
+        "Remove the meta description entirely",
+        "Add more keywords by making it 500 characters"
+      ],
+      "correct_index": 1,
+      "explanation": "Meta descriptions should be 150-160 characters. Longer ones get truncated in search results. While not a direct ranking factor, good meta descriptions improve CTR."
+    },
+    {
+      "question": "CLS (Cumulative Layout Shift) measures:",
+      "options": [
+        "How fast the first byte loads",
+        "How much page content unexpectedly moves/shifts while loading",
+        "The total number of CSS files on a page",
+        "How many clicks it takes to reach a page"
+      ],
+      "correct_index": 1,
+      "explanation": "CLS measures visual stability — unexpected layout shifts (like images loading and pushing text down) frustrate users. Google recommends CLS score below 0.1."
+    },
+    {
+      "question": "For a local business in India, NAP consistency means:",
+      "options": [
+        "Taking a nap before writing content",
+        "Having the exact same Name, Address, and Phone number across all online listings and directories",
+        "Using as many different addresses as possible for variety",
+        "Only listing your business on one platform"
+      ],
+      "correct_index": 1,
+      "explanation": "NAP (Name, Address, Phone) consistency across Google Business Profile, Justdial, Sulekha, your website, and all directories builds trust with search engines for local rankings."
+    },
+    {
+      "question": "A coaching institute in Jaipur wants to rank for 'best coaching classes in Jaipur.' Which combination of SEO strategies is MOST effective?",
+      "options": [
+        "Only write blogs about coaching in Mumbai and Delhi",
+        "Optimize Google Business Profile, get student reviews, create location-specific pages, and build local citations",
+        "Buy 10,000 backlinks from a freelancer on Fiverr",
+        "Just add the keyword 50 times on the homepage"
+      ],
+      "correct_index": 1,
+      "explanation": "Local SEO requires a multi-pronged approach: optimized GBP, genuine reviews, location-specific content, and citations on Indian directories like Justdial and Sulekha."
+    }
+  ]
+}

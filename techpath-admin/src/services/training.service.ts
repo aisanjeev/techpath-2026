@@ -35,6 +35,7 @@ export interface AssetListParams {
   program_id?: number;
   module_id?: number;
   tag?: string;
+  unassigned?: boolean;
 }
 
 function paginate<T>(response: { data: T[]; headers?: Record<string, unknown> }): PaginatedResponse<T> {
@@ -226,6 +227,7 @@ export const trainingService = {
           program_id: params.program_id,
           module_id: params.module_id,
           tag: params.tag,
+          unassigned: params.unassigned,
         },
       });
       return paginate(response);
@@ -298,6 +300,22 @@ export const trainingService = {
   async deleteAsset(id: number): Promise<void> {
     try {
       await apiClient.delete(`/api/v1/training/assets/${id}`);
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  async bulkDeleteAssets(
+    assetIds: number[]
+  ): Promise<{ deleted: number; failed: number; in_use: number; message: string }> {
+    try {
+      const response = await apiClient.post<{
+        deleted: number;
+        failed: number;
+        in_use: number;
+        message: string;
+      }>('/api/v1/training/assets/bulk-delete', { asset_ids: assetIds });
+      return response.data;
     } catch (error) {
       throw handleApiError(error);
     }

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Topology Explorer — TechPath CCC</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 1.8rem; margin-bottom: 8px; color: #3b82f6; }
+  .subtitle { text-align: center; color: #94a3b8; margin-bottom: 24px; font-size: 0.95rem; }
+
+  .tabs {
+    display: flex; gap: 8px; justify-content: center;
+    flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .tab-btn {
+    padding: 10px 20px; border: 2px solid #334155;
+    background: #1e293b; color: #94a3b8; border-radius: 8px;
+    cursor: pointer; font-size: 0.95rem; transition: all 0.3s;
+  }
+  .tab-btn:hover { border-color: #3b82f6; color: #e2e8f0; }
+  .tab-btn.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+
+  .topology-card {
+    background: #1e293b; border-radius: 12px; padding: 24px;
+    border: 1px solid #334155; margin-bottom: 24px;
+  }
+  .topology-title { font-size: 1.4rem; color: #3b82f6; margin-bottom: 4px; }
+  .topology-subtitle { color: #94a3b8; margin-bottom: 16px; font-size: 0.9rem; }
+
+  .canvas-container {
+    background: #0f172a; border-radius: 8px; padding: 16px;
+    display: flex; justify-content: center; margin-bottom: 20px;
+    min-height: 300px;
+  }
+  canvas { max-width: 100%; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  @media (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } }
+  .info-item {
+    background: #0f172a; padding: 12px; border-radius: 8px;
+    border-left: 3px solid #3b82f6;
+  }
+  .info-label { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
+  .info-value { font-size: 0.95rem; color: #e2e8f0; }
+  .info-item.pro { border-left-color: #22c55e; }
+  .info-item.con { border-left-color: #ef4444; }
+
+  .features-table {
+    width: 100%; border-collapse: collapse; margin-bottom: 16px;
+    background: #0f172a; border-radius: 8px; overflow: hidden;
+  }
+  .features-table th {
+    background: #334155; padding: 10px 14px; text-align: left;
+    color: #94a3b8; font-size: 0.85rem; text-transform: uppercase;
+  }
+  .features-table td { padding: 10px 14px; border-bottom: 1px solid #1e293b; font-size: 0.9rem; }
+  .features-table tr:last-child td { border-bottom: none; }
+
+  .exam-tip {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+    border: 1px solid #3b82f6; border-radius: 8px; padding: 14px 16px;
+    margin-top: 16px;
+  }
+  .exam-tip-title { color: #3b82f6; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
+  .exam-tip-text { color: #cbd5e1; font-size: 0.9rem; line-height: 1.5; }
+
+  .compare-section { margin-top: 24px; }
+  .compare-title { font-size: 1.3rem; text-align: center; color: #3b82f6; margin-bottom: 16px; }
+
+  .quiz-section {
+    background: #1e293b; border-radius: 12px; padding: 24px;
+    border: 1px solid #334155; margin-top: 24px;
+  }
+  .quiz-title { font-size: 1.3rem; color: #22c55e; margin-bottom: 16px; }
+  .quiz-question {
+    background: #0f172a; border-radius: 8px; padding: 16px; margin-bottom: 12px;
+  }
+  .quiz-q-text { font-size: 0.95rem; margin-bottom: 12px; color: #e2e8f0; }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt {
+    padding: 10px 14px; background: #1e293b; border: 1px solid #334155;
+    border-radius: 6px; cursor: pointer; font-size: 0.9rem;
+    transition: all 0.2s; color: #e2e8f0;
+  }
+  .quiz-opt:hover { border-color: #3b82f6; background: #253347; }
+  .quiz-opt.correct { background: #14532d; border-color: #22c55e; color: #22c55e; }
+  .quiz-opt.wrong { background: #450a0a; border-color: #ef4444; color: #ef4444; }
+  .quiz-opt.disabled { pointer-events: none; opacity: 0.7; }
+  .quiz-explanation {
+    margin-top: 10px; padding: 10px; background: #1a2332;
+    border-radius: 6px; font-size: 0.85rem; color: #94a3b8;
+    display: none;
+  }
+
+  .score-bar {
+    text-align: center; padding: 16px; background: #0f172a;
+    border-radius: 8px; margin-top: 16px; font-size: 1.1rem;
+  }
+
+  .footer { text-align: center; color: #475569; margin-top: 24px; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Network Topology Explorer</h1>
+  <p class="subtitle">Module 05 — CCC Exam Preparation | Interactive Learning Tool</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTopology('star')">Star</button>
+    <button class="tab-btn" onclick="showTopology('bus')">Bus</button>
+    <button class="tab-btn" onclick="showTopology('ring')">Ring</button>
+    <button class="tab-btn" onclick="showTopology('mesh')">Mesh</button>
+  </div>
+
+  <div class="topology-card" id="topology-card">
+    <div class="topology-title" id="topo-title">Star Topology</div>
+    <div class="topology-subtitle" id="topo-subtitle">Most commonly used topology today</div>
+
+    <div class="canvas-container">
+      <canvas id="topoCanvas" width="500" height="320"></canvas>
+    </div>
+
+    <div class="info-grid" id="info-grid"></div>
+
+    <div class="exam-tip" id="exam-tip">
+      <div class="exam-tip-title">CCC Exam Tip</div>
+      <div class="exam-tip-text" id="exam-tip-text"></div>
+    </div>
+  </div>
+
+  <div class="compare-section">
+    <div class="compare-title">Topology Comparison Table</div>
+    <div style="overflow-x:auto;">
+    <table class="features-table">
+      <thead>
+        <tr>
+          <th>Feature</th><th>Star</th><th>Bus</th><th>Ring</th><th>Mesh</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Central Device</td><td>Hub/Switch</td><td>None</td><td>None</td><td>None</td></tr>
+        <tr><td>Cable Type</td><td>Separate per PC</td><td>One shared</td><td>Circular</td><td>Many cables</td></tr>
+        <tr><td>Failure Impact</td><td>Hub = all down</td><td>Cable = all down</td><td>One PC = ring breaks</td><td>Very fault-tolerant</td></tr>
+        <tr><td>Speed</td><td>Fast</td><td>Slows with load</td><td>Moderate</td><td>Fast</td></tr>
+        <tr><td>Cost</td><td>Medium</td><td>Low</td><td>Medium</td><td>Very High</td></tr>
+        <tr><td>Common Today?</td><td>Yes</td><td>Rarely</td><td>Rarely</td><td>Critical networks</td></tr>
+        <tr><td>Easy to Expand</td><td>Yes</td><td>Difficult</td><td>Difficult</td><td>Difficult</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="quiz-section">
+    <div class="quiz-title">Practice Questions</div>
+    <div id="quiz-container"></div>
+    <div class="score-bar" id="score-bar" style="display:none;"></div>
+  </div>
+
+  <div class="footer">TechPath Institute — CCC Exam Preparation</div>
+</div>
+
+<script>
+const topologies = {
+  star: {
+    title: "Star Topology",
+    subtitle: "Most commonly used topology today",
+    info: [
+      { label: "Structure", value: "All devices connect to a central hub or switch", type: "" },
+      { label: "Central Device", value: "Hub, Switch, or Router", type: "" },
+      { label: "Advantage", value: "Easy to add/remove devices; one failure does not affect others", type: "pro" },
+      { label: "Advantage", value: "Easy to troubleshoot — isolate the faulty device", type: "pro" },
+      { label: "Disadvantage", value: "If central hub fails, entire network goes down", type: "con" },
+      { label: "Disadvantage", value: "Requires more cable than Bus topology", type: "con" }
+    ],
+    examTip: "Star topology is the MOST COMMONLY USED topology. In CCC exam, remember: all devices connect to one central hub/switch. If the hub fails, the entire network stops working. If one computer fails, only that computer is affected — the rest continue working."
+  },
+  bus: {
+    title: "Bus Topology",
+    subtitle: "All devices share a single backbone cable",
+    info: [
+      { label: "Structure", value: "All devices connect to one main cable (backbone/bus)", type: "" },
+      { label: "Data Flow", value: "Data travels in both directions along the cable", type: "" },
+      { label: "Advantage", value: "Cheapest topology — uses least amount of cable", type: "pro" },
+      { label: "Advantage", value: "Simple to set up for small networks", type: "pro" },
+      { label: "Disadvantage", value: "If the main cable breaks, entire network fails", type: "con" },
+      { label: "Disadvantage", value: "Performance decreases as more devices are added", type: "con" }
+    ],
+    examTip: "Bus topology uses a SINGLE shared cable (backbone). If this cable breaks, the ENTIRE network fails. It is the cheapest topology but rarely used today. Data travels in both directions. Terminators are placed at both ends of the cable to prevent signal reflection."
+  },
+  ring: {
+    title: "Ring Topology",
+    subtitle: "Devices connected in a circular fashion",
+    info: [
+      { label: "Structure", value: "Each device connects to exactly two neighbors, forming a circle", type: "" },
+      { label: "Data Flow", value: "Data travels in ONE direction (unidirectional) around the ring", type: "" },
+      { label: "Advantage", value: "Equal access for all devices — no single device dominates", type: "pro" },
+      { label: "Advantage", value: "Performs better than Bus under heavy network load", type: "pro" },
+      { label: "Disadvantage", value: "If one device fails, the entire ring can break", type: "con" },
+      { label: "Disadvantage", value: "Difficult to add or remove devices", type: "con" }
+    ],
+    examTip: "In Ring topology, data travels in ONE DIRECTION around the circle. Each device acts as a repeater. If one computer fails, the ring breaks (unless it is a dual ring). Token Ring was a popular implementation. It is mostly replaced by Star topology today."
+  },
+  mesh: {
+    title: "Mesh Topology",
+    subtitle: "Every device connects to every other device",
+    info: [
+      { label: "Structure", value: "Each device has a dedicated connection to every other device", type: "" },
+      { label: "Redundancy", value: "Multiple paths for data — if one fails, another is used", type: "" },
+      { label: "Advantage", value: "Most fault-tolerant — network survives multiple failures", type: "pro" },
+      { label: "Advantage", value: "No traffic congestion — dedicated links between devices", type: "pro" },
+      { label: "Disadvantage", value: "Very expensive — requires many cables and ports", type: "con" },
+      { label: "Disadvantage", value: "Complex to set up and manage", type: "con" }
+    ],
+    examTip: "Mesh topology is the MOST RELIABLE (fault-tolerant) topology because every device connects to every other device. If one connection fails, data takes an alternative path. It is very expensive and used in critical networks like military or core internet infrastructure."
+  }
+};
+
+const quizQuestions = [
+  {
+    q: "Which topology is most commonly used in modern offices and homes?",
+    opts: ["Bus", "Ring", "Star", "Mesh"],
+    correct: 2,
+    explanation: "Star topology is the most commonly used today. All devices connect to a central hub/switch (like your WiFi router at home)."
+  },
+  {
+    q: "In Bus topology, what happens if the main cable (backbone) breaks?",
+    opts: ["Only one device is affected", "The network continues working", "The entire network fails", "Data is rerouted automatically"],
+    correct: 2,
+    explanation: "In Bus topology, all devices share one cable. If this cable breaks, no device can communicate — the entire network fails."
+  },
+  {
+    q: "In Ring topology, data travels in how many directions?",
+    opts: ["One direction (unidirectional)", "Two directions (bidirectional)", "All directions", "No fixed direction"],
+    correct: 0,
+    explanation: "In a standard Ring topology, data travels in only ONE direction around the ring. Each device receives data and passes it to the next device."
+  },
+  {
+    q: "Which topology is the most fault-tolerant (reliable)?",
+    opts: ["Star", "Bus", "Ring", "Mesh"],
+    correct: 3,
+    explanation: "Mesh topology is the most fault-tolerant because every device connects to every other device. If one path fails, data takes an alternative route."
+  },
+  {
+    q: "What is the central device in a Star topology called?",
+    opts: ["Modem", "Repeater", "Hub or Switch", "Gateway"],
+    correct: 2,
+    explanation: "In Star topology, all devices connect to a central Hub or Switch. Modern networks typically use a Switch, which is smarter than a Hub."
+  }
+];
+
+let currentTopology = 'star';
+let quizAnswered = 0;
+let quizCorrect = 0;
+
+function showTopology(name) {
+  currentTopology = name;
+  const t = topologies[name];
+  document.getElementById('topo-title').textContent = t.title;
+  document.getElementById('topo-subtitle').textContent = t.subtitle;
+  document.getElementById('exam-tip-text').textContent = t.examTip;
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.toLowerCase() === name);
+  });
+
+  const grid = document.getElementById('info-grid');
+  grid.innerHTML = t.info.map(item => `
+    <div class="info-item ${item.type}">
+      <div class="info-label">${item.label}</div>
+      <div class="info-value">${item.value}</div>
+    </div>
+  `).join('');
+
+  drawTopology(name);
+}
+
+function drawTopology(name) {
+  const canvas = document.getElementById('topoCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const blue = '#3b82f6', green = '#22c55e', slate = '#64748b', dark = '#1e293b';
+
+  function drawPC(x, y, label) {
+    ctx.fillStyle = dark;
+    ctx.strokeStyle = blue;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(x - 25, y - 18, 50, 36, 6);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = '11px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x, y + 4);
+  }
+
+  function drawHub(x, y, label) {
+    ctx.fillStyle = '#14532d';
+    ctx.strokeStyle = green;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, 28, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#22c55e';
+    ctx.font = 'bold 11px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x, y + 4);
+  }
+
+  function drawLine(x1, y1, x2, y2) {
+    ctx.strokeStyle = slate;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+
+  if (name === 'star') {
+    const cx = W/2, cy = H/2;
+    const pcs = [
+      { x: cx, y: 50, l: 'PC1' },
+      { x: cx + 160, y: 100, l: 'PC2' },
+      { x: cx + 160, y: 220, l: 'PC3' },
+      { x: cx, y: 270, l: 'PC4' },
+      { x: cx - 160, y: 220, l: 'PC5' },
+      { x: cx - 160, y: 100, l: 'PC6' }
+    ];
+    pcs.forEach(p => drawLine(cx, cy, p.x, p.y));
+    drawHub(cx, cy, 'HUB');
+    pcs.forEach(p => drawPC(p.x, p.y, p.l));
+  } else if (name === 'bus') {
+    const y = H/2;
+    ctx.strokeStyle = green; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(W - 40, y); ctx.stroke();
+    ctx.fillStyle = '#22c55e'; ctx.font = '10px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText('BACKBONE CABLE', W/2, y + 16);
+    const pcs = ['PC1', 'PC2', 'PC3', 'PC4', 'PC5'];
+    const spacing = (W - 120) / (pcs.length - 1);
+    pcs.forEach((label, i) => {
+      const x = 60 + i * spacing;
+      const py = i % 2 === 0 ? y - 70 : y + 70;
+      drawLine(x, y, x, py);
+      drawPC(x, py, label);
+    });
+    ctx.fillStyle = '#ef4444'; ctx.font = 'bold 10px Segoe UI';
+    ctx.fillText('T', 30, y + 4); ctx.fillText('T', W - 30, y + 4);
+    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 2;
+    ctx.strokeRect(20, y - 8, 20, 16); ctx.strokeRect(W - 40, y - 8, 20, 16);
+  } else if (name === 'ring') {
+    const cx = W/2, cy = H/2, r = 110;
+    const pcs = ['PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6'];
+    const points = pcs.map((l, i) => {
+      const angle = (i / pcs.length) * Math.PI * 2 - Math.PI / 2;
+      return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle), l };
+    });
+    points.forEach((p, i) => {
+      const next = points[(i + 1) % points.length];
+      ctx.strokeStyle = slate; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(next.x, next.y); ctx.stroke();
+      const mx = (p.x + next.x) / 2, my = (p.y + next.y) / 2;
+      const angle = Math.atan2(next.y - p.y, next.x - p.x);
+      ctx.fillStyle = green;
+      ctx.beginPath();
+      ctx.moveTo(mx + 8 * Math.cos(angle), my + 8 * Math.sin(angle));
+      ctx.lineTo(mx + 6 * Math.cos(angle + 2.5), my + 6 * Math.sin(angle + 2.5));
+      ctx.lineTo(mx + 6 * Math.cos(angle - 2.5), my + 6 * Math.sin(angle - 2.5));
+      ctx.fill();
+    });
+    points.forEach(p => drawPC(p.x, p.y, p.l));
+    ctx.fillStyle = '#22c55e'; ctx.font = '10px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText('Data flows one direction', cx, cy);
+  } else if (name === 'mesh') {
+    const cx = W/2, cy = H/2, r = 110;
+    const pcs = ['PC1', 'PC2', 'PC3', 'PC4', 'PC5'];
+    const points = pcs.map((l, i) => {
+      const angle = (i / pcs.length) * Math.PI * 2 - Math.PI / 2;
+      return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle), l };
+    });
+    for (let i = 0; i < points.length; i++) {
+      for (let j = i + 1; j < points.length; j++) {
+        drawLine(points[i].x, points[i].y, points[j].x, points[j].y);
+      }
+    }
+    points.forEach(p => drawPC(p.x, p.y, p.l));
+    ctx.fillStyle = '#22c55e'; ctx.font = '10px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText('Every device connects to every other', cx, cy);
+  }
+}
+
+function buildQuiz() {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = quizQuestions.map((q, qi) => `
+    <div class="quiz-question">
+      <div class="quiz-q-text"><strong>Q${qi + 1}.</strong> ${q.q}</div>
+      <div class="quiz-options" id="q-opts-${qi}">
+        ${q.opts.map((o, oi) => `
+          <div class="quiz-opt" onclick="checkAnswer(${qi}, ${oi})">${o}</div>
+        `).join('')}
+      </div>
+      <div class="quiz-explanation" id="q-exp-${qi}">${q.explanation}</div>
+    </div>
+  `).join('');
+}
+
+function checkAnswer(qi, oi) {
+  const q = quizQuestions[qi];
+  const opts = document.querySelectorAll(`#q-opts-${qi} .quiz-opt`);
+  if (opts[0].classList.contains('disabled')) return;
+  quizAnswered++;
+  opts.forEach((o, i) => {
+    o.classList.add('disabled');
+    if (i === q.correct) o.classList.add('correct');
+    if (i === oi && i !== q.correct) o.classList.add('wrong');
+  });
+  if (oi === q.correct) quizCorrect++;
+  document.getElementById(`q-exp-${qi}`).style.display = 'block';
+
+  if (quizAnswered === quizQuestions.length) {
+    const bar = document.getElementById('score-bar');
+    bar.style.display = 'block';
+    const pct = Math.round((quizCorrect / quizQuestions.length) * 100);
+    bar.style.color = pct >= 60 ? '#22c55e' : '#ef4444';
+    bar.textContent = `Score: ${quizCorrect}/${quizQuestions.length} (${pct}%) — ${pct >= 60 ? 'Good job!' : 'Review the topologies above and try again.'}`;
+  }
+}
+
+showTopology('star');
+buildQuiz();
+</script>
+</body>
+</html>

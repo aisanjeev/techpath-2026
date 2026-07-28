@@ -1,0 +1,38 @@
+{
+  "asset_type": "lab",
+  "title": "WSL Setup and Linux First Commands",
+  "description": "Install Windows Subsystem for Linux and practice essential terminal commands",
+  "tags": [
+    "linux",
+    "wsl",
+    "terminal",
+    "commands",
+    "beginner"
+  ],
+  "status": "draft",
+  "objective": "Students will install WSL on Windows, navigate the Linux file system, create files and folders, and write their first shell script",
+  "steps": [
+    {
+      "title": "Install WSL",
+      "instructions": "Open **PowerShell as Administrator** (right-click Start → Terminal (Admin)).\n\nRun this command:\n```powershell\nwsl --install\n```\n\nWait for it to download and install Ubuntu. When it says to restart, restart your computer.\n\nAfter restart, Ubuntu will open automatically. Create a **username** (lowercase, no spaces) and **password** (you won't see characters while typing — that's normal).\n\nVerify by typing:\n```bash\necho \"Hello from Linux!\"\n```"
+    },
+    {
+      "title": "Navigate the File System",
+      "instructions": "Try these commands one by one:\n\n```bash\n# Where am I?\npwd\n\n# What's here?\nls\n\n# Show hidden files too\nls -la\n\n# Go to the root of the entire system\ncd /\nls\n\n# Go back home\ncd ~\n\n# Access your Windows files\nls /mnt/c/Users/\n\n# See your Windows Desktop from Linux!\nls /mnt/c/Users/$USER/Desktop/ 2>/dev/null || ls /mnt/c/Users/*/Desktop/\n```\n\nNotice: Linux uses `/` (forward slash), not `\\` (backslash) like Windows."
+    },
+    {
+      "title": "Create a Project Structure",
+      "instructions": "Build a web project folder using only terminal commands:\n\n```bash\n# Create the project with nested folders in one command\nmkdir -p ~/my-website/{css,js,images,pages}\n\n# Create files\ntouch ~/my-website/index.html\ntouch ~/my-website/css/style.css\ntouch ~/my-website/js/app.js\ntouch ~/my-website/pages/about.html\ntouch ~/my-website/pages/contact.html\ntouch ~/my-website/.gitignore\n\n# See what you built\nsudo apt install tree -y\ntree ~/my-website/\n```\n\nYou should see a nice tree structure. Screenshot this output."
+    },
+    {
+      "title": "Work with Files",
+      "instructions": "```bash\n# Write content to a file\necho '<!DOCTYPE html>' > ~/my-website/index.html\necho '<html>' >> ~/my-website/index.html\necho '<head><title>My Website</title></head>' >> ~/my-website/index.html\necho '<body><h1>Hello World</h1></body>' >> ~/my-website/index.html\necho '</html>' >> ~/my-website/index.html\n\n# Read the file\ncat ~/my-website/index.html\n\n# Write CSS\necho 'body { font-family: Arial; margin: 0; padding: 20px; }' > ~/my-website/css/style.css\necho 'h1 { color: #6366f1; }' >> ~/my-website/css/style.css\n\n# Read it\ncat ~/my-website/css/style.css\n\n# Copy a file\ncp ~/my-website/index.html ~/my-website/index-backup.html\n\n# Rename a file\nmv ~/my-website/index-backup.html ~/my-website/backup.html\n\n# Delete the backup\nrm ~/my-website/backup.html\n\n# Verify it's gone\nls ~/my-website/\n```"
+    },
+    {
+      "title": "Write Your First Script",
+      "instructions": "Create a script that sets up any new project:\n\n```bash\n# Open nano editor\nnano ~/setup-project.sh\n```\n\nType this inside nano:\n```bash\n#!/bin/bash\necho \"Enter project name:\"\nread PROJECT_NAME\n\nmkdir -p ~/$PROJECT_NAME/{src,tests,docs}\ntouch ~/$PROJECT_NAME/README.md\ntouch ~/$PROJECT_NAME/.gitignore\necho \"# $PROJECT_NAME\" > ~/$PROJECT_NAME/README.md\necho \"Created on: $(date)\" >> ~/$PROJECT_NAME/README.md\necho \"__pycache__/\" > ~/$PROJECT_NAME/.gitignore\necho \".env\" >> ~/$PROJECT_NAME/.gitignore\n\necho \"Project '$PROJECT_NAME' created!\"\ntree ~/$PROJECT_NAME/\n```\n\nSave: **Ctrl+O** → Enter → **Ctrl+X**\n\nMake it executable and run:\n```bash\nchmod +x ~/setup-project.sh\n./setup-project.sh\n```\n\nType a project name when prompted. Screenshot the output.\n\n**Submit:** Screenshot of the tree output + the script file."
+    }
+  ],
+  "starter_code": "#!/bin/bash\n# setup-project.sh\necho \"Enter project name:\"\nread PROJECT_NAME\nmkdir -p ~/$PROJECT_NAME/{src,tests,docs}\ntouch ~/$PROJECT_NAME/README.md\necho \"# $PROJECT_NAME\" > ~/$PROJECT_NAME/README.md\necho \"Project '$PROJECT_NAME' created!\"",
+  "expected_output": "A working WSL installation with Ubuntu, a my-website folder structure visible via tree command, and a working setup-project.sh shell script"
+}

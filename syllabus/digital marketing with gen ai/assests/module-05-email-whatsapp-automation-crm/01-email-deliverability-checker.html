@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Deliverability Checker | TechPath Academy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;padding:20px;max-width:900px;margin:0 auto}
+header{text-align:center;padding:20px 0;border-bottom:1px solid #1e293b;margin-bottom:30px}
+header h1{font-size:1.6rem;color:#38bdf8}
+header p{font-size:0.85rem;color:#64748b;margin-top:4px}
+h2{color:#f8fafc;font-size:1.3rem;margin-bottom:15px}
+h3{color:#94a3b8;font-size:1rem;margin-bottom:10px}
+.section{background:#1e293b;border-radius:12px;padding:24px;margin-bottom:24px}
+.checklist-item{display:flex;align-items:center;gap:12px;padding:14px;border-radius:8px;margin-bottom:10px;cursor:pointer;transition:all 0.3s;border:1px solid #334155}
+.checklist-item:hover{border-color:#38bdf8;background:#1e293b}
+.checklist-item.pass{border-color:#22c55e;background:#052e16}
+.checklist-item.fail{border-color:#ef4444;background:#2d0a0a}
+.status-dot{width:14px;height:14px;border-radius:50%;background:#475569;transition:background 0.3s}
+.checklist-item.pass .status-dot{background:#22c55e}
+.checklist-item.fail .status-dot{background:#ef4444}
+.checklist-label{font-weight:600;flex:1}
+.checklist-desc{font-size:0.82rem;color:#94a3b8;margin-top:4px;display:none;padding:10px 0 0 26px}
+.checklist-item.expanded .checklist-desc{display:block}
+input[type="text"],textarea{width:100%;padding:12px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:0.95rem;margin-bottom:10px;transition:border-color 0.3s}
+input[type="text"]:focus,textarea:focus{outline:none;border-color:#38bdf8}
+textarea{resize:vertical;min-height:60px}
+button{background:#2563eb;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-size:0.95rem;cursor:pointer;transition:background 0.3s}
+button:hover{background:#1d4ed8}
+.meter-container{text-align:center;margin:20px 0}
+.meter{width:200px;height:200px;margin:0 auto;position:relative}
+.meter svg{transform:rotate(-90deg)}
+.meter-value{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2.5rem;font-weight:700}
+.meter-label{margin-top:8px;font-size:0.85rem;color:#94a3b8}
+.score-green .meter-value{color:#22c55e}
+.score-yellow .meter-value{color:#eab308}
+.score-red .meter-value{color:#ef4444}
+.triggers{margin-top:15px;font-size:0.85rem}
+.trigger-item{padding:6px 10px;background:#2d0a0a;border:1px solid #ef4444;border-radius:6px;display:inline-block;margin:4px}
+.trigger-ok{background:#052e16;border-color:#22c55e}
+.drag-area{min-height:120px;border:2px dashed #334155;border-radius:12px;padding:16px;transition:all 0.3s;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.drag-area.over{border-color:#38bdf8;background:rgba(56,189,248,0.05)}
+.email-card{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;cursor:grab;transition:all 0.2s;width:100%;touch-action:none;user-select:none}
+.email-card:active{cursor:grabbing;transform:scale(0.97)}
+.email-card .sender{font-size:0.8rem;color:#64748b}
+.email-card .subject{font-weight:600;font-size:0.9rem;margin:4px 0}
+.email-card .preview{font-size:0.8rem;color:#94a3b8}
+.folders{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.folder{text-align:center}
+.folder h4{margin-bottom:8px;padding:8px;border-radius:8px}
+.folder-inbox h4{background:#052e16;color:#22c55e}
+.folder-spam h4{background:#2d0a0a;color:#ef4444}
+.result-card{border-left:3px solid #22c55e;padding:8px 12px;margin:6px 0;font-size:0.85rem;border-radius:0 6px 6px 0;background:#0f172a}
+.result-card.wrong{border-left-color:#ef4444}
+.esp-note{font-size:0.82rem;color:#64748b;background:#0f172a;padding:12px;border-radius:8px;margin-top:15px}
+#emailsPool{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.hidden{display:none}
+@media(max-width:600px){
+  .folders{grid-template-columns:1fr}
+  body{padding:12px}
+  .section{padding:16px}
+}
+</style>
+</head>
+<body>
+<header>
+<h1>Email Deliverability Checker</h1>
+<p>TechPath Academy - Module 5: Email & WhatsApp Automation</p>
+</header>
+
+<div class="section">
+<h2>1. Check Your Email Setup</h2>
+<p style="color:#94a3b8;margin-bottom:15px;font-size:0.9rem">Click each item to learn what it does and toggle pass/fail status.</p>
+<div id="checklistContainer"></div>
+<div class="esp-note">
+<strong>Indian ESP Options:</strong> Mailchimp, Sendinblue (Brevo), Zoho Campaigns, Pepipost (now Netcore) — all support SPF/DKIM/DMARC configuration from their dashboards.
+</div>
+</div>
+
+<div class="section">
+<h2>2. Spam Score Tester</h2>
+<input type="text" id="subjectInput" placeholder="Type your email subject line...">
+<textarea id="previewInput" placeholder="Type your preview text..."></textarea>
+<button onclick="analyzeSpam()">Analyze Deliverability</button>
+<div id="spamResult" class="hidden">
+<div class="meter-container">
+<div class="meter" id="scoreMeter">
+<svg viewBox="0 0 120 120" width="200" height="200">
+<circle cx="60" cy="60" r="50" fill="none" stroke="#334155" stroke-width="10"/>
+<circle id="scoreArc" cx="60" cy="60" r="50" fill="none" stroke="#22c55e" stroke-width="10" stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round"/>
+</svg>
+<div class="meter-value" id="scoreValue">0</div>
+</div>
+<div class="meter-label" id="scoreLabel">Deliverability Score</div>
+</div>
+<div class="triggers" id="triggersList"></div>
+</div>
+</div>
+
+<div class="section">
+<h2>3. Inbox vs Spam Exercise</h2>
+<p style="color:#94a3b8;margin-bottom:15px;font-size:0.9rem">Drag each email to the correct folder. Is it Inbox-worthy or Spam?</p>
+<div id="emailsPool"></div>
+<div class="folders">
+<div class="folder folder-inbox">
+<h4>Inbox</h4>
+<div class="drag-area" id="inboxDrop" data-folder="inbox"></div>
+</div>
+<div class="folder folder-spam">
+<h4>Spam</h4>
+<div class="drag-area" id="spamDrop" data-folder="spam"></div>
+</div>
+</div>
+<button onclick="checkAnswers()" style="margin-top:16px;width:100%">Check Answers</button>
+<div id="exerciseResults" class="hidden" style="margin-top:16px"></div>
+</div>
+
+<script>
+const checklistData=[
+{id:'spf',label:'SPF Record',desc:'Sender Policy Framework tells receiving servers which IPs are authorized to send email for your domain. Without SPF, anyone can spoof your domain.'},
+{id:'dkim',label:'DKIM Signature',desc:'DomainKeys Identified Mail adds a cryptographic signature to your emails proving they were not modified in transit and truly came from your domain.'},
+{id:'dmarc',label:'DMARC Policy',desc:'Domain-based Message Authentication, Reporting & Conformance tells receivers what to do if SPF/DKIM fail (none, quarantine, reject). Essential for brand protection.'},
+{id:'warmup',label:'IP Warmup Done',desc:'New sending IPs must gradually increase volume over 2-4 weeks. Sending 10,000 emails from a cold IP triggers spam filters immediately.'},
+{id:'list',label:'Clean List (< 2% bounce)',desc:'High bounce rates destroy sender reputation. Regularly clean your list by removing invalid, disposable, and inactive addresses.'},
+{id:'unsub',label:'Unsubscribe Link Present',desc:'Required by law (CAN-SPAM, GDPR, India IT Act). Missing unsubscribe = automatic spam classification by Gmail and Outlook.'}
+];
+const container=document.getElementById('checklistContainer');
+checklistData.forEach(item=>{
+const div=document.createElement('div');
+div.className='checklist-item';
+div.innerHTML=`<div class="status-dot"></div><div><div class="checklist-label">${item.label}</div><div class="checklist-desc">${item.desc}</div></div>`;
+div.addEventListener('click',()=>{
+div.classList.toggle('expanded');
+if(!div.classList.contains('expanded')){
+if(div.classList.contains('pass'))div.classList.replace('pass','fail');
+else if(div.classList.contains('fail')){div.classList.remove('fail');}
+else div.classList.add('pass');
+}
+});
+container.appendChild(div);
+});
+
+const spamWords=['free','guaranteed','click here','act now','limited time','winner','congratulations','no cost','risk free','urgent','buy now','order now','cash','cheap','credit','offer','deal','subscribe','unbelievable'];
+function analyzeSpam(){
+const subject=document.getElementById('subjectInput').value;
+const preview=document.getElementById('previewInput').value;
+if(!subject&&!preview)return;
+const combined=(subject+' '+preview).toLowerCase();
+let score=100;const triggers=[];
+const capsRatio=(subject.replace(/[^A-Z]/g,'').length)/(subject.replace(/\s/g,'').length||1);
+if(capsRatio>0.5&&subject.length>3){score-=20;triggers.push('Too many CAPITALS in subject');}
+const excl=(combined.match(/!/g)||[]).length;
+if(excl>2){score-=15;triggers.push(`${excl} exclamation marks detected`);}
+if(/₹\s*0|free/i.test(combined)){score-=15;triggers.push('Price anchoring / "free" detected');}
+spamWords.forEach(w=>{if(combined.includes(w)){score-=5;triggers.push(`Spam word: "${w}"`);}});
+if(subject.length>60){score-=10;triggers.push('Subject too long (>60 chars)');}
+if(/[😀-🙏🌀-🗿🚀-🛿🤀-🧿]/.test(subject)){score-=5;triggers.push('Emoji in subject (risky with some ESPs)');}
+score=Math.max(0,Math.min(100,score));
+const el=document.getElementById('spamResult');el.classList.remove('hidden');
+const meter=document.getElementById('scoreMeter');
+meter.className='meter '+(score>=90?'score-green':score>=70?'score-yellow':'score-red');
+const arc=document.getElementById('scoreArc');
+const color=score>=90?'#22c55e':score>=70?'#eab308':'#ef4444';
+arc.style.stroke=color;
+arc.style.strokeDashoffset=314-(314*score/100);
+document.getElementById('scoreValue').textContent=score;
+document.getElementById('scoreLabel').textContent=score>=90?'Excellent Deliverability':score>=70?'Needs Improvement':'High Spam Risk';
+const tl=document.getElementById('triggersList');
+tl.innerHTML=triggers.length?'<strong>Issues found:</strong><br>'+triggers.map(t=>`<span class="trigger-item">${t}</span>`).join(''):'<span class="trigger-item trigger-ok">No spam triggers detected!</span>';
+}
+
+const emails=[
+{id:1,sender:'noreply@icicibank.com',subject:'Your Monthly Statement is Ready',preview:'Dear Customer, your account statement for June 2025 is now available...',answer:'inbox',reason:'Legitimate bank communication with proper domain and no spam triggers.'},
+{id:2,sender:'winner99@gmail.com',subject:'CONGRATULATIONS!!! You Won ₹50,00,000!!!',preview:'CLICK HERE NOW to claim your FREE prize money guaranteed!!!',answer:'spam',reason:'Generic Gmail sender, ALL CAPS, excessive punctuation, spam words (free, guaranteed, click here), unrealistic claim.'},
+{id:3,sender:'team@zoho.com',subject:'Your Zoho Campaigns report for this week',preview:'Hi there, here is your weekly email performance summary...',answer:'inbox',reason:'Known ESP domain, professional subject, relevant content, no spam signals.'},
+{id:4,sender:'marketing@freshdeals.xyz',subject:'Buy 1 Get 5 FREE - Today Only - ACT NOW',preview:'Unbelievable deals you cannot miss! Order now before stock runs out!!!',answer:'spam',reason:'Unknown .xyz domain, pressure tactics (ACT NOW, Today Only), spam words, excessive claims.'},
+{id:5,sender:'hr@tcs.com',subject:'Invitation: Campus Placement Drive - July 2025',preview:'Dear Student, we are pleased to invite you to our upcoming placement drive...',answer:'inbox',reason:'Reputable company domain, professional language, no spam indicators.'},
+{id:6,sender:'support@amazzon-verify.com',subject:'Your Account Has Been Locked - Verify Now',preview:'Dear valued customer, we detected suspicious activity. Click below to verify...',answer:'spam',reason:'Misspelled brand domain (amazzon), urgency/fear tactic, phishing pattern with "verify now".'},
+{id:7,sender:'newsletter@hubspot.com',subject:'5 Email Marketing Trends for 2025',preview:'This week we analyzed the top-performing email campaigns across industries...',answer:'inbox',reason:'Known marketing platform, educational content, proper sender authentication expected.'},
+{id:8,sender:'deals@quickcash-now.in',subject:'Get ₹0 Cost Loan Approved in 2 Minutes',preview:'No documents needed! Guaranteed approval! Limited time offer!!!',answer:'spam',reason:'Suspicious domain, "₹0 cost", "guaranteed", "limited time", no-document loan is a scam pattern.'}
+];
+let draggedEl=null;
+const pool=document.getElementById('emailsPool');
+emails.sort(()=>Math.random()-0.5).forEach(em=>{
+const card=document.createElement('div');
+card.className='email-card';card.draggable=true;card.dataset.id=em.id;
+card.innerHTML=`<div class="sender">${em.sender}</div><div class="subject">${em.subject}</div><div class="preview">${em.preview}</div>`;
+card.addEventListener('dragstart',e=>{draggedEl=card;e.dataTransfer.effectAllowed='move';card.style.opacity='0.5';});
+card.addEventListener('dragend',()=>{card.style.opacity='1';draggedEl=null;});
+let touchStartY=0;
+card.addEventListener('touchstart',e=>{draggedEl=card;touchStartY=e.touches[0].clientY;card.style.opacity='0.7';},{passive:true});
+card.addEventListener('touchmove',e=>{e.preventDefault();const touch=e.touches[0];const dropTarget=document.elementFromPoint(touch.clientX,touch.clientY);document.querySelectorAll('.drag-area').forEach(d=>d.classList.remove('over'));if(dropTarget&&dropTarget.classList.contains('drag-area'))dropTarget.classList.add('over');},{passive:false});
+card.addEventListener('touchend',e=>{card.style.opacity='1';const touch=e.changedTouches[0];const dropTarget=document.elementFromPoint(touch.clientX,touch.clientY);if(dropTarget&&dropTarget.classList.contains('drag-area')){dropTarget.appendChild(draggedEl);}document.querySelectorAll('.drag-area').forEach(d=>d.classList.remove('over'));draggedEl=null;});
+pool.appendChild(card);
+});
+document.querySelectorAll('.drag-area').forEach(zone=>{
+zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('over');});
+zone.addEventListener('dragleave',()=>zone.classList.remove('over'));
+zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('over');if(draggedEl)zone.appendChild(draggedEl);});
+});
+
+function checkAnswers(){
+const results=document.getElementById('exerciseResults');results.classList.remove('hidden');results.innerHTML='';
+let correct=0;
+document.querySelectorAll('.drag-area .email-card').forEach(card=>{
+const em=emails.find(e=>e.id==card.dataset.id);
+const folder=card.parentElement.dataset.folder;
+const isCorrect=folder===em.answer;
+if(isCorrect)correct++;
+results.innerHTML+=`<div class="result-card ${isCorrect?'':'wrong'}"><strong>${isCorrect?'Correct':'Wrong'}:</strong> "${em.subject}" belongs in <strong>${em.answer}</strong>. ${em.reason}</div>`;
+});
+const remaining=document.querySelectorAll('#emailsPool .email-card').length;
+if(remaining>0)results.innerHTML=`<div class="result-card wrong"><strong>${remaining} email(s) not sorted yet!</strong> Drag them to a folder first.</div>`+results.innerHTML;
+else results.innerHTML=`<div class="result-card" style="border-left-color:#38bdf8"><strong>Score: ${correct}/8</strong></div>`+results.innerHTML;
+}
+</script>
+</body>
+</html>

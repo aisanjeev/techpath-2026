@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML & CSS — Live Playground</title>
+<style>
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --card-hover: #334155;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --accent: #38bdf8;
+  --accent2: #a78bfa;
+  --success: #4ade80;
+  --danger: #f87171;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; }
+h1 { text-align: center; font-size: 1.4rem; margin-bottom: 4px; }
+.subtitle { text-align: center; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 16px; }
+.container { max-width: 900px; margin: 0 auto; }
+
+.tabs { display: flex; gap: 6px; margin-bottom: 16px; justify-content: center; flex-wrap: wrap; }
+.tab-btn { padding: 8px 16px; border: 2px solid var(--card-hover); background: var(--card); color: var(--text-dim); border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
+.tab-btn:hover { border-color: var(--accent); color: var(--text); }
+.tab-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Editor */
+.editor-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.editor-col { display: flex; flex-direction: column; }
+.editor-label { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 4px; display: flex; justify-content: space-between; }
+.code-editor { width: 100%; min-height: 250px; background: #0d1117; color: #c9d1d9; border: 1px solid var(--card-hover); border-radius: 8px; padding: 12px; font-family: 'Consolas', 'Courier New', monospace; font-size: 13px; line-height: 1.5; resize: vertical; tab-size: 2; }
+.code-editor:focus { outline: none; border-color: var(--accent); }
+.preview-frame { width: 100%; min-height: 250px; background: white; border-radius: 8px; border: 1px solid var(--card-hover); }
+.run-btn { margin: 8px 0; padding: 10px 20px; background: var(--accent); color: var(--bg); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+.run-btn:hover { opacity: 0.85; }
+
+/* Challenges */
+.challenge { background: var(--card); border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+.challenge h3 { color: var(--accent); font-size: 1rem; margin-bottom: 6px; }
+.challenge p { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 10px; }
+.hint-btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--card-hover); background: none; color: var(--text-dim); cursor: pointer; font-size: 0.8rem; }
+.hint-btn:hover { border-color: var(--accent); color: var(--text); }
+.hint { margin-top: 8px; padding: 10px; background: rgba(56,189,248,0.1); border-radius: 6px; font-size: 0.85rem; display: none; font-family: monospace; }
+.hint.show { display: block; }
+
+/* Box Model */
+.box-demo { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.box-visual { position: relative; text-align: center; }
+.box-margin { background: rgba(248,113,113,0.15); padding: 20px; border: 2px dashed var(--danger); border-radius: 4px; }
+.box-border { background: rgba(251,191,36,0.15); padding: 20px; border: 3px solid var(--warning); }
+.box-padding { background: rgba(74,222,128,0.15); padding: 20px; border: 2px dashed var(--success); }
+.box-content { background: rgba(56,189,248,0.2); padding: 20px; border: 2px solid var(--accent); color: var(--text); font-weight: 600; }
+.box-label { position: absolute; font-size: 0.7rem; font-weight: 600; }
+
+.box-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; }
+.box-ctrl { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.box-ctrl label { font-size: 0.75rem; color: var(--text-dim); }
+.box-ctrl input[type="range"] { width: 100%; accent-color: var(--accent); }
+.box-ctrl span { font-family: monospace; font-size: 0.8rem; }
+
+/* Flexbox */
+.flex-playground { background: var(--card); border-radius: 12px; padding: 20px; }
+.flex-playground h3 { color: var(--accent); margin-bottom: 12px; }
+.flex-controls { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.flex-ctrl { display: flex; flex-direction: column; gap: 4px; }
+.flex-ctrl label { font-size: 0.75rem; color: var(--text-dim); }
+.flex-ctrl select { padding: 6px 10px; background: var(--bg); color: var(--text); border: 1px solid var(--card-hover); border-radius: 6px; font-size: 0.85rem; }
+.flex-preview { min-height: 200px; background: var(--bg); border-radius: 8px; border: 2px dashed var(--card-hover); padding: 12px; transition: 0.3s; }
+.flex-item { padding: 16px 24px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-align: center; }
+.fi-1 { background: #3b82f6; } .fi-2 { background: #8b5cf6; } .fi-3 { background: #ec4899; }
+.fi-4 { background: #f59e0b; color: var(--bg); } .fi-5 { background: #10b981; }
+.flex-code { margin-top: 12px; padding: 12px; background: #0d1117; border-radius: 8px; font-family: monospace; font-size: 0.8rem; color: #c9d1d9; white-space: pre; overflow-x: auto; }
+
+@media (max-width: 700px) {
+  .editor-layout { grid-template-columns: 1fr; }
+  .box-controls { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>HTML & CSS — Live Playground</h1>
+  <p class="subtitle">Write code, see results instantly, practice challenges</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('editor')">Code Editor</button>
+    <button class="tab-btn" onclick="showTab('boxmodel')">Box Model</button>
+    <button class="tab-btn" onclick="showTab('flexbox')">Flexbox</button>
+    <button class="tab-btn" onclick="showTab('challenges')">Challenges</button>
+  </div>
+
+  <!-- Code Editor -->
+  <div id="tab-editor" class="tab-content active">
+    <div class="editor-layout">
+      <div class="editor-col">
+        <div class="editor-label"><span>HTML + CSS Code</span><span>Edit below</span></div>
+        <textarea class="code-editor" id="codeInput" spellcheck="false">
+<style>
+  body { font-family: Arial; padding: 20px; }
+  h1 { color: #3b82f6; }
+  .card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 400px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .btn:hover { background: #2563eb; }
+</style>
+
+<div class="card">
+  <h1>Welcome!</h1>
+  <p>Edit this code and click Run to see changes.</p>
+  <button class="btn">Click Me</button>
+</div></textarea>
+      </div>
+      <div class="editor-col">
+        <div class="editor-label"><span>Preview</span><span>Live output</span></div>
+        <iframe class="preview-frame" id="previewFrame"></iframe>
+      </div>
+    </div>
+    <button class="run-btn" onclick="runCode()">Run Code</button>
+  </div>
+
+  <!-- Box Model -->
+  <div id="tab-boxmodel" class="tab-content">
+    <div class="box-demo">
+      <div class="box-visual">
+        <div class="box-margin" id="bxMargin">
+          margin: <span id="mVal">20</span>px
+          <div class="box-border" id="bxBorder">
+            border: <span id="bdrVal">3</span>px
+            <div class="box-padding" id="bxPadding">
+              padding: <span id="pVal">20</span>px
+              <div class="box-content" id="bxContent">
+                CONTENT<br><span id="wVal">200</span> x <span id="hVal">80</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="box-controls">
+        <div class="box-ctrl">
+          <label>Margin</label>
+          <input type="range" min="0" max="50" value="20" oninput="updateBox()">
+          <span id="mDisplay">20px</span>
+        </div>
+        <div class="box-ctrl">
+          <label>Border</label>
+          <input type="range" min="0" max="20" value="3" oninput="updateBox()">
+          <span id="bdrDisplay">3px</span>
+        </div>
+        <div class="box-ctrl">
+          <label>Padding</label>
+          <input type="range" min="0" max="50" value="20" oninput="updateBox()">
+          <span id="pDisplay">20px</span>
+        </div>
+        <div class="box-ctrl">
+          <label>Width</label>
+          <input type="range" min="50" max="300" value="200" oninput="updateBox()">
+          <span id="wDisplay">200px</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flexbox -->
+  <div id="tab-flexbox" class="tab-content">
+    <div class="flex-playground">
+      <h3>Flexbox Playground</h3>
+      <div class="flex-controls">
+        <div class="flex-ctrl">
+          <label>flex-direction</label>
+          <select id="fDir" onchange="updateFlex()">
+            <option>row</option><option>column</option><option>row-reverse</option><option>column-reverse</option>
+          </select>
+        </div>
+        <div class="flex-ctrl">
+          <label>justify-content</label>
+          <select id="fJustify" onchange="updateFlex()">
+            <option>flex-start</option><option>flex-end</option><option>center</option><option>space-between</option><option>space-around</option><option>space-evenly</option>
+          </select>
+        </div>
+        <div class="flex-ctrl">
+          <label>align-items</label>
+          <select id="fAlign" onchange="updateFlex()">
+            <option>stretch</option><option>flex-start</option><option>flex-end</option><option>center</option>
+          </select>
+        </div>
+        <div class="flex-ctrl">
+          <label>flex-wrap</label>
+          <select id="fWrap" onchange="updateFlex()">
+            <option>nowrap</option><option>wrap</option>
+          </select>
+        </div>
+        <div class="flex-ctrl">
+          <label>gap</label>
+          <select id="fGap" onchange="updateFlex()">
+            <option>0px</option><option>8px</option><option>16px</option><option>24px</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex-preview" id="flexPreview">
+        <div class="flex-item fi-1">1</div>
+        <div class="flex-item fi-2">2</div>
+        <div class="flex-item fi-3">3</div>
+        <div class="flex-item fi-4">4</div>
+        <div class="flex-item fi-5">5</div>
+      </div>
+      <div class="flex-code" id="flexCode"></div>
+    </div>
+  </div>
+
+  <!-- Challenges -->
+  <div id="tab-challenges" class="tab-content">
+    <div class="challenge">
+      <h3>1. Create a Navigation Bar</h3>
+      <p>Make a horizontal nav bar with 4 links: Home, About, Courses, Contact. Blue background, white text, centered links with padding.</p>
+      <button class="hint-btn" onclick="toggleHint('h1')">Show Hint</button>
+      <div class="hint" id="h1">&lt;nav style="background:#3b82f6; display:flex; justify-content:center; gap:24px; padding:16px;"&gt;
+  &lt;a href="#" style="color:white; text-decoration:none;"&gt;Home&lt;/a&gt;
+  &lt;a href="#" style="color:white; text-decoration:none;"&gt;About&lt;/a&gt;
+  &lt;a href="#" style="color:white; text-decoration:none;"&gt;Courses&lt;/a&gt;
+  &lt;a href="#" style="color:white; text-decoration:none;"&gt;Contact&lt;/a&gt;
+&lt;/nav&gt;</div>
+    </div>
+    <div class="challenge">
+      <h3>2. Build a Profile Card</h3>
+      <p>Create a card with: rounded corners, shadow, a heading (your name), a paragraph (about you), a blue "Follow" button.</p>
+      <button class="hint-btn" onclick="toggleHint('h2')">Show Hint</button>
+      <div class="hint" id="h2">&lt;div style="max-width:300px; background:white; border-radius:12px; padding:24px; box-shadow:0 2px 12px rgba(0,0,0,0.1); font-family:Arial;"&gt;
+  &lt;h2 style="color:#1a1a2e;"&gt;Your Name&lt;/h2&gt;
+  &lt;p style="color:#666;"&gt;Web Developer | TechPath Student&lt;/p&gt;
+  &lt;button style="background:#3b82f6; color:white; border:none; padding:10px 24px; border-radius:8px; cursor:pointer;"&gt;Follow&lt;/button&gt;
+&lt;/div&gt;</div>
+    </div>
+    <div class="challenge">
+      <h3>3. Create a 3-Column Layout</h3>
+      <p>Use Flexbox to create 3 equal columns with different colored backgrounds and text. Add gap between them.</p>
+      <button class="hint-btn" onclick="toggleHint('h3')">Show Hint</button>
+      <div class="hint" id="h3">&lt;div style="display:flex; gap:16px;"&gt;
+  &lt;div style="flex:1; background:#dbeafe; padding:20px; border-radius:8px;"&gt;Column 1&lt;/div&gt;
+  &lt;div style="flex:1; background:#dcfce7; padding:20px; border-radius:8px;"&gt;Column 2&lt;/div&gt;
+  &lt;div style="flex:1; background:#fef3c7; padding:20px; border-radius:8px;"&gt;Column 3&lt;/div&gt;
+&lt;/div&gt;</div>
+    </div>
+    <div class="challenge">
+      <h3>4. Style a Simple Form</h3>
+      <p>Create a login form with: email input, password input, and a "Login" button. Style with rounded inputs and a blue submit button.</p>
+      <button class="hint-btn" onclick="toggleHint('h4')">Show Hint</button>
+      <div class="hint" id="h4">&lt;form style="max-width:300px; font-family:Arial;"&gt;
+  &lt;input type="email" placeholder="Email" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:12px; font-size:14px;"&gt;
+  &lt;input type="password" placeholder="Password" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:12px; font-size:14px;"&gt;
+  &lt;button style="width:100%; background:#3b82f6; color:white; border:none; padding:12px; border-radius:8px; font-size:16px; cursor:pointer;"&gt;Login&lt;/button&gt;
+&lt;/form&gt;</div>
+    </div>
+    <div class="challenge">
+      <h3>5. Center Everything Perfectly</h3>
+      <p>Center a box both horizontally and vertically on the page using Flexbox. The box should say "I'm Centered!"</p>
+      <button class="hint-btn" onclick="toggleHint('h5')">Show Hint</button>
+      <div class="hint" id="h5">&lt;div style="display:flex; justify-content:center; align-items:center; min-height:300px; background:#f8fafc;"&gt;
+  &lt;div style="background:#3b82f6; color:white; padding:24px 48px; border-radius:12px; font-family:Arial; font-size:20px;"&gt;I'm Centered!&lt;/div&gt;
+&lt;/div&gt;</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'editor') runCode();
+  if (name === 'flexbox') updateFlex();
+}
+
+// Code Editor
+function runCode() {
+  const code = document.getElementById('codeInput').value;
+  const frame = document.getElementById('previewFrame');
+  const doc = frame.contentDocument || frame.contentWindow.document;
+  doc.open();
+  doc.write(code);
+  doc.close();
+}
+runCode();
+
+// Box Model
+function updateBox() {
+  const sliders = document.querySelectorAll('#tab-boxmodel input[type="range"]');
+  const m = sliders[0].value, b = sliders[1].value, p = sliders[2].value, w = sliders[3].value;
+  document.getElementById('bxMargin').style.padding = m + 'px';
+  document.getElementById('bxBorder').style.borderWidth = b + 'px';
+  document.getElementById('bxPadding').style.padding = p + 'px';
+  document.getElementById('bxContent').style.width = w + 'px';
+  document.getElementById('mVal').textContent = m;
+  document.getElementById('bdrVal').textContent = b;
+  document.getElementById('pVal').textContent = p;
+  document.getElementById('wVal').textContent = w;
+  document.getElementById('mDisplay').textContent = m + 'px';
+  document.getElementById('bdrDisplay').textContent = b + 'px';
+  document.getElementById('pDisplay').textContent = p + 'px';
+  document.getElementById('wDisplay').textContent = w + 'px';
+}
+
+// Flexbox
+function updateFlex() {
+  const dir = document.getElementById('fDir').value;
+  const jc = document.getElementById('fJustify').value;
+  const ai = document.getElementById('fAlign').value;
+  const wrap = document.getElementById('fWrap').value;
+  const gap = document.getElementById('fGap').value;
+  const el = document.getElementById('flexPreview');
+  el.style.display = 'flex';
+  el.style.flexDirection = dir;
+  el.style.justifyContent = jc;
+  el.style.alignItems = ai;
+  el.style.flexWrap = wrap;
+  el.style.gap = gap;
+  document.getElementById('flexCode').textContent =
+`.container {
+  display: flex;
+  flex-direction: ${dir};
+  justify-content: ${jc};
+  align-items: ${ai};
+  flex-wrap: ${wrap};
+  gap: ${gap};
+}`;
+}
+updateFlex();
+
+// Challenges
+function toggleHint(id) {
+  document.getElementById(id).classList.toggle('show');
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+{
+  "questions": [
+    {
+      "question": "Which MS Office app is used to create documents like letters and reports?",
+      "options": ["Excel", "PowerPoint", "Word", "Outlook"],
+      "correct_index": 2,
+      "explanation": "MS Word is used for creating text documents like letters, reports, resumes, and assignments."
+    },
+    {
+      "question": "What does the Excel formula =SUM(A1:A5) do?",
+      "options": ["Averages cells A1 to A5", "Adds all values from A1 to A5", "Counts cells A1 to A5", "Finds maximum in A1 to A5"],
+      "correct_index": 1,
+      "explanation": "SUM adds all the numbers in the given range. =SUM(A1:A5) adds the values in cells A1, A2, A3, A4, and A5."
+    },
+    {
+      "question": "What is the shortcut to save a file?",
+      "options": ["Ctrl + P", "Ctrl + S", "Ctrl + N", "Ctrl + Z"],
+      "correct_index": 1,
+      "explanation": "Ctrl + S = Save. Works in almost every application."
+    },
+    {
+      "question": "In PowerPoint, what is the recommended maximum number of lines per slide?",
+      "options": ["2 lines", "6 lines", "15 lines", "No limit"],
+      "correct_index": 1,
+      "explanation": "Keep slides to 6 lines or less with 6 words per line. This keeps the audience focused on you, not reading slides."
+    },
+    {
+      "question": "What does VLOOKUP do in Excel?",
+      "options": ["Counts cells", "Looks up a value in a table and returns matching data", "Adds numbers vertically", "Creates a chart"],
+      "correct_index": 1,
+      "explanation": "VLOOKUP finds a value in the first column of a table and returns a value from another column in the same row."
+    },
+    {
+      "question": "Which Google Workspace app is similar to MS Excel?",
+      "options": ["Google Docs", "Google Slides", "Google Sheets", "Google Drive"],
+      "correct_index": 2,
+      "explanation": "Google Sheets is Google's free spreadsheet app, similar to MS Excel."
+    },
+    {
+      "question": "What does the IF function do in Excel?",
+      "options": ["Adds numbers if condition is met", "Checks a condition and returns different values for true/false", "Imports data from another file", "Formats cells automatically"],
+      "correct_index": 1,
+      "explanation": "IF checks a condition: =IF(A1>50, \"Pass\", \"Fail\") returns Pass if A1 is more than 50, otherwise Fail."
+    },
+    {
+      "question": "What is the advantage of Google Docs over MS Word?",
+      "options": ["More features", "Works offline only", "Real-time collaboration — multiple people can edit at the same time", "Better printing"],
+      "correct_index": 2,
+      "explanation": "Google Docs allows real-time collaboration — multiple people can edit the same document simultaneously."
+    },
+    {
+      "question": "What is a Pivot Table in Excel?",
+      "options": ["A table that rotates on screen", "A tool to summarize large amounts of data quickly", "A table with formulas only", "A chart type"],
+      "correct_index": 1,
+      "explanation": "Pivot Tables let you summarize thousands of rows of data into simple summaries — total, average, count by category."
+    },
+    {
+      "question": "Why should you save final documents as PDF?",
+      "options": ["PDF files are smaller", "PDF formatting stays the same on every computer", "PDF is faster to open", "PDF has more features"],
+      "correct_index": 1,
+      "explanation": "PDF preserves your exact formatting — fonts, layout, images look the same on every device and OS."
+    },
+    {
+      "question": "Which Excel formula gives you today's date?",
+      "options": ["=DATE()", "=TODAY()", "=NOW()", "=CURRENT()"],
+      "correct_index": 1,
+      "explanation": "=TODAY() returns today's date. =NOW() returns both date and time."
+    },
+    {
+      "question": "What is Mail Merge in Word used for?",
+      "options": ["Merging two documents into one", "Sending the same personalized letter to many people", "Combining multiple emails", "Merging Word with Excel"],
+      "correct_index": 1,
+      "explanation": "Mail Merge creates personalized copies of a letter for many recipients using data from Excel (names, addresses)."
+    }
+  ]
+}

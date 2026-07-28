@@ -1,0 +1,152 @@
+{
+  "01-email-deliverability-checker.html": {
+    "title": "Email Deliverability Checker | TechPath Academy",
+    "description": "Interactive Email Deliverability Checker | TechPath Academy exercise for Email Whatsapp Automation CRM",
+    "asset_type": "html_bundle",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "01-email-marketing-complete.md": {
+    "title": "Email Marketing \u2014 The Complete Guide",
+    "description": "Module 05 \u2014 Email, WhatsApp, Marketing Automation & CRM | Topic 1 --- Every year, someone declares \"email is dead.\" And every year, email delivers the highest ROI of any digital channel. For every \u20b91 you spend on email marketing, you get back \u20b936 on average. No social media platform comes close. Think of email like owning a shop on a main road \u2014 the road is yours, no one can change the rules. Social media is like renting a stall inside a mall \u2014...",
+    "asset_type": "markdown",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "02-automation-flow-builder.html": {
+    "title": "Automation Flow Builder | TechPath Academy",
+    "description": "Interactive Automation Flow Builder | TechPath Academy exercise for Email Whatsapp Automation CRM",
+    "asset_type": "html_bundle",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "02-whatsapp-and-sms-marketing.md": {
+    "title": "WhatsApp & SMS Marketing in India",
+    "description": "Module 05 \u2014 Email, WhatsApp, Marketing Automation & CRM | Topic 2 --- India has 550+ million WhatsApp users \u2014 more than any other country in the world. Your customers are already on WhatsApp every day, chatting with friends, family, and now businesses. Unlike email that might sit unopened for hours, a WhatsApp message gets read within 5 minutes on average. Think of WhatsApp marketing like having a direct conversation at the customer's doorstep...",
+    "asset_type": "markdown",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "03-marketing-automation.md": {
+    "title": "Marketing Automation \u2014 Work Smarter, Not Harder",
+    "description": "Module 05 \u2014 Email, WhatsApp, Marketing Automation & CRM | Topic 3 --- Marketing automation means using software to perform repetitive marketing tasks automatically \u2014 sending emails, posting on social media, updating spreadsheets, notifying your team \u2014 without you doing it manually every time. Think of it like setting up dominoes. You arrange them once, and when the first one falls (a customer signs up), the rest follow automatically (welcome...",
+    "asset_type": "markdown",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "04-crm-and-lead-scoring.md": {
+    "title": "CRM, Lead Scoring & Pirate Metrics",
+    "description": "Module 05 \u2014 Email, WhatsApp, Marketing Automation & CRM | Topic 4 --- CRM stands for Customer Relationship Management. It is a system that stores every interaction you have with customers and potential customers \u2014 their contact details, what emails they opened, which pages they visited, what they bought, and every conversation you had. Think of a CRM like a super-powered diary for your business. A diary remembers what you write in it. A CRM...",
+    "asset_type": "markdown",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "assignment-05.md": {
+    "title": "Module 5: Assignment \u2014 Email, WhatsApp, Marketing Automation & CRM",
+    "description": "Total Marks: 100 Submission Deadline: End of Week 25 Format: Submit all deliverables as a single Google Drive folder link --- Create a professional lead magnet PDF and a landing page that converts visitors into email subscribers. Part A: Create the Lead Magnet PDF (15 marks) Design a 5-7 page PDF titled: \"10 Free Tools Every Small Business in India Should Use\" Your PDF must include: - Professional cover page with title and TechPath Academy...",
+    "asset_type": "assignment",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "cheatsheet-05.md": {
+    "title": "Cheatsheet 05",
+    "description": "Learning material for Cheatsheet 05",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "code-email-template.html": {
+    "title": "Welcome to TechPath Academy",
+    "description": "Interactive Welcome to TechPath Academy exercise for Email Whatsapp Automation CRM",
+    "asset_type": "html_bundle",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "code-lead-scoring-calculator.html": {
+    "title": "Lead Scoring Calculator \u2014 TechPath Academy",
+    "description": "Interactive Lead Scoring Calculator \u2014 TechPath Academy exercise for Email Whatsapp Automation CRM",
+    "asset_type": "html_bundle",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "lab-05-a.json": {
+    "title": "Build a Complete Email Welcome Sequence",
+    "description": "Learning material for Build a Complete Email Welcome Sequence",
+    "asset_type": "lab",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "lab-05-b.json": {
+    "title": "Create a Multi-Channel Automation with Zapier",
+    "description": "Learning material for Create a Multi-Channel Automation with Zapier",
+    "asset_type": "lab",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "notes-05.md": {
+    "title": "Module 5: Email, WhatsApp, Marketing Automation & CRM",
+    "description": "--- Why email still wins in 2026: - You OWN your email list (no algorithm changes can take your audience away) - Direct inbox access \u2014 no \"pay to reach\" model like social media - Works for every business size \u2014 from chai shop to enterprise company - Highest ROI of any digital channel for Indian businesses - 4.5 billion email users worldwide (compared to 2 billion on Instagram) - Email is the backbone of all marketing automation Email Marketing...",
+    "asset_type": "notes",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "quiz-05.json": {
+    "title": "Quiz 05",
+    "description": "Learning material for Quiz 05",
+    "asset_type": "quiz",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "resources-05.md": {
+    "title": "Module 5: Resources \u2014 Email, WhatsApp, Marketing Automation & CRM",
+    "description": "--- --- --- --- --- --- ---",
+    "asset_type": "notes",
+    "tags": [
+      "email-whatsapp-automation-crm",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  }
+}

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OOP Class Builder — TechPath Institute</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;padding:20px}
+.container{max-width:1100px;margin:0 auto}
+h1{text-align:center;font-size:1.7rem;margin-bottom:4px;background:linear-gradient(135deg,#38bdf8,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{text-align:center;color:#94a3b8;font-size:.85rem;margin-bottom:20px}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.panel{background:#1e293b;border-radius:12px;padding:20px;border:1px solid #334155}
+.panel h2{font-size:1.1rem;color:#38bdf8;margin-bottom:14px}
+label{display:block;font-size:.8rem;color:#94a3b8;margin-bottom:4px;font-weight:500}
+input[type="text"],select{width:100%;padding:8px 12px;background:#0f172a;border:1px solid #475569;border-radius:6px;color:#e2e8f0;font-size:.9rem;font-family:monospace;outline:none}
+input:focus,select:focus{border-color:#38bdf8}
+.row{display:flex;gap:8px;margin-bottom:10px;align-items:flex-end}
+.row>div{flex:1}
+button{padding:8px 14px;border:none;border-radius:6px;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-add{background:#22c55e;color:#0f172a}
+.btn-add:hover{background:#16a34a}
+.btn-remove{background:#ef4444;color:#fff;padding:4px 10px;font-size:.75rem}
+.btn-remove:hover{background:#dc2626}
+.btn-primary{background:linear-gradient(135deg,#38bdf8,#818cf8);color:#0f172a;padding:10px 20px;font-size:.9rem}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(56,189,248,.3)}
+.btn-secondary{background:#334155;color:#e2e8f0}
+.btn-secondary:hover{background:#475569}
+.btn-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.item-list{max-height:200px;overflow-y:auto}
+.item-row{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#0f172a;border-radius:6px;margin-bottom:4px;font-family:monospace;font-size:.85rem}
+.code-output{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:16px;font-family:'Consolas','Fira Code',monospace;font-size:.85rem;line-height:1.7;white-space:pre;overflow-x:auto;max-height:500px;overflow-y:auto;tab-size:4}
+.kw{color:#c084fc} .fn{color:#38bdf8} .st{color:#86efac} .cm{color:#64748b} .op{color:#e2e8f0} .dc{color:#fbbf24} .bi{color:#f472b6}
+.inherit-section{margin-top:16px;padding-top:14px;border-top:1px solid #334155}
+.diagram-box{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:20px;margin-top:12px;min-height:100px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.class-box{border:2px solid #38bdf8;border-radius:8px;padding:10px 16px;text-align:center;min-width:160px}
+.class-box .cname{font-weight:700;color:#38bdf8;font-size:.95rem;border-bottom:1px solid #334155;padding-bottom:4px;margin-bottom:4px}
+.class-box .attrs{font-size:.8rem;color:#94a3b8;text-align:left;font-family:monospace}
+.class-box.parent{border-color:#a78bfa}
+.class-box.parent .cname{color:#a78bfa}
+.arrow{color:#64748b;font-size:1.4rem}
+.copy-btn{position:absolute;top:8px;right:8px;background:#334155;color:#e2e8f0;border:none;padding:4px 10px;border-radius:4px;font-size:.75rem;cursor:pointer}
+.copy-btn:hover{background:#475569}
+.code-wrapper{position:relative}
+.checkbox-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.checkbox-row input[type="checkbox"]{accent-color:#38bdf8}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.row{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>OOP Class Builder</h1>
+<p class="subtitle">TechPath Institute — Module 02: Advanced Python</p>
+
+<div class="layout">
+  <!-- Left Panel: Builder -->
+  <div>
+    <div class="panel">
+      <h2>1. Class Name</h2>
+      <div class="row">
+        <div>
+          <label>Class Name</label>
+          <input type="text" id="className" value="Student" placeholder="e.g. Student" oninput="generateCode()"/>
+        </div>
+      </div>
+      <div class="inherit-section">
+        <div class="checkbox-row">
+          <input type="checkbox" id="useInheritance" onchange="generateCode()"/>
+          <label style="margin:0;display:inline">Inherit from parent class</label>
+        </div>
+        <div id="parentFields" style="display:none">
+          <div class="row">
+            <div>
+              <label>Parent Class Name</label>
+              <input type="text" id="parentName" value="Person" placeholder="e.g. Person" oninput="generateCode()"/>
+            </div>
+          </div>
+          <label>Parent Attributes</label>
+          <div id="parentAttrList" class="item-list"></div>
+          <div class="row" style="margin-top:6px">
+            <div><input type="text" id="newParentAttr" placeholder="name" onkeydown="if(event.key==='Enter')addParentAttr()"/></div>
+            <div style="flex:0"><button class="btn-add" onclick="addParentAttr()">+ Add</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h2>2. Attributes</h2>
+      <div id="attrList" class="item-list"></div>
+      <div class="row" style="margin-top:6px">
+        <div style="flex:2"><input type="text" id="newAttrName" placeholder="Attribute name (e.g. city)" onkeydown="if(event.key==='Enter')addAttr()"/></div>
+        <div style="flex:1">
+          <select id="newAttrType">
+            <option value="str">str</option>
+            <option value="int">int</option>
+            <option value="float">float</option>
+            <option value="bool">bool</option>
+            <option value="list">list</option>
+            <option value="dict">dict</option>
+          </select>
+        </div>
+        <div style="flex:0"><button class="btn-add" onclick="addAttr()">+ Add</button></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h2>3. Methods</h2>
+      <div id="methodList" class="item-list"></div>
+      <div class="row" style="margin-top:6px">
+        <div style="flex:2"><input type="text" id="newMethodName" placeholder="Method name (e.g. get_average)" onkeydown="if(event.key==='Enter')addMethod()"/></div>
+        <div style="flex:1">
+          <select id="newMethodType">
+            <option value="regular">Regular</option>
+            <option value="property">@property</option>
+            <option value="static">@staticmethod</option>
+            <option value="class">@classmethod</option>
+          </select>
+        </div>
+        <div style="flex:0"><button class="btn-add" onclick="addMethod()">+ Add</button></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h2>4. Dunder Methods</h2>
+      <div class="btn-row">
+        <button class="btn-secondary" onclick="toggleDunder('str')">__str__</button>
+        <button class="btn-secondary" onclick="toggleDunder('repr')">__repr__</button>
+        <button class="btn-secondary" onclick="toggleDunder('eq')">__eq__</button>
+        <button class="btn-secondary" onclick="toggleDunder('lt')">__lt__</button>
+        <button class="btn-secondary" onclick="toggleDunder('len')">__len__</button>
+      </div>
+      <div style="font-size:.8rem;color:#64748b">Active: <span id="dunderActive">none</span></div>
+    </div>
+
+    <div style="margin-top:16px;text-align:center">
+      <button class="btn-primary" onclick="generateCode()">Generate Code</button>
+      <button class="btn-secondary" onclick="loadExample()" style="margin-left:8px">Load Example</button>
+      <button class="btn-secondary" onclick="resetAll()" style="margin-left:8px">Reset</button>
+    </div>
+  </div>
+
+  <!-- Right Panel: Output -->
+  <div>
+    <div class="panel">
+      <h2>Generated Python Code</h2>
+      <div class="code-wrapper">
+        <button class="copy-btn" onclick="copyCode()">Copy</button>
+        <div class="code-output" id="codeOutput">Define your class on the left to see the generated code here.</div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h2>Inheritance Diagram</h2>
+      <div class="diagram-box" id="diagram">
+        <div class="class-box">
+          <div class="cname">Student</div>
+          <div class="attrs">No attributes yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+let attrs = [];
+let parentAttrs = [];
+let methods = [];
+let dunders = new Set();
+
+document.getElementById('useInheritance').addEventListener('change', function(){
+  document.getElementById('parentFields').style.display = this.checked ? 'block' : 'none';
+  generateCode();
+});
+
+function addAttr() {
+  const name = document.getElementById('newAttrName').value.trim();
+  const type = document.getElementById('newAttrType').value;
+  if (!name) return;
+  attrs.push({ name, type });
+  document.getElementById('newAttrName').value = '';
+  renderAttrs();
+  generateCode();
+}
+
+function removeAttr(i) {
+  attrs.splice(i, 1);
+  renderAttrs();
+  generateCode();
+}
+
+function renderAttrs() {
+  const el = document.getElementById('attrList');
+  el.innerHTML = attrs.map((a, i) =>
+    `<div class="item-row"><span>self.${a.name}: ${a.type}</span><button class="btn-remove" onclick="removeAttr(${i})">x</button></div>`
+  ).join('');
+}
+
+function addParentAttr() {
+  const name = document.getElementById('newParentAttr').value.trim();
+  if (!name) return;
+  parentAttrs.push(name);
+  document.getElementById('newParentAttr').value = '';
+  renderParentAttrs();
+  generateCode();
+}
+
+function removeParentAttr(i) {
+  parentAttrs.splice(i, 1);
+  renderParentAttrs();
+  generateCode();
+}
+
+function renderParentAttrs() {
+  const el = document.getElementById('parentAttrList');
+  el.innerHTML = parentAttrs.map((a, i) =>
+    `<div class="item-row"><span>${a}</span><button class="btn-remove" onclick="removeParentAttr(${i})">x</button></div>`
+  ).join('');
+}
+
+function addMethod() {
+  const name = document.getElementById('newMethodName').value.trim();
+  const type = document.getElementById('newMethodType').value;
+  if (!name) return;
+  methods.push({ name, type });
+  document.getElementById('newMethodName').value = '';
+  renderMethods();
+  generateCode();
+}
+
+function removeMethod(i) {
+  methods.splice(i, 1);
+  renderMethods();
+  generateCode();
+}
+
+function renderMethods() {
+  const el = document.getElementById('methodList');
+  const prefix = { regular: '', property: '@property ', static: '@staticmethod ', class: '@classmethod ' };
+  el.innerHTML = methods.map((m, i) =>
+    `<div class="item-row"><span>${prefix[m.type]}${m.name}()</span><button class="btn-remove" onclick="removeMethod(${i})">x</button></div>`
+  ).join('');
+}
+
+function toggleDunder(name) {
+  if (dunders.has(name)) dunders.delete(name); else dunders.add(name);
+  document.getElementById('dunderActive').textContent = dunders.size ? [...dunders].map(d => `__${d}__`).join(', ') : 'none';
+  generateCode();
+}
+
+function generateCode() {
+  const cls = document.getElementById('className').value.trim() || 'MyClass';
+  const useInherit = document.getElementById('useInheritance').checked;
+  const parent = document.getElementById('parentName').value.trim() || 'Parent';
+  const lines = [];
+
+  // Parent class
+  if (useInherit && parentAttrs.length > 0) {
+    lines.push(`<span class="kw">class</span> <span class="fn">${parent}</span>:`);
+    lines.push(`    <span class="cm">"""${parent} base class."""</span>`);
+    lines.push('');
+    const pArgs = parentAttrs.map(a => a).join(', ');
+    lines.push(`    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>, ${pArgs}):`);
+    parentAttrs.forEach(a => {
+      lines.push(`        <span class="bi">self</span>.${a} = ${a}`);
+    });
+    lines.push('');
+    lines.push('');
+  }
+
+  // Child / main class
+  const inherits = useInherit ? `(${parent})` : '';
+  lines.push(`<span class="kw">class</span> <span class="fn">${cls}</span>${inherits}:`);
+  lines.push(`    <span class="cm">"""${cls} class${useInherit ? ` — inherits from ${parent}` : ''}."""</span>`);
+  lines.push('');
+
+  // __init__
+  const allInitArgs = [];
+  if (useInherit) allInitArgs.push(...parentAttrs);
+  attrs.forEach(a => {
+    const def = getDefault(a.type);
+    if (def !== null) allInitArgs.push(`${a.name}=${def}`);
+    else allInitArgs.push(a.name);
+  });
+
+  lines.push(`    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="bi">self</span>${allInitArgs.length ? ', ' + allInitArgs.join(', ') : ''}):`);
+
+  if (useInherit && parentAttrs.length > 0) {
+    lines.push(`        <span class="kw">super</span>().__init__(${parentAttrs.join(', ')})`);
+  }
+
+  if (attrs.length === 0 && (!useInherit || parentAttrs.length === 0)) {
+    lines.push('        <span class="kw">pass</span>');
+  }
+  attrs.forEach(a => {
+    lines.push(`        <span class="bi">self</span>.${a.name} = ${a.name}`);
+  });
+  lines.push('');
+
+  // Dunder methods
+  if (dunders.has('str')) {
+    lines.push(`    <span class="kw">def</span> <span class="fn">__str__</span>(<span class="bi">self</span>):`);
+    const flds = attrs.length ? attrs.map(a => `${a.name}={<span class="bi">self</span>.${a.name}}`).join(', ') : '';
+    lines.push(`        <span class="kw">return</span> <span class="st">f"${cls}(${flds})"</span>`);
+    lines.push('');
+  }
+  if (dunders.has('repr')) {
+    lines.push(`    <span class="kw">def</span> <span class="fn">__repr__</span>(<span class="bi">self</span>):`);
+    const flds = attrs.length ? attrs.map(a => `${a.name}={<span class="bi">self</span>.${a.name}!r}`).join(', ') : '';
+    lines.push(`        <span class="kw">return</span> <span class="st">f"${cls}(${flds})"</span>`);
+    lines.push('');
+  }
+  if (dunders.has('eq')) {
+    lines.push(`    <span class="kw">def</span> <span class="fn">__eq__</span>(<span class="bi">self</span>, other):`);
+    if (attrs.length) {
+      const checks = attrs.map(a => `<span class="bi">self</span>.${a.name} == other.${a.name}`).join(' <span class="kw">and</span> ');
+      lines.push(`        <span class="kw">return</span> <span class="kw">isinstance</span>(other, ${cls}) <span class="kw">and</span> ${checks}`);
+    } else {
+      lines.push(`        <span class="kw">return</span> <span class="kw">isinstance</span>(other, ${cls})`);
+    }
+    lines.push('');
+  }
+  if (dunders.has('lt')) {
+    lines.push(`    <span class="kw">def</span> <span class="fn">__lt__</span>(<span class="bi">self</span>, other):`);
+    const firstAttr = attrs.length ? attrs[0].name : 'id';
+    lines.push(`        <span class="kw">return</span> <span class="bi">self</span>.${firstAttr} < other.${firstAttr}`);
+    lines.push('');
+  }
+  if (dunders.has('len')) {
+    lines.push(`    <span class="kw">def</span> <span class="fn">__len__</span>(<span class="bi">self</span>):`);
+    const listAttr = attrs.find(a => a.type === 'list');
+    if (listAttr) {
+      lines.push(`        <span class="kw">return</span> <span class="kw">len</span>(<span class="bi">self</span>.${listAttr.name})`);
+    } else {
+      lines.push(`        <span class="kw">return</span> 0  <span class="cm"># TODO: implement</span>`);
+    }
+    lines.push('');
+  }
+
+  // Custom methods
+  methods.forEach(m => {
+    if (m.type === 'property') {
+      lines.push(`    <span class="dc">@property</span>`);
+      lines.push(`    <span class="kw">def</span> <span class="fn">${m.name}</span>(<span class="bi">self</span>):`);
+      lines.push(`        <span class="cm">"""Computed property."""</span>`);
+      lines.push(`        <span class="kw">pass</span>  <span class="cm"># TODO: implement</span>`);
+    } else if (m.type === 'static') {
+      lines.push(`    <span class="dc">@staticmethod</span>`);
+      lines.push(`    <span class="kw">def</span> <span class="fn">${m.name}</span>():`);
+      lines.push(`        <span class="cm">"""Static utility method."""</span>`);
+      lines.push(`        <span class="kw">pass</span>  <span class="cm"># TODO: implement</span>`);
+    } else if (m.type === 'class') {
+      lines.push(`    <span class="dc">@classmethod</span>`);
+      lines.push(`    <span class="kw">def</span> <span class="fn">${m.name}</span>(<span class="bi">cls</span>, data):`);
+      lines.push(`        <span class="cm">"""Factory / class-level method."""</span>`);
+      lines.push(`        <span class="kw">return</span> <span class="bi">cls</span>(**data)`);
+    } else {
+      lines.push(`    <span class="kw">def</span> <span class="fn">${m.name}</span>(<span class="bi">self</span>):`);
+      lines.push(`        <span class="cm">"""Method description."""</span>`);
+      lines.push(`        <span class="kw">pass</span>  <span class="cm"># TODO: implement</span>`);
+    }
+    lines.push('');
+  });
+
+  // Usage example
+  lines.push('');
+  lines.push(`<span class="cm"># --- Usage Example ---</span>`);
+  const exArgs = [];
+  if (useInherit) parentAttrs.forEach(a => exArgs.push(`<span class="st">"value"</span>`));
+  attrs.forEach(a => {
+    const v = {str:'"value"', int:'0', float:'0.0', bool:'True', list:'[]', dict:'{}'}[a.type] || '"value"';
+    exArgs.push(`<span class="st">${v}</span>`);
+  });
+  lines.push(`obj = ${cls}(${exArgs.join(', ')})`);
+  lines.push(`<span class="kw">print</span>(obj)`);
+
+  document.getElementById('codeOutput').innerHTML = lines.join('\n');
+  updateDiagram(cls, useInherit ? parent : null);
+}
+
+function getDefault(type) {
+  const defaults = { list: '[]', dict: '{}', bool: 'True' };
+  return defaults[type] || null;
+}
+
+function updateDiagram(cls, parent) {
+  const d = document.getElementById('diagram');
+  let attrText = '';
+  if (parent) {
+    parentAttrs.forEach(a => attrText += `${a}\n`);
+  }
+  attrs.forEach(a => attrText += `${a.name}: ${a.type}\n`);
+  const methodText = methods.map(m => `${m.name}()`).join('\n') || '';
+  const allText = (attrText + methodText).trim() || 'No members yet';
+
+  let html = '';
+  if (parent) {
+    let parentText = parentAttrs.map(a => a).join('\n') || 'No attributes';
+    html += `<div class="class-box parent"><div class="cname">${parent}</div><div class="attrs">${esc(parentText)}</div></div>`;
+    html += `<div class="arrow">&#9660; inherits</div>`;
+  }
+  html += `<div class="class-box"><div class="cname">${cls}</div><div class="attrs">${esc(allText)}</div></div>`;
+  d.innerHTML = html;
+}
+
+function esc(s) { return s.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+
+function copyCode() {
+  const code = document.getElementById('codeOutput').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+function loadExample() {
+  resetAll();
+  document.getElementById('className').value = 'Student';
+  document.getElementById('useInheritance').checked = true;
+  document.getElementById('parentFields').style.display = 'block';
+  document.getElementById('parentName').value = 'Person';
+  parentAttrs = ['name', 'city'];
+  renderParentAttrs();
+  attrs = [
+    {name:'course',type:'str'},
+    {name:'fee',type:'float'},
+    {name:'marks',type:'list'},
+  ];
+  renderAttrs();
+  methods = [
+    {name:'average',type:'regular'},
+    {name:'fee_with_gst',type:'property'},
+    {name:'from_dict',type:'class'},
+  ];
+  renderMethods();
+  dunders = new Set(['str','repr']);
+  document.getElementById('dunderActive').textContent = '__str__, __repr__';
+  generateCode();
+}
+
+function resetAll() {
+  attrs = []; parentAttrs = []; methods = []; dunders = new Set();
+  document.getElementById('className').value = 'MyClass';
+  document.getElementById('useInheritance').checked = false;
+  document.getElementById('parentFields').style.display = 'none';
+  document.getElementById('parentName').value = 'Parent';
+  document.getElementById('newParentAttr').value = '';
+  document.getElementById('dunderActive').textContent = 'none';
+  renderAttrs(); renderParentAttrs(); renderMethods();
+  generateCode();
+}
+
+generateCode();
+</script>
+</body>
+</html>

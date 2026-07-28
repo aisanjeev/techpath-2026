@@ -1,0 +1,245 @@
+# =============================================================================
+# render.yaml — Complete Render Deployment Configuration
+# =============================================================================
+#
+# This file tells Render how to build, run, and connect all parts of your app.
+# Place this file in the ROOT of your GitHub repository.
+#
+# Think of it like a recipe card:
+#   - What ingredients (services) do you need?
+#   - How do you cook (build) each one?
+#   - What spices (environment variables) go where?
+#
+# Example: Deploying "TechPath API" — a FastAPI backend for
+# TechPath Institute's student management system (Bhopal campus).
+#
+# Official Docs: https://render.com/docs/yaml-spec
+# =============================================================================
+
+
+# =============================================================================
+# SERVICES — Define all the apps/services you want to deploy
+# =============================================================================
+services:
+
+  # ---------------------------------------------------------------------------
+  # Service 1: FastAPI Web Application
+  # ---------------------------------------------------------------------------
+  # This is your main backend API that handles student enrollments,
+  # course listings, and trainer management for TechPath Institute.
+  # ---------------------------------------------------------------------------
+  - type: web                          # "web" = a service that handles HTTP requests
+    name: techpath-api                 # Name shown in Render dashboard
+                                        # Your app URL will be: https://techpath-api.onrender.com
+    runtime: python                    # Render will use Python to run this service
+    region: singapore                  # Closest region to India for low latency
+                                        # Options: oregon, ohio, singapore, frankfurt
+
+    # -------------------------------------------------------------------------
+    # Build Configuration
+    # -------------------------------------------------------------------------
+    # These commands run ONCE when Render builds your app (like setting up
+    # the kitchen before cooking).
+    # -------------------------------------------------------------------------
+    buildCommand: |
+      pip install -r requirements.txt
+      python -m alembic upgrade head
+    # Line 1: Install all Python packages (FastAPI, SQLAlchemy, etc.)
+    # Line 2: Run database migrations (create/update tables)
+    #         This ensures your database schema is always up to date.
+
+    # -------------------------------------------------------------------------
+    # Start Command
+    # -------------------------------------------------------------------------
+    # This command runs your app. It starts AFTER the build is complete.
+    # Think of this as "turning on the stove."
+    # -------------------------------------------------------------------------
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # uvicorn          = The ASGI server that runs FastAPI
+    # app.main:app     = Import the "app" object from app/main.py
+    # --host 0.0.0.0   = Listen on all network interfaces (required for Render)
+    # --port $PORT     = Render assigns a random port via this environment variable
+    #                    DO NOT hardcode a port number here!
+
+    # -------------------------------------------------------------------------
+    # Health Check
+    # -------------------------------------------------------------------------
+    # Render pings this URL to check if your app is alive.
+    # If it does not respond with 200 OK, Render marks the deploy as failed.
+    # Always create a /health endpoint in your FastAPI app!
+    # -------------------------------------------------------------------------
+    healthCheckPath: /health
+
+    # -------------------------------------------------------------------------
+    # Plan (Pricing)
+    # -------------------------------------------------------------------------
+    # "free" = ₹0/month but the app sleeps after 15 min of no traffic
+    # "starter" = ~₹500/month, always running, no sleep
+    # For learning/portfolio: use "free"
+    # For production (TechPath Institute's live system): use "starter" or higher
+    # -------------------------------------------------------------------------
+    plan: free
+
+    # -------------------------------------------------------------------------
+    # Auto-Deploy
+    # -------------------------------------------------------------------------
+    # When set to "yes", every push to the connected branch triggers a new
+    # deployment automatically. Like a magic button — push code, app updates!
+    # -------------------------------------------------------------------------
+    autoDeploy: "yes"                  # "yes" or "no" (must be a string)
+
+    # -------------------------------------------------------------------------
+    # Branch
+    # -------------------------------------------------------------------------
+    # Which Git branch to deploy from.
+    # Common setup:
+    #   main     → production deployment
+    #   develop  → staging deployment (separate Render service)
+    # -------------------------------------------------------------------------
+    branch: main
+
+    # -------------------------------------------------------------------------
+    # Environment Variables
+    # -------------------------------------------------------------------------
+    # These are like secret notes passed to your app at runtime.
+    # NEVER put passwords directly here — use Render's dashboard for secrets.
+    # -------------------------------------------------------------------------
+    envVars:
+
+      # The database URL — tells your app where to find its database.
+      # "fromDatabase" links this to the database defined below.
+      # Render fills in the actual URL automatically — you do not need
+      # to copy-paste any passwords!
+      - key: DATABASE_URL
+        fromDatabase:
+          name: techpath-db            # Must match the database name below
+          property: connectionURI       # Gives the full postgresql:// URL
+
+      # A secret key for signing JWT tokens (authentication).
+      # "generateValue: true" makes Render create a random secure string.
+      # This is safer than making up your own password!
+      - key: SECRET_KEY
+        generateValue: true            # Render generates a random 64-char string
+
+      # App environment — tells your code whether it is running in
+      # development, staging, or production.
+      - key: APP_ENV
+        value: production
+
+      # CORS origins — which frontend URLs are allowed to call your API.
+      # In production, restrict this to your actual frontend domain.
+      # Example: Priya's React frontend at techpath.vercel.app
+      - key: CORS_ORIGINS
+        value: "https://techpath.vercel.app,https://techpath.biz"
+
+      # Logging level — "INFO" shows normal logs, "DEBUG" shows everything.
+      # Use "INFO" in production to avoid log clutter.
+      - key: LOG_LEVEL
+        value: INFO
+
+      # Storage type — where uploaded files are stored.
+      # "local" = on the server's disk (fine for free tier)
+      # "azure" = Azure Blob Storage (better for production)
+      - key: STORAGE_TYPE
+        value: local
+
+    # -------------------------------------------------------------------------
+    # Scaling (paid plans only)
+    # -------------------------------------------------------------------------
+    # numInstances: 1                  # How many copies of your app to run
+                                        # More instances = handles more users
+                                        # Free plan: always 1
+
+
+# =============================================================================
+# DATABASES — Define databases your app needs
+# =============================================================================
+databases:
+
+  # ---------------------------------------------------------------------------
+  # Database: PostgreSQL for TechPath Institute
+  # ---------------------------------------------------------------------------
+  # This creates a managed PostgreSQL database on Render.
+  # Render handles backups, updates, and security — you just use it!
+  #
+  # Free tier: 256 MB storage, 90 days, then it gets deleted.
+  # For production: upgrade to "starter" (₹500/month) or higher.
+  #
+  # Analogy: Think of this as renting a locker at the railway station.
+  # Free locker = available for 90 days. Paid locker = keep it forever.
+  # ---------------------------------------------------------------------------
+  - name: techpath-db                  # Name used to reference this database
+    databaseName: techpath_prod        # The actual database name inside PostgreSQL
+    user: techpath_admin               # Database username
+    region: singapore                  # Same region as your web service for speed!
+
+    # -------------------------------------------------------------------------
+    # Plan
+    # -------------------------------------------------------------------------
+    # "free"    = 256 MB, expires in 90 days (good for learning)
+    # "starter" = 1 GB, ~₹500/month (good for small production apps)
+    # "standard"= 10 GB+, ~₹3,500/month (good for growing apps)
+    # -------------------------------------------------------------------------
+    plan: free
+
+    # -------------------------------------------------------------------------
+    # PostgreSQL Version
+    # -------------------------------------------------------------------------
+    # Always use the latest stable version unless your code needs an older one.
+    # -------------------------------------------------------------------------
+    ipAllowList: []                    # Empty = allow connections from Render services only
+                                        # This is secure — no external access to your database
+
+
+# =============================================================================
+# HOW TO USE THIS FILE
+# =============================================================================
+#
+# Step 1: Save this file as "render.yaml" in your project root:
+#
+#   techpath-api/
+#   ├── app/
+#   │   ├── __init__.py
+#   │   └── main.py
+#   ├── requirements.txt
+#   ├── render.yaml          ← This file goes here
+#   └── alembic/
+#       └── versions/
+#
+# Step 2: Make sure your FastAPI app has a health check:
+#
+#   @app.get("/health")
+#   async def health():
+#       return {"status": "healthy", "app": "TechPath API"}
+#
+# Step 3: Push to GitHub:
+#   git add .
+#   git commit -m "Add Render deployment config"
+#   git push origin main
+#
+# Step 4: Go to https://render.com
+#   → New → Blueprint
+#   → Connect your GitHub repo
+#   → Render reads render.yaml and creates everything automatically!
+#
+# Step 5: Wait 2-3 minutes for the build to complete.
+#   Your API is live at: https://techpath-api.onrender.com
+#   Health check: https://techpath-api.onrender.com/health
+#
+# =============================================================================
+#
+# TROUBLESHOOTING (common issues Vikram from Pune faced):
+#
+# Problem: "Build failed — No module named 'uvicorn'"
+# Fix:     Add "uvicorn[standard]" to requirements.txt
+#
+# Problem: "Health check failed"
+# Fix:     Make sure you have a /health endpoint that returns 200 OK
+#
+# Problem: "Database connection refused"
+# Fix:     Check that DATABASE_URL env var is set (fromDatabase auto-fills it)
+#
+# Problem: "App crashes on start"
+# Fix:     Check the Logs tab in Render dashboard for the error message
+#
+# =============================================================================

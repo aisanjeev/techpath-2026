@@ -1,0 +1,49 @@
+{
+  "title": "Technical SEO Audit Using Free Tools",
+  "module": 3,
+  "duration": "120 minutes",
+  "difficulty": "Intermediate",
+  "description": "In this lab, you will perform a complete technical SEO audit of a real website using only free tools. You will crawl the site, check Core Web Vitals, validate technical files, test mobile-friendliness, and produce a professional audit report with actionable recommendations.",
+  "prerequisites": [
+    "Download Screaming Frog SEO Spider (free version - 500 URL limit) from screamingfrog.co.uk",
+    "Google Chrome browser with DevTools",
+    "Access to a website to audit (your own or any public website with under 500 pages)",
+    "Google account for PageSpeed Insights"
+  ],
+  "steps": [
+    {
+      "title": "Run Screaming Frog Crawl (Free 500 URL Limit)",
+      "instructions": "Open Screaming Frog SEO Spider. Enter the website URL and click Start. While the crawl runs (it may take 5-15 minutes depending on site size), configure the following: go to Configuration > Spider > check 'Crawl All Subdomains' and 'Follow Internal Nofollow'. Once the crawl completes, analyze these tabs: (1) INTERNAL tab — note total pages found, filter by HTML pages only. (2) RESPONSE CODES — filter by 4xx (client errors) and 5xx (server errors). Document all broken pages. (3) PAGE TITLES — filter by 'Missing' and 'Duplicate'. Document pages without title tags or with duplicate titles. (4) META DESCRIPTIONS — filter by 'Missing' and 'Duplicate'. (5) H1 — filter by 'Missing' and 'Multiple'. (6) IMAGES — filter by 'Missing Alt Text'. Count total images without alt text. Export each filtered list. Create a summary table: Total pages crawled, Pages with errors (4xx/5xx), Missing titles, Missing meta descriptions, Missing H1s, Images without alt text."
+    },
+    {
+      "title": "Check Core Web Vitals with PageSpeed Insights",
+      "instructions": "Go to pagespeed.web.dev. Test the TOP 5 most important pages of your audited website (homepage + 4 key pages like services, about, contact, blog). For EACH page, document: (1) Performance Score (0-100) for both Mobile and Desktop. (2) LCP value and status (Good/Needs Improvement/Poor) — note what element is the LCP element. (3) INP value (if available in field data). (4) CLS value and what is causing layout shifts. (5) Top 3 recommendations from the 'Opportunities' section. Create a table with all 5 pages and their scores. Identify the WORST performing page and write 5 specific, actionable recommendations to fix it. Example: 'The hero image on the homepage (banner.jpg, 2.4MB) is causing LCP of 4.2s. Recommendation: Compress to WebP format (target 200KB), add width/height attributes, implement lazy loading for below-fold images.'"
+    },
+    {
+      "title": "Validate robots.txt and XML Sitemap",
+      "instructions": "ROBOTS.TXT: Navigate to [website-url]/robots.txt in your browser. Document: (1) Does it exist? (2) What User-agents are specified? (3) What paths are Disallowed? (4) Are any important pages accidentally blocked? (5) Is a Sitemap URL referenced? If robots.txt does not exist, note this as a critical issue. XML SITEMAP: Navigate to [website-url]/sitemap.xml (also try /sitemap_index.xml). Document: (1) Does it exist? (2) How many URLs are listed? (3) Are all important pages included? Cross-reference with Screaming Frog crawl — find pages in the sitemap that return 404 (broken) and pages that are indexed but missing from sitemap. (4) Are lastmod dates recent or outdated? (5) Validate the sitemap format at xml-sitemaps.com/validate-xml-sitemap.html. Check Google Search Console (if you have access) — go to Sitemaps section and note submission status. Create a table of findings with severity (Critical/Warning/Info) for each issue found."
+    },
+    {
+      "title": "Test Mobile Friendliness and HTTPS",
+      "instructions": "MOBILE TEST: Open Chrome DevTools (F12) > toggle Device Toolbar (Ctrl+Shift+M). Test the site on these viewports: iPhone SE (375px), iPhone 14 (390px), iPad (768px). For each viewport, check: (1) Is all text readable without zooming? (2) Are buttons/links large enough to tap (minimum 48x48px)? (3) Is there any horizontal scrolling? (4) Do images resize properly? (5) Is the navigation menu accessible? Document any issues with screenshots. HTTPS TEST: (1) Does the site use HTTPS? Check for padlock icon. (2) Try accessing http:// version — does it redirect to https://? (3) Open DevTools > Console — check for 'Mixed Content' warnings (HTTP resources loaded on HTTPS page). (4) Check SSL certificate validity at ssllabs.com/ssltest/ — note the grade (A/B/C/D/F). (5) Check security headers at securityheaders.com — document which headers are present (X-Frame-Options, Content-Security-Policy, etc.). Create a pass/fail table for each check."
+    },
+    {
+      "title": "Generate Audit Report with Recommendations",
+      "instructions": "Compile all findings from Steps 1-4 into a professional Technical SEO Audit Report. Use this structure: EXECUTIVE SUMMARY (5 lines: overall health score out of 100, critical issues count, top 3 priorities). SECTION 1 — CRAWL HEALTH: Issues found in Screaming Frog (broken links, missing meta, duplicate content). SECTION 2 — PERFORMANCE: Core Web Vitals summary, worst pages, key bottlenecks. SECTION 3 — TECHNICAL FILES: robots.txt and sitemap status, issues found. SECTION 4 — MOBILE & SECURITY: Mobile-friendliness issues, HTTPS/SSL status. PRIORITIZED RECOMMENDATIONS: Create a table with columns: Priority (P1/P2/P3), Issue, Impact (High/Medium/Low), Effort (Easy/Medium/Hard), Recommendation. List at least 15 recommendations sorted by priority. P1 = Critical issues affecting indexing/ranking. P2 = Important issues affecting user experience. P3 = Nice-to-have improvements. End with an 'Estimated Impact' section — predict what fixing P1 issues could improve (e.g., 'Fixing 12 broken links and adding missing title tags to 8 pages should improve crawl efficiency by approximately 15% and may recover lost rankings for those pages within 4-6 weeks.')."
+    }
+  ],
+  "deliverables": [
+    "Screaming Frog crawl export (CSV or Excel)",
+    "Core Web Vitals comparison table for 5 pages",
+    "robots.txt and sitemap analysis document",
+    "Mobile and HTTPS test results with screenshots",
+    "Final Technical SEO Audit Report (Google Doc, 5-8 pages)"
+  ],
+  "assessment_criteria": [
+    "Crawl analysis identifies all major technical issues",
+    "Core Web Vitals tested on multiple pages with specific fix recommendations",
+    "robots.txt and sitemap properly validated with cross-referencing",
+    "Mobile and security tests are thorough with evidence (screenshots)",
+    "Final report is professional, actionable, and properly prioritized"
+  ]
+}

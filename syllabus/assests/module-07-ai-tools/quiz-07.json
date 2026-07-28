@@ -1,0 +1,76 @@
+{
+  "questions": [
+    {
+      "question": "Which AI tool is best for creating presentations from text?",
+      "options": ["ChatGPT", "Gamma", "Remove.bg", "ElevenLabs"],
+      "correct_index": 1,
+      "explanation": "Gamma (gamma.app) is specifically designed for AI-generated presentations. Describe your topic and it creates complete slides."
+    },
+    {
+      "question": "What is Perplexity AI best used for?",
+      "options": ["Generating images", "Research with citations and sources", "Video editing", "Code writing"],
+      "correct_index": 1,
+      "explanation": "Perplexity is an AI search engine that always provides citations and sources — great for research and fact-checking."
+    },
+    {
+      "question": "Which technique tells AI to act as a specific expert?",
+      "options": ["Chain prompting", "Role prompting", "Zero-shot", "Template prompting"],
+      "correct_index": 1,
+      "explanation": "Role prompting: 'Act as a senior web developer and review my code.' Gives AI a specific expertise perspective."
+    },
+    {
+      "question": "What is the best format to save a logo designed in Canva?",
+      "options": ["JPG", "PNG", "SVG or PNG with transparent background", "GIF"],
+      "correct_index": 2,
+      "explanation": "SVG is best for logos (scalable, never blurry). PNG with transparent background is the next best option."
+    },
+    {
+      "question": "What makes a good AI image prompt?",
+      "options": ["Just the subject name", "Subject + style + details + mood + lighting", "Very long paragraphs", "Only using keywords"],
+      "correct_index": 1,
+      "explanation": "Good image prompts include: Subject (what), Style (art/photo/3D), Details (specifics), Mood (feeling), and Lighting."
+    },
+    {
+      "question": "What is chain prompting?",
+      "options": ["Sending one very long prompt", "Breaking complex tasks into step-by-step prompts", "Using multiple AI tools together", "Copying prompts from others"],
+      "correct_index": 1,
+      "explanation": "Chain prompting breaks a complex task into smaller sequential prompts — each step builds on the previous one."
+    },
+    {
+      "question": "Which tool removes image backgrounds with one click?",
+      "options": ["ChatGPT", "Canva / Remove.bg", "Grammarly", "GitHub Copilot"],
+      "correct_index": 1,
+      "explanation": "Both Canva (Background Remover feature) and Remove.bg can remove image backgrounds with one click."
+    },
+    {
+      "question": "What should you always do before submitting AI-generated content?",
+      "options": ["Nothing, AI is always correct", "Review, edit, and personalize it", "Add more AI content", "Delete it and start over"],
+      "correct_index": 1,
+      "explanation": "Always review and edit AI output. Add your own voice, check facts, and personalize before using it."
+    },
+    {
+      "question": "GitHub Copilot is an AI tool for:",
+      "options": ["Writing emails", "Auto-completing and suggesting code", "Creating images", "Video editing"],
+      "correct_index": 1,
+      "explanation": "GitHub Copilot is an AI coding assistant that auto-completes code, suggests functions, and helps write code in VS Code."
+    },
+    {
+      "question": "What is Canva's Magic Design feature?",
+      "options": ["A photo filter", "AI that creates a complete design from your description", "A drawing tool", "An animation feature"],
+      "correct_index": 1,
+      "explanation": "Magic Design lets you describe what you want and Canva's AI creates a complete design with layout, colors, and images."
+    },
+    {
+      "question": "For AI image generation, 'bokeh' refers to:",
+      "options": ["A color style", "Blurred background effect in photography", "A type of camera", "A drawing technique"],
+      "correct_index": 1,
+      "explanation": "Bokeh is the blurred background effect in photography. Adding 'bokeh' to image prompts creates a professional photo look."
+    },
+    {
+      "question": "Which is NOT a good practice when using AI tools?",
+      "options": ["Verifying AI-generated facts", "Using AI to learn new concepts", "Copy-pasting AI output without reviewing", "Breaking tasks into smaller prompts"],
+      "correct_index": 2,
+      "explanation": "Never copy-paste AI output without reviewing. Always check for errors, add your perspective, and personalize the content."
+    }
+  ]
+}

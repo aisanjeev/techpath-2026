@@ -1,0 +1,30 @@
+{
+  "asset_type": "lab",
+  "title": "Setting Up Email and Composing Messages",
+  "description": "Create a Gmail account and practice composing professional emails with CC, BCC, and attachments",
+  "tags": ["email", "gmail", "compose", "cc-bcc", "ccc-exam"],
+  "status": "draft",
+  "objective": "Students will create a Gmail account, compose and send professional emails using To, CC, and BCC fields, and send emails with attachments.",
+  "steps": [
+    {
+      "title": "Create a Gmail Account",
+      "instructions": "1. Open **Google Chrome** and navigate to **www.gmail.com**\n2. Click **Create account** and select **For my personal use**\n3. Fill in the required information:\n   - **First name:** Your first name\n   - **Last name:** Your last name\n   - **Username:** Choose a unique username (e.g., `yourname.ccc2026`)\n   - **Password:** Create a strong password with at least 8 characters (mix uppercase, lowercase, numbers, and symbols)\n4. Click **Next** and add your **mobile number** for account recovery\n5. Enter your **date of birth** and **gender**\n6. Read and accept the **Terms of Service** and **Privacy Policy**\n7. Your Gmail account is now ready!\n\n**Note:** Write down your email address and password in a safe place. Your email address format will be: `yourname.ccc2026@gmail.com`\n\n**CCC Exam Fact:** To create a Gmail account, you need a username, password, phone number, and date of birth."
+    },
+    {
+      "title": "Compose and Send a Formal Email",
+      "instructions": "1. In Gmail, click the **Compose** button (top-left corner)\n2. A new message window will appear at the bottom-right\n3. Fill in the following fields:\n   - **To:** Your trainer's email address\n   - **Subject:** `CCC Lab 07A - Email Practice - [Your Name]`\n4. In the **Body**, write a formal email:\n\n```\nRespected Sir/Ma'am,\n\nI am [Your Name], a student of the CCC Exam Preparation batch \nat TechPath Institute, Bhopal.\n\nThis is my first email as part of Lab Exercise 07A. I have \nsuccessfully created my Gmail account and I am now practicing \nemail composition.\n\nThank you for your guidance.\n\nRegards,\n[Your Name]\nCCC Batch 2026\nTechPath Institute\n```\n\n5. Review the email for spelling mistakes\n6. Click **Send**\n7. Go to the **Sent** folder (left sidebar) and verify the email appears there\n\n**CCC Exam Fact:** Sent emails are automatically saved in the **Sent Mail** folder."
+    },
+    {
+      "title": "Practice CC and BCC",
+      "instructions": "1. Click **Compose** to start a new email\n2. In the **To** field, enter your own email address\n3. Click **CC** (appears next to the To field) and enter a classmate's email address\n4. Click **BCC** and enter your trainer's email address\n5. **Subject:** `CC and BCC Practice - [Your Name]`\n6. **Body:** Write a short message explaining:\n   - Who is in the To field and why\n   - Who is in the CC field and what CC means (Carbon Copy)\n   - Who is in the BCC field and what BCC means (Blind Carbon Copy)\n   - Mention that BCC recipients are hidden from other recipients\n7. Click **Send**\n8. Open the received email in your **Inbox**\n9. **Observe:** Can you see the CC recipient? (Yes) Can you see the BCC recipient? (No)\n\n**Key Learning:** CC recipients are visible to all. BCC recipients are invisible to everyone except the sender.\n\n**CCC Exam Fact:** BCC stands for Blind Carbon Copy. BCC recipients are hidden from all other recipients."
+    },
+    {
+      "title": "Send an Email with Attachment",
+      "instructions": "1. First, create a file to attach:\n   - Open **Notepad** (Start Menu → search for Notepad)\n   - Type the following:\n   ```\n   Name: [Your Name]\n   Course: CCC Exam Preparation\n   Institute: TechPath Institute, Bhopal\n   Module: 07 - Email and Collaboration\n   Date: [Today's date]\n   ```\n   - Save the file on your **Desktop** as `my_profile.txt` (File → Save As → Desktop → my_profile.txt)\n2. Go back to Gmail and click **Compose**\n3. **To:** Your trainer's email address\n4. **Subject:** `Attachment Practice - [Your Name]`\n5. **Body:** Write: \"Please find my profile document attached with this email.\"\n6. Click the **paperclip icon** (Attach files) at the bottom of the compose window\n7. Navigate to Desktop, select `my_profile.txt`, and click **Open**\n8. Wait for the file to upload (you will see the filename appear below the subject line)\n9. Click **Send**\n\n**CCC Exam Fact:** The maximum attachment size in Gmail is **25 MB**. If the file is larger, Gmail uses Google Drive to share it."
+    },
+    {
+      "title": "Reply and Forward Emails",
+      "instructions": "1. Open the email you received from yourself (the CC/BCC practice email)\n2. Click the **Reply** button (curved arrow at the bottom of the email)\n   - Notice the **Re:** prefix is added to the subject line\n   - Notice the reply goes to the **original sender only** (not CC recipients)\n   - Type: \"This is my reply to practice the Reply function.\"\n   - Click **Send**\n3. Open the same email again\n4. Click the **Forward** button (arrow pointing right)\n   - Notice the **Fwd:** prefix is added to the subject line\n   - In the **To** field, enter another classmate's email address\n   - Add a message above the forwarded content: \"Forwarding this email for your reference.\"\n   - Click **Send**\n5. Go to the **Sent** folder and verify both the reply and forwarded emails appear\n6. Check for the **Re:** and **Fwd:** prefixes in the subject lines\n\n**CCC Exam Fact:**\n- **Reply** sends to the original sender only (prefix: Re:)\n- **Reply All** sends to the sender AND all CC recipients\n- **Forward** sends the email to a new person (prefix: Fwd:)"
+    }
+  ]
+}

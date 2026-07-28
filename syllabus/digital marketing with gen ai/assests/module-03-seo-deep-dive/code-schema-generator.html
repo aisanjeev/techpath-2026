@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schema Markup Generator — TechPath Academy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #1a1a2e;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+            font-size: 1.8rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+        .schema-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .schema-btn {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .schema-btn:hover { border-color: #4361ee; color: #4361ee; }
+        .schema-btn.active {
+            background: #4361ee;
+            color: white;
+            border-color: #4361ee;
+        }
+        .form-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .form-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #1a1a2e;
+            border-bottom: 2px solid #4361ee;
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: #444;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 10px 12px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4361ee;
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .btn-generate {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #4361ee;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+        .btn-generate:hover { background: #3451d1; }
+        .output-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: none;
+        }
+        .output-section.visible { display: block; }
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .output-header h2 {
+            font-size: 1.2rem;
+            color: #1a1a2e;
+        }
+        .btn-copy {
+            padding: 8px 16px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .btn-copy:hover { background: #059669; }
+        .btn-copy.copied { background: #6b7280; }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .code-block .key { color: #7dd3fc; }
+        .code-block .string { color: #86efac; }
+        .code-block .bracket { color: #fbbf24; }
+        .validation-msg {
+            margin-top: 15px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .validation-msg.success {
+            display: block;
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+        .validation-msg.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        .faq-pair {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .faq-pair h4 {
+            font-size: 0.85rem;
+            color: #4361ee;
+            margin-bottom: 8px;
+        }
+        .add-btn {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: 1px dashed #999;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 10px;
+        }
+        .add-btn:hover { background: #e8e8e8; }
+        .remove-btn {
+            float: right;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 4px;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .howto-step { margin-bottom: 10px; }
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .schema-selector { flex-direction: column; align-items: stretch; }
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Schema Markup Generator</h1>
+        <p class="subtitle">TechPath Academy — Generate valid JSON-LD structured data for rich results</p>
+
+        <div class="schema-selector">
+            <button class="schema-btn active" onclick="selectSchema('LocalBusiness')">LocalBusiness</button>
+            <button class="schema-btn" onclick="selectSchema('Article')">Article</button>
+            <button class="schema-btn" onclick="selectSchema('FAQ')">FAQ</button>
+            <button class="schema-btn" onclick="selectSchema('Product')">Product</button>
+            <button class="schema-btn" onclick="selectSchema('HowTo')">HowTo</button>
+        </div>
+
+        <div class="form-section">
+            <h2 id="form-title">LocalBusiness Schema</h2>
+            <div id="form-container"></div>
+            <button class="btn-generate" onclick="generateSchema()">Generate JSON-LD</button>
+        </div>
+
+        <div class="output-section" id="output-section">
+            <div class="output-header">
+                <h2>Generated JSON-LD</h2>
+                <button class="btn-copy" id="copy-btn" onclick="copyCode()">Copy Code</button>
+            </div>
+            <div class="code-block" id="code-output"></div>
+            <div class="validation-msg" id="validation-msg"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentSchema = 'LocalBusiness';
+        let faqCount = 2;
+        let stepCount = 3;
+
+        const forms = {
+            LocalBusiness: `
+                <div class="form-grid">
+                    <div class="form-group"><label>Business Name *</label><input type="text" id="lb-name" placeholder="TechPath Academy Bhopal"></div>
+                    <div class="form-group"><label>Business Type</label><select id="lb-type"><option>LocalBusiness</option><option>EducationalOrganization</option><option>Store</option><option>Restaurant</option><option>MedicalBusiness</option><option>FinancialService</option><option>LegalService</option></select></div>
+                    <div class="form-group full-width"><label>Description *</label><textarea id="lb-desc" placeholder="IT Training Institute offering Digital Marketing, Web Development courses"></textarea></div>
+                    <div class="form-group"><label>Street Address *</label><input type="text" id="lb-street" placeholder="123 MP Nagar, Zone 2"></div>
+                    <div class="form-group"><label>City *</label><input type="text" id="lb-city" placeholder="Bhopal"></div>
+                    <div class="form-group"><label>State</label><input type="text" id="lb-state" placeholder="Madhya Pradesh"></div>
+                    <div class="form-group"><label>Pin Code</label><input type="text" id="lb-pin" placeholder="462011"></div>
+                    <div class="form-group"><label>Phone Number</label><input type="text" id="lb-phone" placeholder="+91-7000-123456"></div>
+                    <div class="form-group"><label>Website URL</label><input type="url" id="lb-url" placeholder="https://techpath.biz"></div>
+                    <div class="form-group"><label>Opening Hours</label><input type="text" id="lb-hours" placeholder="Mo-Sa 09:00-18:00"></div>
+                    <div class="form-group"><label>Price Range</label><select id="lb-price"><option value="$">Budget (₹)</option><option value="$$" selected>Moderate (₹₹)</option><option value="$$$">Premium (₹₹₹)</option></select></div>
+                    <div class="form-group"><label>Latitude</label><input type="text" id="lb-lat" placeholder="23.2332"></div>
+                    <div class="form-group"><label>Longitude</label><input type="text" id="lb-lng" placeholder="77.4343"></div>
+                </div>
+            `,
+            Article: `
+                <div class="form-grid">
+                    <div class="form-group full-width"><label>Article Headline *</label><input type="text" id="art-headline" placeholder="Complete Guide to SEO for Beginners in 2026"></div>
+                    <div class="form-group"><label>Author Name *</label><input type="text" id="art-author" placeholder="Rahul Sharma"></div>
+                    <div class="form-group"><label>Publisher Name *</label><input type="text" id="art-publisher" placeholder="TechPath Academy"></div>
+                    <div class="form-group"><label>Date Published *</label><input type="date" id="art-published"></div>
+                    <div class="form-group"><label>Date Modified</label><input type="date" id="art-modified"></div>
+                    <div class="form-group full-width"><label>Description</label><textarea id="art-desc" placeholder="Learn SEO from scratch. Complete guide covering on-page, off-page, and technical SEO."></textarea></div>
+                    <div class="form-group"><label>Article Image URL</label><input type="url" id="art-image" placeholder="https://techpath.biz/blog/cover.jpg"></div>
+                    <div class="form-group"><label>Publisher Logo URL</label><input type="url" id="art-logo" placeholder="https://techpath.biz/logo.png"></div>
+                </div>
+            `,
+            FAQ: `
+                <div id="faq-container">
+                    <div class="faq-pair" id="faq-1">
+                        <h4>Question 1</h4>
+                        <div class="form-grid">
+                            <div class="form-group full-width"><label>Question *</label><input type="text" class="faq-q" placeholder="What is the fee for the Digital Marketing course?"></div>
+                            <div class="form-group full-width"><label>Answer *</label><textarea class="faq-a" placeholder="The 6-month Digital Marketing course costs ₹45,000 with EMI options available."></textarea></div>
+                        </div>
+                    </div>
+                    <div class="faq-pair" id="faq-2">
+                        <h4>Question 2 <button class="remove-btn" onclick="removeFaq(2)">Remove</button></h4>
+                        <div class="form-grid">
+                            <div class="form-group full-width"><label>Question *</label><input type="text" class="faq-q" placeholder="Is placement assistance provided?"></div>
+                            <div class="form-group full-width"><label>Answer *</label><textarea class="faq-a" placeholder="Yes, we provide 100% placement assistance with 500+ hiring partners."></textarea></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="add-btn" onclick="addFaq()">+ Add Another Question</button>
+            `,
+            Product: `
+                <div class="form-grid">
+                    <div class="form-group"><label>Product Name *</label><input type="text" id="prod-name" placeholder="Digital Marketing Course"></div>
+                    <div class="form-group"><label>Brand</label><input type="text" id="prod-brand" placeholder="TechPath Academy"></div>
+                    <div class="form-group full-width"><label>Description *</label><textarea id="prod-desc" placeholder="6-month comprehensive Digital Marketing course with AI tools, live projects, and placement assistance."></textarea></div>
+                    <div class="form-group"><label>Price (₹) *</label><input type="number" id="prod-price" placeholder="45000"></div>
+                    <div class="form-group"><label>Currency</label><input type="text" id="prod-currency" value="INR" readonly></div>
+                    <div class="form-group"><label>Availability</label><select id="prod-avail"><option value="https://schema.org/InStock">In Stock</option><option value="https://schema.org/PreOrder">Pre-Order</option><option value="https://schema.org/OutOfStock">Out of Stock</option></select></div>
+                    <div class="form-group"><label>Product Image URL</label><input type="url" id="prod-image" placeholder="https://techpath.biz/course-image.jpg"></div>
+                    <div class="form-group"><label>Rating (1-5)</label><input type="number" id="prod-rating" min="1" max="5" step="0.1" placeholder="4.5"></div>
+                    <div class="form-group"><label>Review Count</label><input type="number" id="prod-reviews" placeholder="120"></div>
+                    <div class="form-group"><label>SKU</label><input type="text" id="prod-sku" placeholder="DM-2026-01"></div>
+                </div>
+            `,
+            HowTo: `
+                <div class="form-grid">
+                    <div class="form-group full-width"><label>Title (How To...) *</label><input type="text" id="howto-name" placeholder="How to Set Up Google Business Profile"></div>
+                    <div class="form-group full-width"><label>Description</label><textarea id="howto-desc" placeholder="Step-by-step guide to creating and optimizing your Google Business Profile for local SEO."></textarea></div>
+                    <div class="form-group"><label>Total Time (e.g., PT30M)</label><input type="text" id="howto-time" placeholder="PT30M"></div>
+                    <div class="form-group"><label>Estimated Cost (₹)</label><input type="text" id="howto-cost" placeholder="0 (Free)"></div>
+                </div>
+                <h4 style="margin:20px 0 10px;color:#444;">Steps</h4>
+                <div id="steps-container">
+                    <div class="howto-step form-grid">
+                        <div class="form-group"><label>Step 1 Name *</label><input type="text" class="step-name" placeholder="Create Google Account"></div>
+                        <div class="form-group"><label>Step 1 Instructions *</label><input type="text" class="step-text" placeholder="Go to business.google.com and sign in with your Google account."></div>
+                    </div>
+                    <div class="howto-step form-grid">
+                        <div class="form-group"><label>Step 2 Name *</label><input type="text" class="step-name" placeholder="Enter Business Details"></div>
+                        <div class="form-group"><label>Step 2 Instructions *</label><input type="text" class="step-text" placeholder="Fill in your business name, category, and address."></div>
+                    </div>
+                    <div class="howto-step form-grid">
+                        <div class="form-group"><label>Step 3 Name *</label><input type="text" class="step-name" placeholder="Verify Your Business"></div>
+                        <div class="form-group"><label>Step 3 Instructions *</label><input type="text" class="step-text" placeholder="Choose verification method (postcard, phone, or email) and complete verification."></div>
+                    </div>
+                </div>
+                <button class="add-btn" onclick="addStep()">+ Add Another Step</button>
+            `
+        };
+
+        function selectSchema(type) {
+            currentSchema = type;
+            document.querySelectorAll('.schema-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('form-title').textContent = type + ' Schema';
+            document.getElementById('form-container').innerHTML = forms[type];
+            document.getElementById('output-section').classList.remove('visible');
+            faqCount = 2;
+            stepCount = 3;
+        }
+
+        function addFaq() {
+            faqCount++;
+            const container = document.getElementById('faq-container');
+            const div = document.createElement('div');
+            div.className = 'faq-pair';
+            div.id = 'faq-' + faqCount;
+            div.innerHTML = `
+                <h4>Question ${faqCount} <button class="remove-btn" onclick="removeFaq(${faqCount})">Remove</button></h4>
+                <div class="form-grid">
+                    <div class="form-group full-width"><label>Question *</label><input type="text" class="faq-q" placeholder="Your question here?"></div>
+                    <div class="form-group full-width"><label>Answer *</label><textarea class="faq-a" placeholder="Your answer here."></textarea></div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeFaq(id) {
+            const el = document.getElementById('faq-' + id);
+            if (el) el.remove();
+        }
+
+        function addStep() {
+            stepCount++;
+            const container = document.getElementById('steps-container');
+            const div = document.createElement('div');
+            div.className = 'howto-step form-grid';
+            div.innerHTML = `
+                <div class="form-group"><label>Step ${stepCount} Name *</label><input type="text" class="step-name" placeholder="Step name"></div>
+                <div class="form-group"><label>Step ${stepCount} Instructions *</label><input type="text" class="step-text" placeholder="Step instructions"></div>
+            `;
+            container.appendChild(div);
+        }
+
+        function generateSchema() {
+            let schema = {};
+            let errors = [];
+
+            switch (currentSchema) {
+                case 'LocalBusiness':
+                    const lbName = document.getElementById('lb-name').value.trim();
+                    if (!lbName) errors.push('Business Name is required');
+                    const lbStreet = document.getElementById('lb-street').value.trim();
+                    if (!lbStreet) errors.push('Street Address is required');
+                    const lbCity = document.getElementById('lb-city').value.trim();
+                    if (!lbCity) errors.push('City is required');
+
+                    schema = {
+                        "@context": "https://schema.org",
+                        "@type": document.getElementById('lb-type').value,
+                        "name": lbName,
+                        "description": document.getElementById('lb-desc').value.trim(),
+                        "url": document.getElementById('lb-url').value.trim() || undefined,
+                        "telephone": document.getElementById('lb-phone').value.trim() || undefined,
+                        "address": {
+                            "@type": "PostalAddress",
+                            "streetAddress": lbStreet,
+                            "addressLocality": lbCity,
+                            "addressRegion": document.getElementById('lb-state').value.trim() || undefined,
+                            "postalCode": document.getElementById('lb-pin').value.trim() || undefined,
+                            "addressCountry": "IN"
+                        },
+                        "openingHours": document.getElementById('lb-hours').value.trim() || undefined,
+                        "priceRange": document.getElementById('lb-price').value
+                    };
+
+                    const lat = document.getElementById('lb-lat').value.trim();
+                    const lng = document.getElementById('lb-lng').value.trim();
+                    if (lat && lng) {
+                        schema.geo = { "@type": "GeoCoordinates", "latitude": lat, "longitude": lng };
+                    }
+                    break;
+
+                case 'Article':
+                    const artHeadline = document.getElementById('art-headline').value.trim();
+                    if (!artHeadline) errors.push('Headline is required');
+                    const artAuthor = document.getElementById('art-author').value.trim();
+                    if (!artAuthor) errors.push('Author Name is required');
+                    const artPublisher = document.getElementById('art-publisher').value.trim();
+                    if (!artPublisher) errors.push('Publisher Name is required');
+                    const artPublished = document.getElementById('art-published').value;
+                    if (!artPublished) errors.push('Date Published is required');
+
+                    schema = {
+                        "@context": "https://schema.org",
+                        "@type": "Article",
+                        "headline": artHeadline,
+                        "author": { "@type": "Person", "name": artAuthor },
+                        "datePublished": artPublished,
+                        "dateModified": document.getElementById('art-modified').value || artPublished,
+                        "publisher": {
+                            "@type": "Organization",
+                            "name": artPublisher,
+                            "logo": document.getElementById('art-logo').value.trim() ? { "@type": "ImageObject", "url": document.getElementById('art-logo').value.trim() } : undefined
+                        },
+                        "description": document.getElementById('art-desc').value.trim() || undefined,
+                        "image": document.getElementById('art-image').value.trim() || undefined
+                    };
+                    break;
+
+                case 'FAQ':
+                    const questions = document.querySelectorAll('.faq-q');
+                    const answers = document.querySelectorAll('.faq-a');
+                    const mainEntity = [];
+
+                    questions.forEach((q, i) => {
+                        const qText = q.value.trim();
+                        const aText = answers[i].value.trim();
+                        if (qText && aText) {
+                            mainEntity.push({
+                                "@type": "Question",
+                                "name": qText,
+                                "acceptedAnswer": { "@type": "Answer", "text": aText }
+                            });
+                        }
+                    });
+
+                    if (mainEntity.length === 0) errors.push('At least one complete Q&A pair is required');
+
+                    schema = {
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        "mainEntity": mainEntity
+                    };
+                    break;
+
+                case 'Product':
+                    const prodName = document.getElementById('prod-name').value.trim();
+                    if (!prodName) errors.push('Product Name is required');
+                    const prodDesc = document.getElementById('prod-desc').value.trim();
+                    if (!prodDesc) errors.push('Description is required');
+                    const prodPrice = document.getElementById('prod-price').value;
+                    if (!prodPrice) errors.push('Price is required');
+
+                    schema = {
+                        "@context": "https://schema.org",
+                        "@type": "Product",
+                        "name": prodName,
+                        "description": prodDesc,
+                        "brand": { "@type": "Brand", "name": document.getElementById('prod-brand').value.trim() || undefined },
+                        "image": document.getElementById('prod-image').value.trim() || undefined,
+                        "sku": document.getElementById('prod-sku').value.trim() || undefined,
+                        "offers": {
+                            "@type": "Offer",
+                            "price": prodPrice,
+                            "priceCurrency": "INR",
+                            "availability": document.getElementById('prod-avail').value
+                        }
+                    };
+
+                    const rating = document.getElementById('prod-rating').value;
+                    const reviews = document.getElementById('prod-reviews').value;
+                    if (rating && reviews) {
+                        schema.aggregateRating = {
+                            "@type": "AggregateRating",
+                            "ratingValue": rating,
+                            "reviewCount": reviews
+                        };
+                    }
+                    break;
+
+                case 'HowTo':
+                    const howtoName = document.getElementById('howto-name').value.trim();
+                    if (!howtoName) errors.push('Title is required');
+
+                    const stepNames = document.querySelectorAll('.step-name');
+                    const stepTexts = document.querySelectorAll('.step-text');
+                    const steps = [];
+
+                    stepNames.forEach((s, i) => {
+                        const name = s.value.trim();
+                        const text = stepTexts[i].value.trim();
+                        if (name && text) {
+                            steps.push({ "@type": "HowToStep", "name": name, "text": text });
+                        }
+                    });
+
+                    if (steps.length === 0) errors.push('At least one complete step is required');
+
+                    schema = {
+                        "@context": "https://schema.org",
+                        "@type": "HowTo",
+                        "name": howtoName,
+                        "description": document.getElementById('howto-desc').value.trim() || undefined,
+                        "totalTime": document.getElementById('howto-time').value.trim() || undefined,
+                        "step": steps
+                    };
+
+                    const cost = document.getElementById('howto-cost').value.trim();
+                    if (cost) {
+                        schema.estimatedCost = { "@type": "MonetaryAmount", "currency": "INR", "value": cost };
+                    }
+                    break;
+            }
+
+            // Clean undefined values
+            schema = JSON.parse(JSON.stringify(schema, (key, value) => value === undefined ? undefined : value));
+
+            const outputSection = document.getElementById('output-section');
+            const codeOutput = document.getElementById('code-output');
+            const validationMsg = document.getElementById('validation-msg');
+
+            if (errors.length > 0) {
+                outputSection.classList.add('visible');
+                codeOutput.textContent = '';
+                validationMsg.className = 'validation-msg error';
+                validationMsg.textContent = 'Validation Errors: ' + errors.join(', ');
+                return;
+            }
+
+            const jsonStr = JSON.stringify(schema, null, 2);
+            const highlighted = jsonStr
+                .replace(/"([^"]+)":/g, '"<span class="key">$1</span>":')
+                .replace(/: "([^"]+)"/g, ': "<span class="string">$1</span>"')
+                .replace(/[\{\}]/g, '<span class="bracket">$&</span>')
+                .replace(/[\[\]]/g, '<span class="bracket">$&</span>');
+
+            const scriptTag = `<script type="application/ld+json">\n${jsonStr}\n<\/script>`;
+
+            outputSection.classList.add('visible');
+            codeOutput.innerHTML = highlighted;
+            codeOutput.dataset.raw = scriptTag;
+
+            validationMsg.className = 'validation-msg success';
+            validationMsg.textContent = 'Valid JSON-LD generated! Copy the code and paste it in the <head> section of your HTML page. Test it at: search.google.com/test/rich-results';
+        }
+
+        function copyCode() {
+            const raw = document.getElementById('code-output').dataset.raw;
+            navigator.clipboard.writeText(raw).then(() => {
+                const btn = document.getElementById('copy-btn');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy Code';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Initialize
+        document.getElementById('form-container').innerHTML = forms['LocalBusiness'];
+    </script>
+</body>
+</html>

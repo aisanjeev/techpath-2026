@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presentation Builder — TechPath CCC</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+  min-height: 100vh;
+  padding: 20px;
+}
+.container { max-width: 1000px; margin: 0 auto; }
+h1 { text-align: center; font-size: 1.8rem; margin-bottom: 6px; color: #3b82f6; }
+.subtitle { text-align: center; color: #94a3b8; margin-bottom: 24px; font-size: 0.95rem; }
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.tab {
+  padding: 10px 18px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  transition: all 0.2s;
+}
+.tab:hover { color: #e2e8f0; background: #334155; }
+.tab.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+.panel {
+  display: none;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0 12px 12px 12px;
+  padding: 24px;
+}
+.panel.active { display: block; }
+
+/* Slide Builder */
+.builder-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+}
+@media (max-width: 700px) {
+  .builder-layout { grid-template-columns: 1fr; }
+}
+
+.slide-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.slide-thumb {
+  background: #0f172a;
+  border: 2px solid #334155;
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.slide-thumb:hover { border-color: #3b82f6; }
+.slide-thumb.active { border-color: #3b82f6; background: #1e293b; }
+.slide-thumb .num {
+  background: #3b82f6;
+  color: white;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.slide-thumb .del-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 4px;
+}
+.slide-thumb .del-btn:hover { color: #ef4444; }
+
+.add-slide-btn {
+  padding: 8px;
+  background: #22c55e20;
+  border: 1px dashed #22c55e;
+  border-radius: 6px;
+  color: #22c55e;
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-align: center;
+  transition: background 0.2s;
+}
+.add-slide-btn:hover { background: #22c55e30; }
+
+.slide-editor {
+  background: #0f172a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.slide-preview {
+  aspect-ratio: 16/9;
+  background: white;
+  border-radius: 8px 8px 0 0;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.5s;
+}
+.slide-preview.dark-bg { background: #1e293b; }
+.slide-preview.blue-bg { background: #1e3a5f; }
+.slide-preview.green-bg { background: #14532d; }
+
+.slide-title-text {
+  font-size: 1.4rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 12px;
+  color: #1e293b;
+}
+.slide-content-text {
+  font-size: 0.9rem;
+  text-align: center;
+  color: #475569;
+  line-height: 1.6;
+}
+.dark-bg .slide-title-text, .blue-bg .slide-title-text, .green-bg .slide-title-text { color: #f8fafc; }
+.dark-bg .slide-content-text, .blue-bg .slide-content-text, .green-bg .slide-content-text { color: #cbd5e1; }
+
+.slide-controls {
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+.control-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.control-label {
+  width: 70px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+.control-row input[type="text"], .control-row textarea {
+  flex: 1;
+  min-width: 120px;
+  padding: 6px 10px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+}
+.control-row textarea { resize: vertical; height: 48px; }
+.control-row input:focus, .control-row textarea:focus { border-color: #3b82f6; }
+.layout-btns, .theme-btns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.layout-btn, .theme-btn {
+  padding: 4px 10px;
+  background: #334155;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  color: #e2e8f0;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+.layout-btn:hover, .theme-btn:hover { background: #475569; }
+.layout-btn.active { background: #3b82f6; border-color: #3b82f6; }
+.theme-btn.active { border-width: 2px; }
+
+/* Transition Demo */
+.transition-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.transition-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+.trans-btn {
+  padding: 10px;
+  background: #0f172a;
+  border: 2px solid #334155;
+  border-radius: 8px;
+  color: #e2e8f0;
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.trans-btn:hover { border-color: #3b82f6; }
+.trans-btn.active { border-color: #22c55e; background: #22c55e15; }
+
+.demo-stage {
+  background: #0f172a;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+.demo-slide {
+  width: 280px;
+  aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: white;
+  position: absolute;
+}
+.play-trans-btn {
+  padding: 12px 28px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.play-trans-btn:hover { background: #2563eb; }
+
+/* Views */
+.views-section h3 { color: #3b82f6; margin-bottom: 12px; }
+.view-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.view-card {
+  background: #0f172a;
+  border: 2px solid #334155;
+  border-radius: 8px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.view-card:hover { border-color: #3b82f6; transform: translateY(-2px); }
+.view-card.active { border-color: #22c55e; background: #22c55e10; }
+.view-card .view-name { font-weight: 600; margin-bottom: 4px; }
+.view-card .view-desc { font-size: 0.8rem; color: #94a3b8; }
+.view-card .view-key { font-size: 0.75rem; color: #f59e0b; margin-top: 6px; }
+.view-display {
+  background: #0f172a;
+  border-radius: 8px;
+  padding: 20px;
+  min-height: 180px;
+}
+
+/* Quiz */
+.quiz-q {
+  background: #0f172a;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.quiz-q p { font-weight: 600; margin-bottom: 10px; }
+.quiz-opts { display: grid; gap: 6px; }
+.quiz-opt {
+  padding: 8px 12px;
+  background: #1e293b;
+  border: 2px solid #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+.quiz-opt:hover { border-color: #3b82f6; }
+.quiz-opt.correct { border-color: #22c55e; background: #22c55e15; color: #22c55e; }
+.quiz-opt.wrong { border-color: #ef4444; background: #ef444415; color: #ef4444; }
+.quiz-opt.disabled { pointer-events: none; }
+.quiz-fb {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  display: none;
+}
+.score-box {
+  background: #0f172a;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  margin-top: 14px;
+  display: none;
+}
+.score-box .big { font-size: 2rem; font-weight: bold; color: #3b82f6; }
+.reset-btn {
+  margin-top: 10px;
+  padding: 8px 18px;
+  background: #334155;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.reset-btn:hover { background: #475569; }
+
+.exam-tip {
+  background: #f59e0b15;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 14px;
+  font-size: 0.85rem;
+}
+.exam-tip strong { color: #f59e0b; }
+
+.footer {
+  text-align: center;
+  color: #64748b;
+  margin-top: 30px;
+  font-size: 0.85rem;
+  padding-bottom: 20px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Presentation Builder</h1>
+  <p class="subtitle">Module 08 — CCC Exam Preparation | TechPath Institute</p>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('builder')">Slide Builder</div>
+    <div class="tab" onclick="switchTab('transitions')">Transitions Demo</div>
+    <div class="tab" onclick="switchTab('views')">Views Explorer</div>
+    <div class="tab" onclick="switchTab('quiz')">Quick Quiz</div>
+  </div>
+
+  <!-- Tab 1: Slide Builder -->
+  <div class="panel active" id="panel-builder">
+    <div class="builder-layout">
+      <div>
+        <div class="slide-list" id="slideList"></div>
+        <div class="add-slide-btn" onclick="addSlide()">+ Add Slide</div>
+      </div>
+      <div class="slide-editor">
+        <div class="slide-preview" id="slidePreview">
+          <div class="slide-title-text" id="previewTitle">Click to add title</div>
+          <div class="slide-content-text" id="previewContent">Click to add content</div>
+        </div>
+        <div class="slide-controls">
+          <div class="control-row">
+            <span class="control-label">Title:</span>
+            <input type="text" id="editTitle" placeholder="Slide title..." oninput="updateSlide()">
+          </div>
+          <div class="control-row">
+            <span class="control-label">Content:</span>
+            <textarea id="editContent" placeholder="Slide content..." oninput="updateSlide()"></textarea>
+          </div>
+          <div class="control-row">
+            <span class="control-label">Layout:</span>
+            <div class="layout-btns">
+              <div class="layout-btn active" onclick="setLayout('title')" id="lay-title">Title Slide</div>
+              <div class="layout-btn" onclick="setLayout('content')" id="lay-content">Title + Content</div>
+              <div class="layout-btn" onclick="setLayout('blank')" id="lay-blank">Blank</div>
+            </div>
+          </div>
+          <div class="control-row">
+            <span class="control-label">Theme:</span>
+            <div class="theme-btns">
+              <div class="theme-btn active" onclick="setTheme('')" id="th-light" style="background:white;color:#333;border-color:#94a3b8;">Light</div>
+              <div class="theme-btn" onclick="setTheme('dark-bg')" id="th-dark" style="background:#1e293b;">Dark</div>
+              <div class="theme-btn" onclick="setTheme('blue-bg')" id="th-blue" style="background:#1e3a5f;">Blue</div>
+              <div class="theme-btn" onclick="setTheme('green-bg')" id="th-green" style="background:#14532d;">Green</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="exam-tip">
+      <strong>CCC Exam Tip:</strong> PowerPoint has several slide layouts: Title Slide (for the first slide), Title and Content (most common), Two Content, Blank, and more. Themes apply coordinated colors, fonts, and effects to your entire presentation.
+    </div>
+  </div>
+
+  <!-- Tab 2: Transitions Demo -->
+  <div class="panel" id="panel-transitions">
+    <p style="margin-bottom:14px;color:#94a3b8;">Select a transition and click Play to see the effect between two slides:</p>
+    <div class="transition-options" id="transOpts"></div>
+    <div style="text-align:center;margin:16px 0;">
+      <button class="play-trans-btn" onclick="playTransition()">Play Transition</button>
+    </div>
+    <div class="demo-stage" id="demoStage">
+      <div class="demo-slide" id="slideA" style="z-index:2;">Slide 1</div>
+      <div class="demo-slide" id="slideB" style="z-index:1;opacity:0;">Slide 2</div>
+    </div>
+    <div class="exam-tip">
+      <strong>CCC Exam Tip:</strong> Transitions are applied <strong>between slides</strong> (not to objects within a slide). Use <strong>Apply to All</strong> to set the same transition for every slide. Common types: Fade, Push, Wipe, Split.
+    </div>
+  </div>
+
+  <!-- Tab 3: Views Explorer -->
+  <div class="panel" id="panel-views">
+    <p style="margin-bottom:14px;color:#94a3b8;">Click each view to see what it looks like and when to use it:</p>
+    <div class="view-cards" id="viewCards"></div>
+    <div class="view-display" id="viewDisplay"></div>
+    <div class="exam-tip">
+      <strong>CCC Exam Tips:</strong><br>
+      - <strong>F5</strong> = Start slide show from the <strong>first slide</strong><br>
+      - <strong>Shift + F5</strong> = Start slide show from the <strong>current slide</strong><br>
+      - <strong>Slide Sorter</strong> shows thumbnails for <strong>rearranging</strong><br>
+      - <strong>Normal View</strong> is the <strong>default</strong> editing view<br>
+      - <strong>Esc</strong> = End the slide show
+    </div>
+  </div>
+
+  <!-- Tab 4: Quiz -->
+  <div class="panel" id="panel-quiz">
+    <p style="margin-bottom:14px;color:#94a3b8;">Test your PowerPoint knowledge:</p>
+    <div id="quizArea"></div>
+    <div class="score-box" id="scoreBox">
+      <div class="big" id="scoreNum">0/6</div>
+      <div style="color:#94a3b8;font-size:0.9rem;">Questions Correct</div>
+      <button class="reset-btn" onclick="resetQuiz()">Try Again</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    TechPath Institute — CCC Exam Preparation<br>
+    Module 08: Making Small Presentations
+  </div>
+</div>
+
+<script>
+// Tab switching
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('panel-' + name).classList.add('active');
+  var tabs = document.querySelectorAll('.tab');
+  var map = { builder: 0, transitions: 1, views: 2, quiz: 3 };
+  tabs[map[name]].classList.add('active');
+}
+
+// ===================== SLIDE BUILDER =====================
+var slides = [
+  { title: 'My Presentation', content: 'By Rahul Sharma\nTechPath Institute', layout: 'title', theme: '' },
+  { title: 'About the Topic', content: 'Key points go here\nAdd your content', layout: 'content', theme: '' }
+];
+var currentSlide = 0;
+
+function renderSlideList() {
+  var html = '';
+  slides.forEach(function(s, i) {
+    html += '<div class="slide-thumb' + (i === currentSlide ? ' active' : '') + '" onclick="selectSlide(' + i + ')">';
+    html += '<span class="num">' + (i + 1) + '</span>';
+    html += '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">' + (s.title || 'Untitled') + '</span>';
+    if (slides.length > 1) {
+      html += '<button class="del-btn" onclick="event.stopPropagation();deleteSlide(' + i + ')">x</button>';
+    }
+    html += '</div>';
+  });
+  document.getElementById('slideList').innerHTML = html;
+}
+
+function selectSlide(i) {
+  currentSlide = i;
+  renderSlideList();
+  loadSlideEditor();
+}
+
+function loadSlideEditor() {
+  var s = slides[currentSlide];
+  document.getElementById('editTitle').value = s.title;
+  document.getElementById('editContent').value = s.content;
+  renderPreview();
+  // Update layout buttons
+  document.querySelectorAll('.layout-btn').forEach(function(b) { b.classList.remove('active'); });
+  var layBtn = document.getElementById('lay-' + s.layout);
+  if (layBtn) layBtn.classList.add('active');
+  // Update theme buttons
+  document.querySelectorAll('.theme-btn').forEach(function(b) { b.classList.remove('active'); });
+  var thMap = { '': 'th-light', 'dark-bg': 'th-dark', 'blue-bg': 'th-blue', 'green-bg': 'th-green' };
+  var thBtn = document.getElementById(thMap[s.theme] || 'th-light');
+  if (thBtn) thBtn.classList.add('active');
+}
+
+function renderPreview() {
+  var s = slides[currentSlide];
+  var preview = document.getElementById('slidePreview');
+  var titleEl = document.getElementById('previewTitle');
+  var contentEl = document.getElementById('previewContent');
+  preview.className = 'slide-preview ' + (s.theme || '');
+  titleEl.textContent = s.title || 'Click to add title';
+  contentEl.innerHTML = (s.content || 'Click to add content').replace(/\n/g, '<br>');
+
+  if (s.layout === 'title') {
+    titleEl.style.fontSize = '1.6rem';
+    contentEl.style.fontSize = '1rem';
+  } else if (s.layout === 'content') {
+    titleEl.style.fontSize = '1.2rem';
+    contentEl.style.fontSize = '0.85rem';
+    contentEl.style.textAlign = 'left';
+  } else {
+    titleEl.style.display = 'none';
+    contentEl.style.textAlign = 'center';
+  }
+  if (s.layout !== 'blank') titleEl.style.display = 'block';
+}
+
+function updateSlide() {
+  slides[currentSlide].title = document.getElementById('editTitle').value;
+  slides[currentSlide].content = document.getElementById('editContent').value;
+  renderPreview();
+  renderSlideList();
+}
+
+function setLayout(lay) {
+  slides[currentSlide].layout = lay;
+  document.querySelectorAll('.layout-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('lay-' + lay).classList.add('active');
+  renderPreview();
+}
+
+function setTheme(th) {
+  slides[currentSlide].theme = th;
+  document.querySelectorAll('.theme-btn').forEach(function(b) { b.classList.remove('active'); });
+  var thMap = { '': 'th-light', 'dark-bg': 'th-dark', 'blue-bg': 'th-blue', 'green-bg': 'th-green' };
+  document.getElementById(thMap[th]).classList.add('active');
+  renderPreview();
+}
+
+function addSlide() {
+  slides.push({ title: 'New Slide', content: 'Add your content here', layout: 'content', theme: slides[currentSlide].theme });
+  currentSlide = slides.length - 1;
+  renderSlideList();
+  loadSlideEditor();
+}
+
+function deleteSlide(i) {
+  if (slides.length <= 1) return;
+  slides.splice(i, 1);
+  if (currentSlide >= slides.length) currentSlide = slides.length - 1;
+  renderSlideList();
+  loadSlideEditor();
+}
+
+// Initialize builder
+renderSlideList();
+loadSlideEditor();
+
+// ===================== TRANSITIONS DEMO =====================
+var transitions = [
+  { name: 'None', type: 'none' },
+  { name: 'Fade', type: 'fade' },
+  { name: 'Push Right', type: 'push-right' },
+  { name: 'Push Up', type: 'push-up' },
+  { name: 'Wipe Right', type: 'wipe-right' },
+  { name: 'Wipe Down', type: 'wipe-down' },
+  { name: 'Split', type: 'split' },
+  { name: 'Zoom', type: 'zoom' }
+];
+var selectedTrans = 'fade';
+var transPlaying = false;
+
+(function buildTransBtns() {
+  var html = '';
+  transitions.forEach(function(t) {
+    html += '<div class="trans-btn' + (t.type === selectedTrans ? ' active' : '') + '" id="tr-' + t.type + '" onclick="selectTrans(\'' + t.type + '\')">' + t.name + '</div>';
+  });
+  document.getElementById('transOpts').innerHTML = html;
+})();
+
+function selectTrans(type) {
+  selectedTrans = type;
+  document.querySelectorAll('.trans-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tr-' + type).classList.add('active');
+}
+
+function playTransition() {
+  if (transPlaying) return;
+  transPlaying = true;
+  var a = document.getElementById('slideA');
+  var b = document.getElementById('slideB');
+
+  // Reset
+  a.style.transition = 'none';
+  b.style.transition = 'none';
+  a.style.transform = 'none';
+  b.style.transform = 'none';
+  a.style.opacity = '1';
+  b.style.opacity = '0';
+  a.style.clipPath = '';
+  b.style.clipPath = '';
+  a.style.zIndex = '2';
+  b.style.zIndex = '1';
+  b.style.background = 'linear-gradient(135deg, #22c55e, #0ea5e9)';
+
+  // Force reflow
+  void a.offsetWidth;
+
+  var dur = '1s';
+  setTimeout(function() {
+    a.style.transition = 'all ' + dur + ' ease';
+    b.style.transition = 'all ' + dur + ' ease';
+
+    switch (selectedTrans) {
+      case 'none':
+        a.style.opacity = '0';
+        b.style.opacity = '1';
+        break;
+      case 'fade':
+        a.style.opacity = '0';
+        b.style.opacity = '1';
+        break;
+      case 'push-right':
+        a.style.transform = 'translateX(120%)';
+        b.style.opacity = '1';
+        b.style.transform = 'translateX(0)';
+        b.style.transition = 'all ' + dur + ' ease';
+        // Start b from left
+        b.style.transition = 'none';
+        b.style.transform = 'translateX(-120%)';
+        void b.offsetWidth;
+        b.style.transition = 'all ' + dur + ' ease';
+        b.style.transform = 'translateX(0)';
+        b.style.opacity = '1';
+        break;
+      case 'push-up':
+        a.style.transform = 'translateY(-120%)';
+        b.style.transition = 'none';
+        b.style.transform = 'translateY(120%)';
+        b.style.opacity = '1';
+        void b.offsetWidth;
+        b.style.transition = 'all ' + dur + ' ease';
+        b.style.transform = 'translateY(0)';
+        break;
+      case 'wipe-right':
+        b.style.opacity = '1';
+        b.style.zIndex = '3';
+        b.style.clipPath = 'inset(0 100% 0 0)';
+        void b.offsetWidth;
+        b.style.transition = 'clip-path ' + dur + ' ease';
+        b.style.clipPath = 'inset(0 0 0 0)';
+        break;
+      case 'wipe-down':
+        b.style.opacity = '1';
+        b.style.zIndex = '3';
+        b.style.clipPath = 'inset(0 0 100% 0)';
+        void b.offsetWidth;
+        b.style.transition = 'clip-path ' + dur + ' ease';
+        b.style.clipPath = 'inset(0 0 0 0)';
+        break;
+      case 'split':
+        b.style.opacity = '1';
+        b.style.zIndex = '3';
+        b.style.clipPath = 'inset(50% 50% 50% 50%)';
+        void b.offsetWidth;
+        b.style.transition = 'clip-path ' + dur + ' ease';
+        b.style.clipPath = 'inset(0 0 0 0)';
+        break;
+      case 'zoom':
+        b.style.opacity = '1';
+        b.style.zIndex = '3';
+        b.style.transform = 'scale(0)';
+        void b.offsetWidth;
+        b.style.transition = 'all ' + dur + ' ease';
+        b.style.transform = 'scale(1)';
+        a.style.opacity = '0';
+        break;
+    }
+
+    setTimeout(function() {
+      // Swap labels for next play
+      var tmp = a.textContent;
+      a.style.transition = 'none';
+      b.style.transition = 'none';
+      a.style.transform = 'none';
+      b.style.transform = 'none';
+      a.style.clipPath = '';
+      b.style.clipPath = '';
+      a.style.opacity = '1';
+      b.style.opacity = '0';
+      a.style.zIndex = '2';
+      b.style.zIndex = '1';
+      // Swap backgrounds and text
+      var aBg = a.style.background;
+      a.style.background = b.style.background;
+      b.style.background = aBg;
+      a.textContent = b.textContent;
+      b.textContent = tmp;
+      transPlaying = false;
+    }, 1100);
+  }, 50);
+}
+
+// ===================== VIEWS EXPLORER =====================
+var views = [
+  { name: 'Normal View', key: 'Default', desc: 'Editing view', detail: 'The default view with Slide Panel (left), main Slide Area (center), and Notes Panel (bottom). Used for creating and editing slides.' },
+  { name: 'Slide Sorter', key: 'View tab', desc: 'Thumbnails grid', detail: 'Shows ALL slides as small thumbnails in a grid. Best for rearranging slides by drag-and-drop. Cannot edit slide content here.' },
+  { name: 'Reading View', key: 'View tab', desc: 'Windowed show', detail: 'Shows the presentation like a slide show but inside the PowerPoint window (not full screen). Good for quick previewing.' },
+  { name: 'Slide Show', key: 'F5 / Shift+F5', desc: 'Full screen', detail: 'Full-screen presentation mode — what the audience sees. F5 starts from slide 1, Shift+F5 from current slide. Press Esc to exit.' },
+  { name: 'Notes Page', key: 'View tab', desc: 'Slide + notes', detail: 'Shows one slide per page with a large area below for speaker notes. Used for preparing detailed speaking points.' },
+  { name: 'Presenter View', key: 'Alt+F5', desc: 'Presenter tools', detail: 'Presenter sees: current slide, next slide, speaker notes, and timer. Audience sees only the current slide. Requires two displays.' }
+];
+
+(function buildViews() {
+  var html = '';
+  views.forEach(function(v, i) {
+    html += '<div class="view-card" id="vc-' + i + '" onclick="showView(' + i + ')">';
+    html += '<div class="view-name">' + v.name + '</div>';
+    html += '<div class="view-desc">' + v.desc + '</div>';
+    html += '<div class="view-key">' + v.key + '</div>';
+    html += '</div>';
+  });
+  document.getElementById('viewCards').innerHTML = html;
+  showView(0);
+})();
+
+function showView(i) {
+  document.querySelectorAll('.view-card').forEach(function(c) { c.classList.remove('active'); });
+  document.getElementById('vc-' + i).classList.add('active');
+  var v = views[i];
+  var html = '<h3 style="color:#3b82f6;margin-bottom:10px;">' + v.name + '</h3>';
+  html += '<p style="margin-bottom:12px;">' + v.detail + '</p>';
+
+  if (i === 0) { // Normal
+    html += '<div style="display:grid;grid-template-columns:80px 1fr;gap:8px;height:120px;">';
+    html += '<div style="background:#1e293b;border-radius:4px;padding:6px;display:flex;flex-direction:column;gap:4px;">';
+    html += '<div style="background:#334155;border-radius:2px;height:20px;"></div>';
+    html += '<div style="background:#3b82f640;border:1px solid #3b82f6;border-radius:2px;height:20px;"></div>';
+    html += '<div style="background:#334155;border-radius:2px;height:20px;"></div>';
+    html += '</div>';
+    html += '<div style="background:#f8fafc;border-radius:4px;display:flex;justify-content:center;align-items:center;color:#333;font-weight:600;">Slide Editing Area</div>';
+    html += '</div>';
+    html += '<div style="background:#1e293b;border-radius:4px;padding:6px;margin-top:4px;height:30px;display:flex;align-items:center;color:#94a3b8;font-size:0.8rem;">Notes Panel</div>';
+  } else if (i === 1) { // Slide Sorter
+    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">';
+    for (var j = 1; j <= 8; j++) {
+      html += '<div style="background:#334155;border-radius:4px;aspect-ratio:16/9;display:flex;justify-content:center;align-items:center;font-size:0.8rem;color:#94a3b8;">Slide ' + j + '</div>';
+    }
+    html += '</div>';
+  } else if (i === 3) { // Slide Show
+    html += '<div style="background:#000;border-radius:4px;aspect-ratio:16/9;max-height:150px;display:flex;justify-content:center;align-items:center;">';
+    html += '<div style="color:white;text-align:center;"><div style="font-size:1.1rem;font-weight:bold;">Full Screen Presentation</div><div style="font-size:0.8rem;color:#94a3b8;margin-top:4px;">Press Esc to exit</div></div>';
+    html += '</div>';
+  } else if (i === 5) { // Presenter View
+    html += '<div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;">';
+    html += '<div style="background:#f8fafc;border-radius:4px;aspect-ratio:16/9;display:flex;justify-content:center;align-items:center;color:#333;font-weight:600;">Current Slide</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:4px;">';
+    html += '<div style="background:#334155;border-radius:4px;aspect-ratio:16/9;display:flex;justify-content:center;align-items:center;font-size:0.75rem;">Next Slide</div>';
+    html += '<div style="background:#1e293b;border-radius:4px;flex:1;padding:6px;font-size:0.75rem;color:#94a3b8;">Speaker Notes appear here. Timer: 03:42</div>';
+    html += '</div></div>';
+  }
+  document.getElementById('viewDisplay').innerHTML = html;
+}
+
+// ===================== QUIZ =====================
+var quizData = [
+  { q: "F5 in PowerPoint starts the slide show from ___.", opts: ["Current slide", "Last slide", "First slide", "Slide 5"], ans: 2, exp: "F5 starts from the FIRST slide. Shift+F5 starts from the current slide." },
+  { q: "Slide transitions are applied between ___.", opts: ["Objects on a slide", "Two slides", "Text paragraphs", "Cells in a table"], ans: 1, exp: "Transitions are visual effects between slides. Animations are for objects within a slide." },
+  { q: "Which view is best for rearranging slides?", opts: ["Normal View", "Reading View", "Slide Sorter View", "Outline View"], ans: 2, exp: "Slide Sorter shows all slides as thumbnails in a grid for easy drag-and-drop rearranging." },
+  { q: "What does pressing 'Esc' do during a slide show?", opts: ["Goes to first slide", "Opens settings", "Ends the slide show", "Saves the file"], ans: 2, exp: "Pressing Esc ends (exits) the slide show and returns to the editing view." },
+  { q: "To print 3 slides per page with note lines, use ___.", opts: ["Full Page Slides", "Notes Pages", "Outline", "Handouts"], ans: 3, exp: "Handouts (3 slides per page) prints 3 slide thumbnails with ruled lines for notes." },
+  { q: "The Entrance animation type makes an object ___.", opts: ["Disappear", "Appear", "Spin forever", "Change color"], ans: 1, exp: "Entrance animations make objects appear on the slide. Exit animations make them disappear." }
+];
+
+var qScore = 0;
+var qAnswered = 0;
+
+function buildQuiz() {
+  var html = '';
+  quizData.forEach(function(item, i) {
+    html += '<div class="quiz-q" id="qq' + i + '">';
+    html += '<p>' + (i + 1) + '. ' + item.q + '</p>';
+    html += '<div class="quiz-opts">';
+    item.opts.forEach(function(opt, j) {
+      html += '<div class="quiz-opt" id="qo' + i + '_' + j + '" onclick="checkQ(' + i + ',' + j + ')">' + opt + '</div>';
+    });
+    html += '</div>';
+    html += '<div class="quiz-fb" id="qf' + i + '"></div>';
+    html += '</div>';
+  });
+  document.getElementById('quizArea').innerHTML = html;
+}
+
+function checkQ(qi, oi) {
+  var correct = quizData[qi].ans;
+  for (var j = 0; j < quizData[qi].opts.length; j++) {
+    var el = document.getElementById('qo' + qi + '_' + j);
+    el.classList.add('disabled');
+    if (j === correct) el.classList.add('correct');
+    if (j === oi && j !== correct) el.classList.add('wrong');
+  }
+  var fb = document.getElementById('qf' + qi);
+  fb.style.display = 'block';
+  if (oi === correct) {
+    fb.style.background = '#22c55e15';
+    fb.style.color = '#22c55e';
+    fb.textContent = 'Correct! ' + quizData[qi].exp;
+    qScore++;
+  } else {
+    fb.style.background = '#ef444415';
+    fb.style.color = '#ef4444';
+    fb.textContent = 'Incorrect. ' + quizData[qi].exp;
+  }
+  qAnswered++;
+  if (qAnswered === quizData.length) {
+    var sb = document.getElementById('scoreBox');
+    sb.style.display = 'block';
+    document.getElementById('scoreNum').textContent = qScore + '/' + quizData.length;
+    document.getElementById('scoreNum').style.color = qScore >= 5 ? '#22c55e' : qScore >= 3 ? '#f59e0b' : '#ef4444';
+  }
+}
+
+function resetQuiz() {
+  qScore = 0;
+  qAnswered = 0;
+  document.getElementById('scoreBox').style.display = 'none';
+  buildQuiz();
+}
+
+buildQuiz();
+</script>
+</body>
+</html>

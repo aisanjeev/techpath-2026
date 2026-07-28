@@ -1,0 +1,136 @@
+{
+  "questions": [
+    {
+      "question": "What is an Operating System?",
+      "options": [
+        "A hardware device",
+        "Software that manages computer hardware and lets you run apps",
+        "A type of programming language",
+        "An internet browser"
+      ],
+      "correct_index": 1,
+      "explanation": "An OS is the main software that manages your computer's hardware, memory, files, and runs other programs."
+    },
+    {
+      "question": "Which shortcut opens File Explorer in Windows?",
+      "options": [
+        "Ctrl + E",
+        "Win + E",
+        "Alt + E",
+        "Shift + E"
+      ],
+      "correct_index": 1,
+      "explanation": "Win + E opens File Explorer. This is one of the most useful Windows shortcuts."
+    },
+    {
+      "question": "What does Task Manager help you do?",
+      "options": [
+        "Create new files",
+        "Browse the internet",
+        "See running programs and close stuck apps",
+        "Install new software"
+      ],
+      "correct_index": 2,
+      "explanation": "Task Manager (Ctrl+Shift+Esc) shows running programs, CPU/RAM usage, and lets you end stuck apps."
+    },
+    {
+      "question": "Which Linux command lists files in the current folder?",
+      "options": [
+        "dir",
+        "ls",
+        "list",
+        "show"
+      ],
+      "correct_index": 1,
+      "explanation": "ls (list) shows all files and folders in the current directory in Linux."
+    },
+    {
+      "question": "What does the 'cd' command do in Linux?",
+      "options": [
+        "Create a directory",
+        "Copy a file",
+        "Change directory (go to a folder)",
+        "Clear the screen"
+      ],
+      "correct_index": 2,
+      "explanation": "cd = Change Directory. Example: 'cd Documents' moves you into the Documents folder."
+    },
+    {
+      "question": "Which shortcut copies selected text or files?",
+      "options": [
+        "Ctrl + V",
+        "Ctrl + X",
+        "Ctrl + C",
+        "Ctrl + Z"
+      ],
+      "correct_index": 2,
+      "explanation": "Ctrl + C = Copy. Then use Ctrl + V to paste. Ctrl + X = Cut (move instead of copy)."
+    },
+    {
+      "question": "Which OS is free and open source?",
+      "options": [
+        "Windows 11",
+        "macOS",
+        "Linux (Ubuntu)",
+        "Chrome OS"
+      ],
+      "correct_index": 2,
+      "explanation": "Linux is free and open source — anyone can see, modify, and share the code. Ubuntu is the most popular version."
+    },
+    {
+      "question": "What does Ctrl + Z do?",
+      "options": [
+        "Zoom in",
+        "Close the window",
+        "Undo the last action",
+        "Save the file"
+      ],
+      "correct_index": 2,
+      "explanation": "Ctrl + Z = Undo. It reverses your last action. Works in almost every app."
+    },
+    {
+      "question": "What does 'mkdir' command do in Linux?",
+      "options": [
+        "Move a file",
+        "Make a new directory (folder)",
+        "Delete a file",
+        "Show file content"
+      ],
+      "correct_index": 1,
+      "explanation": "mkdir = Make Directory. Example: 'mkdir myproject' creates a new folder called myproject."
+    },
+    {
+      "question": "To make your computer start faster, what should you do in Task Manager?",
+      "options": [
+        "End all processes",
+        "Disable unnecessary Startup programs",
+        "Delete System files",
+        "Increase RAM in Task Manager"
+      ],
+      "correct_index": 1,
+      "explanation": "Go to Startup tab in Task Manager and disable apps you don't need at startup. This speeds up boot time."
+    },
+    {
+      "question": "Which shortcut locks your Windows computer?",
+      "options": [
+        "Ctrl + L",
+        "Win + L",
+        "Alt + L",
+        "Shift + L"
+      ],
+      "correct_index": 1,
+      "explanation": "Win + L instantly locks your computer. Always lock when leaving your desk!"
+    },
+    {
+      "question": "What is the Linux command to delete a file?",
+      "options": [
+        "del",
+        "remove",
+        "rm",
+        "delete"
+      ],
+      "correct_index": 2,
+      "explanation": "rm = Remove. Example: 'rm oldfile.txt' deletes the file. Be careful — Linux doesn't have a Recycle Bin by default!"
+    }
+  ]
+}

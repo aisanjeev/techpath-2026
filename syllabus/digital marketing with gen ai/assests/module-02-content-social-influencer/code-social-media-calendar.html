@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>30-Day Social Media Calendar Generator — TechPath Academy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #7c3aed;
+            --primary-light: #ede9fe;
+            --secondary: #f59e0b;
+            --success: #10b981;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --bg: #f9fafb;
+            --white: #ffffff;
+            --border: #e5e7eb;
+            --radius: 12px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .input-section {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 32px;
+        }
+
+        .input-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+        }
+
+        .generate-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            width: 100%;
+            max-width: 300px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .generate-btn:hover {
+            background: #6d28d9;
+            transform: translateY(-1px);
+        }
+
+        .calendar-section {
+            display: none;
+        }
+
+        .calendar-section.visible {
+            display: block;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .calendar-header h2 {
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+
+        .legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .legend-dot.value { background: #dbeafe; border: 1px solid #3b82f6; }
+        .legend-dot.promo { background: #fef3c7; border: 1px solid #f59e0b; }
+        .legend-dot.personal { background: #dcfce7; border: 1px solid #10b981; }
+        .legend-dot.rest { background: #f3f4f6; border: 1px solid #9ca3af; }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .day-header {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            padding: 8px 4px;
+        }
+
+        .day-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 10px;
+            min-height: 130px;
+            box-shadow: var(--shadow);
+            border-left: 3px solid transparent;
+            transition: transform 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .day-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .day-card.value { border-left-color: #3b82f6; background: #f8faff; }
+        .day-card.promo { border-left-color: #f59e0b; background: #fffdf5; }
+        .day-card.personal { border-left-color: #10b981; background: #f6fef9; }
+        .day-card.rest { border-left-color: #9ca3af; background: #f9fafb; opacity: 0.7; }
+
+        .day-number {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .day-type {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .day-card.value .day-type { color: #3b82f6; }
+        .day-card.promo .day-type { color: #f59e0b; }
+        .day-card.personal .day-type { color: #10b981; }
+        .day-card.rest .day-type { color: #9ca3af; }
+
+        .day-topic {
+            font-weight: 600;
+            margin-bottom: 3px;
+            line-height: 1.3;
+        }
+
+        .day-format {
+            color: var(--text-light);
+            font-size: 0.7rem;
+        }
+
+        .day-hashtags {
+            font-size: 0.65rem;
+            color: var(--primary);
+            margin-top: 4px;
+            word-break: break-all;
+        }
+
+        .stats-section {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 16px;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .export-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+
+        .export-btn:hover {
+            background: #059669;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 32px;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .calendar-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .day-header {
+                display: none;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>30-Day Social Media Calendar Generator</h1>
+            <p>Enter your business details and get a complete content calendar using the 4-1-1 rule</p>
+        </header>
+
+        <div class="input-section">
+            <h2>Your Business Details</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="bizName">Business / Brand Name</label>
+                    <input type="text" id="bizName" placeholder="e.g., Chai pe Charcha">
+                </div>
+                <div class="form-group">
+                    <label for="niche">Niche / Industry</label>
+                    <select id="niche">
+                        <option value="food">Food & Beverages</option>
+                        <option value="fashion">Fashion & Clothing</option>
+                        <option value="education">Education & Coaching</option>
+                        <option value="fitness">Health & Fitness</option>
+                        <option value="tech">Technology & SaaS</option>
+                        <option value="beauty">Beauty & Skincare</option>
+                        <option value="realestate">Real Estate</option>
+                        <option value="ecommerce">E-commerce / D2C</option>
+                        <option value="freelance">Freelancing / Personal Brand</option>
+                        <option value="local">Local Services</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" placeholder="e.g., Bhopal">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label>Platforms (select all that apply)</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" value="instagram" checked> Instagram</label>
+                    <label><input type="checkbox" value="linkedin"> LinkedIn</label>
+                    <label><input type="checkbox" value="youtube"> YouTube</label>
+                    <label><input type="checkbox" value="twitter"> Twitter/X</label>
+                    <label><input type="checkbox" value="facebook"> Facebook</label>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="frequency">Posting Frequency</label>
+                <select id="frequency">
+                    <option value="daily">Daily (30 posts)</option>
+                    <option value="weekdays" selected>Weekdays only (22 posts)</option>
+                    <option value="3x">3 times per week (13 posts)</option>
+                </select>
+            </div>
+
+            <button class="generate-btn" onclick="generateCalendar()">Generate My Calendar</button>
+        </div>
+
+        <div class="calendar-section" id="calendarSection">
+            <div class="stats-section">
+                <div class="stats-grid" id="statsGrid"></div>
+            </div>
+
+            <div class="calendar-header">
+                <h2>Your 30-Day Content Calendar</h2>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-dot value"></div>Value/Educate</div>
+                    <div class="legend-item"><div class="legend-dot promo"></div>Promotional</div>
+                    <div class="legend-item"><div class="legend-dot personal"></div>Personal/Story</div>
+                    <div class="legend-item"><div class="legend-dot rest"></div>Rest Day</div>
+                </div>
+            </div>
+
+            <div class="calendar-grid" id="calendarGrid"></div>
+
+            <button class="export-btn" onclick="exportCalendar()">Copy as Text (for Notion/Sheets)</button>
+        </div>
+
+        <p class="footer-note">Built for TechPath Academy students. Uses the 4-1-1 Rule: 4 value posts, 1 promo, 1 personal for every 6 posts.</p>
+    </div>
+
+    <script>
+        const contentIdeas = {
+            food: {
+                value: [
+                    "5 food photography tips for Instagram",
+                    "How to write a menu that sells",
+                    "Best posting times for food brands in India",
+                    "How to use UGC from customers",
+                    "Hashtag strategy for restaurants",
+                    "Why Google My Business matters for cafes",
+                    "3 ways to handle negative reviews",
+                    "Food styling tips using your phone",
+                    "How to create a signature dish story",
+                    "Festival menu ideas that go viral",
+                    "Behind the scenes: kitchen prep",
+                    "Customer testimonial spotlight",
+                    "Top 5 reels trends for food",
+                    "How food delivery apps rank you"
+                ],
+                promo: [
+                    "New menu item reveal",
+                    "Weekend special offer",
+                    "Loyalty card announcement",
+                    "Combo deal of the week",
+                    "Limited time festival menu"
+                ],
+                personal: [
+                    "Why I started this food business",
+                    "My first customer story",
+                    "A day in the life of a cafe owner",
+                    "Lessons from my first year",
+                    "What my team means to me"
+                ],
+                hashtags: ["#FoodBusiness", "#IndianFood", "#CafeLife", "#FoodieGram", "#StreetFood", "#ChaiLovers"]
+            },
+            fashion: {
+                value: [
+                    "How to style one piece 5 ways",
+                    "Color combinations that always work",
+                    "Wardrobe essentials for Indian summers",
+                    "How to find your personal style",
+                    "Sustainable fashion tips on a budget",
+                    "How to photograph clothes for Instagram",
+                    "Trending styles this season in India",
+                    "How to mix traditional and western wear",
+                    "5 accessories that elevate any outfit",
+                    "How to care for your clothes longer",
+                    "Body type dressing guide",
+                    "How to shop smart during sales",
+                    "Fabric guide: What to wear when",
+                    "How to build a capsule wardrobe"
+                ],
+                promo: [
+                    "New collection drop announcement",
+                    "Flash sale this weekend only",
+                    "Customer wearing our latest design",
+                    "Behind the scenes: making process",
+                    "Size guide and how to order"
+                ],
+                personal: [
+                    "My fashion journey: from hobby to business",
+                    "Why I believe in slow fashion",
+                    "A day at the fabric market",
+                    "What inspires my designs",
+                    "Failures that taught me everything"
+                ],
+                hashtags: ["#IndianFashion", "#StyleTips", "#OOTD", "#FashionBusiness", "#DesiFashion", "#Trending"]
+            },
+            education: {
+                value: [
+                    "Study technique that actually works",
+                    "How to stay focused for 4 hours straight",
+                    "Common exam mistakes to avoid",
+                    "Best free resources for self-study",
+                    "How to make effective notes",
+                    "Time management tips for students",
+                    "How to choose the right career path",
+                    "Skills that employers want in 2026",
+                    "How to prepare for interviews",
+                    "Productivity apps every student needs",
+                    "How to learn any skill in 30 days",
+                    "Mind mapping technique explained",
+                    "How to beat exam anxiety",
+                    "Active recall vs passive reading"
+                ],
+                promo: [
+                    "New batch starting: register now",
+                    "Student success story spotlight",
+                    "Course curriculum overview",
+                    "Early bird discount announcement",
+                    "Free demo class this Saturday"
+                ],
+                personal: [
+                    "Why I became a teacher",
+                    "My own struggle with studies",
+                    "What my students teach me",
+                    "A day in my teaching life",
+                    "The moment I knew education was my calling"
+                ],
+                hashtags: ["#Education", "#StudyTips", "#CareerGrowth", "#IndianStudents", "#LearnDaily", "#SkillUp"]
+            },
+            fitness: {
+                value: [
+                    "5-minute morning routine that changes your day",
+                    "Protein sources for vegetarians in India",
+                    "How to start working out with zero equipment",
+                    "Common gym mistakes beginners make",
+                    "Meal prep ideas under ₹200/day",
+                    "How to stay consistent with fitness",
+                    "Home workout for busy professionals",
+                    "Indian diet plan for muscle building",
+                    "How to read nutrition labels",
+                    "Best time to exercise for Indians",
+                    "Recovery: why rest days matter",
+                    "Stretching routine for desk workers",
+                    "How to track progress without a scale",
+                    "Hydration tips for Indian climate"
+                ],
+                promo: [
+                    "New batch personal training: join now",
+                    "Client transformation reveal",
+                    "Special monsoon fitness challenge",
+                    "Free trial class this week",
+                    "Membership plans and pricing"
+                ],
+                personal: [
+                    "My fitness journey: where I started",
+                    "The injury that changed my perspective",
+                    "Why I became a fitness trainer",
+                    "Struggles with my own discipline",
+                    "What fitness taught me about life"
+                ],
+                hashtags: ["#FitnessIndia", "#HomeWorkout", "#DesiDiet", "#GymMotivation", "#HealthyLiving", "#FitIndia"]
+            },
+            tech: {
+                value: [
+                    "5 AI tools you need to try this week",
+                    "How to automate repetitive tasks",
+                    "No-code tools for non-programmers",
+                    "Tech trends to watch in India",
+                    "How to learn coding for free",
+                    "SaaS tools that save hours daily",
+                    "How to build your first app without coding",
+                    "Cybersecurity tips for beginners",
+                    "Cloud computing explained simply",
+                    "How AI is changing Indian businesses",
+                    "Best tech YouTube channels to follow",
+                    "How to choose the right laptop",
+                    "Open source alternatives to paid tools",
+                    "Data privacy tips everyone should know"
+                ],
+                promo: [
+                    "Our product update announcement",
+                    "Customer case study: how they saved 10 hours/week",
+                    "Free trial extended this month",
+                    "New feature launch reveal",
+                    "Webinar: see our tool in action"
+                ],
+                personal: [
+                    "How I got into tech from a non-tech background",
+                    "My biggest product failure and what I learned",
+                    "A day building our startup",
+                    "Why I believe tech should be accessible to all",
+                    "The team behind our product"
+                ],
+                hashtags: ["#TechIndia", "#AITools", "#StartupLife", "#NoCode", "#ProductHunt", "#Innovation"]
+            },
+            beauty: {
+                value: [
+                    "Skincare routine for Indian climate",
+                    "How to choose the right sunscreen",
+                    "Natural ingredients for glowing skin",
+                    "Makeup looks for Indian skin tones",
+                    "How to read product ingredient lists",
+                    "Morning vs night skincare routine",
+                    "Budget skincare that actually works",
+                    "Common skincare myths busted",
+                    "Hair care tips for monsoon season",
+                    "DIY face masks with kitchen ingredients",
+                    "How to layer skincare products",
+                    "Festive makeup tutorial: Diwali look",
+                    "Sunscreen mistakes most Indians make",
+                    "How to deal with acne naturally"
+                ],
+                promo: [
+                    "New product launch announcement",
+                    "Before/after customer results",
+                    "Flash sale on bestsellers",
+                    "Festive combo kit available",
+                    "Free sample with every order this week"
+                ],
+                personal: [
+                    "My skin journey: acne to confidence",
+                    "Why I started a clean beauty brand",
+                    "Products that changed my routine",
+                    "Beauty lessons from my grandmother",
+                    "Behind the scenes: product development"
+                ],
+                hashtags: ["#SkincareIndia", "#BeautyTips", "#IndianSkincare", "#GlowUp", "#CleanBeauty", "#NaturalSkincare"]
+            },
+            realestate: {
+                value: [
+                    "First-time home buyer checklist India",
+                    "How to check RERA registration",
+                    "Hidden costs when buying property",
+                    "Renting vs buying: which is better?",
+                    "How to negotiate property prices",
+                    "Documents needed for home loan",
+                    "Vastu tips that add value to property",
+                    "How to spot a good investment property",
+                    "Home loan interest comparison 2026",
+                    "5 red flags when visiting a property",
+                    "How location affects resale value",
+                    "Stamp duty guide for your state",
+                    "New vs resale property: pros and cons",
+                    "How to choose between builder and resale"
+                ],
+                promo: [
+                    "New project launch in prime location",
+                    "Virtual tour of our latest property",
+                    "Limited units available at pre-launch price",
+                    "Customer testimonial: their dream home story",
+                    "Site visit this Sunday: register now"
+                ],
+                personal: [
+                    "Why I love helping families find homes",
+                    "My first sale story",
+                    "Lessons from 5 years in real estate",
+                    "Market changes I have witnessed",
+                    "What buyers get wrong (and how I help)"
+                ],
+                hashtags: ["#RealEstateIndia", "#HomeBuyers", "#PropertyInvestment", "#RERA", "#DreamHome", "#HomeLoan"]
+            },
+            ecommerce: {
+                value: [
+                    "How to write product descriptions that sell",
+                    "5 ways to reduce cart abandonment",
+                    "How to take product photos at home",
+                    "Shipping tips for Indian D2C brands",
+                    "How to handle returns gracefully",
+                    "Email marketing for e-commerce basics",
+                    "How to price your products profitably",
+                    "Packaging ideas that wow customers",
+                    "How to get your first 100 customers",
+                    "UPI and payment gateway comparison",
+                    "How to run festive sale campaigns",
+                    "Customer retention strategies",
+                    "How to use WhatsApp for e-commerce",
+                    "Cross-selling and upselling techniques"
+                ],
+                promo: [
+                    "New product added to collection",
+                    "Customer unboxing video feature",
+                    "Weekend sale: flat 20% off",
+                    "Bestseller back in stock",
+                    "Bundle offer: save ₹500"
+                ],
+                personal: [
+                    "How I started my brand from my bedroom",
+                    "First order memories",
+                    "Packing orders at 2 AM: the reality",
+                    "What customers taught me about my product",
+                    "My biggest business mistake"
+                ],
+                hashtags: ["#D2CBrand", "#ShopSmall", "#IndianBrand", "#EcommerceTips", "#SmallBusiness", "#MadeInIndia"]
+            },
+            freelance: {
+                value: [
+                    "How to set freelance rates in India",
+                    "5 platforms to find clients",
+                    "How to write a winning proposal",
+                    "Client red flags to watch for",
+                    "How to manage multiple projects",
+                    "Tools every freelancer needs",
+                    "How to build a portfolio from scratch",
+                    "Tax basics for Indian freelancers",
+                    "How to say no to scope creep",
+                    "How to get testimonials from clients",
+                    "Time tracking methods that work",
+                    "How to transition from job to freelance",
+                    "Cold email templates that work",
+                    "How to raise your rates confidently"
+                ],
+                promo: [
+                    "Services I offer (and what they cost)",
+                    "Client case study with results",
+                    "Booking open for next month",
+                    "My portfolio update: recent projects",
+                    "Testimonial feature from happy client"
+                ],
+                personal: [
+                    "Why I chose freelancing over a 9-5",
+                    "My income journey: month 1 vs now",
+                    "Hardest lesson as a freelancer",
+                    "A day in my work-from-home life",
+                    "Imposter syndrome: how I deal with it"
+                ],
+                hashtags: ["#Freelancer", "#FreelanceIndia", "#WorkFromHome", "#SideHustle", "#PersonalBrand", "#ClientWork"]
+            },
+            local: {
+                value: [
+                    "How to get more Google reviews",
+                    "WhatsApp Business setup guide",
+                    "Local SEO tips for small shops",
+                    "How to create offers that bring foot traffic",
+                    "Social media for local businesses",
+                    "How to compete with big brands locally",
+                    "Customer loyalty program ideas",
+                    "How to use location tags effectively",
+                    "Festive marketing ideas for local shops",
+                    "How to handle online complaints",
+                    "Google My Business optimization",
+                    "Word-of-mouth in the digital age",
+                    "How to train staff for social media",
+                    "Local partnerships that grow business"
+                ],
+                promo: [
+                    "This week's special offer",
+                    "Happy customer spotlight",
+                    "New service/product announcement",
+                    "Festival special: limited time",
+                    "Refer a friend and get discount"
+                ],
+                personal: [
+                    "How our family started this business",
+                    "What our regulars mean to us",
+                    "A day running our shop",
+                    "Changes we made based on feedback",
+                    "Our journey from 1 customer to 1000"
+                ],
+                hashtags: ["#LocalBusiness", "#SupportLocal", "#SmallBusiness", "#ShopLocal", "#CommunityFirst", "#Neighbourhood"]
+            }
+        };
+
+        const formats = {
+            instagram: ["Carousel", "Reel", "Single Image", "Stories Series", "Quote Graphic"],
+            linkedin: ["Text Post", "Document/Carousel", "Poll", "Article", "Video"],
+            youtube: ["Long Video", "Shorts", "Community Post", "Live Stream"],
+            twitter: ["Thread", "Single Tweet", "Poll", "Quote Tweet"],
+            facebook: ["Image Post", "Video", "Live", "Poll", "Link Post"]
+        };
+
+        let calendarData = [];
+
+        function generateCalendar() {
+            const bizName = document.getElementById('bizName').value || "Your Brand";
+            const niche = document.getElementById('niche').value;
+            const city = document.getElementById('city').value || "Your City";
+            const frequency = document.getElementById('frequency').value;
+
+            const selectedPlatforms = [];
+            document.querySelectorAll('.checkbox-group input:checked').forEach(cb => {
+                selectedPlatforms.push(cb.value);
+            });
+
+            if (selectedPlatforms.length === 0) {
+                alert("Please select at least one platform.");
+                return;
+            }
+
+            const nicheData = contentIdeas[niche];
+            const postDays = getPostDays(frequency);
+
+            calendarData = [];
+            let valueIndex = 0, promoIndex = 0, personalIndex = 0;
+            let postCount = 0;
+
+            for (let day = 1; day <= 30; day++) {
+                if (!postDays.includes(day)) {
+                    calendarData.push({
+                        day: day,
+                        type: "rest",
+                        topic: "Rest Day",
+                        format: "—",
+                        hashtags: ""
+                    });
+                    continue;
+                }
+
+                postCount++;
+                let type;
+                const cyclePosition = postCount % 6;
+
+                if (cyclePosition === 5) {
+                    type = "promo";
+                } else if (cyclePosition === 0) {
+                    type = "personal";
+                } else {
+                    type = "value";
+                }
+
+                let topic, hashtagList;
+                const platform = selectedPlatforms[Math.floor(Math.random() * selectedPlatforms.length)];
+                const formatOptions = formats[platform] || formats.instagram;
+                const format = formatOptions[Math.floor(Math.random() * formatOptions.length)];
+
+                if (type === "value") {
+                    topic = nicheData.value[valueIndex % nicheData.value.length];
+                    valueIndex++;
+                } else if (type === "promo") {
+                    topic = nicheData.promo[promoIndex % nicheData.promo.length];
+                    promoIndex++;
+                } else {
+                    topic = nicheData.personal[personalIndex % nicheData.personal.length];
+                    personalIndex++;
+                }
+
+                const tags = nicheData.hashtags.slice(0, 3).join(" ");
+
+                calendarData.push({
+                    day: day,
+                    type: type,
+                    topic: topic,
+                    format: format + " (" + platform + ")",
+                    hashtags: tags
+                });
+            }
+
+            renderCalendar();
+            renderStats(postCount);
+            document.getElementById('calendarSection').classList.add('visible');
+            document.getElementById('calendarSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getPostDays(frequency) {
+            const days = [];
+            if (frequency === "daily") {
+                for (let i = 1; i <= 30; i++) days.push(i);
+            } else if (frequency === "weekdays") {
+                for (let i = 1; i <= 30; i++) {
+                    const dayOfWeek = (i % 7);
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6) days.push(i);
+                }
+            } else {
+                for (let i = 1; i <= 30; i += 2) {
+                    days.push(i);
+                    if (days.length >= 13) break;
+                }
+            }
+            return days;
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+            let html = dayNames.map(d => `<div class="day-header">${d}</div>`).join('');
+
+            calendarData.forEach(item => {
+                const typeLabel = item.type === "value" ? "EDUCATE" :
+                                  item.type === "promo" ? "PROMOTE" :
+                                  item.type === "personal" ? "PERSONAL" : "REST";
+
+                html += `
+                    <div class="day-card ${item.type}">
+                        <div class="day-number">Day ${item.day}</div>
+                        <div class="day-type">${typeLabel}</div>
+                        <div class="day-topic">${item.topic}</div>
+                        <div class="day-format">${item.format}</div>
+                        ${item.hashtags ? `<div class="day-hashtags">${item.hashtags}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function renderStats(totalPosts) {
+            const valueCount = calendarData.filter(d => d.type === "value").length;
+            const promoCount = calendarData.filter(d => d.type === "promo").length;
+            const personalCount = calendarData.filter(d => d.type === "personal").length;
+
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalPosts}</div>
+                    <div class="stat-label">Total Posts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${valueCount}</div>
+                    <div class="stat-label">Value Posts (67%)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${promoCount}</div>
+                    <div class="stat-label">Promo Posts (17%)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${personalCount}</div>
+                    <div class="stat-label">Personal Posts (17%)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">4:1:1</div>
+                    <div class="stat-label">Content Ratio</div>
+                </div>
+            `;
+        }
+
+        function exportCalendar() {
+            let text = "30-DAY SOCIAL MEDIA CALENDAR\n";
+            text += "Generated by TechPath Academy Calendar Tool\n";
+            text += "=".repeat(50) + "\n\n";
+
+            calendarData.forEach(item => {
+                if (item.type !== "rest") {
+                    text += `Day ${item.day} | ${item.type.toUpperCase()} | ${item.topic}\n`;
+                    text += `  Format: ${item.format}\n`;
+                    if (item.hashtags) text += `  Hashtags: ${item.hashtags}\n`;
+                    text += "\n";
+                }
+            });
+
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Calendar copied to clipboard! Paste it into Notion, Google Sheets, or any notes app.");
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("Calendar copied to clipboard!");
+            });
+        }
+    </script>
+</body>
+</html>

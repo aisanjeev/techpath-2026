@@ -1,0 +1,64 @@
+{
+  "questions": [
+    {
+      "question": "What does API stand for?",
+      "options": ["Application Programming Interface", "Advanced Program Integration", "Application Process Input", "Automated Programming Interface"],
+      "correct_index": 0,
+      "explanation": "API = Application Programming Interface — a way for two programs (frontend and backend) to communicate."
+    },
+    {
+      "question": "Which HTTP method is used to create new data?",
+      "options": ["GET", "POST", "DELETE", "PATCH"],
+      "correct_index": 1,
+      "explanation": "POST creates new data. GET reads, PUT/PATCH updates, DELETE removes."
+    },
+    {
+      "question": "What does status code 404 mean?",
+      "options": ["Server error", "Unauthorized", "Not Found", "Success"],
+      "correct_index": 2,
+      "explanation": "404 = Not Found — the requested resource (page, data) doesn't exist at that URL."
+    },
+    {
+      "question": "What is FastAPI?",
+      "options": ["A JavaScript framework", "A modern Python framework for building APIs", "A database tool", "A frontend library"],
+      "correct_index": 1,
+      "explanation": "FastAPI is a fast, modern Python framework for building REST APIs with automatic documentation."
+    },
+    {
+      "question": "What command runs a FastAPI server?",
+      "options": ["python run server", "fastapi start", "uvicorn main:app --reload", "flask run"],
+      "correct_index": 2,
+      "explanation": "uvicorn main:app --reload starts the FastAPI server with hot-reload for development."
+    },
+    {
+      "question": "What is the main advantage of Django over FastAPI?",
+      "options": ["Faster performance", "Built-in admin panel, ORM, and templates", "Better for APIs", "Easier to learn"],
+      "correct_index": 1,
+      "explanation": "Django comes with admin panel, ORM, auth, templates — everything included. FastAPI is lighter, focused on APIs."
+    },
+    {
+      "question": "What is a JWT used for?",
+      "options": ["Styling web pages", "Token-based user authentication", "Database queries", "File compression"],
+      "correct_index": 1,
+      "explanation": "JWT (JSON Web Token) is used for authentication — the server creates a token, client sends it with each request."
+    },
+    {
+      "question": "What does the backend handle?",
+      "options": ["UI design and animations", "Database, business logic, and authentication", "Browser rendering", "CSS styling"],
+      "correct_index": 1,
+      "explanation": "The backend handles server-side logic: database operations, authentication, business rules, and API responses."
+    },
+    {
+      "question": "In REST APIs, what does GET /students/1 do?",
+      "options": ["Creates student 1", "Gets data of student with ID 1", "Deletes student 1", "Updates student 1"],
+      "correct_index": 1,
+      "explanation": "GET /students/1 retrieves the data of the student with ID 1 from the database."
+    },
+    {
+      "question": "What does Pydantic do in FastAPI?",
+      "options": ["Connects to database", "Validates request data using Python type hints", "Renders HTML templates", "Handles authentication"],
+      "correct_index": 1,
+      "explanation": "Pydantic validates incoming data. Define a model with types, and FastAPI auto-validates requests against it."
+    }
+  ]
+}

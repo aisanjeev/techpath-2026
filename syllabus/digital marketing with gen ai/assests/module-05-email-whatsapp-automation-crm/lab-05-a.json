@@ -1,0 +1,36 @@
+{
+  "title": "Build a Complete Email Welcome Sequence",
+  "module": 5,
+  "lab": "A",
+  "duration": "90 minutes",
+  "tools_required": ["MailerLite (free account)", "Web browser", "Canva (for lead magnet mockup)"],
+  "learning_outcomes": [
+    "Set up an email marketing account and import contacts",
+    "Create an opt-in form connected to a lead magnet",
+    "Write and design a multi-email welcome sequence",
+    "Configure automation triggers and timing",
+    "Test and analyze email campaign performance"
+  ],
+  "steps": [
+    {
+      "title": "Set Up MailerLite Account and Import Contacts",
+      "instructions": "1. Go to mailerlite.com and create a free account using your email address.\n2. Complete the account setup — verify your email, add your business name as 'TechPath Academy' and set your timezone to IST.\n3. Navigate to Subscribers > Groups and create a new group called 'Welcome Sequence Leads'.\n4. Create a CSV file with 10 test contacts (use Indian names like Rahul Sharma, Priya Patel, Ananya Gupta, etc. with test email addresses).\n5. Import the CSV into your 'Welcome Sequence Leads' group.\n6. Verify all 10 contacts appear in the group.\n7. Take a screenshot of your subscriber list showing the imported contacts."
+    },
+    {
+      "title": "Create Opt-In Form with Lead Magnet",
+      "instructions": "1. Go to Forms > Embedded Forms > Create Form.\n2. Choose 'Pop-up' form type.\n3. Design the form with:\n   - Headline: 'Get Our Free Digital Marketing Toolkit'\n   - Description: 'Download 10 free tools every Indian business needs. Join 2,000+ marketers.'\n   - Fields: Name and Email only\n   - Button text: 'Send Me the Toolkit'\n   - Success message: 'Check your inbox! Your toolkit is on its way.'\n4. Set the form to add subscribers to your 'Welcome Sequence Leads' group.\n5. Style the form using brand colors (primary: dark blue, accent: orange).\n6. Preview on both desktop and mobile views.\n7. Copy the embed code — you will use this later.\n8. Take a screenshot of your completed form design."
+    },
+    {
+      "title": "Write and Design 5 Welcome Emails",
+      "instructions": "1. Go to Campaigns > Create Campaign for each email (or use Automation emails).\n2. Create Email 1 — 'Welcome + Deliver Lead Magnet':\n   - Subject: 'Your Digital Marketing Toolkit is here'\n   - Design: Use the drag-and-drop editor. Add logo, greeting with {$name}, download button, brief intro about TechPath Academy.\n3. Create Email 2 — 'Our Story' (Day 1):\n   - Subject: 'How we helped 500+ students get placed'\n   - Content: Brief story of TechPath Academy, share a student success stat, end with a helpful tip.\n4. Create Email 3 — 'Quick Win' (Day 3):\n   - Subject: 'Do this ONE thing to boost your LinkedIn'\n   - Content: One actionable LinkedIn optimization tip they can do in 10 minutes.\n5. Create Email 4 — 'Social Proof' (Day 5):\n   - Subject: 'Ananya went from fresher to Rs 6 LPA in 4 months'\n   - Content: Student success story with specific results.\n6. Create Email 5 — 'Soft Pitch' (Day 7):\n   - Subject: 'Ready to start your digital marketing career?'\n   - Content: Introduce the course, benefits, enrollment CTA.\n7. For each email: add preheader text, use a clean single-column layout, include an unsubscribe link, and test mobile rendering.\n8. Take screenshots of all 5 email designs."
+    },
+    {
+      "title": "Set Up Automation Workflow with Triggers",
+      "instructions": "1. Go to Automation > Create Workflow.\n2. Set the trigger: 'When subscriber joins group — Welcome Sequence Leads'.\n3. Add your 5 emails in sequence with delays:\n   - Email 1: Send immediately (0 delay)\n   - Wait 1 day\n   - Email 2: Send\n   - Wait 2 days\n   - Email 3: Send\n   - Wait 2 days\n   - Email 4: Send\n   - Wait 2 days\n   - Email 5: Send\n4. Add a condition after Email 3: If subscriber clicked any link > Tag as 'Engaged'.\n5. Add a final action: After Email 5, move subscriber to a new group 'Nurture List'.\n6. Review the complete workflow visual — make sure all connections are correct.\n7. Name your workflow 'Welcome Sequence - DM Course 2026'.\n8. Set the workflow to active.\n9. Take a screenshot of the complete automation flow."
+    },
+    {
+      "title": "Test the Complete Sequence and Review Analytics",
+      "instructions": "1. Add yourself (your personal email) to the 'Welcome Sequence Leads' group to trigger the automation.\n2. Check your inbox — verify Email 1 arrives immediately.\n3. While waiting for subsequent emails, review the workflow analytics:\n   - Go to Automation > Your workflow > Activity tab\n   - Verify your email shows as 'In progress' in the workflow\n4. Open Email 1 and click a link — this tests your tracking.\n5. After 24 hours (or use the 'Skip delay' option in testing), verify Email 2 arrives.\n6. Document the following metrics for your test:\n   - Delivery rate (should be 100% for test)\n   - Open rate tracking working (check in dashboard)\n   - Click tracking working (check if link clicks are recorded)\n7. Go to the subscriber profile and verify tags and group assignments are updating correctly.\n8. Take final screenshots showing: workflow activity log, subscriber journey, and any stats available.\n9. Write a brief reflection (5 sentences): What went well, what was tricky, what would you improve for a real business."
+    }
+  ]
+}

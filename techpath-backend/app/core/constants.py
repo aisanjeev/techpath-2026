@@ -98,7 +98,9 @@ class AssetTypeRule:
 
 
 ASSET_TYPE_RULES: dict[AssetType, AssetTypeRule] = {
-    AssetType.MARKDOWN: AssetTypeRule(AssetStorageKind.INLINE_TEXT, "Markdown"),
+    AssetType.MARKDOWN: AssetTypeRule(
+        AssetStorageKind.FILE, "Markdown", 10, ["text/markdown", "text/plain"], [".md", ".markdown", ".txt"]
+    ),
     AssetType.NOTES: AssetTypeRule(AssetStorageKind.INLINE_TEXT, "Notes"),
     AssetType.CHEAT_SHEET: AssetTypeRule(AssetStorageKind.INLINE_TEXT, "Cheat Sheet"),
     AssetType.CODE_SNIPPET: AssetTypeRule(AssetStorageKind.INLINE_TEXT, "Code Snippet"),

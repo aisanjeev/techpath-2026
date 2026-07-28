@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketing Math Calculator — TechPath Academy</title>
+<style>
+:root {
+  --bg: #0f172a; --card: #1e293b; --card-hover: #334155;
+  --text: #e2e8f0; --text-dim: #94a3b8; --accent: #38bdf8;
+  --success: #4ade80; --warning: #fbbf24; --danger: #f87171;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; }
+.container { max-width: 900px; margin: 0 auto; }
+.brand { text-align: center; font-size: 0.7rem; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+h1 { text-align: center; font-size: 1.5rem; margin-bottom: 4px; }
+.subtitle { text-align: center; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 24px; }
+.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.calc-card { background: var(--card); border-radius: 12px; padding: 20px; transition: 0.2s; }
+.calc-card:hover { background: var(--card-hover); }
+.calc-card h3 { color: var(--accent); font-size: 0.95rem; margin-bottom: 4px; }
+.calc-card .formula { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 14px; font-family: monospace; background: var(--bg); padding: 6px 10px; border-radius: 6px; }
+.input-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.input-group { flex: 1; min-width: 120px; }
+.input-group label { display: block; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 4px; }
+.input-group input { width: 100%; padding: 8px 10px; background: var(--bg); border: 1.5px solid var(--card-hover); border-radius: 6px; color: var(--text); font-size: 0.9rem; }
+.input-group input:focus { outline: none; border-color: var(--accent); }
+.btn-calc { padding: 8px 16px; background: var(--accent); color: var(--bg); border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+.btn-calc:hover { opacity: 0.85; }
+.result-box { margin-top: 12px; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; display: none; animation: fadeIn 0.3s; }
+.result-box.good { background: rgba(74,222,128,0.1); border: 1px solid var(--success); color: var(--success); }
+.result-box.avg { background: rgba(251,191,36,0.1); border: 1px solid var(--warning); color: var(--warning); }
+.result-box.bad { background: rgba(248,113,113,0.1); border: 1px solid var(--danger); color: var(--danger); }
+.benchmark { font-size: 0.75rem; font-weight: 400; margin-top: 6px; color: var(--text-dim); }
+
+/* Practice Section */
+.practice { background: var(--card); border-radius: 12px; padding: 24px; margin-top: 20px; }
+.practice h2 { color: var(--accent); margin-bottom: 16px; font-size: 1.1rem; }
+.problem { background: var(--bg); border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+.problem p { font-size: 0.9rem; margin-bottom: 10px; }
+.problem .answer-row { display: flex; gap: 8px; align-items: center; }
+.problem input { padding: 8px 12px; background: var(--card); border: 1.5px solid var(--card-hover); border-radius: 6px; color: var(--text); font-size: 0.9rem; width: 140px; }
+.problem input:focus { outline: none; border-color: var(--accent); }
+.problem button { padding: 8px 14px; background: var(--accent); color: var(--bg); border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+.feedback { margin-top: 8px; font-size: 0.85rem; padding: 8px; border-radius: 6px; display: none; }
+.feedback.correct { display: block; background: rgba(74,222,128,0.1); color: var(--success); }
+.feedback.wrong { display: block; background: rgba(248,113,113,0.1); color: var(--danger); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 700px) { .calc-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="brand">TechPath Academy</div>
+  <h1>Marketing Math Calculator</h1>
+  <p class="subtitle">Calculate key metrics and see how they compare to Indian industry benchmarks</p>
+
+  <div class="calc-grid">
+    <div class="calc-card">
+      <h3>CAC (Customer Acquisition Cost)</h3>
+      <div class="formula">CAC = Total Marketing Spend / New Customers</div>
+      <div class="input-row">
+        <div class="input-group"><label>Total Spend (INR)</label><input type="number" id="cac-spend" placeholder="50000"></div>
+        <div class="input-group"><label>Customers Acquired</label><input type="number" id="cac-cust" placeholder="25"></div>
+      </div>
+      <button class="btn-calc" onclick="calcCAC()">Calculate</button>
+      <div class="result-box" id="cac-result"></div>
+    </div>
+
+    <div class="calc-card">
+      <h3>LTV (Customer Lifetime Value)</h3>
+      <div class="formula">LTV = Avg Purchase x Frequency x Lifespan</div>
+      <div class="input-row">
+        <div class="input-group"><label>Avg Purchase (INR)</label><input type="number" id="ltv-avg" placeholder="2000"></div>
+        <div class="input-group"><label>Purchases/Year</label><input type="number" id="ltv-freq" placeholder="4"></div>
+        <div class="input-group"><label>Years Retained</label><input type="number" id="ltv-years" placeholder="3"></div>
+      </div>
+      <button class="btn-calc" onclick="calcLTV()">Calculate</button>
+      <div class="result-box" id="ltv-result"></div>
+    </div>
+
+    <div class="calc-card">
+      <h3>ROAS (Return on Ad Spend)</h3>
+      <div class="formula">ROAS = Revenue from Ads / Ad Spend</div>
+      <div class="input-row">
+        <div class="input-group"><label>Revenue from Ads (INR)</label><input type="number" id="roas-rev" placeholder="200000"></div>
+        <div class="input-group"><label>Ad Spend (INR)</label><input type="number" id="roas-spend" placeholder="50000"></div>
+      </div>
+      <button class="btn-calc" onclick="calcROAS()">Calculate</button>
+      <div class="result-box" id="roas-result"></div>
+    </div>
+
+    <div class="calc-card">
+      <h3>CTR (Click-Through Rate)</h3>
+      <div class="formula">CTR = (Clicks / Impressions) x 100</div>
+      <div class="input-row">
+        <div class="input-group"><label>Clicks</label><input type="number" id="ctr-clicks" placeholder="150"></div>
+        <div class="input-group"><label>Impressions</label><input type="number" id="ctr-imp" placeholder="10000"></div>
+      </div>
+      <button class="btn-calc" onclick="calcCTR()">Calculate</button>
+      <div class="result-box" id="ctr-result"></div>
+    </div>
+
+    <div class="calc-card">
+      <h3>CPC / CPM Calculator</h3>
+      <div class="formula">CPC = Spend/Clicks | CPM = (Spend/Impressions) x 1000</div>
+      <div class="input-row">
+        <div class="input-group"><label>Ad Spend (INR)</label><input type="number" id="cpc-spend" placeholder="10000"></div>
+        <div class="input-group"><label>Clicks</label><input type="number" id="cpc-clicks" placeholder="500"></div>
+        <div class="input-group"><label>Impressions</label><input type="number" id="cpc-imp" placeholder="50000"></div>
+      </div>
+      <button class="btn-calc" onclick="calcCPC()">Calculate</button>
+      <div class="result-box" id="cpc-result"></div>
+    </div>
+
+    <div class="calc-card">
+      <h3>Break-Even Calculator</h3>
+      <div class="formula">Break-Even = Fixed Costs / (Price - Variable Cost)</div>
+      <div class="input-row">
+        <div class="input-group"><label>Fixed Costs (INR)</label><input type="number" id="be-fixed" placeholder="100000"></div>
+        <div class="input-group"><label>Price per Unit (INR)</label><input type="number" id="be-price" placeholder="5000"></div>
+        <div class="input-group"><label>Variable Cost (INR)</label><input type="number" id="be-var" placeholder="2000"></div>
+      </div>
+      <button class="btn-calc" onclick="calcBE()">Calculate</button>
+      <div class="result-box" id="be-result"></div>
+    </div>
+  </div>
+
+  <div class="practice">
+    <h2>Practice Problems</h2>
+    <div class="problem" id="p1">
+      <p><strong>Q1:</strong> Rahul spent &#8377;50,000 on Google Ads and got 25 customers. What is his CAC?</p>
+      <div class="answer-row"><input type="number" id="a1" placeholder="Your answer (INR)"><button onclick="checkP(1,2000)">Check</button></div>
+      <div class="feedback" id="f1"></div>
+    </div>
+    <div class="problem" id="p2">
+      <p><strong>Q2:</strong> Sneha's Instagram ad got 300 clicks from 20,000 impressions. What is her CTR (%)?</p>
+      <div class="answer-row"><input type="number" step="0.01" id="a2" placeholder="Your answer (%)"><button onclick="checkP(2,1.5)">Check</button></div>
+      <div class="feedback" id="f2"></div>
+    </div>
+    <div class="problem" id="p3">
+      <p><strong>Q3:</strong> Amit spent &#8377;30,000 on ads and earned &#8377;1,20,000 in sales. What is his ROAS?</p>
+      <div class="answer-row"><input type="number" step="0.1" id="a3" placeholder="Your answer (x)"><button onclick="checkP(3,4)">Check</button></div>
+      <div class="feedback" id="f3"></div>
+    </div>
+    <div class="problem" id="p4">
+      <p><strong>Q4:</strong> A customer buys worth &#8377;1,500 every quarter for 2 years. What is the LTV?</p>
+      <div class="answer-row"><input type="number" id="a4" placeholder="Your answer (INR)"><button onclick="checkP(4,12000)">Check</button></div>
+      <div class="feedback" id="f4"></div>
+    </div>
+    <div class="problem" id="p5">
+      <p><strong>Q5:</strong> Meera's fixed costs are &#8377;2,00,000. She sells courses at &#8377;10,000 with &#8377;2,000 variable cost. How many sales to break even?</p>
+      <div class="answer-row"><input type="number" id="a5" placeholder="Your answer"><button onclick="checkP(5,25)">Check</button></div>
+      <div class="feedback" id="f5"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showResult(id, value, label, rating, bench) {
+  const el = document.getElementById(id);
+  el.style.display = 'block';
+  el.className = 'result-box ' + rating;
+  el.innerHTML = `<span>${label}: ${value}</span><div class="benchmark">${bench}</div>`;
+}
+
+function calcCAC() {
+  const spend = +document.getElementById('cac-spend').value;
+  const cust = +document.getElementById('cac-cust').value;
+  if (!spend || !cust) return;
+  const cac = spend / cust;
+  let rating = 'good', bench = 'Indian benchmark: Below INR 1,500 is great for most B2C businesses.';
+  if (cac > 3000) { rating = 'bad'; bench = 'Above INR 3,000 — high for most Indian B2C. Optimize targeting or landing pages.'; }
+  else if (cac > 1500) { rating = 'avg'; bench = 'INR 1,500-3,000 is average. Room to improve.'; }
+  showResult('cac-result', '₹' + cac.toFixed(0), 'CAC', rating, bench);
+}
+
+function calcLTV() {
+  const avg = +document.getElementById('ltv-avg').value;
+  const freq = +document.getElementById('ltv-freq').value;
+  const years = +document.getElementById('ltv-years').value;
+  if (!avg || !freq || !years) return;
+  const ltv = avg * freq * years;
+  let rating = 'good', bench = 'Healthy LTV. Aim for LTV:CAC ratio of 3:1 or better.';
+  if (ltv < 5000) { rating = 'bad'; bench = 'Low LTV. Focus on increasing purchase frequency or retention.'; }
+  else if (ltv < 20000) { rating = 'avg'; bench = 'Moderate LTV. Upselling and loyalty programs can boost this.'; }
+  showResult('ltv-result', '₹' + ltv.toLocaleString('en-IN'), 'LTV', rating, bench);
+}
+
+function calcROAS() {
+  const rev = +document.getElementById('roas-rev').value;
+  const spend = +document.getElementById('roas-spend').value;
+  if (!rev || !spend) return;
+  const roas = rev / spend;
+  let rating = 'good', bench = 'Indian benchmark: 4x+ ROAS is excellent for most campaigns.';
+  if (roas < 2) { rating = 'bad'; bench = 'Below 2x — you are losing money after costs. Review targeting.'; }
+  else if (roas < 4) { rating = 'avg'; bench = '2-4x is break-even to moderate profit. Optimize creatives.'; }
+  showResult('roas-result', roas.toFixed(2) + 'x', 'ROAS', rating, bench);
+}
+
+function calcCTR() {
+  const clicks = +document.getElementById('ctr-clicks').value;
+  const imp = +document.getElementById('ctr-imp').value;
+  if (!clicks || !imp) return;
+  const ctr = (clicks / imp) * 100;
+  let rating = 'good', bench = 'Indian benchmark: 2%+ CTR is strong for search ads, 0.8%+ for display.';
+  if (ctr < 0.5) { rating = 'bad'; bench = 'Below 0.5% — ad copy or targeting needs major improvement.'; }
+  else if (ctr < 1.5) { rating = 'avg'; bench = '0.5-1.5% is average. Test new headlines and CTAs.'; }
+  showResult('ctr-result', ctr.toFixed(2) + '%', 'CTR', rating, bench);
+}
+
+function calcCPC() {
+  const spend = +document.getElementById('cpc-spend').value;
+  const clicks = +document.getElementById('cpc-clicks').value;
+  const imp = +document.getElementById('cpc-imp').value;
+  if (!spend) return;
+  let html = '';
+  if (clicks) { const cpc = spend / clicks; html += `CPC: ₹${cpc.toFixed(2)}`; }
+  if (imp) { const cpm = (spend / imp) * 1000; html += (html ? ' | ' : '') + `CPM: ₹${cpm.toFixed(2)}`; }
+  let rating = 'good', bench = 'Indian benchmark: CPC INR 5-30 (search), CPM INR 40-150 (display).';
+  if (clicks && spend/clicks > 30) { rating = 'avg'; } if (clicks && spend/clicks > 60) { rating = 'bad'; bench = 'High CPC. Improve quality score or try long-tail keywords.'; }
+  showResult('cpc-result', html, '', rating, bench);
+}
+
+function calcBE() {
+  const fixed = +document.getElementById('be-fixed').value;
+  const price = +document.getElementById('be-price').value;
+  const varCost = +document.getElementById('be-var').value;
+  if (!fixed || !price || price <= varCost) return;
+  const be = Math.ceil(fixed / (price - varCost));
+  let rating = 'good', bench = 'Break-even in under 50 units is achievable for most small businesses.';
+  if (be > 200) { rating = 'bad'; bench = 'High break-even. Consider raising price or cutting fixed costs.'; }
+  else if (be > 50) { rating = 'avg'; bench = 'Moderate. Ensure your sales pipeline can deliver these numbers.'; }
+  showResult('be-result', be + ' units', 'Break-Even', rating, bench);
+}
+
+function checkP(n, correct) {
+  const userAns = +document.getElementById('a' + n).value;
+  const fb = document.getElementById('f' + n);
+  const tolerance = correct * 0.05;
+  if (Math.abs(userAns - correct) <= tolerance) {
+    fb.className = 'feedback correct';
+    fb.textContent = 'Correct! The answer is ' + (n === 3 ? correct + 'x' : (n === 2 ? correct + '%' : '₹' + correct.toLocaleString('en-IN')));
+  } else {
+    fb.className = 'feedback wrong';
+    fb.textContent = 'Not quite. The correct answer is ' + (n === 3 ? correct + 'x' : (n === 2 ? correct + '%' : '₹' + correct.toLocaleString('en-IN'))) + '. Try working through the formula again.';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "asset_type": "lab",
+  "title": "Build a Contact Book with File Storage",
+  "description": "Create a command-line contact book app using Python dictionaries, lists, and JSON file I/O",
+  "tags": [
+    "python",
+    "file-io",
+    "json",
+    "functions",
+    "cli"
+  ],
+  "status": "draft",
+  "objective": "Students will build a contact book application that stores contacts in a JSON file, practicing functions, dictionaries, file handling, and input validation",
+  "steps": [
+    {
+      "title": "Set Up the Project",
+      "instructions": "Create a file `contact_book.py`.\n\nStart with the basic structure:\n```python\nimport json\nimport os\n\nCONTACTS_FILE = \"contacts.json\"\n\ndef load_contacts():\n    if os.path.exists(CONTACTS_FILE):\n        with open(CONTACTS_FILE, \"r\") as f:\n            return json.load(f)\n    return []\n\ndef save_contacts(contacts):\n    with open(CONTACTS_FILE, \"w\") as f:\n        json.dump(contacts, f, indent=2)\n\ndef main():\n    contacts = load_contacts()\n    print(\"=== Contact Book ===\")\n    print(f\"Loaded {len(contacts)} contacts.\")\n\nif __name__ == \"__main__\":\n    main()\n```\n\nRun it: `python contact_book.py` — should print \"Loaded 0 contacts.\""
+    },
+    {
+      "title": "Add the Menu and Add Contact",
+      "instructions": "Update `main()` with a menu loop:\n```python\ndef main():\n    contacts = load_contacts()\n    print(f\"=== Contact Book ({len(contacts)} contacts) ===\")\n\n    while True:\n        print(\"\\n1. Add Contact\")\n        print(\"2. View All\")\n        print(\"3. Search\")\n        print(\"4. Delete\")\n        print(\"5. Exit\")\n        choice = input(\"\\nChoice: \").strip()\n\n        if choice == \"1\":\n            add_contact(contacts)\n        elif choice == \"2\":\n            view_contacts(contacts)\n        elif choice == \"3\":\n            search_contacts(contacts)\n        elif choice == \"4\":\n            delete_contact(contacts)\n        elif choice == \"5\":\n            print(\"Goodbye!\")\n            break\n        else:\n            print(\"Invalid choice.\")\n```\n\nNow create the `add_contact` function:\n```python\ndef add_contact(contacts):\n    name = input(\"Name: \").strip()\n    if not name:\n        print(\"Name cannot be empty.\")\n        return\n\n    phone = input(\"Phone (10 digits): \").strip()\n    if not phone.isdigit() or len(phone) != 10:\n        print(\"Invalid phone number.\")\n        return\n\n    email = input(\"Email (optional): \").strip()\n    city = input(\"City (optional): \").strip()\n\n    contact = {\n        \"name\": name,\n        \"phone\": phone,\n        \"email\": email or \"N/A\",\n        \"city\": city or \"N/A\",\n    }\n    contacts.append(contact)\n    save_contacts(contacts)\n    print(f\"Added: {name}\")\n```\n\nTest: Run → choose 1 → add a contact → check that `contacts.json` was created."
+    },
+    {
+      "title": "Add View, Search, and Delete",
+      "instructions": "```python\ndef view_contacts(contacts):\n    if not contacts:\n        print(\"No contacts yet.\")\n        return\n\n    print(f\"\\n{'#':<4} {'Name':<20} {'Phone':<14} {'Email':<25} {'City':<12}\")\n    print(\"-\" * 75)\n    for i, c in enumerate(contacts, 1):\n        print(f\"{i:<4} {c['name']:<20} {c['phone']:<14} {c['email']:<25} {c['city']:<12}\")\n\n\ndef search_contacts(contacts):\n    query = input(\"Search: \").strip().lower()\n    results = [\n        c for c in contacts\n        if query in c[\"name\"].lower() or query in c[\"phone\"]\n    ]\n\n    if not results:\n        print(\"No matches found.\")\n        return\n\n    print(f\"\\nFound {len(results)} result(s):\")\n    for c in results:\n        print(f\"  {c['name']} — {c['phone']} — {c['email']} — {c['city']}\")\n\n\ndef delete_contact(contacts):\n    view_contacts(contacts)\n    if not contacts:\n        return\n\n    try:\n        idx = int(input(\"\\nEnter # to delete: \")) - 1\n        if 0 <= idx < len(contacts):\n            removed = contacts.pop(idx)\n            save_contacts(contacts)\n            print(f\"Deleted: {removed['name']}\")\n        else:\n            print(\"Invalid number.\")\n    except ValueError:\n        print(\"Please enter a number.\")\n```\n\nTest each function: add 3-4 contacts, view them, search by name, delete one."
+    },
+    {
+      "title": "Test All Scenarios",
+      "instructions": "Run through these tests:\n\n| Test | Action | Expected |\n|------|--------|----------|\n| Add valid | Name: Rahul, Phone: 9876543210 | \"Added: Rahul\" |\n| Add empty name | Name: (just press Enter) | \"Name cannot be empty\" |\n| Add bad phone | Phone: 123 | \"Invalid phone number\" |\n| View all | Choose 2 | Table with all contacts |\n| Search by name | Search: rah | Finds Rahul |\n| Search by phone | Search: 987 | Finds matching contacts |\n| Search not found | Search: xyz | \"No matches found\" |\n| Delete | Enter #1 | Removes first contact |\n| Restart program | Run again | Contacts load from JSON |\n\nOpen `contacts.json` in VS Code — it should have valid JSON."
+    },
+    {
+      "title": "Add Export to CSV",
+      "instructions": "Add a new menu option to export contacts:\n```python\nimport csv\n\ndef export_to_csv(contacts):\n    if not contacts:\n        print(\"No contacts to export.\")\n        return\n\n    with open(\"contacts_export.csv\", \"w\", newline=\"\") as f:\n        writer = csv.DictWriter(f, fieldnames=[\"name\", \"phone\", \"email\", \"city\"])\n        writer.writeheader()\n        writer.writerows(contacts)\n\n    print(f\"Exported {len(contacts)} contacts to contacts_export.csv\")\n```\n\nAdd option 5 in the menu (move Exit to 6).\n\nTest:\n- Add 3+ contacts → export → open `contacts_export.csv` in Excel\n- Verify all columns and data look correct\n- Try importing the CSV back into a fresh program\n\n**Submit:** Your `contact_book.py` file + screenshot of running the program + the exported CSV."
+    }
+  ],
+  "starter_code": "import json\nimport os\n\nCONTACTS_FILE = \"contacts.json\"\n\ndef load_contacts():\n    # TODO: load from JSON file\n    return []\n\ndef save_contacts(contacts):\n    # TODO: save to JSON file\n    pass\n\ndef main():\n    contacts = load_contacts()\n    # TODO: add menu loop\n\nif __name__ == \"__main__\":\n    main()",
+  "expected_output": "A working contact book that adds, views, searches, and deletes contacts — with data persisting in a JSON file across program restarts"
+}

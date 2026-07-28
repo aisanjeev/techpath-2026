@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "question": "What does `git init` do?",
+      "options": [
+        "A) Downloads a repository from GitHub",
+        "B) Creates a new Git repository in the current directory",
+        "C) Pushes code to a remote server",
+        "D) Installs Git on your computer"
+      ],
+      "correct_index": 1,
+      "explanation": "git init initializes a new Git repository in the current directory by creating a hidden .git folder that tracks all version history."
+    },
+    {
+      "question": "Which command moves files from the Working Directory to the Staging Area?",
+      "options": [
+        "A) git commit",
+        "B) git push",
+        "C) git add",
+        "D) git status"
+      ],
+      "correct_index": 2,
+      "explanation": "git add stages files, marking them as ready to be included in the next commit. git commit then saves the staged changes to the repository."
+    },
+    {
+      "question": "What is the purpose of a `.gitignore` file?",
+      "options": [
+        "A) To list files that should be deleted from the project",
+        "B) To specify files and folders that Git should NOT track",
+        "C) To ignore error messages in the terminal",
+        "D) To hide files from other team members"
+      ],
+      "correct_index": 1,
+      "explanation": ".gitignore tells Git which files and folders to ignore — typically secrets (.env), dependencies (node_modules, venv), build outputs (dist), and OS files (.DS_Store)."
+    },
+    {
+      "question": "What happens during a Git merge conflict?",
+      "options": [
+        "A) Git automatically picks the newer version",
+        "B) Both versions are deleted",
+        "C) Git marks the conflicting lines and asks you to resolve manually",
+        "D) The merge is cancelled and cannot be completed"
+      ],
+      "correct_index": 2,
+      "explanation": "When two branches modify the same lines of the same file, Git cannot decide which version to keep. It marks the conflicting sections with special markers (<<<<<<, ======, >>>>>>>) and waits for you to resolve them manually."
+    },
+    {
+      "question": "Which command creates a new branch AND switches to it in one step?",
+      "options": [
+        "A) git branch feature/login",
+        "B) git checkout -b feature/login",
+        "C) git merge feature/login",
+        "D) git push origin feature/login"
+      ],
+      "correct_index": 1,
+      "explanation": "git checkout -b creates a new branch and immediately switches to it. The alternative modern syntax is git switch -c. Without -b, git checkout only switches to an existing branch."
+    },
+    {
+      "question": "What does `git stash` do?",
+      "options": [
+        "A) Permanently deletes uncommitted changes",
+        "B) Pushes changes to a remote branch",
+        "C) Temporarily saves uncommitted changes so you can switch branches",
+        "D) Creates a new commit with all changes"
+      ],
+      "correct_index": 2,
+      "explanation": "git stash saves your uncommitted changes to a temporary storage area. You can then switch branches, do other work, and later restore your stashed changes with git stash pop."
+    },
+    {
+      "question": "What is the difference between `git merge` and `git rebase`?",
+      "options": [
+        "A) Merge deletes the branch, rebase keeps it",
+        "B) Merge creates a merge commit preserving history, rebase replays commits for a linear history",
+        "C) Merge only works locally, rebase works with remote",
+        "D) There is no difference, they do the same thing"
+      ],
+      "correct_index": 1,
+      "explanation": "Merge preserves the branch structure by creating a merge commit, keeping a non-linear history. Rebase moves your commits on top of another branch, creating a clean linear history but rewriting commit hashes."
+    },
+    {
+      "question": "What is a Pull Request (PR) on GitHub?",
+      "options": [
+        "A) A command to download code from GitHub",
+        "B) A request to pull data from an API",
+        "C) A proposal to merge changes from one branch into another, with code review",
+        "D) A way to report bugs on a repository"
+      ],
+      "correct_index": 2,
+      "explanation": "A Pull Request is a GitHub feature that lets you propose merging your branch into another branch (usually main). Team members can review the code, leave comments, and approve or request changes before merging."
+    },
+    {
+      "question": "What tool does `pre-commit` install as?",
+      "options": [
+        "A) A Python linter",
+        "B) A Git hook that runs automatically before each commit",
+        "C) A GitHub Action",
+        "D) A code formatter"
+      ],
+      "correct_index": 1,
+      "explanation": "pre-commit installs as a Git hook — a script that runs automatically before every git commit. If any check fails (linting, formatting, secrets detection), the commit is blocked until the issues are fixed."
+    },
+    {
+      "question": "What does the Conventional Commits prefix `fix:` indicate?",
+      "options": [
+        "A) A new feature was added",
+        "B) A bug was fixed",
+        "C) Code was reformatted",
+        "D) Documentation was updated"
+      ],
+      "correct_index": 1,
+      "explanation": "In Conventional Commits, fix: indicates a bug fix. Other prefixes: feat: for new features, docs: for documentation, style: for formatting, refactor: for restructuring, test: for tests, chore: for maintenance."
+    },
+    {
+      "question": "In a GitHub Actions workflow, what does `needs: lint` mean on a job?",
+      "options": [
+        "A) The job requires the lint tool to be installed",
+        "B) The job will only run if the 'lint' job completes successfully",
+        "C) The job needs to run linting before tests",
+        "D) The lint job runs in parallel with this job"
+      ],
+      "correct_index": 1,
+      "explanation": "needs: lint creates a dependency — this job will only start running after the lint job completes successfully. If the lint job fails, this job is skipped. Without needs, jobs run in parallel."
+    },
+    {
+      "question": "What is the purpose of `git remote add upstream <url>`?",
+      "options": [
+        "A) To push code to a new repository",
+        "B) To add a reference to the original repository when working with a fork",
+        "C) To merge two repositories together",
+        "D) To create a backup of the repository"
+      ],
+      "correct_index": 1,
+      "explanation": "When you fork a repository, 'origin' points to your fork. Adding 'upstream' creates a reference to the original repository so you can fetch its latest changes and keep your fork synchronized."
+    },
+    {
+      "question": "What does `ruff` do in a Python project?",
+      "options": [
+        "A) Formats code to a consistent style",
+        "B) Runs unit tests",
+        "C) Checks code for errors, style issues, and potential bugs (linting)",
+        "D) Manages Python package dependencies"
+      ],
+      "correct_index": 2,
+      "explanation": "Ruff is a fast Python linter that checks code for errors, unused imports, style violations, potential bugs, and more. It can also auto-fix many issues with the --fix flag."
+    },
+    {
+      "question": "Which file in a GitHub repository defines the CI/CD workflow?",
+      "options": [
+        "A) .github/workflows/*.yml",
+        "B) .gitignore",
+        "C) package.json",
+        "D) Dockerfile"
+      ],
+      "correct_index": 0,
+      "explanation": "GitHub Actions workflows are defined in YAML files inside the .github/workflows/ directory. GitHub automatically detects and runs these workflows based on their trigger events."
+    },
+    {
+      "question": "Why should you NEVER rebase commits that have been pushed to a shared remote branch?",
+      "options": [
+        "A) Rebase makes the code run slower",
+        "B) Rebase changes commit hashes, causing conflicts for everyone who has the old commits",
+        "C) Rebase deletes the remote branch",
+        "D) Rebase only works on the main branch"
+      ],
+      "correct_index": 1,
+      "explanation": "Rebase rewrites commit history by creating new commits with different hashes. If others have already pulled the old commits, their history will conflict with the rewritten one, causing a mess for the entire team."
+    }
+  ]
+}

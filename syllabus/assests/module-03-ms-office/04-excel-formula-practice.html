@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel Formula Practice</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;padding:20px;min-height:100vh}
+h1{text-align:center;font-size:20px;color:#fff;margin-bottom:4px}
+.sub{text-align:center;font-size:13px;color:#94a3b8;margin-bottom:24px}
+
+.score-bar{text-align:center;margin-bottom:20px;font-size:14px;color:#94a3b8}
+.score-bar span{color:#22c55e;font-weight:700;font-size:18px}
+
+/* Mini Spreadsheet */
+.sheet-wrap{max-width:550px;margin:0 auto 24px;background:#1e293b;border:1px solid #334155;border-radius:10px;overflow:hidden}
+.sheet-title{padding:12px 16px;font-size:13px;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #334155}
+.sheet{width:100%;border-collapse:collapse}
+.sheet th{background:#0f172a;padding:8px 12px;font-size:12px;color:#64748b;text-align:center;border:1px solid #1e293b;min-width:70px}
+.sheet td{padding:8px 12px;font-size:14px;text-align:center;border:1px solid rgba(51,65,85,.5);font-family:Consolas,monospace;color:#cbd5e1}
+.sheet .row-head{background:#0f172a;color:#64748b;font-size:12px;font-weight:600;width:30px}
+
+/* Challenge */
+.challenge-card{
+  max-width:550px;margin:0 auto 16px;background:#1e293b;border:1px solid #334155;
+  border-radius:10px;padding:18px;transition:all .3s;
+}
+.challenge-card.solved{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.05)}
+.ch-q{font-size:15px;color:#fff;margin-bottom:4px}
+.ch-hint{font-size:12px;color:#64748b;margin-bottom:12px}
+.ch-row{display:flex;gap:8px;align-items:center}
+.ch-input{
+  flex:1;background:#0f172a;border:1.5px solid #334155;border-radius:8px;
+  padding:10px 14px;color:#fff;font-size:14px;font-family:Consolas,monospace;outline:none;
+}
+.ch-input:focus{border-color:#3b82f6}
+.ch-input.correct{border-color:#22c55e;background:rgba(34,197,94,.08)}
+.ch-input.wrong{border-color:#ef4444;background:rgba(239,68,68,.08)}
+.ch-btn{
+  background:#3b82f6;border:none;color:#fff;padding:10px 18px;border-radius:8px;
+  font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;
+}
+.ch-btn:hover{background:#2563eb}
+.ch-btn:disabled{opacity:.5;cursor:default}
+.ch-fb{font-size:13px;margin-top:8px;min-height:20px}
+.ch-fb.ok{color:#22c55e}.ch-fb.no{color:#ef4444}
+
+.formula-ref{max-width:550px;margin:20px auto 0;background:#1e293b;border:1px solid #334155;border-radius:10px;padding:16px}
+.formula-ref h3{font-size:14px;color:#f59e0b;margin-bottom:10px}
+.fr-row{display:flex;gap:12px;padding:6px 0;border-bottom:1px solid rgba(51,65,85,.4);font-size:13px}
+.fr-row:last-child{border:none}
+.fr-fn{color:#60a5fa;font-family:Consolas,monospace;min-width:180px}
+.fr-desc{color:#94a3b8}
+
+@media(max-width:480px){.ch-row{flex-direction:column}.ch-input{width:100%}}
+</style>
+</head>
+<body>
+
+<h1>Excel Formula Practice</h1>
+<p class="sub">Look at the data below. Write the correct Excel formula for each challenge.</p>
+
+<div class="score-bar">Score: <span id="score">0</span> / 10</div>
+
+<!-- Sample Data Sheet -->
+<div class="sheet-wrap">
+  <div class="sheet-title">Sample Data — Student Marks</div>
+  <table class="sheet">
+    <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th></tr>
+    <tr><td class="row-head">1</td><td><b>Name</b></td><td><b>Maths</b></td><td><b>Science</b></td><td><b>English</b></td></tr>
+    <tr><td class="row-head">2</td><td>Rahul</td><td>85</td><td>72</td><td>90</td></tr>
+    <tr><td class="row-head">3</td><td>Priya</td><td>92</td><td>88</td><td>76</td></tr>
+    <tr><td class="row-head">4</td><td>Amit</td><td>45</td><td>55</td><td>60</td></tr>
+    <tr><td class="row-head">5</td><td>Neha</td><td>78</td><td>82</td><td>95</td></tr>
+    <tr><td class="row-head">6</td><td>Ravi</td><td>60</td><td>48</td><td>52</td></tr>
+  </table>
+</div>
+
+<!-- Challenges -->
+<div id="challenges">
+  <div class="challenge-card" data-answers="=SUM(B2:B6),=sum(b2:b6)">
+    <div class="ch-q">1. Find the total of all Maths marks (B2 to B6)</div>
+    <div class="ch-hint">Use the SUM function</div>
+    <div class="ch-row">
+      <input class="ch-input" placeholder="Type formula..." id="c1">
+      <button class="ch-btn" onclick="check(1)">Check</button>
+    </div>
+    <div class="ch-fb" id="fb1"></div>
+  </div>
+
+  <div class="challenge-card" data-answers="=AVERAGE(C2:C6),=average(c2:c6)">
+    <div class="ch-q">2. Find the average of Science marks (C2 to C6)</div>
+    <div class="ch-hint">Use the AVERAGE function</div>
+    <div class="ch-row">
+      <input class="ch-input" placeholder="Type formula..." id="c2">
+      <button class="ch-btn" onclick="check(2)">Check</button>
+    </div>
+    <div class="ch-fb" id="fb2"></div>
+  </div>
+
+  <div class="challenge-card" data-answers="=MAX(D2:D6),=max(d2:d6)">
+    <div class="ch-q">3. Find the highest English mark (D2 to D6)</div>
+    <div class="ch-hint">Use the MAX function</div>
+    <div class="ch-row">
+      <input class="ch-input" placeholder="Type formula..." id="c3">
+      <button class="ch-btn" onclick="check(3)">Check</button>
+    </div>
+    <div class="ch-fb" id="fb3"></div>
+  </div>
+
+  <div class="challenge-card" data-answers="=MIN(B2:B6),=min(b2:b6)">
+    <div class="ch-q">4. Find the lowest Maths mark (B2 to B6)</div>
+    <div class="ch-hint">Use the MIN function</div>
+    <div class="ch-row">
+      <input class="ch-input" placeholder="Type formula..." id="c4">
+      <button class="ch-btn" onclick="check(4)">Check</button>
+    </div>
+    <div class="ch-fb" id="fb4"></div>
+  </div>
+
+  <div class="challenge-card" data-answers="=COUNT(B2:B6),=count(b2:b6)">
+    <div class="ch-q">5. Count how many students have Maths marks (B2 to B6)</div>
+    <div class="ch-hint">Use the COUNT function</div>
+    <div class="ch-row">
+      <input class="ch-input" placeholder="Type formula..." id="c5">
+      <button class="ch-btn" onclick="check(5)">Check</button>
+    </div>
+    <div class="ch-fb" id="fb5"></div>
+  </div>
+
+  <div class="challenge-card" data-answers='=B2+C2+D2,=b2+c2+d2'>
+    <div class="ch-q">6. Calculate Rahul's total marks (B2 + C2 + D2)</div>
+    <div class="ch-hint">Simple addition formula</div>
+    <div class="ch-row">
+      <input class="ch-input" placeholder="Type formula..." id="c6">
+      <button class="ch-btn" onclick="check(6)">Check</button>
+    </div>
+    <div class="ch-fb" id="fb6"></div>
+  </div>
+
+  <div class="challenge-card" data-answers='=IF(B4>50,"Pass","Fail"),=if(b4>50,"Pass","Fail"),=IF(B4>50,"pass","fail")'>
+    <div class="ch-q">7. Check if Amit passed Maths (B4 > 50 = "Pass", else "Fail")</div>
+    <div class="ch-hint">Use the IF function: =IF(condition, "yes", "no")</div>
+    <div class="ch-row">
+      <input class="ch-input" placeholder="Type formula..." id="c7">
+      <button class="ch-btn" onclick="check(7)">Check</button>
+    </div>
+    <div class="ch-fb" id="fb7"></div>
+  </div>
+
+  <div class="challenge-card" data-answers="=COUNTIF(B2:B6,&quot;>70&quot;),=countif(b2:b6,&quot;>70&quot;),=COUNTIF(B2:B6,&quot;>70&quot;)">
+    <div class="ch-q">8. Count students who scored more than 70 in Maths</div>
+    <div class="ch-hint">Use COUNTIF with condition ">70"</div>
+    <div class="ch-row">
+      <input class="ch-input" placeholder="Type formula..." id="c8">
+      <button class="ch-btn" onclick="check(8)">Check</button>
+    </div>
+    <div class="ch-fb" id="fb8"></div>
+  </div>
+
+  <div class="challenge-card" data-answers="=LEN(A2),=len(a2),=LEN(A2)">
+    <div class="ch-q">9. Count how many characters are in Rahul's name (A2)</div>
+    <div class="ch-hint">Use the LEN function</div>
+    <div class="ch-row">
+      <input class="ch-input" placeholder="Type formula..." id="c9">
+      <button class="ch-btn" onclick="check(9)">Check</button>
+    </div>
+    <div class="ch-fb" id="fb9"></div>
+  </div>
+
+  <div class="challenge-card" data-answers="=UPPER(A3),=upper(a3)">
+    <div class="ch-q">10. Convert Priya's name (A3) to UPPERCASE</div>
+    <div class="ch-hint">Use the UPPER function</div>
+    <div class="ch-row">
+      <input class="ch-input" placeholder="Type formula..." id="c10">
+      <button class="ch-btn" onclick="check(10)">Check</button>
+    </div>
+    <div class="ch-fb" id="fb10"></div>
+  </div>
+</div>
+
+<!-- Formula Reference -->
+<div class="formula-ref">
+  <h3>Formula Quick Reference</h3>
+  <div class="fr-row"><span class="fr-fn">=SUM(range)</span><span class="fr-desc">Add all numbers</span></div>
+  <div class="fr-row"><span class="fr-fn">=AVERAGE(range)</span><span class="fr-desc">Average of numbers</span></div>
+  <div class="fr-row"><span class="fr-fn">=MAX(range)</span><span class="fr-desc">Highest number</span></div>
+  <div class="fr-row"><span class="fr-fn">=MIN(range)</span><span class="fr-desc">Lowest number</span></div>
+  <div class="fr-row"><span class="fr-fn">=COUNT(range)</span><span class="fr-desc">Count numbers</span></div>
+  <div class="fr-row"><span class="fr-fn">=IF(cond,"yes","no")</span><span class="fr-desc">If-then-else</span></div>
+  <div class="fr-row"><span class="fr-fn">=COUNTIF(range,"cond")</span><span class="fr-desc">Count if condition</span></div>
+  <div class="fr-row"><span class="fr-fn">=LEN(cell)</span><span class="fr-desc">Character count</span></div>
+  <div class="fr-row"><span class="fr-fn">=UPPER(cell)</span><span class="fr-desc">To UPPERCASE</span></div>
+</div>
+
+<script>
+let solved = new Set();
+
+function check(n) {
+  const input = document.getElementById('c' + n);
+  const fb = document.getElementById('fb' + n);
+  const card = input.closest('.challenge-card');
+  const val = input.value.trim().replace(/\s+/g, '');
+  if (!val) return;
+
+  const answers = card.dataset.answers.split(',').map(a => a.trim().replace(/\s+/g, ''));
+  const isCorrect = answers.some(a => val.toLowerCase() === a.toLowerCase());
+
+  if (isCorrect) {
+    input.classList.add('correct');
+    input.classList.remove('wrong');
+    fb.textContent = 'Correct!';
+    fb.className = 'ch-fb ok';
+    card.classList.add('solved');
+    if (!solved.has(n)) { solved.add(n); document.getElementById('score').textContent = solved.size; }
+  } else {
+    input.classList.add('wrong');
+    input.classList.remove('correct');
+    fb.textContent = 'Not quite. Hint: ' + answers[0];
+    fb.className = 'ch-fb no';
+  }
+}
+
+document.querySelectorAll('.ch-input').forEach(inp => {
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const n = inp.id.replace('c', '');
+      check(parseInt(n));
+    }
+  });
+});
+</script>
+</body>
+</html>

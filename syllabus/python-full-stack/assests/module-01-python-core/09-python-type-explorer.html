@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Type Explorer — TechPath Institute</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+  }
+  .section {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid #334155;
+  }
+  .section h2 {
+    font-size: 1.2rem;
+    color: #38bdf8;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section h2 .icon { font-size: 1.3rem; }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  input[type="text"], select {
+    width: 100%;
+    padding: 12px 16px;
+    background: #0f172a;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 1rem;
+    font-family: 'Consolas', 'Fira Code', monospace;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus, select:focus {
+    border-color: #38bdf8;
+  }
+  .input-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .input-row > div { flex: 1; }
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #38bdf8, #818cf8);
+    color: #0f172a;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(56,189,248,0.3); }
+  .btn-secondary {
+    background: #334155;
+    color: #e2e8f0;
+  }
+  .btn-secondary:hover { background: #475569; }
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .result-box {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Consolas', 'Fira Code', monospace;
+    font-size: 0.95rem;
+    min-height: 60px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .result-box .type-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-right: 8px;
+  }
+  .type-int { background: #164e63; color: #22d3ee; }
+  .type-float { background: #1e3a5f; color: #60a5fa; }
+  .type-str { background: #365314; color: #86efac; }
+  .type-bool { background: #4c1d95; color: #c4b5fd; }
+  .type-none { background: #44403c; color: #a8a29e; }
+  .type-list { background: #713f12; color: #fbbf24; }
+  .type-dict { background: #5b21b6; color: #ddd6fe; }
+  .type-tuple { background: #831843; color: #f9a8d4; }
+  .type-set { background: #14532d; color: #4ade80; }
+  .type-error { background: #7f1d1d; color: #fca5a5; }
+
+  .cast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .cast-card {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  .cast-card.success { border-color: #22c55e; }
+  .cast-card.fail { border-color: #ef4444; opacity: 0.6; }
+  .cast-card .cast-type { font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px; }
+  .cast-card .cast-value { font-family: monospace; font-size: 0.95rem; }
+  .cast-card .cast-error { font-size: 0.7rem; color: #ef4444; margin-top: 4px; }
+
+  .practice-item {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .practice-item .question {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    color: #cbd5e1;
+  }
+  .practice-item .question strong { color: #38bdf8; }
+  .practice-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .practice-input-row input {
+    flex: 1;
+    padding: 8px 12px;
+    background: #1e293b;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-family: monospace;
+    font-size: 0.9rem;
+    outline: none;
+  }
+  .practice-input-row input:focus { border-color: #38bdf8; }
+  .practice-input-row button { padding: 8px 16px; font-size: 0.85rem; }
+  .feedback {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    display: none;
+  }
+  .feedback.correct { display: block; background: #14532d; color: #86efac; border: 1px solid #22c55e; }
+  .feedback.wrong { display: block; background: #7f1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+
+  .type-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 0.85rem;
+  }
+  .type-table th {
+    background: #0f172a;
+    padding: 10px;
+    text-align: left;
+    color: #94a3b8;
+    border-bottom: 1px solid #334155;
+  }
+  .type-table td {
+    padding: 10px;
+    border-bottom: 1px solid #1e293b;
+    font-family: monospace;
+  }
+  .type-table tr:hover { background: #1a2744; }
+
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 12px;
+    background: #0f172a;
+    border-radius: 8px;
+    border: 1px solid #334155;
+  }
+  .score-bar .score-text { font-size: 0.9rem; color: #94a3b8; }
+  .score-bar .score-num { font-size: 1.4rem; font-weight: 700; color: #38bdf8; }
+
+  @media (max-width: 600px) {
+    .input-row { flex-direction: column; }
+    .cast-grid { grid-template-columns: repeat(2, 1fr); }
+    .btn-row { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Python Type Explorer</h1>
+  <p class="subtitle">TechPath Institute — Module 01: Language Fundamentals</p>
+
+  <!-- Section 1: Type Detection -->
+  <div class="section">
+    <h2><span class="icon">1.</span> Type Detection</h2>
+    <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:14px;">Enter any Python value below and see what type Python assigns to it.</p>
+    <div class="input-row">
+      <div style="flex:3">
+        <label>Enter a Python value</label>
+        <input type="text" id="typeInput" placeholder='Try: 42, 3.14, "hello", True, None, [1,2,3]' />
+      </div>
+      <div style="flex:1;display:flex;align-items:flex-end">
+        <button class="btn-primary" onclick="detectType()" style="width:100%">Detect Type</button>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="setInput('42')">42</button>
+      <button class="btn-secondary" onclick="setInput('3.14')">3.14</button>
+      <button class="btn-secondary" onclick="setInput('\"Rahul\"')">"Rahul"</button>
+      <button class="btn-secondary" onclick="setInput('True')">True</button>
+      <button class="btn-secondary" onclick="setInput('None')">None</button>
+      <button class="btn-secondary" onclick="setInput('[1, 2, 3]')">[1,2,3]</button>
+      <button class="btn-secondary" onclick="setInput('{\"a\": 1}')">{"a":1}</button>
+      <button class="btn-secondary" onclick="setInput('(1, 2)')"> (1,2)</button>
+    </div>
+    <label>Result</label>
+    <div class="result-box" id="typeResult">Enter a value above and click "Detect Type" to see its Python type.</div>
+  </div>
+
+  <!-- Section 2: Type Casting -->
+  <div class="section">
+    <h2><span class="icon">2.</span> Type Casting</h2>
+    <p style="color:#94a3b8;font-size:0.85rem;margin-bottom:14px;">See what happens when you try to convert a value to different types.</p>
+    <div class="input-row">
+      <div style="flex:3">
+        <label>Value to cast</label>
+        <input type="text" id="castInput" placeholder='Try: "42", 3.14, "hello", 0, ""' />
+      </div>
+      <div style="flex:1;display:flex;align-items:flex-end">
+        <button class="btn-primary" onclick="tryCasting()" style="width:100%">Cast It</button>
+      </div>
+    </div>
+    <label>Casting Results</label>
+    <div class="cast-grid" id="castResults">
+      <div class="cast-card"><div class="cast-type">int()</div><div class="cast-value">—</div></div>
+      <div class="cast-card"><div class="cast-type">float()</div><div class="cast-value">—</div></div>
+      <div class="cast-card"><div class="cast-type">str()</div><div class="cast-value">—</div></div>
+      <div class="cast-card"><div class="cast-type">bool()</div><div class="cast-value">—</div></div>
+      <div class="cast-card"><div class="cast-type">list()</div><div class="cast-value">—</div></div>
+    </div>
+  </div>
+
+  <!-- Section 3: Type Reference -->
+  <div class="section">
+    <h2><span class="icon">3.</span> Quick Reference</h2>
+    <table class="type-table">
+      <thead>
+        <tr><th>Type</th><th>Examples</th><th>Falsy Value</th><th>Created By</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="type-tag type-int">int</span></td><td>42, -7, 0, 1_00_000</td><td>0</td><td>int(), literal</td></tr>
+        <tr><td><span class="type-tag type-float">float</span></td><td>3.14, -2.5, 0.0</td><td>0.0</td><td>float(), literal</td></tr>
+        <tr><td><span class="type-tag type-str">str</span></td><td>"hello", 'hi', """multi"""</td><td>"" (empty)</td><td>str(), quotes</td></tr>
+        <tr><td><span class="type-tag type-bool">bool</span></td><td>True, False</td><td>False</td><td>bool(), comparison</td></tr>
+        <tr><td><span class="type-tag type-none">NoneType</span></td><td>None</td><td>None</td><td>None keyword</td></tr>
+        <tr><td><span class="type-tag type-list">list</span></td><td>[1, 2, 3]</td><td>[] (empty)</td><td>list(), []</td></tr>
+        <tr><td><span class="type-tag type-tuple">tuple</span></td><td>(1, 2, 3)</td><td>() (empty)</td><td>tuple(), ()</td></tr>
+        <tr><td><span class="type-tag type-dict">dict</span></td><td>{"a": 1}</td><td>{} (empty)</td><td>dict(), {}</td></tr>
+        <tr><td><span class="type-tag type-set">set</span></td><td>{1, 2, 3}</td><td>set() (empty)</td><td>set(), {}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Section 4: Practice -->
+  <div class="section">
+    <h2><span class="icon">4.</span> Practice Exercises</h2>
+    <div id="practiceContainer"></div>
+    <div class="score-bar">
+      <span class="score-text">Score:</span>
+      <span class="score-num" id="scoreDisplay">0 / 6</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== Type Detection =====
+  function setInput(val) {
+    document.getElementById('typeInput').value = val;
+    detectType();
+  }
+
+  function detectType() {
+    const raw = document.getElementById('typeInput').value.trim();
+    const result = document.getElementById('typeResult');
+    if (!raw) { result.textContent = 'Please enter a value.'; return; }
+    const parsed = parsePythonValue(raw);
+    if (parsed.error) {
+      result.innerHTML = `<span class="type-tag type-error">Error</span>\nCould not parse: ${escapeHtml(raw)}\n${parsed.error}`;
+      return;
+    }
+    const typeName = getPythonType(parsed.value, parsed.kind);
+    const tagClass = 'type-' + typeName.replace('NoneType','none');
+    const repr = pythonRepr(parsed.value, parsed.kind);
+    result.innerHTML =
+      `<span class="type-tag ${tagClass}">${typeName}</span>\n\n` +
+      `>>> value = ${escapeHtml(raw)}\n` +
+      `>>> type(value)\n<class '${typeName}'>\n\n` +
+      `>>> print(value)\n${escapeHtml(String(parsed.value === null ? 'None' : parsed.value))}\n\n` +
+      `>>> repr(value)\n${escapeHtml(repr)}\n\n` +
+      `>>> bool(value)\n${parsed.value === null || parsed.value === false || parsed.value === 0 || parsed.value === '' || (Array.isArray(parsed.value) && parsed.value.length === 0) || (typeof parsed.value === 'object' && parsed.value !== null && Object.keys(parsed.value).length === 0) ? 'False  (falsy)' : 'True  (truthy)'}`;
+  }
+
+  function parsePythonValue(raw) {
+    // None
+    if (raw === 'None') return { value: null, kind: 'none' };
+    // Bool
+    if (raw === 'True') return { value: true, kind: 'bool' };
+    if (raw === 'False') return { value: false, kind: 'bool' };
+    // String
+    if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'"))) {
+      return { value: raw.slice(1, -1), kind: 'str' };
+    }
+    if ((raw.startsWith('"""') && raw.endsWith('"""')) || (raw.startsWith("'''") && raw.endsWith("'''"))) {
+      return { value: raw.slice(3, -3), kind: 'str' };
+    }
+    // Int
+    const intClean = raw.replace(/_/g, '');
+    if (/^-?\d+$/.test(intClean)) return { value: parseInt(intClean, 10), kind: 'int' };
+    // Float
+    if (/^-?\d*\.\d+$/.test(intClean) || /^-?\d+\.\d*$/.test(intClean)) return { value: parseFloat(intClean), kind: 'float' };
+    // List
+    if (raw.startsWith('[') && raw.endsWith(']')) {
+      try { return { value: JSON.parse(raw), kind: 'list' }; } catch(e) {
+        try { return { value: JSON.parse(raw.replace(/'/g,'"').replace(/True/g,'true').replace(/False/g,'false').replace(/None/g,'null')), kind: 'list' }; } catch(e2) {
+          return { value: raw, kind: 'list' };
+        }
+      }
+    }
+    // Tuple
+    if (raw.startsWith('(') && raw.endsWith(')')) {
+      const inner = raw.slice(1,-1).trim();
+      if (!inner) return { value: [], kind: 'tuple' };
+      try {
+        const arr = JSON.parse('[' + inner.replace(/'/g,'"').replace(/True/g,'true').replace(/False/g,'false').replace(/None/g,'null') + ']');
+        return { value: arr, kind: 'tuple' };
+      } catch(e) { return { value: raw, kind: 'tuple' }; }
+    }
+    // Set
+    if (raw.startsWith('{') && raw.endsWith('}') && !raw.includes(':')) {
+      const inner = raw.slice(1,-1).trim();
+      if (!inner) return { value: {}, kind: 'dict' }; // {} is dict not set
+      try {
+        const arr = JSON.parse('[' + inner.replace(/'/g,'"').replace(/True/g,'true').replace(/False/g,'false').replace(/None/g,'null') + ']');
+        return { value: [...new Set(arr)], kind: 'set' };
+      } catch(e) { return { value: raw, kind: 'set' }; }
+    }
+    // Dict
+    if (raw.startsWith('{') && raw.endsWith('}')) {
+      try { return { value: JSON.parse(raw), kind: 'dict' }; } catch(e) {
+        try { return { value: JSON.parse(raw.replace(/'/g,'"').replace(/True/g,'true').replace(/False/g,'false').replace(/None/g,'null')), kind: 'dict' }; } catch(e2) {
+          return { value: raw, kind: 'dict' };
+        }
+      }
+    }
+    // Bare string (no quotes)
+    if (/^[a-zA-Z_]\w*$/.test(raw)) {
+      return { error: `'${raw}' looks like a variable name. Did you mean "${raw}" (with quotes) for a string?` };
+    }
+    return { error: `Could not determine type. Try wrapping text in quotes, e.g. "${raw}"` };
+  }
+
+  function getPythonType(value, kind) {
+    if (kind === 'none') return 'NoneType';
+    if (kind === 'bool') return 'bool';
+    if (kind === 'int') return 'int';
+    if (kind === 'float') return 'float';
+    if (kind === 'str') return 'str';
+    if (kind === 'list') return 'list';
+    if (kind === 'tuple') return 'tuple';
+    if (kind === 'set') return 'set';
+    if (kind === 'dict') return 'dict';
+    return typeof value;
+  }
+
+  function pythonRepr(value, kind) {
+    if (kind === 'none') return 'None';
+    if (kind === 'bool') return value ? 'True' : 'False';
+    if (kind === 'str') return `'${value}'`;
+    if (kind === 'int' || kind === 'float') return String(value);
+    if (kind === 'list') return JSON.stringify(value).replace(/,/g, ', ');
+    if (kind === 'tuple') return '(' + (Array.isArray(value) ? value.join(', ') : value) + (Array.isArray(value) && value.length === 1 ? ',' : '') + ')';
+    if (kind === 'set') return '{' + (Array.isArray(value) ? value.join(', ') : value) + '}';
+    if (kind === 'dict') return JSON.stringify(value).replace(/,/g, ', ').replace(/:/g, ': ');
+    return String(value);
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ===== Type Casting =====
+  function tryCasting() {
+    const raw = document.getElementById('castInput').value.trim();
+    const container = document.getElementById('castResults');
+    if (!raw) { container.innerHTML = '<p style="color:#94a3b8">Enter a value first.</p>'; return; }
+    const parsed = parsePythonValue(raw);
+    if (parsed.error) { container.innerHTML = `<p style="color:#ef4444">${parsed.error}</p>`; return; }
+    const val = parsed.value;
+    const kind = parsed.kind;
+    const casts = [
+      { name: 'int()', fn: () => castToInt(val, kind) },
+      { name: 'float()', fn: () => castToFloat(val, kind) },
+      { name: 'str()', fn: () => ({ ok: true, val: pythonRepr(val, kind) === `'${val}'` ? `'${val}'` : `'${String(val === null ? 'None' : val)}'` }) },
+      { name: 'bool()', fn: () => castToBool(val, kind) },
+      { name: 'list()', fn: () => castToList(val, kind) },
+    ];
+
+    container.innerHTML = casts.map(c => {
+      const r = c.fn();
+      const cls = r.ok ? 'success' : 'fail';
+      return `<div class="cast-card ${cls}">
+        <div class="cast-type">${c.name}</div>
+        <div class="cast-value">${escapeHtml(r.ok ? String(r.val) : 'Error')}</div>
+        ${r.ok ? '' : `<div class="cast-error">${escapeHtml(r.err)}</div>`}
+      </div>`;
+    }).join('');
+  }
+
+  function castToInt(val, kind) {
+    if (kind === 'none') return { ok: false, err: "TypeError" };
+    if (kind === 'bool') return { ok: true, val: val ? 1 : 0 };
+    if (kind === 'int') return { ok: true, val: val };
+    if (kind === 'float') return { ok: true, val: Math.trunc(val) };
+    if (kind === 'str') { const n = parseInt(val, 10); return isNaN(n) ? { ok: false, err: "ValueError" } : { ok: true, val: n }; }
+    return { ok: false, err: "TypeError" };
+  }
+
+  function castToFloat(val, kind) {
+    if (kind === 'none') return { ok: false, err: "TypeError" };
+    if (kind === 'bool') return { ok: true, val: val ? '1.0' : '0.0' };
+    if (kind === 'int') return { ok: true, val: val + '.0' };
+    if (kind === 'float') return { ok: true, val: val };
+    if (kind === 'str') { const n = parseFloat(val); return isNaN(n) ? { ok: false, err: "ValueError" } : { ok: true, val: n }; }
+    return { ok: false, err: "TypeError" };
+  }
+
+  function castToBool(val, kind) {
+    if (kind === 'none') return { ok: true, val: 'False' };
+    if (kind === 'bool') return { ok: true, val: val ? 'True' : 'False' };
+    if (kind === 'int') return { ok: true, val: val !== 0 ? 'True' : 'False' };
+    if (kind === 'float') return { ok: true, val: val !== 0 ? 'True' : 'False' };
+    if (kind === 'str') return { ok: true, val: val.length > 0 ? 'True' : 'False' };
+    if (kind === 'list' || kind === 'tuple' || kind === 'set') return { ok: true, val: (Array.isArray(val) && val.length > 0) ? 'True' : 'False' };
+    if (kind === 'dict') return { ok: true, val: (typeof val === 'object' && val !== null && Object.keys(val).length > 0) ? 'True' : 'False' };
+    return { ok: true, val: 'True' };
+  }
+
+  function castToList(val, kind) {
+    if (kind === 'none') return { ok: false, err: "TypeError" };
+    if (kind === 'str') return { ok: true, val: '[' + val.split('').map(c => `'${c}'`).join(', ') + ']' };
+    if (kind === 'list') return { ok: true, val: JSON.stringify(val) };
+    if (kind === 'tuple' || kind === 'set') return { ok: true, val: JSON.stringify(val) };
+    if (kind === 'dict' && typeof val === 'object' && val !== null) return { ok: true, val: JSON.stringify(Object.keys(val)) };
+    if (kind === 'int' || kind === 'float' || kind === 'bool') return { ok: false, err: "TypeError" };
+    return { ok: false, err: "TypeError" };
+  }
+
+  // ===== Practice =====
+  const questions = [
+    { q: 'What is <strong>type(42)</strong>?', a: 'int' },
+    { q: 'What is <strong>type(3.14)</strong>?', a: 'float' },
+    { q: 'What is <strong>type("hello")</strong>?', a: 'str' },
+    { q: 'What does <strong>int(7.9)</strong> return?', a: '7' },
+    { q: 'What does <strong>bool(0)</strong> return?', a: 'false' },
+    { q: 'What does <strong>bool("")</strong> return? (empty string)', a: 'false' },
+  ];
+
+  let score = 0;
+  const answered = new Set();
+
+  function initPractice() {
+    const container = document.getElementById('practiceContainer');
+    container.innerHTML = questions.map((q, i) => `
+      <div class="practice-item" id="q${i}">
+        <div class="question">${i+1}. ${q.q}</div>
+        <div class="practice-input-row">
+          <input type="text" id="ans${i}" placeholder="Your answer..." onkeydown="if(event.key==='Enter')checkAnswer(${i})" />
+          <button class="btn-primary" onclick="checkAnswer(${i})">Check</button>
+        </div>
+        <div class="feedback" id="fb${i}"></div>
+      </div>
+    `).join('');
+  }
+
+  function checkAnswer(i) {
+    if (answered.has(i)) return;
+    const userAns = document.getElementById('ans' + i).value.trim().toLowerCase();
+    const correct = questions[i].a.toLowerCase();
+    const fb = document.getElementById('fb' + i);
+    if (!userAns) return;
+
+    if (userAns === correct || userAns === `<class '${correct}'>` || userAns === `'${correct}'`) {
+      fb.className = 'feedback correct';
+      fb.textContent = 'Correct!';
+      score++;
+      answered.add(i);
+    } else {
+      fb.className = 'feedback wrong';
+      fb.textContent = `Not quite. The answer is: ${questions[i].a}`;
+      answered.add(i);
+    }
+    document.getElementById('scoreDisplay').textContent = `${score} / ${questions.length}`;
+  }
+
+  // Enter key for type detection
+  document.getElementById('typeInput').addEventListener('keydown', e => { if (e.key === 'Enter') detectType(); });
+  document.getElementById('castInput').addEventListener('keydown', e => { if (e.key === 'Enter') tryCasting(); });
+
+  initPractice();
+</script>
+</body>
+</html>

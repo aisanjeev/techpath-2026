@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTM Link Builder — TechPath Academy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        .form-section {
+            padding: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .input-group label .required {
+            color: #d32f2f;
+            margin-left: 3px;
+        }
+
+        .input-group label .optional {
+            color: #999;
+            font-weight: 400;
+            font-size: 12px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #1565c0;
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
+        }
+
+        .input-group input::placeholder {
+            color: #aaa;
+        }
+
+        .input-group .hint {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* Live Preview */
+        .preview-section {
+            background: #f8fafe;
+            border-top: 1px solid #e8eef5;
+            padding: 25px 30px;
+        }
+
+        .preview-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .preview-url {
+            background: #1a1a2e;
+            color: #4fc3f7;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            word-break: break-all;
+            line-height: 1.6;
+            min-height: 50px;
+            position: relative;
+        }
+
+        .preview-url .base-url {
+            color: #ffffff;
+        }
+
+        .preview-url .param-key {
+            color: #81c784;
+        }
+
+        .preview-url .param-value {
+            color: #ffb74d;
+        }
+
+        .preview-url .separator {
+            color: #9e9e9e;
+        }
+
+        .preview-placeholder {
+            color: #666;
+            font-style: italic;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: #1565c0;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0d47a1;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #555;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #eeeeee;
+        }
+
+        .copy-feedback {
+            display: none;
+            text-align: center;
+            padding: 8px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .copy-feedback.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Guide Section */
+        .guide-section {
+            padding: 30px;
+        }
+
+        .guide-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a237e;
+            margin-bottom: 20px;
+        }
+
+        .guide-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .guide-table th {
+            background: #f5f7fa;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .guide-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555;
+        }
+
+        .guide-table code {
+            background: #f0f4f8;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #1565c0;
+        }
+
+        .naming-rules {
+            margin-top: 25px;
+        }
+
+        .naming-rules h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .rule-list {
+            list-style: none;
+        }
+
+        .rule-list li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .rule-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 12px;
+            width: 8px;
+            height: 8px;
+            background: #1565c0;
+            border-radius: 50%;
+        }
+
+        .rule-list li .do {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .rule-list li .dont {
+            color: #c62828;
+            font-weight: 600;
+            text-decoration: line-through;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        @media (max-width: 600px) {
+            .button-row {
+                flex-direction: column;
+            }
+            .form-section, .guide-section {
+                padding: 20px;
+            }
+            .guide-table {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Builder Card -->
+        <div class="card">
+            <div class="header">
+                <h1>UTM Link Builder</h1>
+                <p>Generate campaign-tagged URLs for accurate traffic attribution in Google Analytics</p>
+            </div>
+
+            <div class="form-section">
+                <div class="input-group">
+                    <label>Website URL <span class="required">*</span></label>
+                    <input type="url" id="website-url" placeholder="https://techpath.biz/courses/digital-marketing" oninput="updatePreview()">
+                    <div class="hint">Enter the full page URL you want to track (include https://)</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Campaign Source <span class="required">*</span> (utm_source)</label>
+                    <input type="text" id="utm-source" placeholder="google, facebook, instagram, newsletter" oninput="updatePreview()">
+                    <div class="hint">Where the traffic is coming from (the platform or website)</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Campaign Medium <span class="required">*</span> (utm_medium)</label>
+                    <input type="text" id="utm-medium" placeholder="cpc, email, social, banner, paid_social" oninput="updatePreview()">
+                    <div class="hint">The marketing channel type</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Campaign Name <span class="required">*</span> (utm_campaign)</label>
+                    <input type="text" id="utm-campaign" placeholder="summer_sale_2026, dm_course_launch_jul2026" oninput="updatePreview()">
+                    <div class="hint">Name of the specific campaign (use underscores, include date)</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Campaign Term <span class="optional">(optional)</span> (utm_term)</label>
+                    <input type="text" id="utm-term" placeholder="digital+marketing+course, running+shoes" oninput="updatePreview()">
+                    <div class="hint">The paid keyword (mainly for Google Ads search campaigns)</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Campaign Content <span class="optional">(optional)</span> (utm_content)</label>
+                    <input type="text" id="utm-content" placeholder="blue_cta_button, top_banner, video_ad_v2" oninput="updatePreview()">
+                    <div class="hint">Differentiates ads/links pointing to the same URL (A/B testing)</div>
+                </div>
+            </div>
+
+            <!-- Live Preview -->
+            <div class="preview-section">
+                <div class="preview-label">Generated URL (Live Preview)</div>
+                <div class="preview-url" id="preview-url">
+                    <span class="preview-placeholder">Start typing above to see your UTM link here...</span>
+                </div>
+
+                <div class="button-row">
+                    <button class="btn btn-primary" onclick="copyUrl()">Copy URL to Clipboard</button>
+                    <button class="btn btn-secondary" onclick="resetForm()">Clear All</button>
+                </div>
+
+                <div class="copy-feedback" id="copy-feedback">URL copied to clipboard!</div>
+            </div>
+        </div>
+
+        <!-- Naming Convention Guide -->
+        <div class="card">
+            <div class="guide-section">
+                <h2 class="guide-title">UTM Naming Convention Guide</h2>
+
+                <table class="guide-table">
+                    <thead>
+                        <tr>
+                            <th>Channel</th>
+                            <th>Source</th>
+                            <th>Medium</th>
+                            <th>Example Campaign</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Google Ads</td>
+                            <td><code>google</code></td>
+                            <td><code>cpc</code></td>
+                            <td><code>brand_search_jul2026</code></td>
+                        </tr>
+                        <tr>
+                            <td>Facebook/Meta Ads</td>
+                            <td><code>facebook</code></td>
+                            <td><code>paid_social</code></td>
+                            <td><code>retargeting_cart_jul2026</code></td>
+                        </tr>
+                        <tr>
+                            <td>Instagram Organic</td>
+                            <td><code>instagram</code></td>
+                            <td><code>social</code></td>
+                            <td><code>reels_tips_series</code></td>
+                        </tr>
+                        <tr>
+                            <td>Email Newsletter</td>
+                            <td><code>newsletter</code></td>
+                            <td><code>email</code></td>
+                            <td><code>weekly_digest_w28</code></td>
+                        </tr>
+                        <tr>
+                            <td>WhatsApp Broadcast</td>
+                            <td><code>whatsapp</code></td>
+                            <td><code>messaging</code></td>
+                            <td><code>offer_broadcast_jul2026</code></td>
+                        </tr>
+                        <tr>
+                            <td>YouTube Video</td>
+                            <td><code>youtube</code></td>
+                            <td><code>video</code></td>
+                            <td><code>seo_tutorial_ep5</code></td>
+                        </tr>
+                        <tr>
+                            <td>LinkedIn Organic</td>
+                            <td><code>linkedin</code></td>
+                            <td><code>social</code></td>
+                            <td><code>thought_leadership_q3</code></td>
+                        </tr>
+                        <tr>
+                            <td>Influencer Collab</td>
+                            <td><code>influencer_name</code></td>
+                            <td><code>partnership</code></td>
+                            <td><code>priya_review_jul2026</code></td>
+                        </tr>
+                        <tr>
+                            <td>Blog Guest Post</td>
+                            <td><code>guestpost_sitename</code></td>
+                            <td><code>referral</code></td>
+                            <td><code>seo_guide_backlink</code></td>
+                        </tr>
+                        <tr>
+                            <td>QR Code (Offline)</td>
+                            <td><code>qr_code</code></td>
+                            <td><code>offline</code></td>
+                            <td><code>visiting_card_jul2026</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="naming-rules">
+                    <h3>Naming Rules (Follow These Always)</h3>
+                    <ul class="rule-list">
+                        <li><strong>Always use lowercase</strong> — <span class="do">facebook</span> not <span class="dont">Facebook</span> or <span class="dont">FACEBOOK</span></li>
+                        <li><strong>Use underscores for spaces</strong> — <span class="do">summer_sale</span> not <span class="dont">summer sale</span> or <span class="dont">summer-sale</span></li>
+                        <li><strong>Include dates in campaign names</strong> — <span class="do">launch_jul2026</span> not <span class="dont">launch</span></li>
+                        <li><strong>Be specific with sources</strong> — <span class="do">instagram_story</span> or <span class="do">instagram_reel</span> not just <span class="dont">social</span></li>
+                        <li><strong>No special characters</strong> — Avoid <span class="dont">? & # @ !</span> in UTM values</li>
+                        <li><strong>Keep it readable</strong> — Someone else should understand what the campaign is from the UTM name alone</li>
+                        <li><strong>Document in a spreadsheet</strong> — Maintain a master UTM tracking sheet so your team stays consistent</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            TechPath Academy — Digital Marketing with Gen AI Program | UTM Builder Tool
+        </div>
+    </div>
+
+    <script>
+        function updatePreview() {
+            const url = document.getElementById('website-url').value.trim();
+            const source = document.getElementById('utm-source').value.trim().toLowerCase().replace(/\s+/g, '_');
+            const medium = document.getElementById('utm-medium').value.trim().toLowerCase().replace(/\s+/g, '_');
+            const campaign = document.getElementById('utm-campaign').value.trim().toLowerCase().replace(/\s+/g, '_');
+            const term = document.getElementById('utm-term').value.trim().toLowerCase().replace(/\s+/g, '+');
+            const content = document.getElementById('utm-content').value.trim().toLowerCase().replace(/\s+/g, '_');
+
+            const previewEl = document.getElementById('preview-url');
+
+            if (!url) {
+                previewEl.innerHTML = '<span class="preview-placeholder">Start typing above to see your UTM link here...</span>';
+                return;
+            }
+
+            let params = [];
+            if (source) params.push({ key: 'utm_source', value: source });
+            if (medium) params.push({ key: 'utm_medium', value: medium });
+            if (campaign) params.push({ key: 'utm_campaign', value: campaign });
+            if (term) params.push({ key: 'utm_term', value: term });
+            if (content) params.push({ key: 'utm_content', value: content });
+
+            if (params.length === 0) {
+                previewEl.innerHTML = '<span class="base-url">' + escapeHtml(url) + '</span>';
+                return;
+            }
+
+            let html = '<span class="base-url">' + escapeHtml(url) + '</span>';
+            html += '<span class="separator">?</span>';
+
+            params.forEach((param, index) => {
+                if (index > 0) html += '<span class="separator">&</span>';
+                html += '<span class="param-key">' + param.key + '</span>';
+                html += '<span class="separator">=</span>';
+                html += '<span class="param-value">' + escapeHtml(encodeURIComponent(param.value)) + '</span>';
+            });
+
+            previewEl.innerHTML = html;
+        }
+
+        function getGeneratedUrl() {
+            const url = document.getElementById('website-url').value.trim();
+            const source = document.getElementById('utm-source').value.trim().toLowerCase().replace(/\s+/g, '_');
+            const medium = document.getElementById('utm-medium').value.trim().toLowerCase().replace(/\s+/g, '_');
+            const campaign = document.getElementById('utm-campaign').value.trim().toLowerCase().replace(/\s+/g, '_');
+            const term = document.getElementById('utm-term').value.trim().toLowerCase().replace(/\s+/g, '+');
+            const content = document.getElementById('utm-content').value.trim().toLowerCase().replace(/\s+/g, '_');
+
+            if (!url) return '';
+
+            let params = [];
+            if (source) params.push('utm_source=' + encodeURIComponent(source));
+            if (medium) params.push('utm_medium=' + encodeURIComponent(medium));
+            if (campaign) params.push('utm_campaign=' + encodeURIComponent(campaign));
+            if (term) params.push('utm_term=' + encodeURIComponent(term));
+            if (content) params.push('utm_content=' + encodeURIComponent(content));
+
+            if (params.length === 0) return url;
+
+            const separator = url.includes('?') ? '&' : '?';
+            return url + separator + params.join('&');
+        }
+
+        function copyUrl() {
+            const generatedUrl = getGeneratedUrl();
+            if (!generatedUrl) {
+                alert('Please enter a website URL first.');
+                return;
+            }
+
+            navigator.clipboard.writeText(generatedUrl).then(() => {
+                const feedback = document.getElementById('copy-feedback');
+                feedback.classList.add('show');
+                setTimeout(() => feedback.classList.remove('show'), 2500);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = generatedUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+
+                const feedback = document.getElementById('copy-feedback');
+                feedback.classList.add('show');
+                setTimeout(() => feedback.classList.remove('show'), 2500);
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('website-url').value = '';
+            document.getElementById('utm-source').value = '';
+            document.getElementById('utm-medium').value = '';
+            document.getElementById('utm-campaign').value = '';
+            document.getElementById('utm-term').value = '';
+            document.getElementById('utm-content').value = '';
+            updatePreview();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

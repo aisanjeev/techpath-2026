@@ -1,0 +1,152 @@
+{
+  "01-spreadsheet-basics.md": {
+    "title": "Spreadsheet Basics \u2014 Introduction to MS Excel",
+    "description": "Module 04 \u2014 CCC Exam Preparation | Topic 1 --- A spreadsheet is a software application that organizes data in rows and columns, forming a grid of cells. It is used for calculations, data analysis, and creating charts. The most widely used spreadsheet program is Microsoft Excel, which is part of the Microsoft Office suite. In simple words: A spreadsheet is like a digital notebook with rows and columns where you can type data and perform...",
+    "asset_type": "markdown",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "02-cell-addressing-references.md": {
+    "title": "Cell Addressing and References",
+    "description": "Module 04 \u2014 CCC Exam Preparation | Topic 2 --- When you write a formula in Excel, you refer to cells by their addresses. For example, if you write =A1+B1, Excel uses the values stored in cells A1 and B1 to calculate the result. This is called cell referencing. Cell references are important because they allow formulas to update automatically when data changes. Instead of typing fixed numbers, you refer to cells, and Excel always uses the current...",
+    "asset_type": "markdown",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "03-data-entry-editing.md": {
+    "title": "Data Entry and Editing in Excel",
+    "description": "Module 04 \u2014 CCC Exam Preparation | Topic 3 --- In Excel, you can enter three main types of data into cells: Text entries are used for headings, names, descriptions, and other non-numeric data. - Text is left-aligned by default in a cell. - Examples: \"Name\", \"Rahul\", \"Delhi\", \"Product A\" - If text is longer than the column width, it overflows into the next cell (if that cell is empty) or gets cut off visually. Numbers are used for quantities,...",
+    "asset_type": "markdown",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "04-formulas-functions.md": {
+    "title": "Formulas and Functions in Excel",
+    "description": "Module 04 \u2014 CCC Exam Preparation | Topic 4 --- A formula is an expression that performs calculations on values in your worksheet. Every formula in Excel must start with an equals sign (=). For example: - =5+3 calculates the sum of 5 and 3 (result: 8) - =A1+B1 adds the values in cells A1 and B1 - =C2*D2 multiplies the values in cells C2 and D2 Excel follows the standard mathematical order of operations: 1. B \u2014 Brackets (parentheses) 2. O \u2014 Orders...",
+    "asset_type": "markdown",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "05-charts-visualization.md": {
+    "title": "Charts and Data Visualization in Excel",
+    "description": "Module 04 \u2014 CCC Exam Preparation | Topic 5 --- A chart (also called a graph) is a visual representation of data. Instead of looking at rows of numbers, charts help you see patterns, trends, and comparisons at a glance. In simple words: A chart turns numbers into pictures so that data is easier to understand. Excel provides many types of charts. You select your data and Excel creates the chart for you automatically. CCC Exam Tip: The CCC exam...",
+    "asset_type": "markdown",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "06-spreadsheet-printing.md": {
+    "title": "Printing, Sorting, and Filtering in Excel",
+    "description": "Module 04 \u2014 CCC Exam Preparation | Topic 6 --- When you have a large worksheet but only want to print a specific portion, you can set a Print Area. 1. Select the range of cells you want to print. 2. Go to the Page Layout tab. 3. Click Print Area > Set Print Area. A thin dashed border appears around the selected area, indicating it is now the print area. When you print, only this area will be printed. 1. Go to Page Layout tab. 2. Click Print Area...",
+    "asset_type": "markdown",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "07-excel-formula-playground.html": {
+    "title": "Excel Formula Playground \u2014 TechPath Institute",
+    "description": "Interactive Excel Formula Playground \u2014 TechPath Institute exercise for Spreadsheet",
+    "asset_type": "html_bundle",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "assignment-04.md": {
+    "title": "Module 04 \u2014 Spreadsheet / MS Excel \u2014 Assignment",
+    "description": "CCC Exam Preparation | TechPath Institute --- This assignment contains 4 practical tasks that cover the key concepts from Module 04. Complete all tasks in Microsoft Excel (or LibreOffice Calc / Google Sheets). Save each task as a separate file or as separate worksheets in one workbook. --- Objective: Practice data entry, basic formulas (SUM, AVERAGE, MAX, MIN), cell formatting, and conditional logic. 1. Open a new Excel workbook and name the...",
+    "asset_type": "assignment",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "cheatsheet-04.md": {
+    "title": "Cheatsheet 04",
+    "description": "Learning material for Cheatsheet 04",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "lab-04-a.json": {
+    "title": "Create a Student Marksheet with Formulas",
+    "description": "Build a complete student marksheet using SUM, AVERAGE, MAX, MIN, COUNT functions and cell formatting in Excel.",
+    "asset_type": "lab",
+    "tags": [
+      "excel",
+      "formulas",
+      "marksheet"
+    ]
+  },
+  "lab-04-b.json": {
+    "title": "Build Charts and Format a Budget Spreadsheet",
+    "description": "Create a monthly budget spreadsheet with charts, sorting, filtering, and professional formatting in Excel.",
+    "asset_type": "lab",
+    "tags": [
+      "excel",
+      "charts",
+      "budget"
+    ]
+  },
+  "notes-04.md": {
+    "title": "Module 04 \u2014 Spreadsheet / MS Excel \u2014 Comprehensive Notes",
+    "description": "CCC Exam Preparation | TechPath Institute --- A spreadsheet is a software application designed to organize, analyze, and store data in a tabular format using rows and columns. The most commonly used spreadsheet application is Microsoft Excel, which is part of the Microsoft Office suite. Other spreadsheet programs include LibreOffice Calc and Google Sheets, but the CCC exam focuses exclusively on MS Excel. When you open MS Excel, you see a grid...",
+    "asset_type": "notes",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-04.json": {
+    "title": "Quiz 04",
+    "description": "Learning material for Quiz 04",
+    "asset_type": "quiz",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "quiz-04.md": {
+    "title": "Quiz: Spreadsheet / MS Excel",
+    "description": "Module 04 \u2014 CCC Exam Preparation --- - A) Cell  << - B) Workbook - C) Formula - D) Range > Explanation: A cell is the basic unit of a spreadsheet, formed at the intersection (meeting point) of a row and a column. Each cell has a unique address like A1, B5, etc. --- - A) =ADD(A1:A10) - B) =SUM(A1:A10)  << - C) =TOTAL(A1:A10) - D) =SUM(A1-A10) > Explanation: The SUM function is used to add values in Excel. The correct syntax is =SUM(A1:A10), where...",
+    "asset_type": "markdown",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  },
+  "resources-04.md": {
+    "title": "Module 04 \u2014 Spreadsheet / MS Excel \u2014 Resources",
+    "description": "CCC Exam Preparation | TechPath Institute --- - Microsoft Excel Tutorial for Beginners (Hindi) \u2014 Search on YouTube: \"MS Excel complete tutorial Hindi beginners\" \u2014 Multiple channels offer full courses covering the Excel interface, data entry, and basic formatting. - Excel Basics in 30 Minutes \u2014 Microsoft's official YouTube channel has short tutorials on getting started with Excel. - CCC Exam Excel Topic Explanation (Hindi) \u2014 Search: \"CCC exam...",
+    "asset_type": "notes",
+    "tags": [
+      "spreadsheet",
+      "ccc",
+      "computer-concepts"
+    ]
+  }
+}

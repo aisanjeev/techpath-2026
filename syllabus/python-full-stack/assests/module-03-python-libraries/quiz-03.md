@@ -1,0 +1,168 @@
+# Quiz: Python Libraries — Data, Automation & APIs
+
+**Module 03 | 15 Questions | Pass Mark: 60%**
+
+---
+
+## Q1. What is the main advantage of NumPy arrays over Python lists for mathematical operations?
+
+- A) NumPy arrays can store different data types
+- B) NumPy arrays support vectorized operations that are 10-100x faster ✅
+- C) NumPy arrays use more memory for better accuracy
+- D) NumPy arrays can only store integers
+
+> **Explanation:** NumPy arrays support vectorized operations — mathematical operations work on the entire array at once without needing explicit loops. This makes them 10-100x faster than Python lists for numerical computation.
+
+---
+
+## Q2. What does np.where(marks >= 60, 'Pass', 'Fail') do?
+
+- A) Filters the array to keep only passing marks
+- B) Returns a new array with 'Pass' where marks >= 60 and 'Fail' otherwise ✅
+- C) Sorts the marks array
+- D) Returns the indices where marks >= 60
+
+> **Explanation:** np.where(condition, x, y) returns a new array where each element is x if the condition is True, or y if False. So marks >= 60 gets 'Pass', otherwise 'Fail'.
+
+---
+
+## Q3. In Pandas, what is the difference between df.iloc[0] and df.loc[0]?
+
+- A) They are exactly the same
+- B) iloc uses integer position, loc uses label-based indexing ✅
+- C) iloc is for columns, loc is for rows
+- D) iloc is faster, loc is slower
+
+> **Explanation:** iloc uses integer-based indexing (position 0, 1, 2...), while loc uses label-based indexing (the actual index labels). They give the same result only when the index is the default integer index.
+
+---
+
+## Q4. What does df.groupby('city')['marks'].mean() return?
+
+- A) The overall mean of marks
+- B) The mean marks for each city ✅
+- C) A filtered DataFrame of cities
+- D) The city with the highest average marks
+
+> **Explanation:** groupby('city') groups rows by city, then ['marks'].mean() calculates the average marks for each group. It returns a Series with city names as index and mean marks as values.
+
+---
+
+## Q5. Which Pandas method is used to combine two DataFrames on a common column?
+
+- A) pd.concat()
+- B) pd.merge() ✅
+- C) pd.join()
+- D) pd.combine()
+
+> **Explanation:** pd.merge() joins two DataFrames based on common columns (like SQL JOIN). pd.concat() stacks DataFrames vertically or horizontally without matching on keys.
+
+---
+
+## Q6. In Matplotlib, what does plt.subplots(2, 3) create?
+
+- A) 2 charts side by side
+- B) A grid of 2 rows and 3 columns of charts (6 total) ✅
+- C) 3 charts in 2 colors
+- D) A single chart with 6 data series
+
+> **Explanation:** plt.subplots(2, 3) creates a figure with a 2x3 grid of subplots (axes), giving you 6 separate chart areas arranged in 2 rows and 3 columns.
+
+---
+
+## Q7. What does sns.heatmap(df.corr(), annot=True) display?
+
+- A) A bar chart of correlations
+- B) A color-coded matrix showing correlations between numeric columns with values displayed ✅
+- C) A scatter plot of all columns
+- D) A histogram of each column
+
+> **Explanation:** sns.heatmap() creates a color-coded matrix visualization. df.corr() calculates pairwise correlations between numeric columns, and annot=True shows the correlation values on each cell.
+
+---
+
+## Q8. What HTTP status code means 'resource not found'?
+
+- A) 200
+- B) 401
+- C) 404 ✅
+- D) 500
+
+> **Explanation:** 404 means 'Not Found' — the requested resource does not exist at the given URL. 200 means success, 401 means unauthorized, and 500 means server error.
+
+---
+
+## Q9. What is the main advantage of httpx over the requests library?
+
+- A) httpx is faster for single requests
+- B) httpx supports async operations for concurrent HTTP requests ✅
+- C) httpx can parse HTML
+- D) httpx does not need an internet connection
+
+> **Explanation:** httpx supports async/await, allowing you to make multiple HTTP requests concurrently. This is much faster than making them one by one with the sync-only requests library.
+
+---
+
+## Q10. In BeautifulSoup, what does soup.find_all('li', class_='item') return?
+
+- A) The first `<li>` with class 'item'
+- B) A list of all `<li>` elements with class 'item' ✅
+- C) The text content of all `<li>` elements
+- D) The number of `<li>` elements
+
+> **Explanation:** find_all() returns a list of all matching elements. With 'li' and class_='item', it finds every `<li>` tag that has the CSS class 'item'. Use find() for just the first match.
+
+---
+
+## Q11. What should you always add to .gitignore when using python-dotenv?
+
+- A) requirements.txt
+- B) .env file ✅
+- C) app.py
+- D) venv folder only
+
+> **Explanation:** The .env file contains sensitive data like API keys and database passwords. It must be added to .gitignore so it is never committed to version control or shared publicly.
+
+---
+
+## Q12. What is the correct way to handle a missing key safely when scraping HTML attributes?
+
+- A) element['href']
+- B) element.get('href') ✅
+- C) element.href
+- D) element.find('href')
+
+> **Explanation:** element.get('href') returns None if the attribute doesn't exist, instead of raising a KeyError like element['href'] would. This is safer when scraping unpredictable HTML.
+
+---
+
+## Q13. In the Anthropic SDK, how do you access the text from Claude's response?
+
+- A) message.text
+- B) message.content[0].text ✅
+- C) message.choices[0].text
+- D) message.response
+
+> **Explanation:** In the Anthropic SDK, the response text is accessed via message.content[0].text. The content is a list of content blocks, and the first block's text attribute contains the response.
+
+---
+
+## Q14. What does the 'temperature' parameter control in AI API calls?
+
+- A) How fast the AI responds
+- B) The randomness/creativity of the response (0 = focused, 1 = creative) ✅
+- C) The maximum length of the response
+- D) The cost of the API call
+
+> **Explanation:** Temperature controls randomness: 0 makes the output deterministic and focused, while higher values (up to 1 or 2) make it more creative and varied. Use low temperature for factual tasks.
+
+---
+
+## Q15. Which logging level should you use for an event where a database connection fails?
+
+- A) logging.DEBUG
+- B) logging.INFO
+- C) logging.WARNING
+- D) logging.ERROR ✅
+
+> **Explanation:** logging.ERROR is for events where something failed and the operation could not complete. A database connection failure is an error. WARNING is for potential problems, INFO for normal events, and DEBUG for detailed diagnostics.

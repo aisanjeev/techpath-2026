@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content-Type Matcher — TechPath Academy</title>
+<style>
+:root {
+  --bg: #0f172a; --card: #1e293b; --card-hover: #334155;
+  --text: #e2e8f0; --text-dim: #94a3b8; --accent: #38bdf8;
+  --accent2: #a78bfa; --success: #4ade80; --warning: #fbbf24; --danger: #f87171;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; }
+.container { max-width: 960px; margin: 0 auto; }
+.brand { text-align: center; font-size: 0.7rem; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+h1 { text-align: center; font-size: 1.5rem; margin-bottom: 4px; }
+.subtitle { text-align: center; color: var(--text-dim); font-size: 0.85rem; margin-bottom: 24px; }
+.tabs { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn { padding: 8px 18px; border: 2px solid var(--card-hover); background: var(--card); color: var(--text-dim); border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
+.tab-btn:hover { border-color: var(--accent); color: var(--text); }
+.tab-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+.section { display: none; } .section.active { display: block; }
+
+.match-area { display: grid; grid-template-columns: 1fr 1.4fr; gap: 20px; }
+.source-panel { background: var(--card); border-radius: 12px; padding: 16px; }
+.source-panel h3 { font-size: 0.95rem; color: var(--accent); margin-bottom: 12px; }
+.drag-item { padding: 10px 14px; background: var(--bg); border: 1px solid var(--card-hover); border-radius: 8px; margin-bottom: 8px; cursor: grab; font-size: 0.85rem; transition: 0.2s; user-select: none; }
+.drag-item:hover { border-color: var(--accent); background: var(--card-hover); }
+.drag-item.dragging { opacity: 0.5; }
+.drag-item.placed { opacity: 0.4; cursor: default; }
+
+.targets-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.drop-zone { background: var(--card); border-radius: 10px; padding: 12px; min-height: 90px; border: 2px dashed var(--card-hover); transition: 0.2s; }
+.drop-zone.over { border-color: var(--accent); background: rgba(56,189,248,0.05); }
+.drop-zone h4 { font-size: 0.8rem; margin-bottom: 8px; color: var(--accent2); }
+.dropped { display: inline-block; padding: 5px 10px; margin: 3px; border-radius: 6px; font-size: 0.78rem; background: var(--bg); border: 1px solid var(--card-hover); }
+.dropped.correct { border-color: var(--success); color: var(--success); }
+.dropped.incorrect { border-color: var(--danger); color: var(--danger); }
+
+.btn { padding: 10px 24px; background: var(--accent); color: var(--bg); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; margin-top: 16px; }
+.btn:hover { opacity: 0.85; }
+.btn-reset { background: var(--card-hover); color: var(--text); margin-left: 8px; }
+
+.results { margin-top: 16px; background: var(--card); border-radius: 10px; padding: 18px; animation: fadeIn 0.3s; }
+.results h3 { margin-bottom: 12px; color: var(--accent); }
+.res-item { padding: 8px 0; border-bottom: 1px solid var(--card-hover); font-size: 0.85rem; }
+.res-item:last-child { border-bottom: none; }
+.res-icon { margin-right: 6px; }
+.score-line { margin-top: 12px; font-weight: 700; color: var(--accent); font-size: 1rem; }
+.explanation { color: var(--text-dim); font-size: 0.8rem; margin-top: 2px; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 700px) {
+  .match-area { grid-template-columns: 1fr; }
+  .targets-panel { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="brand">TechPath Academy</div>
+  <h1>Content-Type Matcher</h1>
+  <p class="subtitle">Match content formats to their best platforms and customer journey stages</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('platforms')">Match to Platforms</button>
+    <button class="tab-btn" onclick="showTab('journey')">Match to Journey Stages</button>
+  </div>
+
+  <!-- Exercise 1: Platform Match -->
+  <div id="sec-platforms" class="section active">
+    <div class="match-area">
+      <div class="source-panel">
+        <h3>Drag content types to their best platform</h3>
+        <div id="plat-items"></div>
+      </div>
+      <div class="targets-panel" id="plat-zones">
+        <div class="drop-zone" data-zone="instagram"><h4>Instagram</h4><div class="zone-items"></div></div>
+        <div class="drop-zone" data-zone="linkedin"><h4>LinkedIn</h4><div class="zone-items"></div></div>
+        <div class="drop-zone" data-zone="youtube"><h4>YouTube</h4><div class="zone-items"></div></div>
+        <div class="drop-zone" data-zone="twitter"><h4>X / Twitter</h4><div class="zone-items"></div></div>
+        <div class="drop-zone" data-zone="pinterest"><h4>Pinterest</h4><div class="zone-items"></div></div>
+        <div class="drop-zone" data-zone="email"><h4>Email</h4><div class="zone-items"></div></div>
+      </div>
+    </div>
+    <button class="btn" onclick="checkEx('plat')">Check Answers</button>
+    <button class="btn btn-reset" onclick="initEx('plat')">Reset</button>
+    <div id="plat-results"></div>
+  </div>
+
+  <!-- Exercise 2: Journey Match -->
+  <div id="sec-journey" class="section active" style="display:none;">
+    <div class="match-area">
+      <div class="source-panel">
+        <h3>Drag content types to the right journey stage</h3>
+        <div id="jour-items"></div>
+      </div>
+      <div class="targets-panel" id="jour-zones" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="drop-zone" data-zone="awareness"><h4>Awareness</h4><div class="zone-items"></div></div>
+        <div class="drop-zone" data-zone="consideration"><h4>Consideration</h4><div class="zone-items"></div></div>
+        <div class="drop-zone" data-zone="decision"><h4>Decision</h4><div class="zone-items"></div></div>
+      </div>
+    </div>
+    <button class="btn" onclick="checkEx('jour')">Check Answers</button>
+    <button class="btn btn-reset" onclick="initEx('jour')">Reset</button>
+    <div id="jour-results"></div>
+  </div>
+</div>
+
+<script>
+const platData = [
+  { name:'Carousel', correct:'instagram', why:'Carousels get the highest engagement on Instagram — swipe-through educates and retains attention.' },
+  { name:'Reel', correct:'instagram', why:'Short-form video is Instagram\'s top-reach format. Algorithm pushes Reels to non-followers.' },
+  { name:'Blog post', correct:'linkedin', why:'LinkedIn articles get professional visibility and SEO juice. Ideal for B2B thought leadership.' },
+  { name:'Thread', correct:'twitter', why:'Twitter/X threads let you break down ideas in a native conversational format the algorithm favours.' },
+  { name:'Newsletter', correct:'email', why:'Email newsletters go directly to inboxes — highest ROI channel, you own the audience.' },
+  { name:'Podcast', correct:'youtube', why:'YouTube is the #1 podcast discovery platform in India. Video podcasts get recommended heavily.' },
+  { name:'YouTube video', correct:'youtube', why:'Long-form video thrives on YouTube — the only platform built for 10+ minute educational content.' },
+  { name:'Infographic', correct:'pinterest', why:'Pinterest is a visual search engine. Infographics get saved, shared, and drive long-tail traffic.' },
+  { name:'Meme', correct:'twitter', why:'Memes spread fastest on Twitter/X — the retweet mechanic and culture favour viral humour.' },
+  { name:'Story', correct:'instagram', why:'Instagram Stories are ephemeral, perfect for behind-the-scenes and day-of engagement.' },
+  { name:'LinkedIn article', correct:'linkedin', why:'Native LinkedIn articles rank in Google and position you as an industry expert.' },
+  { name:'Pin', correct:'pinterest', why:'Pins have the longest content lifespan (months vs hours). Pinterest drives steady referral traffic.' }
+];
+
+const jourData = [
+  { name:'Carousel', correct:'awareness', why:'Carousels educate broad audiences — great for introducing concepts to new followers.' },
+  { name:'Reel', correct:'awareness', why:'Reels maximise reach to strangers. Top-of-funnel attention grabber.' },
+  { name:'Blog post', correct:'awareness', why:'SEO blog posts attract people searching for answers — first touchpoint.' },
+  { name:'Thread', correct:'awareness', why:'Threads go viral and introduce your expertise to new audiences.' },
+  { name:'Newsletter', correct:'consideration', why:'Newsletters nurture warm leads with regular value — builds trust over time.' },
+  { name:'Podcast', correct:'consideration', why:'Podcasts build deep trust. Listeners spend 30-60 min with you — strong consideration signal.' },
+  { name:'YouTube video', correct:'consideration', why:'Tutorials and demos help leads evaluate whether you can solve their problem.' },
+  { name:'Infographic', correct:'awareness', why:'Infographics simplify complex topics and get shared widely — great for discovery.' },
+  { name:'Meme', correct:'awareness', why:'Memes create brand personality and reach new people through shares.' },
+  { name:'Case study', correct:'decision', why:'Case studies prove results. Decision-stage leads need social proof before buying.' },
+  { name:'Product demo', correct:'decision', why:'Demos remove final objections and show exactly what the customer gets.' },
+  { name:'Testimonial video', correct:'decision', why:'Real customer stories are the strongest decision-stage content. Trust accelerator.' }
+];
+
+let placements = {};
+
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).style.display = 'block';
+  event.target.classList.add('active');
+}
+
+function initEx(prefix) {
+  const data = prefix === 'plat' ? platData : jourData;
+  const container = document.getElementById(prefix + '-items');
+  const shuffled = [...data].sort(() => Math.random() - 0.5);
+  container.innerHTML = shuffled.map((d, i) =>
+    `<div class="drag-item" draggable="true" data-prefix="${prefix}" data-id="${i}" data-name="${d.name}">${d.name}</div>`
+  ).join('');
+  placements[prefix] = {};
+  document.querySelectorAll('#sec-' + (prefix === 'plat' ? 'platforms' : 'journey') + ' .zone-items').forEach(z => z.innerHTML = '');
+  document.getElementById(prefix + '-results').innerHTML = '';
+  setupDnd(prefix);
+}
+
+function setupDnd(prefix) {
+  let dragId = null;
+  const section = document.getElementById('sec-' + (prefix === 'plat' ? 'platforms' : 'journey'));
+  section.querySelectorAll('.drag-item').forEach(item => {
+    item.addEventListener('dragstart', e => { dragId = e.target.dataset.id; e.target.classList.add('dragging'); e.dataTransfer.setData('text/plain', prefix + ':' + dragId); });
+    item.addEventListener('dragend', e => e.target.classList.remove('dragging'));
+  });
+  section.querySelectorAll('.drop-zone').forEach(zone => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('over');
+      const parts = e.dataTransfer.getData('text/plain').split(':');
+      if (parts[0] !== prefix) return;
+      const id = parts[1];
+      const item = section.querySelector(`.drag-item[data-id="${id}"][data-prefix="${prefix}"]`);
+      if (!item || item.classList.contains('placed')) return;
+      const name = item.dataset.name;
+      placements[prefix][name] = zone.dataset.zone;
+      item.classList.add('placed'); item.setAttribute('draggable', 'false');
+      zone.querySelector('.zone-items').innerHTML += `<span class="dropped">${name}</span>`;
+    });
+  });
+}
+
+function checkEx(prefix) {
+  const data = prefix === 'plat' ? platData : jourData;
+  const p = placements[prefix] || {};
+  if (Object.keys(p).length < data.length) { alert('Place all content types first!'); return; }
+  let correct = 0;
+  let html = '<div class="results"><h3>Results</h3>';
+  data.forEach(d => {
+    const placed = p[d.name];
+    const ok = placed === d.correct;
+    if (ok) correct++;
+    html += `<div class="res-item"><span class="res-icon">${ok ? '&#10004;' : '&#10008;'}</span><strong style="color:${ok ? 'var(--success)' : 'var(--danger)'}">${d.name}</strong> &rarr; ${placed}<div class="explanation">${d.why}</div></div>`;
+  });
+  html += `<p class="score-line">Score: ${correct}/${data.length}</p></div>`;
+  document.getElementById(prefix + '-results').innerHTML = html;
+
+  const section = document.getElementById('sec-' + (prefix === 'plat' ? 'platforms' : 'journey'));
+  section.querySelectorAll('.dropped').forEach(el => {
+    const name = el.textContent;
+    const item = data.find(d => d.name === name);
+    const zone = el.closest('.drop-zone').dataset.zone;
+    el.classList.add(zone === item.correct ? 'correct' : 'incorrect');
+  });
+}
+
+initEx('plat');
+initEx('jour');
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+{
+  "questions": [
+    {
+      "question": "What does SQL stand for?",
+      "options": ["Simple Query Language", "Structured Query Language", "System Query Logic", "Standard Question Language"],
+      "correct_index": 1,
+      "explanation": "SQL = Structured Query Language — used to create, read, update, and delete data in relational databases."
+    },
+    {
+      "question": "What is a Primary Key?",
+      "options": ["The first column in a table", "A unique identifier for each row", "A password for the database", "The most important data"],
+      "correct_index": 1,
+      "explanation": "A Primary Key uniquely identifies each row in a table. It cannot be NULL and must be unique (like student_id)."
+    },
+    {
+      "question": "Which SQL command retrieves data from a table?",
+      "options": ["GET", "FETCH", "SELECT", "READ"],
+      "correct_index": 2,
+      "explanation": "SELECT retrieves data: SELECT * FROM students; gets all rows and columns from the students table."
+    },
+    {
+      "question": "What does WHERE do in a SELECT statement?",
+      "options": ["Sorts results", "Filters rows based on a condition", "Groups results", "Limits output"],
+      "correct_index": 1,
+      "explanation": "WHERE filters which rows are returned: SELECT * FROM students WHERE marks > 80; only shows students with marks above 80."
+    },
+    {
+      "question": "What is the difference between DELETE and DROP?",
+      "options": ["No difference", "DELETE removes rows, DROP removes the entire table", "DELETE is faster", "DROP removes rows"],
+      "correct_index": 1,
+      "explanation": "DELETE removes specific rows from a table. DROP removes the entire table (structure + data) permanently."
+    },
+    {
+      "question": "What does COUNT(*) do?",
+      "options": ["Counts columns", "Counts the number of rows", "Counts characters", "Counts tables"],
+      "correct_index": 1,
+      "explanation": "COUNT(*) counts how many rows match your query. SELECT COUNT(*) FROM students; returns the total number of students."
+    },
+    {
+      "question": "What is a Foreign Key?",
+      "options": ["A key from another country", "A column that links to another table's Primary Key", "An encrypted key", "A backup key"],
+      "correct_index": 1,
+      "explanation": "A Foreign Key creates a relationship between tables. course_id in students table links to course_id in courses table."
+    },
+    {
+      "question": "What does INNER JOIN return?",
+      "options": ["All rows from both tables", "Only rows that match in both tables", "All from left table", "All from right table"],
+      "correct_index": 1,
+      "explanation": "INNER JOIN returns only rows that have matching values in both tables being joined."
+    },
+    {
+      "question": "Which clause is used to sort results?",
+      "options": ["SORT BY", "ORDER BY", "ARRANGE BY", "GROUP BY"],
+      "correct_index": 1,
+      "explanation": "ORDER BY sorts results: ORDER BY marks DESC (highest first) or ORDER BY name ASC (A to Z)."
+    },
+    {
+      "question": "What is normalization?",
+      "options": ["Making data normal", "Organizing data to reduce duplication", "Converting data types", "Encrypting data"],
+      "correct_index": 1,
+      "explanation": "Normalization structures tables to avoid data duplication. Store data once, reference it with Foreign Keys."
+    },
+    {
+      "question": "What does GROUP BY do?",
+      "options": ["Groups columns together", "Groups rows by a column value and allows aggregate calculations", "Sorts data into groups", "Creates new tables"],
+      "correct_index": 1,
+      "explanation": "GROUP BY groups rows sharing a value, then you apply aggregates: SELECT course, AVG(marks) FROM students GROUP BY course;"
+    },
+    {
+      "question": "Why should you always use WHERE with UPDATE and DELETE?",
+      "options": ["It runs faster", "Without it, ALL rows in the table get affected", "It's required syntax", "It prevents errors"],
+      "correct_index": 1,
+      "explanation": "Without WHERE, UPDATE changes ALL rows and DELETE removes ALL rows. Always specify which rows to affect."
+    }
+  ]
+}

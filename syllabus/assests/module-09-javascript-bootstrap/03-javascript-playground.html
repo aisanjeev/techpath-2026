@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript — Interactive Practice</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card-hover:#334155;--text:#e2e8f0;--text-dim:#94a3b8;--accent:#fbbf24;--accent2:#38bdf8;--success:#4ade80;--danger:#f87171}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:16px}
+h1{text-align:center;font-size:1.4rem;margin-bottom:4px}
+.subtitle{text-align:center;color:var(--text-dim);font-size:0.85rem;margin-bottom:16px}
+.container{max-width:850px;margin:0 auto}
+.tabs{display:flex;gap:6px;margin-bottom:16px;justify-content:center;flex-wrap:wrap}
+.tab-btn{padding:8px 16px;border:2px solid var(--card-hover);background:var(--card);color:var(--text-dim);border-radius:8px;cursor:pointer;font-size:0.85rem;transition:0.2s}
+.tab-btn:hover{border-color:var(--accent);color:var(--text)}
+.tab-btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
+.tab-content{display:none}.tab-content.active{display:block}
+
+.console-area{background:#0d1117;border-radius:10px;padding:16px;margin-bottom:16px}
+.console-area h3{color:var(--accent);font-size:1rem;margin-bottom:10px}
+.code-input{width:100%;min-height:120px;background:#161b22;color:#c9d1d9;border:1px solid var(--card-hover);border-radius:8px;padding:12px;font-family:'Consolas',monospace;font-size:13px;line-height:1.5;resize:vertical}
+.code-input:focus{outline:none;border-color:var(--accent)}
+.run-row{display:flex;gap:8px;margin-top:8px}
+.run-btn{padding:8px 20px;border-radius:8px;border:none;font-weight:600;cursor:pointer;font-size:0.9rem}
+.run-btn.primary{background:var(--accent);color:var(--bg)}
+.run-btn.secondary{background:var(--card-hover);color:var(--text)}
+.output-box{margin-top:10px;padding:12px;background:#161b22;border-radius:8px;font-family:monospace;font-size:0.85rem;color:var(--success);min-height:40px;max-height:200px;overflow-y:auto;white-space:pre-wrap}
+
+.challenge-list{display:flex;flex-direction:column;gap:12px}
+.ch-card{background:var(--card);border-radius:10px;padding:16px;border-left:4px solid var(--accent)}
+.ch-card h4{font-size:0.95rem;margin-bottom:4px}
+.ch-card p{font-size:0.85rem;color:var(--text-dim);margin-bottom:8px}
+.ch-card .ch-hint{font-size:0.8rem;color:var(--accent2);cursor:pointer}
+.ch-card .hint-text{display:none;margin-top:6px;padding:8px;background:var(--card-hover);border-radius:6px;font-family:monospace;font-size:0.8rem}
+.ch-card .hint-text.show{display:block}
+.ch-status{display:inline-block;padding:2px 10px;border-radius:12px;font-size:0.75rem;font-weight:600}
+.ch-status.easy{background:rgba(74,222,128,0.15);color:var(--success)}
+.ch-status.medium{background:rgba(251,191,36,0.15);color:var(--accent)}
+.ch-status.hard{background:rgba(248,113,113,0.15);color:var(--danger)}
+
+.concept-card{background:var(--card);border-radius:10px;padding:16px;margin-bottom:12px}
+.concept-card h3{color:var(--accent);font-size:1rem;margin-bottom:8px}
+.concept-card pre{background:#0d1117;padding:12px;border-radius:8px;font-family:monospace;font-size:0.82rem;color:#c9d1d9;overflow-x:auto;margin:8px 0}
+.concept-card .try-btn{padding:6px 14px;border-radius:6px;border:none;background:var(--accent2);color:#fff;cursor:pointer;font-size:0.8rem;margin-top:4px}
+
+@media(max-width:600px){.code-input{min-height:80px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>JavaScript — Interactive Practice</h1>
+  <p class="subtitle">Run code, explore concepts, solve challenges</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('console')">JS Console</button>
+    <button class="tab-btn" onclick="showTab('concepts')">Concepts</button>
+    <button class="tab-btn" onclick="showTab('challenges')">Challenges</button>
+  </div>
+
+  <!-- Console -->
+  <div id="tab-console" class="tab-content active">
+    <div class="console-area">
+      <h3>JavaScript Console — Write & Run</h3>
+      <textarea class="code-input" id="jsInput" spellcheck="false">// Try some JavaScript!
+const name = "TechPath";
+const year = 2026;
+console.log(`Welcome to ${name} ${year}!`);
+
+// Try math
+console.log("5 + 3 =", 5 + 3);
+console.log("10 / 3 =", (10/3).toFixed(2));
+
+// Try arrays
+const fruits = ["Apple", "Mango", "Banana"];
+fruits.forEach(f => console.log("Fruit:", f));</textarea>
+      <div class="run-row">
+        <button class="run-btn primary" onclick="runJS()">Run Code</button>
+        <button class="run-btn secondary" onclick="clearOutput()">Clear Output</button>
+      </div>
+      <div class="output-box" id="jsOutput">// Output appears here...</div>
+    </div>
+  </div>
+
+  <!-- Concepts -->
+  <div id="tab-concepts" class="tab-content">
+    <div class="concept-card">
+      <h3>Variables & Types</h3>
+      <pre>const name = "Rahul";    // String
+const age = 20;          // Number
+const pass = true;       // Boolean
+const marks = [85, 90];  // Array
+const student = {        // Object
+  name: "Rahul",
+  age: 20
+};</pre>
+      <button class="try-btn" onclick="loadExample('vars')">Try It</button>
+    </div>
+    <div class="concept-card">
+      <h3>If / Else</h3>
+      <pre>const marks = 75;
+
+if (marks >= 90) {
+  console.log("Grade: A");
+} else if (marks >= 75) {
+  console.log("Grade: B");
+} else if (marks >= 60) {
+  console.log("Grade: C");
+} else {
+  console.log("Grade: F");
+}</pre>
+      <button class="try-btn" onclick="loadExample('ifelse')">Try It</button>
+    </div>
+    <div class="concept-card">
+      <h3>Loops</h3>
+      <pre>// for loop
+for (let i = 1; i <= 5; i++) {
+  console.log("Count:", i);
+}
+
+// Loop through array
+const colors = ["Red", "Blue", "Green"];
+colors.forEach(c => console.log(c));</pre>
+      <button class="try-btn" onclick="loadExample('loops')">Try It</button>
+    </div>
+    <div class="concept-card">
+      <h3>Functions</h3>
+      <pre>function greet(name) {
+  return `Hello, ${name}!`;
+}
+console.log(greet("Priya"));
+
+// Arrow function
+const add = (a, b) => a + b;
+console.log("Sum:", add(10, 20));</pre>
+      <button class="try-btn" onclick="loadExample('functions')">Try It</button>
+    </div>
+    <div class="concept-card">
+      <h3>Array Methods</h3>
+      <pre>const nums = [3, 1, 4, 1, 5, 9, 2, 6];
+
+console.log("Original:", nums);
+console.log("Sorted:", [...nums].sort((a,b) => a-b));
+console.log("Sum:", nums.reduce((a,b) => a+b, 0));
+console.log("Even:", nums.filter(n => n % 2 === 0));
+console.log("Doubled:", nums.map(n => n * 2));</pre>
+      <button class="try-btn" onclick="loadExample('arrays')">Try It</button>
+    </div>
+  </div>
+
+  <!-- Challenges -->
+  <div id="tab-challenges" class="tab-content">
+    <div class="challenge-list" id="challengeList"></div>
+  </div>
+</div>
+
+<script>
+function showTab(name){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Console
+function runJS(){
+  const code=document.getElementById('jsInput').value;
+  const out=document.getElementById('jsOutput');
+  out.textContent='';
+  const origLog=console.log;
+  const origError=console.error;
+  console.log=(...args)=>{out.textContent+=args.map(a=>typeof a==='object'?JSON.stringify(a,null,2):String(a)).join(' ')+'\n'};
+  console.error=(...args)=>{out.textContent+='ERROR: '+args.join(' ')+'\n'};
+  try{eval(code)}catch(e){out.textContent+='Error: '+e.message+'\n'}
+  console.log=origLog;console.error=origError;
+}
+
+function clearOutput(){document.getElementById('jsOutput').textContent='// Output appears here...'}
+
+const examples={
+  vars:`const name = "Rahul";
+const age = 20;
+const isStudent = true;
+const marks = [85, 90, 78];
+const student = { name, age, course: "ADCA" };
+
+console.log("Name:", name);
+console.log("Type:", typeof name);
+console.log("Age:", age);
+console.log("Student?", isStudent);
+console.log("Marks:", marks);
+console.log("Student object:", student);`,
+  ifelse:`const marks = 75;
+
+if (marks >= 90) {
+  console.log("Grade: A - Excellent!");
+} else if (marks >= 75) {
+  console.log("Grade: B - Very Good!");
+} else if (marks >= 60) {
+  console.log("Grade: C - Good");
+} else {
+  console.log("Grade: F - Need improvement");
+}
+
+// Try changing marks to see different results!`,
+  loops:`// for loop - count 1 to 5
+for (let i = 1; i <= 5; i++) {
+  console.log("Count:", i);
+}
+
+console.log("---");
+
+// Loop through array
+const fruits = ["Apple", "Mango", "Banana", "Grapes"];
+fruits.forEach((fruit, index) => {
+  console.log(index + 1 + ". " + fruit);
+});`,
+  functions:`function greet(name) {
+  return "Hello, " + name + "!";
+}
+console.log(greet("Priya"));
+console.log(greet("Rahul"));
+
+// Arrow function
+const add = (a, b) => a + b;
+const multiply = (a, b) => a * b;
+
+console.log("5 + 3 =", add(5, 3));
+console.log("4 x 7 =", multiply(4, 7));
+
+// Function with default parameter
+const welcome = (name = "Student") => \`Welcome, \${name}!\`;
+console.log(welcome());
+console.log(welcome("Admin"));`,
+  arrays:`const nums = [3, 1, 4, 1, 5, 9, 2, 6];
+
+console.log("Original:", nums);
+console.log("Length:", nums.length);
+console.log("Sorted:", [...nums].sort((a,b) => a-b));
+console.log("Sum:", nums.reduce((a,b) => a+b, 0));
+console.log("Even numbers:", nums.filter(n => n % 2 === 0));
+console.log("Doubled:", nums.map(n => n * 2));
+console.log("Has 9?", nums.includes(9));
+console.log("First > 4:", nums.find(n => n > 4));`
+};
+
+function loadExample(key){
+  document.getElementById('jsInput').value=examples[key];
+  showTab('console');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  runJS();
+}
+
+// Challenges
+const challenges=[
+  {title:"Even or Odd",desc:"Write a function that takes a number and returns 'Even' or 'Odd'.",level:"easy",hint:"function evenOdd(n) {\n  return n % 2 === 0 ? 'Even' : 'Odd';\n}\nconsole.log(evenOdd(7));\nconsole.log(evenOdd(10));"},
+  {title:"Find Maximum",desc:"Write a function that takes an array of numbers and returns the biggest one.",level:"easy",hint:"function findMax(arr) {\n  return Math.max(...arr);\n}\nconsole.log(findMax([3, 7, 2, 9, 1]));"},
+  {title:"Reverse a String",desc:"Write a function that takes a string and returns it reversed. 'hello' → 'olleh'",level:"easy",hint:"function reverse(str) {\n  return str.split('').reverse().join('');\n}\nconsole.log(reverse('hello'));\nconsole.log(reverse('JavaScript'));"},
+  {title:"Count Vowels",desc:"Write a function that counts how many vowels (a, e, i, o, u) are in a string.",level:"medium",hint:"function countVowels(str) {\n  const vowels = 'aeiouAEIOU';\n  return [...str].filter(c => vowels.includes(c)).length;\n}\nconsole.log(countVowels('Hello World'));"},
+  {title:"FizzBuzz",desc:"Print 1-20. For multiples of 3 print 'Fizz', of 5 print 'Buzz', of both print 'FizzBuzz'.",level:"medium",hint:"for (let i = 1; i <= 20; i++) {\n  if (i % 15 === 0) console.log(i, 'FizzBuzz');\n  else if (i % 3 === 0) console.log(i, 'Fizz');\n  else if (i % 5 === 0) console.log(i, 'Buzz');\n  else console.log(i);\n}"},
+  {title:"Student Grades",desc:"Given marks array, return object with average, highest, lowest, and grade (A/B/C/F).",level:"hard",hint:"function analyze(marks) {\n  const avg = marks.reduce((a,b)=>a+b,0) / marks.length;\n  const grade = avg>=90?'A':avg>=75?'B':avg>=60?'C':'F';\n  return {\n    average: avg.toFixed(1),\n    highest: Math.max(...marks),\n    lowest: Math.min(...marks),\n    grade\n  };\n}\nconsole.log(analyze([85, 92, 78, 95, 88]));"}
+];
+
+const chList=document.getElementById('challengeList');
+challenges.forEach((c,i)=>{
+  const div=document.createElement('div');
+  div.className='ch-card';
+  div.innerHTML=`<h4>${i+1}. ${c.title} <span class="ch-status ${c.level}">${c.level}</span></h4>
+    <p>${c.desc}</p>
+    <span class="ch-hint" onclick="this.nextElementSibling.classList.toggle('show')">Show Solution</span>
+    <div class="hint-text">${c.hint.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
+  chList.appendChild(div);
+});
+</script>
+</body>
+</html>

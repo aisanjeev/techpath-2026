@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROAS & Ad Metrics Calculator — TechPath Academy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #1a1a2e;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+            font-size: 1.8rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #1a1a2e;
+            border-bottom: 2px solid #4361ee;
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            color: #444;
+        }
+        .input-group .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-group .currency {
+            position: absolute;
+            left: 12px;
+            color: #666;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+        .input-group input.has-currency { padding-left: 28px; }
+        .input-group input:focus { outline: none; border-color: #4361ee; }
+        .btn-calculate {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #4361ee;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-calculate:hover { background: #3451d1; }
+        .results-section {
+            display: none;
+            margin-top: 20px;
+        }
+        .results-section.visible { display: block; }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        .result-card {
+            padding: 20px 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .result-card:hover { transform: translateY(-2px); }
+        .result-card .metric-name {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .result-card .metric-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .result-card .metric-formula {
+            font-size: 0.72rem;
+            opacity: 0.7;
+        }
+        .result-card .metric-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 5px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .status-good { background: #d1fae5; color: #065f46; }
+        .status-avg { background: #fef3c7; color: #92400e; }
+        .status-bad { background: #fee2e2; color: #991b1b; }
+        .card-green { background: #ecfdf5; border: 1px solid #a7f3d0; }
+        .card-yellow { background: #fffbeb; border: 1px solid #fde68a; }
+        .card-red { background: #fef2f2; border: 1px solid #fecaca; }
+        .card-blue { background: #eff6ff; border: 1px solid #bfdbfe; }
+        .card-purple { background: #f5f3ff; border: 1px solid #ddd6fe; }
+        .card-gray { background: #f9fafb; border: 1px solid #e5e7eb; }
+        .benchmarks {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        .benchmarks h3 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: #374151;
+        }
+        .benchmark-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+        .benchmark-table th, .benchmark-table td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .benchmark-table th {
+            background: #f3f4f6;
+            font-weight: 600;
+            color: #374151;
+        }
+        .interpretation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eff6ff;
+            border-radius: 8px;
+            border: 1px solid #bfdbfe;
+        }
+        .interpretation h3 {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: #1e40af;
+        }
+        .interpretation p {
+            font-size: 0.85rem;
+            color: #1e3a5f;
+            margin-bottom: 5px;
+        }
+        .reset-btn {
+            padding: 10px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 15px;
+        }
+        .reset-btn:hover { background: #dc2626; }
+        @media (max-width: 600px) {
+            .input-grid { grid-template-columns: 1fr; }
+            .results-grid { grid-template-columns: 1fr 1fr; }
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ROAS & Ad Metrics Calculator</h1>
+        <p class="subtitle">TechPath Academy — Calculate all key performance marketing metrics instantly</p>
+
+        <div class="card">
+            <h2>Enter Campaign Data</h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Ad Spend</label>
+                    <div class="input-wrapper">
+                        <span class="currency">&#8377;</span>
+                        <input type="number" id="spend" placeholder="10000" class="has-currency">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Revenue Generated</label>
+                    <div class="input-wrapper">
+                        <span class="currency">&#8377;</span>
+                        <input type="number" id="revenue" placeholder="75000" class="has-currency">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Number of Conversions</label>
+                    <input type="number" id="conversions" placeholder="25">
+                </div>
+                <div class="input-group">
+                    <label>Number of Clicks</label>
+                    <input type="number" id="clicks" placeholder="500">
+                </div>
+                <div class="input-group">
+                    <label>Number of Impressions</label>
+                    <input type="number" id="impressions" placeholder="50000">
+                </div>
+            </div>
+            <button class="btn-calculate" onclick="calculate()">Calculate Metrics</button>
+        </div>
+
+        <div class="results-section" id="results-section">
+            <div class="card">
+                <h2>Results</h2>
+                <div class="results-grid" id="results-grid"></div>
+
+                <div class="interpretation" id="interpretation"></div>
+
+                <div class="benchmarks">
+                    <h3>Indian Market Benchmarks (Education / Training Industry)</h3>
+                    <table class="benchmark-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Good</th>
+                                <th>Average</th>
+                                <th>Poor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>ROAS</td><td>&gt; 5x</td><td>2x - 5x</td><td>&lt; 2x</td></tr>
+                            <tr><td>CPA</td><td>&lt; &#8377;200</td><td>&#8377;200-500</td><td>&gt; &#8377;500</td></tr>
+                            <tr><td>CPC</td><td>&lt; &#8377;15</td><td>&#8377;15-40</td><td>&gt; &#8377;40</td></tr>
+                            <tr><td>CTR</td><td>&gt; 3%</td><td>1.5%-3%</td><td>&lt; 1.5%</td></tr>
+                            <tr><td>Conv. Rate</td><td>&gt; 5%</td><td>2%-5%</td><td>&lt; 2%</td></tr>
+                            <tr><td>CPM</td><td>&lt; &#8377;100</td><td>&#8377;100-250</td><td>&gt; &#8377;250</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <button class="reset-btn" onclick="resetForm()">Reset Calculator</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            const spend = parseFloat(document.getElementById('spend').value) || 0;
+            const revenue = parseFloat(document.getElementById('revenue').value) || 0;
+            const conversions = parseFloat(document.getElementById('conversions').value) || 0;
+            const clicks = parseFloat(document.getElementById('clicks').value) || 0;
+            const impressions = parseFloat(document.getElementById('impressions').value) || 0;
+
+            if (spend === 0) {
+                alert('Please enter at least the Ad Spend amount.');
+                return;
+            }
+
+            const metrics = [];
+            const insights = [];
+
+            // ROAS
+            if (revenue > 0) {
+                const roas = revenue / spend;
+                let status, statusClass, cardClass;
+                if (roas >= 5) { status = 'Excellent'; statusClass = 'status-good'; cardClass = 'card-green'; }
+                else if (roas >= 2) { status = 'Average'; statusClass = 'status-avg'; cardClass = 'card-yellow'; }
+                else { status = 'Needs Improvement'; statusClass = 'status-bad'; cardClass = 'card-red'; }
+                metrics.push({ name: 'ROAS', value: roas.toFixed(2) + 'x', formula: 'Revenue / Spend', status, statusClass, cardClass });
+
+                if (roas >= 5) insights.push('Your ROAS of ' + roas.toFixed(2) + 'x is excellent. Consider scaling this campaign by increasing budget 20-30%.');
+                else if (roas >= 2) insights.push('ROAS of ' + roas.toFixed(2) + 'x means you are profitable but have room to optimize. Test new audiences or creatives.');
+                else insights.push('ROAS below 2x means you are losing money. Consider pausing and investigating — check landing page, audience targeting, or ad creative.');
+            }
+
+            // CPA
+            if (conversions > 0) {
+                const cpa = spend / conversions;
+                let status, statusClass, cardClass;
+                if (cpa < 200) { status = 'Excellent'; statusClass = 'status-good'; cardClass = 'card-green'; }
+                else if (cpa <= 500) { status = 'Average'; statusClass = 'status-avg'; cardClass = 'card-yellow'; }
+                else { status = 'High Cost'; statusClass = 'status-bad'; cardClass = 'card-red'; }
+                metrics.push({ name: 'CPA', value: '₹' + cpa.toFixed(2), formula: 'Spend / Conversions', status, statusClass, cardClass });
+            }
+
+            // CPC
+            if (clicks > 0) {
+                const cpc = spend / clicks;
+                let status, statusClass, cardClass;
+                if (cpc < 15) { status = 'Excellent'; statusClass = 'status-good'; cardClass = 'card-green'; }
+                else if (cpc <= 40) { status = 'Average'; statusClass = 'status-avg'; cardClass = 'card-yellow'; }
+                else { status = 'Expensive'; statusClass = 'status-bad'; cardClass = 'card-red'; }
+                metrics.push({ name: 'CPC', value: '₹' + cpc.toFixed(2), formula: 'Spend / Clicks', status, statusClass, cardClass });
+            }
+
+            // CPM
+            if (impressions > 0) {
+                const cpm = (spend / impressions) * 1000;
+                let status, statusClass, cardClass;
+                if (cpm < 100) { status = 'Excellent'; statusClass = 'status-good'; cardClass = 'card-green'; }
+                else if (cpm <= 250) { status = 'Average'; statusClass = 'status-avg'; cardClass = 'card-yellow'; }
+                else { status = 'Expensive'; statusClass = 'status-bad'; cardClass = 'card-red'; }
+                metrics.push({ name: 'CPM', value: '₹' + cpm.toFixed(2), formula: '(Spend / Impressions) x 1000', status, statusClass, cardClass });
+            }
+
+            // CTR
+            if (clicks > 0 && impressions > 0) {
+                const ctr = (clicks / impressions) * 100;
+                let status, statusClass, cardClass;
+                if (ctr >= 3) { status = 'Excellent'; statusClass = 'status-good'; cardClass = 'card-green'; }
+                else if (ctr >= 1.5) { status = 'Average'; statusClass = 'status-avg'; cardClass = 'card-yellow'; }
+                else { status = 'Low'; statusClass = 'status-bad'; cardClass = 'card-red'; }
+                metrics.push({ name: 'CTR', value: ctr.toFixed(2) + '%', formula: '(Clicks / Impressions) x 100', status, statusClass, cardClass });
+
+                if (ctr < 1) insights.push('CTR below 1% suggests your ad creative or targeting needs improvement. Try new headlines, images, or narrow your audience.');
+                else if (ctr >= 3) insights.push('CTR above 3% is strong — your ad resonates well with the audience.');
+            }
+
+            // Conversion Rate
+            if (conversions > 0 && clicks > 0) {
+                const cvr = (conversions / clicks) * 100;
+                let status, statusClass, cardClass;
+                if (cvr >= 5) { status = 'Excellent'; statusClass = 'status-good'; cardClass = 'card-green'; }
+                else if (cvr >= 2) { status = 'Average'; statusClass = 'status-avg'; cardClass = 'card-yellow'; }
+                else { status = 'Low'; statusClass = 'status-bad'; cardClass = 'card-red'; }
+                metrics.push({ name: 'Conv. Rate', value: cvr.toFixed(2) + '%', formula: '(Conversions / Clicks) x 100', status, statusClass, cardClass });
+
+                if (cvr < 2) insights.push('Conversion rate below 2% points to a landing page problem — check page speed, mobile experience, form length, or offer clarity.');
+                else if (cvr >= 5) insights.push('Conversion rate above 5% is excellent — your landing page is converting well.');
+            }
+
+            // Render results
+            const grid = document.getElementById('results-grid');
+            grid.innerHTML = metrics.map(m => `
+                <div class="result-card ${m.cardClass}">
+                    <div class="metric-name">${m.name}</div>
+                    <div class="metric-value">${m.value}</div>
+                    <div class="metric-formula">${m.formula}</div>
+                    <div class="metric-status ${m.statusClass}">${m.status}</div>
+                </div>
+            `).join('');
+
+            // Render interpretation
+            const interp = document.getElementById('interpretation');
+            if (insights.length > 0) {
+                interp.innerHTML = `<h3>Interpretation & Recommendations</h3>` + insights.map(i => `<p>• ${i}</p>`).join('');
+            } else {
+                interp.innerHTML = '<h3>Enter more data for detailed recommendations</h3><p>Add revenue, conversions, and impressions for a complete analysis.</p>';
+            }
+
+            document.getElementById('results-section').classList.add('visible');
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function resetForm() {
+            document.getElementById('spend').value = '';
+            document.getElementById('revenue').value = '';
+            document.getElementById('conversions').value = '';
+            document.getElementById('clicks').value = '';
+            document.getElementById('impressions').value = '';
+            document.getElementById('results-section').classList.remove('visible');
+        }
+    </script>
+</body>
+</html>

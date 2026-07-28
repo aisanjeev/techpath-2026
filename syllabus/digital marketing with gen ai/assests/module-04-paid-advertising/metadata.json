@@ -1,0 +1,152 @@
+{
+  "01-ad-auction-simulator.html": {
+    "title": "Google Ads Auction Simulator \u2014 TechPath Academy",
+    "description": "Interactive Google Ads Auction Simulator \u2014 TechPath Academy exercise for Paid Advertising",
+    "asset_type": "html_bundle",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "01-ad-platforms-and-auction-mechanics.md": {
+    "title": "Ad Platforms & Auction Mechanics",
+    "description": "Module 04 \u2014 Paid Advertising | Topic 1 --- Paid advertising (also called Performance Marketing or PPC \u2014 Pay Per Click) means paying platforms to show your ads to targeted audiences. Unlike SEO which takes months, paid ads can bring traffic within hours. > Simple Analogy: SEO is like planting a mango tree \u2014 it takes years but gives fruit forever. Paid ads are like renting a stall at a mela \u2014 you pay money, you get customers immediately, but the...",
+    "asset_type": "markdown",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "02-campaign-structure-builder.html": {
+    "title": "Campaign Structure Builder \u2014 TechPath Academy",
+    "description": "Interactive Campaign Structure Builder \u2014 TechPath Academy exercise for Paid Advertising",
+    "asset_type": "html_bundle",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "02-meta-ads-mastery.md": {
+    "title": "Meta Ads Mastery",
+    "description": "Module 04 \u2014 Paid Advertising | Topic 2 --- Meta Ads (Facebook + Instagram advertising) is the most popular paid advertising platform for Indian businesses. With 450+ million Facebook users and 350+ million Instagram users in India, it offers unmatched reach at affordable prices. > Real Example: A small beauty salon in Jaipur spent \u20b915,000/month on Meta ads targeting women aged 22-35 within a 10 km radius. They generated 85 leads per month at...",
+    "asset_type": "markdown",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "03-google-ads-mastery.md": {
+    "title": "Google Ads Mastery",
+    "description": "Module 04 \u2014 Paid Advertising | Topic 3 --- Google Ads is the most powerful advertising platform because it captures intent. Unlike Meta Ads where you interrupt people scrolling through their feed, Google Ads shows your ad to people who are actively searching for what you offer. > Simple Analogy: Meta Ads is like putting up a hoarding on a busy road \u2014 people see it but were not looking for you. Google Ads is like opening a shop right at the...",
+    "asset_type": "markdown",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "04-youtube-linkedin-ads.md": {
+    "title": "YouTube & LinkedIn Ads",
+    "description": "Module 04 \u2014 Paid Advertising | Topic 4 --- YouTube is the world's second-largest search engine and India's most-watched video platform. With 500+ million monthly active users in India, YouTube ads offer massive reach at very low costs. > Fun Fact: Indians watch more YouTube per capita than any other country. The average Indian user spends 40+ minutes on YouTube daily. For advertisers, this means your audience is already there \u2014 you just need to...",
+    "asset_type": "markdown",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "assignment-04.md": {
+    "title": "Module 4: Assignment \u2014 Paid Advertising (Performance Marketing)",
+    "description": "Total Marks: 100 Submission Deadline: End of Week 20 Format: Google Doc + Google Sheet (share links with view access) --- You are a performance marketing analyst at a digital agency in Pune. Your manager has given you data from 5 campaigns and wants your recommendation on which to scale, optimize, or pause. Part A: Calculate Metrics (10 marks) For each campaign, calculate: - CPC (Cost per Click) - CTR (Click-through Rate) - CPM (Cost per 1000...",
+    "asset_type": "assignment",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "cheatsheet-04.md": {
+    "title": "Cheatsheet 04",
+    "description": "Learning material for Cheatsheet 04",
+    "asset_type": "cheat_sheet",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "code-ad-copy-generator.html": {
+    "title": "Ad Copy Generator \u2014 TechPath Academy",
+    "description": "Interactive Ad Copy Generator \u2014 TechPath Academy exercise for Paid Advertising",
+    "asset_type": "html_bundle",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "code-roas-calculator.html": {
+    "title": "ROAS & Ad Metrics Calculator \u2014 TechPath Academy",
+    "description": "Interactive ROAS & Ad Metrics Calculator \u2014 TechPath Academy exercise for Paid Advertising",
+    "asset_type": "html_bundle",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "lab-04-a.json": {
+    "title": "Set Up Meta Pixel and Google Tag via GTM",
+    "description": "In this lab, you will set up Google Tag Manager from scratch, then install both the Meta Pixel and Google Ads Conversion Tag through GTM. You will test everything using GTM's Preview Mode to ensure tags fire correctly. This is a foundational skill \u2014 without proper tracking, you cannot measure or optimize any ad campaign.",
+    "asset_type": "lab",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "lab-04-b.json": {
+    "title": "Build a Meta Ads Campaign from Scratch",
+    "description": "In this lab, you will build a complete Meta (Facebook/Instagram) advertising campaign from scratch \u2014 from Business Manager setup to creating ad sets with different audiences, designing creatives, and submitting the campaign for review. You will work with a real (or simulated) ad account and learn the exact workflow used by professional media buyers.",
+    "asset_type": "lab",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "notes-04.md": {
+    "title": "Module 4: Paid Advertising (Performance Marketing Deep Dive)",
+    "description": "--- Every time someone searches on Google or scrolls through Instagram, an ad auction happens in milliseconds. Understanding this auction is the foundation of paid advertising. - Maximum Bid \u2014 The most you're willing to pay per click (CPC bid) - Quality Score \u2014 Google's rating (1-10) of your ad relevance and landing page quality - Expected Impact of Extensions \u2014 How much your ad extensions (sitelinks, callouts, etc.) improve performance Key...",
+    "asset_type": "notes",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "quiz-04.json": {
+    "title": "Quiz 04",
+    "description": "Learning material for Quiz 04",
+    "asset_type": "quiz",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  },
+  "resources-04.md": {
+    "title": "Module 4: Paid Advertising Resources & Tools",
+    "description": "--- --- --- --- --- --- --- --- --- *Note: These are approximate ranges and vary by city, competition, and targeting quality.* --- --- Rule of thumb: Start with \u20b9500-1000/day per platform. Run for 7 days. Analyze. Scale winners, kill losers.",
+    "asset_type": "notes",
+    "tags": [
+      "paid-advertising",
+      "digital-marketing",
+      "gen-ai"
+    ]
+  }
+}

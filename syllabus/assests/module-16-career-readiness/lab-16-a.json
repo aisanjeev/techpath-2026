@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Build Your GitHub Profile README",
+  "description": "Create a professional GitHub profile README with intro, skills, stats, and project links",
+  "tags": [
+    "github",
+    "profile",
+    "readme",
+    "markdown",
+    "career"
+  ],
+  "status": "draft",
+  "objective": "Students will create a GitHub profile README repository, write a professional introduction in Markdown, add skill badges, GitHub stats widgets, and pin their best repositories",
+  "steps": [
+    {
+      "title": "Create Your Profile Repository",
+      "instructions": "On GitHub:\n1. Click **+** → **New repository**\n2. Repository name: **your exact GitHub username** (e.g., if your username is `rahulsharma`, name the repo `rahulsharma`)\n3. Check **Add a README file**\n4. Click **Create repository**\n\nThis special repo's README appears on your GitHub profile page.\n\nClone it locally:\n```bash\ngit clone https://github.com/YOUR_USERNAME/YOUR_USERNAME.git\ncd YOUR_USERNAME\n```\n\nOpen `README.md` in VS Code."
+    },
+    {
+      "title": "Write Your Introduction",
+      "instructions": "Replace the README content with:\n\n```markdown\n# Hi, I'm Rahul Sharma 👋\n\n**Full Stack Developer** | Python | FastAPI | HTML/CSS/JS\n\n- 🎓 ADCA Graduate from TechPath Institute, Bhopal\n- 💻 I build web applications and REST APIs\n- 🌱 Currently learning: React, Docker, Cloud Deployment\n- 📫 Reach me: rahul@email.com\n- 🔗 Portfolio: [rahulsharma.github.io](https://rahulsharma.github.io)\n\n---\n\n## 🛠 Tech Stack\n\n**Languages:** Python, JavaScript, HTML, CSS, SQL\n\n**Frameworks:** FastAPI, Django, Bootstrap, Tailwind CSS\n\n**Tools:** Git, VS Code, Docker, Postman, Figma\n\n**Databases:** SQLite, MySQL\n\n---\n\n## 📂 Featured Projects\n\n| Project | Description | Tech | Link |\n|---------|-------------|------|------|\n| Student API | REST API for student management | FastAPI, SQLite | [Repo](link) |\n| Portfolio | Personal portfolio website | HTML, Tailwind | [Live](link) |\n| Expense Tracker | Track daily expenses with charts | Python, Pandas | [Repo](link) |\n\n---\n\n## 📊 GitHub Stats\n\n![GitHub Stats](https://github-readme-stats.vercel.app/api?username=YOUR_USERNAME&show_icons=true&theme=default)\n\n![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=YOUR_USERNAME&layout=compact)\n```\n\nReplace `YOUR_USERNAME` with your actual GitHub username."
+    },
+    {
+      "title": "Add Skill Badges",
+      "instructions": "Add technology badges using shields.io. Insert below your Tech Stack section:\n\n```markdown\n## 🛠 Tech Stack\n\n![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)\n![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)\n![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)\n![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)\n![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)\n![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat&logo=sqlite&logoColor=white)\n![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white)\n![VS Code](https://img.shields.io/badge/VS_Code-007ACC?style=flat&logo=visual-studio-code&logoColor=white)\n```\n\nCommit and push:\n```bash\ngit add README.md\ngit commit -m \"Add profile README with intro, badges, and stats\"\ngit push\n```\n\nVisit your GitHub profile — the README should appear at the top."
+    },
+    {
+      "title": "Pin Your Best Repositories",
+      "instructions": "On your GitHub profile page:\n1. Click **Customize your pins**\n2. Select 4-6 of your best repositories\n3. Make sure each pinned repo has:\n   - A clear description (edit in repo Settings)\n   - Topics/tags (add via repo homepage → gear icon near About)\n   - A README with: what it does, how to run it, screenshots\n\nFor each pinned repo, verify:\n- [ ] Description is filled in\n- [ ] README exists with setup instructions\n- [ ] No sensitive files (`.env`, passwords)\n- [ ] Code is clean and organized\n\nVisit your profile in a private/incognito window to see how it looks to others."
+    },
+    {
+      "title": "Review and Get Feedback",
+      "instructions": "Do a final review of your GitHub profile:\n\n1. Open your profile in **incognito/private window** (so you see what others see)\n\n2. Check this list:\n- [ ] Profile photo is set (professional or avatar)\n- [ ] Bio is filled in (one-line description)\n- [ ] README loads and looks good\n- [ ] Badges render correctly (no broken images)\n- [ ] GitHub Stats widget shows your data\n- [ ] At least 4 repos are pinned\n- [ ] Each pinned repo has a description and README\n- [ ] No embarrassing repo names (\"test\", \"untitled\", \"asdfgh\")\n- [ ] No sensitive files visible in any repo (.env, passwords)\n\n3. Ask a batchmate to review your profile and give feedback:\n- What's the first impression?\n- Is it clear what you do?\n- Can they find your best work easily?\n- Any broken links or missing info?\n\n4. Make fixes based on feedback and push updates.\n\n**Submit:** Your GitHub profile URL + screenshot in incognito + batchmate's feedback (2-3 sentences)."
+    }
+  ],
+  "expected_output": "A professional GitHub profile page with a README containing introduction, tech stack badges, featured projects table, GitHub stats widgets, and 4+ pinned repositories with proper descriptions"
+}

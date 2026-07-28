@@ -1,0 +1,37 @@
+{
+  "asset_type": "lab",
+  "title": "Deploy a FastAPI App to the Cloud",
+  "description": "Deploy a Python FastAPI application to a free cloud platform with environment variables and a live URL",
+  "tags": [
+    "deployment",
+    "fastapi",
+    "render",
+    "docker",
+    "cloud"
+  ],
+  "status": "draft",
+  "objective": "Students will take a FastAPI application, prepare it for deployment with requirements.txt and environment variables, deploy to a free cloud platform, and verify the live API works",
+  "steps": [
+    {
+      "title": "Prepare the Project for Deployment",
+      "instructions": "Make sure your FastAPI project has these files:\n\n`main.py` — your API code\n\n`requirements.txt` — create with:\n```bash\npip freeze > requirements.txt\n```\n\nOr manually:\n```\nfastapi==0.115.0\nuvicorn==0.30.0\npython-dotenv==1.0.0\n```\n\n`.env` — environment variables (local only):\n```\nSECRET_KEY=my-local-secret\nDEBUG=true\n```\n\n`.gitignore` — exclude sensitive files:\n```\n.env\n__pycache__/\n*.pyc\n*.db\nvenv/\n```\n\nUpdate `main.py` to use environment variables:\n```python\nimport os\nfrom dotenv import load_dotenv\n\nload_dotenv()\n\nDEBUG = os.getenv(\"DEBUG\", \"false\") == \"true\"\nSECRET = os.getenv(\"SECRET_KEY\", \"default-key\")\n```\n\nTest locally: `uvicorn main:app --reload`"
+    },
+    {
+      "title": "Push to GitHub",
+      "instructions": "If not already a Git repo:\n```bash\ngit init\ngit add .\ngit commit -m \"Prepare for deployment\"\n```\n\nCreate a new GitHub repository and push:\n```bash\ngit remote add origin https://github.com/YOUR_USERNAME/student-api.git\ngit push -u origin main\n```\n\nVerify on GitHub:\n- `main.py` is there\n- `requirements.txt` is there\n- `.env` is NOT there (should be in .gitignore)\n- No `__pycache__` or `.pyc` files"
+    },
+    {
+      "title": "Deploy to Render (Free)",
+      "instructions": "1. Go to https://render.com/ and sign up with GitHub\n2. Click **New** → **Web Service**\n3. Connect your GitHub repository\n4. Configure:\n   - **Name:** student-api\n   - **Runtime:** Python 3\n   - **Build Command:** `pip install -r requirements.txt`\n   - **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`\n   - **Plan:** Free\n\n5. Add Environment Variables:\n   - Click **Environment** → **Add Environment Variable**\n   - `SECRET_KEY` = `your-production-secret-here`\n   - `DEBUG` = `false`\n\n6. Click **Create Web Service**\n\nWait for the build to complete (2-5 minutes).\n\nYour API will be live at: `https://student-api-xxxx.onrender.com`\n\nTest the live URL:\n- `/` — should return JSON message\n- `/docs` — should show Swagger UI\n- `/api/students` — should return student data"
+    },
+    {
+      "title": "Verify and Test the Live API",
+      "instructions": "Open your live URL in the browser and test:\n\n| URL | Expected |\n|-----|----------|\n| `https://your-app.onrender.com/` | JSON welcome message |\n| `https://your-app.onrender.com/docs` | Swagger UI loads |\n| `https://your-app.onrender.com/api/students` | Student list |\n\nTest with Postman or curl:\n```bash\ncurl https://your-app.onrender.com/api/students\n```\n\nTest a POST request (from Swagger UI or Postman):\n```json\n{\n  \"name\": \"Test Student\",\n  \"email\": \"test@email.com\",\n  \"course\": \"ADCA\",\n  \"marks\": 80,\n  \"city\": \"Bhopal\"\n}\n```\n\nNote: On free Render, the app sleeps after inactivity. First request after sleep takes ~30 seconds.\n\nUpdate your README with the live URL:\n```markdown\n## Live Demo\nAPI: https://your-app.onrender.com\nDocs: https://your-app.onrender.com/docs\n```\n\nCommit and push the updated README."
+    },
+    {
+      "title": "Monitor and Troubleshoot",
+      "instructions": "Check for common deployment issues:\n\n**If the app won't start:**\n- Check build logs on Render dashboard for errors\n- Make sure `requirements.txt` has all packages\n- Verify the start command is correct: `uvicorn main:app --host 0.0.0.0 --port $PORT`\n\n**If API returns errors:**\n- Check if environment variables are set correctly\n- Test locally first: `uvicorn main:app --reload`\n- Look at Render logs for Python tracebacks\n\n**Performance check:**\n- Open Chrome DevTools → Network tab\n- Load your API endpoint\n- Check response time (should be under 500ms after wake-up)\n\n**Auto-deploy test:**\n1. Make a small change locally (update the welcome message)\n2. Commit and push:\n```bash\ngit add main.py\ngit commit -m \"Update welcome message\"\ngit push\n```\n3. Watch Render dashboard — it should auto-deploy\n4. After deploy completes, refresh your live URL — the change should be live\n\nThis is how real production deployment works: push to GitHub → auto-deploy → live.\n\n**Submit:** GitHub repo link + live deployed URL + screenshot of Swagger UI + screenshot of Render build logs."
+    }
+  ],
+  "expected_output": "A FastAPI application deployed to Render with a live URL, environment variables configured, Swagger docs accessible, and API endpoints responding correctly"
+}

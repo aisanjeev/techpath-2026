@@ -1,0 +1,125 @@
+# ============================================
+# GitHub Actions CI Workflow
+# TechPath Institute — Python Full Stack Course
+# ============================================
+# This workflow automatically runs linting, formatting
+# checks, and tests every time code is pushed or a
+# pull request is opened. It ensures code quality
+# before changes are merged into the main branches.
+# ============================================
+
+# Name shown in the GitHub Actions tab
+name: TechPath CI Pipeline
+
+# -----------------------------------------------
+# TRIGGERS
+# -----------------------------------------------
+# When should this workflow run?
+# - On every push to main or develop branches
+# - On every pull request targeting the main branch
+# This ensures no broken code gets merged.
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+# -----------------------------------------------
+# JOBS
+# -----------------------------------------------
+# A job is a set of steps that run on the same machine.
+# We define one job called "lint-and-test" that handles
+# all our quality checks.
+
+jobs:
+  lint-and-test:
+    # Use the latest Ubuntu machine provided by GitHub
+    # GitHub gives you free compute for public repos!
+    runs-on: ubuntu-latest
+
+    # Define the steps to run in order
+    steps:
+
+      # -----------------------------------------------
+      # Step 1: CHECKOUT CODE
+      # -----------------------------------------------
+      # Download your repository code onto the runner machine.
+      # Without this step, the machine has no code to work with.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------
+      # Step 2: SET UP PYTHON
+      # -----------------------------------------------
+      # Install the specified Python version on the runner.
+      # We use 3.11 to match our development environment.
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # -----------------------------------------------
+      # Step 3: CACHE DEPENDENCIES
+      # -----------------------------------------------
+      # Cache pip packages so subsequent runs are faster.
+      # Instead of downloading packages every time, reuse
+      # them if requirements.txt hasn't changed.
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # -----------------------------------------------
+      # Step 4: INSTALL DEPENDENCIES
+      # -----------------------------------------------
+      # Upgrade pip and install all project dependencies
+      # from requirements.txt. This includes the app's
+      # packages plus dev tools (ruff, black, pytest).
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # -----------------------------------------------
+      # Step 5: LINT WITH RUFF
+      # -----------------------------------------------
+      # Ruff checks your code for common errors:
+      # - Unused imports
+      # - Undefined variables
+      # - Style violations
+      # If ruff finds issues, the pipeline FAILS and
+      # you must fix them before merging.
+      - name: Lint with ruff
+        run: |
+          echo "Running ruff linter..."
+          ruff check . --output-format=github
+
+      # -----------------------------------------------
+      # Step 6: CHECK FORMATTING WITH BLACK
+      # -----------------------------------------------
+      # Black checks if your code follows consistent
+      # formatting rules. The --check flag means it
+      # only reports problems (doesn't auto-fix).
+      # Run 'black .' locally to auto-fix before pushing.
+      - name: Check formatting with black
+        run: |
+          echo "Checking code formatting..."
+          black --check --diff .
+
+      # -----------------------------------------------
+      # Step 7: RUN TESTS WITH PYTEST
+      # -----------------------------------------------
+      # Run all tests in the project. The -v flag gives
+      # verbose output showing each test name and result.
+      # If any test fails, the pipeline FAILS.
+      - name: Run tests with pytest
+        run: |
+          echo "Running tests..."
+          pytest -v --tb=short
