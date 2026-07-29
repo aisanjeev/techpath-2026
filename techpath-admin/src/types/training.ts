@@ -307,3 +307,18 @@ export interface TrainingSessionCreate {
   scheduled_start?: string | null;
   scheduled_end?: string | null;
 }
+
+export interface AssetReleaseItem {
+  asset_id: number;
+  asset_title: string;
+  asset_type: AssetType;
+  is_released: boolean;
+  released_at?: string | null;
+  released_by_user_id?: number | null;
+  display_order: number;
+}
+
+export interface SessionMaterialsStatus {
+  session_id: number;
+  assets: AssetReleaseItem[];
+}

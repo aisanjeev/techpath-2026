@@ -158,6 +158,25 @@ class TrainingSessionResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class AssetReleaseItem(BaseModel):
+    """One asset's release status within a session, for the materials status endpoint."""
+
+    asset_id: int
+    asset_title: str
+    asset_type: str
+    is_released: bool
+    released_at: Optional[datetime] = None
+    released_by_user_id: Optional[int] = None
+    display_order: int
+
+
+class SessionMaterialsStatusResponse(BaseModel):
+    session_id: int
+    assets: List[AssetReleaseItem] = Field(default_factory=list)
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class StartSessionRequest(BaseModel):
     module_id: Optional[int] = Field(
         None, description="Module to present; defaults to the one already on the session"

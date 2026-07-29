@@ -251,10 +251,11 @@ class TrainingSession(Base, TimestampMixin):
     )
     timer_duration_seconds: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
-    # Whole-session publish switch for the post-session student portal: null means the
-    # module's assets aren't visible to any student yet, regardless of who attended.
-    # Deliberately session-wide, not per-asset — a trainer un/republishes the whole
-    # thing, not individual pieces.
+    # Session-level gate for the student portal: null means no assets have been released
+    # yet for this session. Set automatically when the first asset is released; cleared
+    # when the last asset is un-released. Per-asset granularity lives in
+    # SessionAssetRelease — this column exists solely so the portal list query can filter
+    # without a subquery per row.
     materials_published_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
@@ -265,9 +266,46 @@ class TrainingSession(Base, TimestampMixin):
     batch: Mapped["TrainingBatch"] = relationship("TrainingBatch", back_populates="sessions")
     module: Mapped[Optional["TrainingModule"]] = relationship("TrainingModule")  # noqa: F821
     current_asset: Mapped[Optional["LectureAsset"]] = relationship("LectureAsset")  # noqa: F821
+    asset_releases: Mapped[List["SessionAssetRelease"]] = relationship(
+        "SessionAssetRelease", back_populates="session", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<TrainingSession(id={self.id}, batch={self.batch_id}, status='{self.status}')>"
+
+
+class SessionAssetRelease(Base):
+    """Per-asset release record for a session's post-class student portal access.
+
+    A row here means the asset is visible to enrolled students in the portal for this
+    session. The containing TrainingSession.materials_published_at is automatically
+    managed: set when the first row is inserted, cleared when the last is deleted.
+    """
+
+    __tablename__ = "session_asset_releases"
+    __table_args__ = (
+        UniqueConstraint("session_id", "asset_id", name="uq_session_asset_release"),
+        Index("ix_session_asset_releases_session", "session_id"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    session_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("training_sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    asset_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("lecture_assets.id", ondelete="CASCADE"), nullable=False
+    )
+    released_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    released_by_user_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+
+    session: Mapped["TrainingSession"] = relationship(
+        "TrainingSession", back_populates="asset_releases"
+    )
+
+    def __repr__(self) -> str:
+        return f"<SessionAssetRelease(session={self.session_id}, asset={self.asset_id})>"
 
 
 class TrainingSyncState(Base, TimestampMixin):

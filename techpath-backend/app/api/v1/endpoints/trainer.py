@@ -29,7 +29,11 @@ from app.crud.training import (
     training_program_crud,
 )
 from app.crud.crud_question import question as question_crud
-from app.crud.training_roster import training_batch_crud, training_session_crud
+from app.crud.training_roster import (
+    session_asset_release_crud,
+    training_batch_crud,
+    training_session_crud,
+)
 from app.db.session import get_db
 from app.models.classroom import SessionParticipant
 from app.models.user import User
@@ -58,6 +62,8 @@ from app.schemas.training import (
     LectureAssetResponse,
 )
 from app.schemas.training_roster import (
+    AssetReleaseItem,
+    SessionMaterialsStatusResponse,
     StartSessionRequest,
     TrainerBatchSummary,
     TrainingSessionCreate,
@@ -644,17 +650,132 @@ async def get_recording(
     return RecordingView.model_validate(recording)
 
 
+async def _load_session_materials_status(
+    db: AsyncSession, session_id: int, session=None
+) -> SessionMaterialsStatusResponse:
+    """Build the per-asset release status response for a session."""
+    if session is None:
+        session = await training_session_crud.get_with_relations(db, session_id)
+    released_ids = await session_asset_release_crud.get_released_ids(db, session_id)
+
+    from app.crud.training import training_module_crud
+    items: list[AssetReleaseItem] = []
+    if session and session.module_id:
+        module = await training_module_crud.get_with_assets(db, session.module_id)
+        if module:
+            for link in module.asset_links:
+                release = None
+                if link.asset_id in released_ids:
+                    from sqlalchemy import select as _select
+                    from app.models.training_roster import SessionAssetRelease as _SAR
+                    result = await db.execute(
+                        _select(_SAR).where(
+                            _SAR.session_id == session_id,
+                            _SAR.asset_id == link.asset_id,
+                        )
+                    )
+                    release = result.scalar_one_or_none()
+                items.append(
+                    AssetReleaseItem(
+                        asset_id=link.asset_id,
+                        asset_title=link.asset.title,
+                        asset_type=link.asset.asset_type,
+                        is_released=link.asset_id in released_ids,
+                        released_at=release.released_at if release else None,
+                        released_by_user_id=release.released_by_user_id if release else None,
+                        display_order=link.display_order,
+                    )
+                )
+    return SessionMaterialsStatusResponse(session_id=session_id, assets=items)
+
+
+async def _sync_published_at(db: AsyncSession, session) -> None:
+    """Keep materials_published_at in sync with the per-asset release table.
+
+    Set it when the first asset is released (so the student portal list shows this
+    session); clear it when the last asset is un-released."""
+    count = await session_asset_release_crud.count(db, session.id)
+    if count > 0 and session.materials_published_at is None:
+        session.materials_published_at = datetime.now(timezone.utc)
+        db.add(session)
+        await db.flush()
+    elif count == 0 and session.materials_published_at is not None:
+        session.materials_published_at = None
+        session.materials_published_by_user_id = None
+        db.add(session)
+        await db.flush()
+
+
+@router.get("/sessions/{session_id}/materials/status", response_model=SessionMaterialsStatusResponse)
+async def get_materials_status(
+    session_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> SessionMaterialsStatusResponse:
+    """Per-asset release status for a session — which assets are visible to students."""
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+    return await _load_session_materials_status(db, session_id, session)
+
+
+@router.post(
+    "/sessions/{session_id}/materials/assets/{asset_id}/release",
+    response_model=SessionMaterialsStatusResponse,
+)
+async def release_asset(
+    session_id: int,
+    asset_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> SessionMaterialsStatusResponse:
+    """Release a single asset to enrolled students in the portal."""
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    if session.status != SessionStatus.ENDED.value:
+        raise ValidationError("End the session before releasing materials")
+
+    await session_asset_release_crud.release(db, session_id, asset_id, current_user.id)
+    await _sync_published_at(db, session)
+    return await _load_session_materials_status(db, session_id)
+
+
+@router.delete(
+    "/sessions/{session_id}/materials/assets/{asset_id}/release",
+    response_model=SessionMaterialsStatusResponse,
+)
+async def unrelease_asset(
+    session_id: int,
+    asset_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_trainer_user),
+) -> SessionMaterialsStatusResponse:
+    """Revoke a single asset's release — students can no longer access it."""
+    session = await training_session_crud.get_with_relations(db, session_id)
+    if not session:
+        raise NotFoundError("Session")
+    await _assert_owns_batch(db, current_user, session.batch)
+
+    await session_asset_release_crud.unrelease(db, session_id, asset_id)
+    await _sync_published_at(db, session)
+    return await _load_session_materials_status(db, session_id)
+
+
 @router.post("/sessions/{session_id}/materials/publish", response_model=TrainingSessionResponse)
 async def publish_materials(
     session_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_trainer_user),
 ) -> TrainingSessionResponse:
-    """Whole-session publish switch for the student portal (``student_portal.py``) —
-    every asset in the module this session used becomes visible to everyone who
-    attended, in one action. Only meaningful once the class actually happened; gating
-    on ``ended`` also means a student can never see this session listed until the
-    trainer has had a chance to review it."""
+    """Convenience: release every asset in the session's module at once.
+
+    Per-asset control is available via the individual .../assets/{id}/release endpoints.
+    Gated on ``ended`` — a student can never see this session listed until the trainer
+    has had a chance to review it."""
     session = await training_session_crud.get_with_relations(db, session_id)
     if not session:
         raise NotFoundError("Session")
@@ -663,7 +784,14 @@ async def publish_materials(
     if session.status != SessionStatus.ENDED.value:
         raise ValidationError("End the session before publishing its materials")
 
-
+    from app.crud.training import training_module_crud
+    if session.module_id:
+        module = await training_module_crud.get_with_assets(db, session.module_id)
+        if module:
+            for link in module.asset_links:
+                await session_asset_release_crud.release(
+                    db, session_id, link.asset_id, current_user.id
+                )
 
     session.materials_published_at = datetime.now(timezone.utc)
     session.materials_published_by_user_id = current_user.id
@@ -680,14 +808,14 @@ async def unpublish_materials(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_trainer_user),
 ) -> TrainingSessionResponse:
-    """Revokes portal access immediately — not status-gated like publish, since taking
-    materials back should always be available, not just while a session is in some
-    particular state."""
+    """Revokes all asset releases immediately — not status-gated, since taking
+    materials back should always be available."""
     session = await training_session_crud.get_with_relations(db, session_id)
     if not session:
         raise NotFoundError("Session")
     await _assert_owns_batch(db, current_user, session.batch)
 
+    await session_asset_release_crud.unrelease_all(db, session_id)
     session.materials_published_at = None
     session.materials_published_by_user_id = None
     db.add(session)

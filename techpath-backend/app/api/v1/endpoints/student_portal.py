@@ -121,12 +121,20 @@ async def get_session_materials(
 
     assets: List[LectureAssetResponse] = []
     if session.module_id:
+        from app.crud.training_roster import session_asset_release_crud
+        released_ids = await session_asset_release_crud.get_released_ids(db, session.id)
         module = await training_module_crud.get_with_assets(db, session.module_id)
         if module:
             # audience="student" strips quiz answer keys — see asset_to_response.
+            # Only show assets explicitly released for this session (per-asset gate).
+            # Fall back to showing all assets for sessions published before per-asset
+            # releases were introduced (released_ids empty but materials_published_at set).
+            asset_links = module.asset_links
+            if released_ids:
+                asset_links = [l for l in asset_links if l.asset_id in released_ids]
             assets = [
                 await asset_to_response(db, link.asset, audience="student")
-                for link in module.asset_links
+                for link in asset_links
             ]
 
     recording_row = await session_recording_crud.get_by_session(db, session.id)

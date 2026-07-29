@@ -1,5 +1,6 @@
 import { apiClient, handleApiError } from '@/lib/api-client';
 import type {
+  SessionMaterialsStatus,
   TrainerBatchSummary,
   TrainingModule,
   TrainingModuleDetail,
@@ -218,6 +219,40 @@ export const trainerService = {
       const response = await apiClient.post<TrainingSession>(
         `/api/v1/trainer/sessions/${id}/materials/unpublish`,
         {}
+      );
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  async getMaterialsStatus(id: number): Promise<SessionMaterialsStatus> {
+    try {
+      const response = await apiClient.get<SessionMaterialsStatus>(
+        `/api/v1/trainer/sessions/${id}/materials/status`
+      );
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  async releaseAsset(sessionId: number, assetId: number): Promise<SessionMaterialsStatus> {
+    try {
+      const response = await apiClient.post<SessionMaterialsStatus>(
+        `/api/v1/trainer/sessions/${sessionId}/materials/assets/${assetId}/release`,
+        {}
+      );
+      return response.data;
+    } catch (error) {
+      throw handleApiError(error);
+    }
+  },
+
+  async unreleaseAsset(sessionId: number, assetId: number): Promise<SessionMaterialsStatus> {
+    try {
+      const response = await apiClient.delete<SessionMaterialsStatus>(
+        `/api/v1/trainer/sessions/${sessionId}/materials/assets/${assetId}/release`
       );
       return response.data;
     } catch (error) {
