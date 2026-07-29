@@ -15,6 +15,8 @@ import {
   FileBarChart,
   Share2,
   ShieldOff,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Card } from '@/components/ui/Card';
@@ -26,7 +28,9 @@ import { PageLoader } from '@/components/ui/Spinner';
 import { trainerService } from '@/services/trainer.service';
 import { assetMeta } from '@/components/training/asset-type-registry';
 import type {
+  AssetReleaseItem,
   ModuleAssetLink,
+  SessionMaterialsStatus,
   TrainingModule,
   TrainingSession,
 } from '@/types/training';
@@ -50,6 +54,8 @@ export default function TrainerSessionPage({ params }: { params: Promise<{ id: s
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [publishBusy, setPublishBusy] = useState(false);
+  const [materialsStatus, setMaterialsStatus] = useState<SessionMaterialsStatus | null>(null);
+  const [assetBusy, setAssetBusy] = useState<Record<number, boolean>>({});
   const [copied, setCopied] = useState(false);
   const [, setTick] = useState(0);
 
@@ -66,6 +72,15 @@ export default function TrainerSessionPage({ params }: { params: Promise<{ id: s
       if (s.module_id) {
         const detail = await trainerService.getModule(s.module_id);
         setAssets(detail.assets);
+      }
+
+      if (s.status === 'ended') {
+        try {
+          const status = await trainerService.getMaterialsStatus(sessionId);
+          setMaterialsStatus(status);
+        } catch {
+          // Non-fatal — eye buttons will use isReleased=false as default
+        }
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not load the session');
@@ -117,22 +132,64 @@ export default function TrainerSessionPage({ params }: { params: Promise<{ id: s
     }
   };
 
-  const togglePublish = async () => {
+  const releaseAll = async () => {
     setPublishBusy(true);
     try {
-      const updated = session?.materials_published_at
-        ? await trainerService.unpublishMaterials(sessionId)
-        : await trainerService.publishMaterials(sessionId);
+      const updated = await trainerService.publishMaterials(sessionId);
       setSession(updated);
-      toast.success(
-        updated.materials_published_at
-          ? 'Materials published — attendees can now see them in their portal'
-          : 'Materials unpublished'
-      );
+      const status = await trainerService.getMaterialsStatus(sessionId);
+      setMaterialsStatus(status);
+      toast.success('All materials released to students');
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not update publish status');
+      toast.error(err instanceof Error ? err.message : 'Could not release materials');
     } finally {
       setPublishBusy(false);
+    }
+  };
+
+  const revokeAll = async () => {
+    setPublishBusy(true);
+    try {
+      const updated = await trainerService.unpublishMaterials(sessionId);
+      setSession(updated);
+      const status = await trainerService.getMaterialsStatus(sessionId);
+      setMaterialsStatus(status);
+      toast.success('All materials revoked');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not revoke materials');
+    } finally {
+      setPublishBusy(false);
+    }
+  };
+
+  const toggleAssetRelease = async (item: AssetReleaseItem) => {
+    setAssetBusy((prev) => ({ ...prev, [item.asset_id]: true }));
+    try {
+      const status = item.is_released
+        ? await trainerService.unreleaseAsset(sessionId, item.asset_id)
+        : await trainerService.releaseAsset(sessionId, item.asset_id);
+      setMaterialsStatus(status);
+      // Keep session materials_published_at in sync with the response
+      const anyReleased = status.assets.some((a) => a.is_released);
+      setSession((prev) =>
+        prev
+          ? {
+              ...prev,
+              materials_published_at: anyReleased
+                ? (prev.materials_published_at ?? new Date().toISOString())
+                : null,
+            }
+          : prev
+      );
+      toast.success(
+        item.is_released
+          ? `"${item.asset_title}" hidden from students`
+          : `"${item.asset_title}" released to students`
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not update asset release');
+    } finally {
+      setAssetBusy((prev) => ({ ...prev, [item.asset_id]: false }));
     }
   };
 
@@ -146,6 +203,21 @@ export default function TrainerSessionPage({ params }: { params: Promise<{ id: s
   if (loading || !session) return <PageLoader />;
 
   const isLive = session.status === 'live';
+  const isEnded = session.status === 'ended';
+  const releaseMap = new Map(
+    (materialsStatus?.assets ?? []).map((a) => [a.asset_id, a])
+  );
+  const releasedCount = (materialsStatus?.assets ?? []).filter((a) => a.is_released).length;
+  const totalCount = materialsStatus?.assets.length ?? 0;
+
+  function accessSummary(): string {
+    if (releasedCount === 0) return 'No materials released yet. Toggle individual assets in the content list, or use the buttons below.';
+    if (releasedCount === totalCount) return 'All materials are visible to students in their portal.';
+    return `${releasedCount} of ${totalCount} materials visible to students.`;
+  }
+
+  const releaseAllLabel = publishBusy ? 'Releasing...' : 'Release all';
+  const revokeAllLabel = publishBusy ? 'Revoking...' : 'Revoke all';
 
   return (
     <div>
@@ -201,9 +273,16 @@ export default function TrainerSessionPage({ params }: { params: Promise<{ id: s
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <Card className="p-6">
-            <h2 className="mb-4 text-sm font-semibold text-gray-900">
-              Lecture content ({assets.length})
-            </h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-gray-900">
+                Lecture content ({assets.length})
+              </h2>
+              {isEnded && totalCount > 0 && (
+                <span className="text-xs text-gray-500">
+                  {releasedCount}/{totalCount} released to students
+                </span>
+              )}
+            </div>
             {assets.length === 0 ? (
               <p className="text-sm text-gray-500">
                 {selectedModule
@@ -215,12 +294,23 @@ export default function TrainerSessionPage({ params }: { params: Promise<{ id: s
                 {assets.map((link, i) => {
                   const meta = assetMeta(link.asset.asset_type);
                   const Icon = meta.icon;
+                  const releaseItem = releaseMap.get(link.asset_id);
+                  const isReleased = releaseItem?.is_released ?? false;
+                  const isBusy = assetBusy[link.asset_id] ?? false;
                   return (
                     <li
                       key={link.id}
-                      className="flex items-center gap-3 rounded-lg border border-gray-200 p-3"
+                      className={`flex items-center gap-3 rounded-lg border p-3 transition-colors ${
+                        isEnded
+                          ? isReleased
+                            ? 'border-teal-200 bg-teal-50'
+                            : 'border-gray-200 bg-white'
+                          : 'border-gray-200'
+                      }`}
                     >
-                      <span className="w-5 text-sm font-semibold text-gray-400">{i + 1}</span>
+                      <span className="w-5 shrink-0 text-sm font-semibold text-gray-400">
+                        {i + 1}
+                      </span>
                       <Icon className="h-4 w-4 shrink-0 text-gray-400" />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-gray-900">
@@ -229,6 +319,36 @@ export default function TrainerSessionPage({ params }: { params: Promise<{ id: s
                         <p className="text-xs text-gray-500">{meta.label}</p>
                       </div>
                       {!link.is_required && <Badge variant="default">Optional</Badge>}
+                      {isEnded && (
+                        <button
+                          onClick={() =>
+                            toggleAssetRelease(
+                              releaseItem ?? {
+                                asset_id: link.asset_id,
+                                asset_title: link.asset.title,
+                                asset_type: link.asset.asset_type,
+                                is_released: false,
+                                display_order: link.display_order,
+                              }
+                            )
+                          }
+                          disabled={isBusy}
+                          title={isReleased ? 'Hide from students' : 'Release to students'}
+                          className={`shrink-0 rounded p-1 transition-colors ${
+                            isBusy
+                              ? 'opacity-50 cursor-not-allowed'
+                              : isReleased
+                              ? 'text-teal-600 hover:text-teal-800 hover:bg-teal-100'
+                              : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          {isReleased ? (
+                            <Eye className="h-4 w-4" />
+                          ) : (
+                            <EyeOff className="h-4 w-4" />
+                          )}
+                        </button>
+                      )}
                     </li>
                   );
                 })}
@@ -265,40 +385,35 @@ export default function TrainerSessionPage({ params }: { params: Promise<{ id: s
             </FormField>
 
             <div className="mt-4 space-y-2">
-              {session.status === 'ended' ? (
+              {isEnded ? (
                 <>
                   <p className="text-sm text-gray-500">This session has ended.</p>
 
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <p className="text-xs font-medium text-gray-700">
-                      {session.materials_published_at
-                        ? 'Materials are published'
-                        : 'Materials not shared yet'}
-                    </p>
-                    <p className="mt-0.5 text-xs text-gray-500">
-                      {session.materials_published_at
-                        ? 'Attendees can sign in to their student portal to view and download this session’s content.'
-                        : 'Publish to let every student who attended view and download this session’s content later.'}
-                    </p>
-                    <Button
-                      variant={session.materials_published_at ? 'outline' : 'default'}
-                      onClick={togglePublish}
-                      disabled={publishBusy}
-                      className="mt-2 w-full"
-                      size="sm"
-                    >
-                      {session.materials_published_at ? (
-                        <>
-                          <ShieldOff className="mr-1 h-4 w-4" />
-                          {publishBusy ? 'Unpublishing…' : 'Unpublish materials'}
-                        </>
-                      ) : (
-                        <>
-                          <Share2 className="mr-1 h-4 w-4" />
-                          {publishBusy ? 'Publishing…' : 'Publish materials to students'}
-                        </>
-                      )}
-                    </Button>
+                    <p className="text-xs font-medium text-gray-700">Student access</p>
+                    <p className="mt-0.5 text-xs text-gray-500">{accessSummary()}</p>
+                    <div className="mt-2 flex gap-2">
+                      <Button
+                        variant="default"
+                        onClick={releaseAll}
+                        disabled={publishBusy || releasedCount === totalCount}
+                        className="flex-1"
+                        size="sm"
+                      >
+                        <Share2 className="mr-1 h-3 w-3" />
+                        {releaseAllLabel}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={revokeAll}
+                        disabled={publishBusy || releasedCount === 0}
+                        className="flex-1"
+                        size="sm"
+                      >
+                        <ShieldOff className="mr-1 h-3 w-3" />
+                        {revokeAllLabel}
+                      </Button>
+                    </div>
                   </div>
 
                   <Button

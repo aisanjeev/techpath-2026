@@ -14,6 +14,7 @@ from app.models.classroom import SessionParticipant
 from app.services.classroom import media
 from app.models.training import TrainingModule, TrainingProgram
 from app.models.training_roster import (
+    SessionAssetRelease,
     StudentModuleProgress,
     TrainingBatch,
     TrainingBatchStudent,
@@ -516,8 +517,84 @@ class CRUDStudentModuleProgress(CRUDBase[StudentModuleProgress, Any, Any]):
         return result.scalar_one_or_none()
 
 
+class CRUDSessionAssetRelease:
+    async def get_released_ids(self, db: AsyncSession, session_id: int) -> set[int]:
+        """Set of asset IDs that have been released for this session."""
+        result = await db.execute(
+            select(SessionAssetRelease.asset_id).where(
+                SessionAssetRelease.session_id == session_id
+            )
+        )
+        return {row[0] for row in result.all()}
+
+    async def get_release(
+        self, db: AsyncSession, session_id: int, asset_id: int
+    ) -> Optional[SessionAssetRelease]:
+        result = await db.execute(
+            select(SessionAssetRelease).where(
+                SessionAssetRelease.session_id == session_id,
+                SessionAssetRelease.asset_id == asset_id,
+            )
+        )
+        return result.scalar_one_or_none()
+
+    async def release(
+        self, db: AsyncSession, session_id: int, asset_id: int, user_id: int
+    ) -> SessionAssetRelease:
+        """Release one asset; no-op if already released (idempotent)."""
+        existing = await self.get_release(db, session_id, asset_id)
+        if existing:
+            return existing
+        now = datetime.now(timezone.utc)
+        row = SessionAssetRelease(
+            session_id=session_id,
+            asset_id=asset_id,
+            released_at=now,
+            released_by_user_id=user_id,
+        )
+        db.add(row)
+        await db.flush()
+        return row
+
+    async def unrelease(self, db: AsyncSession, session_id: int, asset_id: int) -> bool:
+        """Remove a release; returns True if one existed."""
+        existing = await self.get_release(db, session_id, asset_id)
+        if not existing:
+            return False
+        await db.delete(existing)
+        await db.flush()
+        return True
+
+    async def release_all(
+        self, db: AsyncSession, session: TrainingSession, user_id: int
+    ) -> None:
+        """Release every asset in the session's module. No-ops per already-released."""
+        if not session.module or not session.module.asset_links:
+            return
+        for link in session.module.asset_links:
+            await self.release(db, session.id, link.asset_id, user_id)
+
+    async def unrelease_all(self, db: AsyncSession, session_id: int) -> None:
+        """Remove all releases for a session."""
+        rows = await db.execute(
+            select(SessionAssetRelease).where(SessionAssetRelease.session_id == session_id)
+        )
+        for row in rows.scalars().all():
+            await db.delete(row)
+        await db.flush()
+
+    async def count(self, db: AsyncSession, session_id: int) -> int:
+        result = await db.execute(
+            select(func.count(SessionAssetRelease.id)).where(
+                SessionAssetRelease.session_id == session_id
+            )
+        )
+        return result.scalar() or 0
+
+
 training_batch_crud = CRUDTrainingBatch(TrainingBatch)
 training_student_crud = CRUDTrainingStudent(TrainingStudent)
 training_session_crud = CRUDTrainingSession(TrainingSession)
 sync_state_crud = CRUDSyncState(TrainingSyncState)
 student_module_progress_crud = CRUDStudentModuleProgress(StudentModuleProgress)
+session_asset_release_crud = CRUDSessionAssetRelease()
