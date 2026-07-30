@@ -12,7 +12,7 @@ export const GET: APIRoute = () => {
         'Disallow: /api/',
         'Disallow: /_astro/',
         '',
-        `Sitemap: ${siteUrl}/sitemap-index.xml`,
+        `Sitemap: ${siteUrl}/sitemap.xml`,
       ].join('\n')
     : [
         '# Non-production environment — block all crawlers',

@@ -1,7 +1,6 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
-import sitemap from '@astrojs/sitemap';
 import robotsTxt from 'astro-robots-txt';
 import compress from 'astro-compress';
 import node from '@astrojs/node';
@@ -19,11 +18,6 @@ export default defineConfig({
   integrations: [
     react({ include: ['**/react-components/*.jsx'] }),
     tailwind({ applyBaseStyles: false }),
-    sitemap({
-      changefreq: 'weekly',
-      priority: 0.7,
-      lastmod: new Date(),
-    }),
     robotsTxt(),
     compress({
       CSS: true,
