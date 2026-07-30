@@ -514,6 +514,11 @@ class CRUDLectureAsset(CRUDBase[LectureAsset, Any, Any]):
         if "config" in data:
             config = data.pop("config")
             db_obj.config_json = json.dumps(config) if config is not None else None
+        
+        # If we are attaching a media file (like for a markdown blob upload),
+        # guarantee that any old inline body is cleared so the frontend doesn't render stale text.
+        if "media_file_id" in data and data["media_file_id"] is not None:
+            data["body"] = None
         for field, value in data.items():
             setattr(db_obj, field, value)
         db.add(db_obj)
