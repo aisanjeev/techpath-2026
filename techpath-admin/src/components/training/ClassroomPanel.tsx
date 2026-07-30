@@ -98,25 +98,22 @@ function ConfusionMeter({ online, confused, ratio }: RosterResponse['confusion']
   );
 }
 
-function RosterTab({ sessionId }: { sessionId: number }) {
-  const [roster, setRoster] = useState<RosterResponse | null>(null);
+interface RosterTabProps {
+  sessionId: number;
+  roster: RosterResponse | null;
+  onRosterChange: React.Dispatch<React.SetStateAction<RosterResponse | null>>;
+}
+
+function RosterTab({ sessionId, roster, onRosterChange }: RosterTabProps) {
   const [kickingId, setKickingId] = useState<number | null>(null);
   const [loweringId, setLoweringId] = useState<number | null>(null);
-  const setDoubtRequests = useClassroomStore((s) => s.setDoubtRequests);
-
-  useEffect(() => {
-    void trainerService.getRoster(sessionId).then((r) => {
-      setRoster(r);
-      setDoubtRequests(r.doubt_requests || []);
-    }).catch(() => {});
-  }, [sessionId, setDoubtRequests]);
 
   const kick = async (participantId: number, displayName: string) => {
     if (!confirm(`Remove ${displayName} from the session?`)) return;
     setKickingId(participantId);
     try {
       await trainerService.kickParticipant(sessionId, participantId);
-      setRoster((r) =>
+      onRosterChange((r) =>
         r ? { ...r, participants: r.participants.filter((p) => p.id !== participantId) } : r
       );
       toast.success(`${displayName} removed`);
@@ -131,7 +128,7 @@ function RosterTab({ sessionId }: { sessionId: number }) {
     setLoweringId(participantId);
     try {
       await trainerService.lowerHand(sessionId, participantId);
-      setRoster((r) =>
+      onRosterChange((r) =>
         r
           ? {
               ...r,
@@ -149,8 +146,6 @@ function RosterTab({ sessionId }: { sessionId: number }) {
     }
   };
 
-  // Parent subscribes and pushes updates down via a global event bus pattern would be
-  // overkill here — this component listens directly via the same subscribe prop chain.
   return (
     <div className="space-y-4">
       {roster ? (
@@ -849,26 +844,27 @@ export function ClassroomPanel({ sessionId, connected, subscribe, assets }: Prop
   const [open, setOpen] = useState(true);
   const [wide, setWide] = useState(false);
   const [tab, setTab] = useState<Tab>('roster');
-  const [rosterTick, setRosterTick] = useState(0);
+  const [roster, setRoster] = useState<RosterResponse | null>(null);
   const [activePoll, setActivePoll] = useState<PollResultsResponse | null>(null);
   const activePollRef = useRef<PollResultsResponse | null>(null);
   const [timer, setTimer] = useState<TimerView | null>(null);
   const [reactions, setReactions] = useState<FloatingReaction[]>([]);
   const reactionIdRef = useRef(0);
   
-  const { addQuestion, updateQuestionUpvotes, markQuestionAnswered, setQuestionsArePublic } = useClassroomStore();
+  const { addQuestion, updateQuestionUpvotes, markQuestionAnswered, setQuestionsArePublic, setDoubtRequests } = useClassroomStore();
 
   useEffect(() => {
     activePollRef.current = activePoll;
   }, [activePoll]);
 
-  // Seed the timer strip from the REST roster once on mount so a page refresh mid-
-  // countdown doesn't lose track of a timer already running — live changes after that
-  // come from the timer_started / timer_cancelled WS events below.
   useEffect(() => {
     void trainerService
       .getRoster(sessionId)
-      .then((r) => setTimer(r.timer))
+      .then((r) => {
+        setRoster(r);
+        setTimer(r.timer);
+        setDoubtRequests(r.doubt_requests ?? []);
+      })
       .catch(() => {});
   }, [sessionId]);
 
@@ -883,7 +879,13 @@ export function ClassroomPanel({ sessionId, connected, subscribe, assets }: Prop
   useEffect(() => {
     return subscribe((event) => {
       if (event.type === 'roster_changed') {
-        setRosterTick((t) => t + 1);
+        setRoster((prev) => ({
+          participants: event.payload.participants,
+          confusion: event.payload.confusion,
+          hands_raised: event.payload.hands_raised_queue,
+          doubt_requests: prev?.doubt_requests ?? [],
+          timer: prev?.timer ?? null,
+        }));
         return;
       }
       if (event.type === 'timer_started') {
@@ -1037,7 +1039,7 @@ export function ClassroomPanel({ sessionId, connected, subscribe, assets }: Prop
       </div>
 
       <div className={`min-h-0 flex-1 ${tab === 'code' ? 'flex flex-col p-3' : 'overflow-auto p-4'}`}>
-        {tab === 'roster' && <RosterTab key={rosterTick} sessionId={sessionId} />}
+        {tab === 'roster' && <RosterTab sessionId={sessionId} roster={roster} onRosterChange={setRoster} />}
         {tab === 'poll' && (
           <PollTab
             sessionId={sessionId}
