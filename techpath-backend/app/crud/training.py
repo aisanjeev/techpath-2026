@@ -507,6 +507,8 @@ class CRUDLectureAsset(CRUDBase[LectureAsset, Any, Any]):
 
     async def update_from_schema(self, db: AsyncSession, *, db_obj: LectureAsset, obj_in):
         data = obj_in.model_dump(exclude_unset=True)
+        if "old_media_file_id" in data:
+            data.pop("old_media_file_id")
         if "tags" in data:
             db_obj.tags_json = _dump_tags(data.pop("tags"))
         if "config" in data:
