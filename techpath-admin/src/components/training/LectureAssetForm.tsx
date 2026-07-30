@@ -319,7 +319,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
   }, [assetType]);
 
   const rules = useMemo(() => types.find((t) => t.value === assetType), [types, assetType]);
-  const kind = assetType === 'markdown' ? 'inline_text' : (rules?.storage_kind ?? assetMeta(assetType).kind);
+  const kind = rules?.storage_kind ?? assetMeta(assetType).kind;
 
   const grouped = useMemo(() => {
     const out: Record<string, AssetTypeInfo[]> = {};
@@ -444,12 +444,6 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
     try {
       const payload = buildPayload();
       
-      if (assetType === 'markdown') {
-        const fileToUpload = new File([new Blob([body], { type: 'text/markdown' })], 'content.md', { type: 'text/markdown' });
-        const res = await trainingService.uploadAssetFile('markdown', fileToUpload);
-        payload.media_file_id = res.data.id;
-        delete payload.body;
-      }
 
       if (isEdit) {
         // asset_type is immutable
