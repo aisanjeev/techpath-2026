@@ -512,6 +512,27 @@ async def update_asset(
         raise NotFoundError("Lecture asset")
 
     asset = await lecture_asset_crud.update_from_schema(db, db_obj=asset, obj_in=payload)
+
+    if payload.old_media_file_id:
+        from sqlalchemy import select, func
+        from app.models.training import LectureAsset
+        from app.crud.media import media_file_crud
+        from app.services.storage_service import storage_service
+
+        usage_count = (
+            await db.execute(
+                select(func.count(LectureAsset.id)).where(
+                    LectureAsset.media_file_id == payload.old_media_file_id
+                )
+            )
+        ).scalar()
+
+        if usage_count == 0:
+            old_media = await media_file_crud.get(db, payload.old_media_file_id)
+            if old_media:
+                await storage_service.delete_file(old_media.stored_path)
+                await media_file_crud.delete(db, old_media.id)
+
     return await asset_to_response(db, asset)
 
 

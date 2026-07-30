@@ -123,6 +123,7 @@ class LectureAssetUpdate(BaseModel):
     is_active: Optional[bool] = None
     body: Optional[str] = None
     media_file_id: Optional[int] = None
+    old_media_file_id: Optional[int] = None
     external_url: Optional[str] = None
     config: Optional[dict] = None
 
