@@ -44,6 +44,7 @@ CSV_PREVIEW_CACHE_TTL_SECONDS = 300
 # lecture assets, not a public multi-tenant service, so a plain dict that never evicts by
 # size is a reasonable simplification here rather than an oversight.
 _csv_preview_cache: dict[str, tuple[float, Optional[CsvPreview]]] = {}
+_text_preview_cache: dict[str, tuple[float, Optional[str]]] = {}
 
 
 def _dump_tags(tags: Optional[Sequence[str]]) -> Optional[str]:
@@ -131,6 +132,33 @@ async def _fetch_csv_preview(cache_key: str, url: str) -> Optional[CsvPreview]:
         )
     )
 
+TEXT_PREVIEW_BYTE_LIMIT = 1048576  # 1 MiB
+
+async def _fetch_text_content(cache_key: str, url: str) -> Optional[str]:
+    """Fetch text content for markdown or other inline text assets server-side
+    so the frontend avoids CORS blocks from direct storage bucket fetches.
+    """
+    cached = _text_preview_cache.get(cache_key)
+    if cached is not None and time.time() - cached[0] < CSV_PREVIEW_CACHE_TTL_SECONDS:
+        return cached[1]
+
+    def _store(text: Optional[str]) -> Optional[str]:
+        _text_preview_cache[cache_key] = (time.time(), text)
+        return text
+
+    try:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(5.0)) as client:
+            resp = await client.get(url, headers={"Range": f"bytes=0-{TEXT_PREVIEW_BYTE_LIMIT - 1}"})
+        if resp.status_code not in (200, 206):
+            return _store(None)
+        raw = resp.content
+    except Exception as exc:
+        logger.warning("Text content fetch failed: %s", exc)
+        return _store(None)
+
+    text = raw.decode("utf-8", errors="replace")
+    return _store(text)
+
 
 Audience = Literal["trainer", "student"]
 
@@ -192,10 +220,19 @@ async def asset_to_response(
             file_url = await storage_service.get_file_url(media_file.stored_path)
 
     csv_preview: Optional[CsvPreview] = None
-    if asset.asset_type == AssetType.CSV.value and file_url and stored_path:
-        # stored_path is the stable cache key; file_url is a freshly-signed SAS link
-        # that's only good for the actual fetch — see _fetch_csv_preview.
-        csv_preview = await _fetch_csv_preview(stored_path, file_url)
+    body = asset.body
+    
+    if file_url and stored_path:
+        if asset.asset_type == AssetType.CSV.value:
+            # stored_path is the stable cache key; file_url is a freshly-signed SAS link
+            # that's only good for the actual fetch — see _fetch_csv_preview.
+            csv_preview = await _fetch_csv_preview(stored_path, file_url)
+        elif asset.asset_type == AssetType.MARKDOWN.value:
+            # Inject fetched text directly into body so the frontend doesn't need to fetch
+            # a CORS-blocked Azure Blob Storage URL.
+            fetched_text = await _fetch_text_content(stored_path, file_url)
+            if fetched_text is not None:
+                body = fetched_text
 
     config = load_config(asset.config_json)
     if audience == "student" and asset.asset_type == AssetType.QUIZ.value:
@@ -207,7 +244,7 @@ async def asset_to_response(
         title=asset.title,
         asset_type=asset.asset_type,
         description=asset.description,
-        body=asset.body,
+        body=body,
         media_file_id=asset.media_file_id,
         external_url=asset.external_url,
         config=config,
