@@ -40,6 +40,8 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
   const [wordWrap, setWordWrap] = useState<'on' | 'off'>('on');
   const [copied, setCopied] = useState(false);
   const monacoEditorRef = useRef<Parameters<OnMount>[0] | null>(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
   const handleEditorMount: OnMount = (editor) => {
     monacoEditorRef.current = editor;
@@ -54,6 +56,10 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
       editor.executeEdits('insert-image', [
         { range: selection, text, forceMoveMarkers: true },
       ]);
+      // @monaco-editor/react filters out programmatic edits from its onChange
+      // callback, so we manually sync the updated value to React state.
+      const updatedValue = editor.getValue();
+      onChangeRef.current?.(updatedValue);
       editor.focus();
     },
   }));
