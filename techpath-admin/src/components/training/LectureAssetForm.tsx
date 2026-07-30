@@ -301,15 +301,7 @@ export function LectureAssetForm({ asset }: LectureAssetFormProps) {
     trainingService.assetTags().then(setExistingTags).catch(() => undefined);
   }, []);
 
-  // Fetch blob content for markdown assets that use media files instead of DB body
-  useEffect(() => {
-    if (isEdit && assetType === 'markdown' && !asset?.body && asset?.file_url) {
-      fetch(asset.file_url)
-        .then(res => res.text())
-        .then(text => setBody(text))
-        .catch(err => console.error('Failed to load markdown blob:', err));
-    }
-  }, [isEdit, assetType, asset?.body, asset?.file_url]);
+
 
   // Reset interactive preview states when asset type or settings change
   useEffect(() => {
