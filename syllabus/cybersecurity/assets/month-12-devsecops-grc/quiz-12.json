@@ -1,0 +1,154 @@
+{
+  "questions": [
+    {
+      "question": "What does SAST stand for and when does it run?",
+      "options": [
+        "Security Application Scan Tool — runs after production deployment",
+        "Static Application Security Testing — analyses source code without executing it, typically in CI on pull requests",
+        "System Automated Scan Testing — runs on live traffic",
+        "Security Assessment Scan Tool — runs monthly on schedule"
+      ],
+      "correct_index": 1,
+      "explanation": "SAST (Static Application Security Testing) analyses source code, bytecode, or binaries without running the application. It runs early in the pipeline (on commit/PR) and finds issues like SQL injection patterns, hardcoded credentials, and insecure function calls."
+    },
+    {
+      "question": "Which tool would you use to scan Docker images for known CVE vulnerabilities in a CI/CD pipeline?",
+      "options": ["OWASP ZAP", "Semgrep", "Trivy", "SonarQube"],
+      "correct_index": 2,
+      "explanation": "Trivy (by Aqua Security) is a comprehensive open-source scanner that checks container images, filesystems, and Git repositories for OS package vulnerabilities, language-specific CVEs, misconfigurations, and exposed secrets."
+    },
+    {
+      "question": "A developer accidentally commits an AWS secret key to a public GitHub repository. What is the FIRST action to take?",
+      "options": [
+        "Delete the commit history using git rebase",
+        "Make the repository private",
+        "Rotate/revoke the key immediately — assume it is already compromised",
+        "Run TruffleHog to confirm the secret was in the commit"
+      ],
+      "correct_index": 2,
+      "explanation": "Bots scan GitHub for secrets within seconds of a push. The first action is ALWAYS to rotate/revoke the exposed credential immediately. Assume it is already in attackers' hands. Deleting the commit does not help — it's already indexed."
+    },
+    {
+      "question": "What is the difference between SOC 2 Type I and SOC 2 Type II?",
+      "options": [
+        "Type I covers security only; Type II covers all 5 trust criteria",
+        "Type I is for small companies; Type II for enterprises",
+        "Type I evaluates if controls are designed correctly at a point in time; Type II tests if they operated effectively over 6-12 months",
+        "Type I is self-assessed; Type II is third-party audited"
+      ],
+      "correct_index": 2,
+      "explanation": "SOC 2 Type I is a point-in-time assessment of control design. Type II covers a period (typically 6-12 months) and proves controls were operating effectively throughout. Enterprise customers almost always require Type II."
+    },
+    {
+      "question": "What does SBOM stand for and why does it matter for supply chain security?",
+      "options": [
+        "Security Baseline Operations Manual — documents security procedures",
+        "Software Bill of Materials — an inventory of all components, dependencies, and their versions in a software product",
+        "System Build Output Map — the result of a CI/CD pipeline build",
+        "Secure Binary Object Module — a signed executable format"
+      ],
+      "correct_index": 1,
+      "explanation": "A Software Bill of Materials lists every component, library, and dependency used to build a piece of software. When a vulnerability like Log4Shell is discovered, an SBOM lets you immediately know which of your products are affected."
+    },
+    {
+      "question": "Under India's DPDP Act, who is the 'Data Fiduciary'?",
+      "options": [
+        "The individual whose personal data is being processed",
+        "The government agency that enforces the Act",
+        "The entity that determines the purpose and means of processing personal data",
+        "A trusted third party that audits compliance"
+      ],
+      "correct_index": 2,
+      "explanation": "The Data Fiduciary is the entity (company or person) that decides WHY and HOW personal data is processed — equivalent to a 'Data Controller' under GDPR. They bear primary compliance obligations under the DPDP Act."
+    },
+    {
+      "question": "ISO 27001 certification requires organisations to produce which key document listing all security controls?",
+      "options": [
+        "Risk Register",
+        "Statement of Applicability (SoA)",
+        "Business Impact Analysis (BIA)",
+        "Data Processing Agreement (DPA)"
+      ],
+      "correct_index": 1,
+      "explanation": "The Statement of Applicability (SoA) is a mandatory ISO 27001 document that lists all controls from Annex A and states whether each is implemented, with justification for any exclusions. It's central to the certification audit."
+    },
+    {
+      "question": "Which new function was added to NIST CSF version 2.0 that was not in version 1.1?",
+      "options": ["DETECT", "GOVERN", "RESPOND", "PROTECT"],
+      "correct_index": 1,
+      "explanation": "NIST CSF 2.0 added the GOVERN function as the foundation for all other functions. It covers cybersecurity strategy, policies, roles and responsibilities, and risk management — ensuring security is embedded in organisational governance."
+    },
+    {
+      "question": "A dependency confusion attack works by:",
+      "options": [
+        "Injecting malicious code into an open-source library's official repository",
+        "Publishing a malicious public package with the same name as a private internal package, causing package managers to download the public (malicious) one",
+        "Exploiting vulnerable dependencies in production applications via network requests",
+        "Confusing developers with misleading documentation about which dependency to use"
+      ],
+      "correct_index": 1,
+      "explanation": "In a dependency confusion (namespace confusion) attack, an attacker publishes a malicious package to a public registry (npm, PyPI) with the same name as a company's private internal package. Package managers may download the public version, executing the attacker's code."
+    },
+    {
+      "question": "What does DAST test that SAST cannot?",
+      "options": [
+        "Hardcoded credentials in source code",
+        "Import statements for insecure libraries",
+        "Runtime behaviour, business logic flaws, and server-side authentication issues in a running application",
+        "Code quality and maintainability metrics"
+      ],
+      "correct_index": 2,
+      "explanation": "DAST tests a running application from the outside, like an attacker. It can find runtime issues: authentication bypasses, server-side request forgery, session management flaws, and business logic errors that only manifest when the application is actually executing."
+    },
+    {
+      "question": "A risk with Likelihood=4 and Impact=3 has a risk score of:",
+      "options": ["7", "12", "34", "1"],
+      "correct_index": 1,
+      "explanation": "Risk Score = Likelihood × Impact = 4 × 3 = 12. This places it in the HIGH risk category (scores 8-12 typically). It should be prioritised for treatment — additional controls or risk acceptance with documented justification."
+    },
+    {
+      "question": "Which GitHub Actions security best practice prevents a malicious pull request from accessing repository secrets?",
+      "options": [
+        "Using `runs-on: ubuntu-latest` for all jobs",
+        "Using `pull_request_target` for all external PR workflows",
+        "Restricting secrets to specific environments and requiring manual approval for external PRs",
+        "Encrypting all code before it enters the repository"
+      ],
+      "correct_index": 2,
+      "explanation": "External pull requests (from forks) should not have access to repository secrets by default. Use Environment protection rules with required reviewers, and use `pull_request` (not `pull_request_target`) which runs with read-only permissions and no secret access."
+    },
+    {
+      "question": "HashiCorp Vault is primarily used for:",
+      "options": [
+        "Scanning code for security vulnerabilities",
+        "Securely storing, accessing, and rotating secrets (passwords, API keys, certificates, encryption keys)",
+        "Monitoring cloud infrastructure for threats",
+        "Running dynamic application security tests"
+      ],
+      "correct_index": 1,
+      "explanation": "HashiCorp Vault is a secrets management tool. It centralises secrets storage, controls access with fine-grained policies, supports dynamic secrets (generated on demand), automatic rotation, and provides an audit log of every secret access."
+    },
+    {
+      "question": "PCI-DSS applies to organisations that:",
+      "options": [
+        "Process personal data of EU citizens",
+        "Store more than 1 million records of any type",
+        "Store, process, or transmit cardholder data (credit/debit card information)",
+        "Provide cloud services to government agencies"
+      ],
+      "correct_index": 2,
+      "explanation": "PCI-DSS (Payment Card Industry Data Security Standard) applies to ANY organisation that stores, processes, or transmits cardholder data — regardless of size. It was created by Visa, Mastercard, and other card brands to reduce payment fraud."
+    },
+    {
+      "question": "When building your cybersecurity portfolio, which of these is MOST valuable to employers?",
+      "options": [
+        "A list of certifications obtained",
+        "A GitHub repo with documented homelab setup, detection rules, incident reports, and evidence of hands-on tool use",
+        "A PDF describing theoretical knowledge of security frameworks",
+        "A LinkedIn profile with all skills listed"
+      ],
+      "correct_index": 1,
+      "explanation": "Employers hire demonstrated skill, not credentials alone. A GitHub portfolio showing real artefacts — detection rules you wrote, incidents you investigated, dashboards you built — proves you can do the job. Certifications supplement this, not replace it."
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "questions": [
+    {
+      "question": "Which component of the CIA Triad ensures that data has not been altered in transit or at rest?",
+      "options": ["Confidentiality", "Integrity", "Availability", "Authentication"],
+      "correct_index": 1,
+      "explanation": "Integrity ensures data remains accurate and unmodified. It is enforced using cryptographic hashing (e.g., SHA-256) and digital signatures. If a file's hash changes, integrity has been violated."
+    },
+    {
+      "question": "A DDoS attack floods a web server with millions of requests, making it unreachable. Which CIA property is being violated?",
+      "options": ["Confidentiality", "Integrity", "Availability", "Non-repudiation"],
+      "correct_index": 2,
+      "explanation": "Availability ensures systems are accessible when needed. A Distributed Denial of Service (DDoS) attack directly targets availability by exhausting server resources or bandwidth."
+    },
+    {
+      "question": "In the OSI model, which layer is responsible for logical IP addressing and routing packets between networks?",
+      "options": ["Layer 2 (Data Link)", "Layer 3 (Network)", "Layer 4 (Transport)", "Layer 5 (Session)"],
+      "correct_index": 1,
+      "explanation": "Layer 3 (Network) handles IP addressing and routing. Routers operate at this layer. Protocols include IP, ICMP, ARP, OSPF, and BGP."
+    },
+    {
+      "question": "Which protocol provides reliable, ordered, and error-checked delivery of a data stream at Layer 4?",
+      "options": ["UDP", "ICMP", "ARP", "TCP"],
+      "correct_index": 3,
+      "explanation": "TCP (Transmission Control Protocol) at Layer 4 uses a three-way handshake, sequence numbers, and acknowledgements to provide reliable, ordered delivery. UDP is connectionless and faster but unreliable."
+    },
+    {
+      "question": "What is the correct order of the TCP three-way handshake?",
+      "options": ["ACK → SYN → SYN-ACK", "SYN → SYN-ACK → ACK", "SYN-ACK → SYN → ACK", "SYN → ACK → FIN"],
+      "correct_index": 1,
+      "explanation": "The TCP three-way handshake is: SYN (client initiates) → SYN-ACK (server acknowledges and responds) → ACK (client confirms). This establishes a reliable bidirectional connection before data transfer."
+    },
+    {
+      "question": "Which default port does HTTPS use?",
+      "options": ["80", "8080", "443", "8443"],
+      "correct_index": 2,
+      "explanation": "HTTPS uses port 443 by default. Port 80 is used for unencrypted HTTP. The 'S' in HTTPS indicates traffic is encrypted using TLS (Transport Layer Security)."
+    },
+    {
+      "question": "An attacker intercepts DNS responses and returns a forged IP address, redirecting users to a malicious server. What is this attack called?",
+      "options": ["ARP Poisoning", "DNS Spoofing (Cache Poisoning)", "SQL Injection", "SSL Stripping"],
+      "correct_index": 1,
+      "explanation": "DNS spoofing (or cache poisoning) injects false DNS records so resolvers cache and serve malicious IP addresses. Users are redirected to attacker-controlled servers while believing they accessed a legitimate site."
+    },
+    {
+      "question": "During a TLS handshake, what is the primary purpose of the server's digital certificate?",
+      "options": ["To encrypt the bulk session data symmetrically", "To prove the server's identity and provide its public key", "To establish the symmetric session key directly", "To send the client's IP address to the server"],
+      "correct_index": 1,
+      "explanation": "The server's certificate authenticates its identity (verified against a trusted CA chain) and contains the public key used in the asymmetric key exchange step of the handshake."
+    },
+    {
+      "question": "How many usable host addresses does a /26 subnet contain?",
+      "options": ["62", "64", "126", "30"],
+      "correct_index": 0,
+      "explanation": "A /26 subnet has 2^(32-26) = 64 total addresses. Subtract 2 (network address and broadcast address) = 62 usable hosts. The subnet mask is 255.255.255.192."
+    },
+    {
+      "question": "Which of these is NOT a private (RFC 1918) address range?",
+      "options": ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "198.51.100.0/24"],
+      "correct_index": 3,
+      "explanation": "198.51.100.0/24 is a documentation/example range defined in RFC 5737 — it is not routable and not a private range. The three private ranges are 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16."
+    },
+    {
+      "question": "What does NAT (Network Address Translation) primarily accomplish?",
+      "options": ["Encrypts traffic between two networks", "Maps multiple private IP addresses to one or more public IPs", "Assigns dynamic IP addresses to hosts via DHCP", "Filters traffic based on packet content"],
+      "correct_index": 1,
+      "explanation": "NAT allows many devices with private IP addresses to share one public IP. This conserves IPv4 address space and hides internal network topology from external systems."
+    },
+    {
+      "question": "Which DNS record type maps a hostname to an IPv4 address?",
+      "options": ["AAAA", "CNAME", "MX", "A"],
+      "correct_index": 3,
+      "explanation": "An A record maps a hostname to an IPv4 address (e.g., example.com → 93.184.216.34). AAAA records are for IPv6, CNAME for aliases, and MX for mail server designation."
+    },
+    {
+      "question": "In a PKI certificate chain, which entity directly signs the end-entity (web server) certificate?",
+      "options": ["The Root CA", "The Intermediate CA", "The web browser's trust store", "The server's own private key"],
+      "correct_index": 1,
+      "explanation": "The Intermediate CA signs end-entity certificates. The Root CA signs the Intermediate CA. This chain structure means the Root CA's private key stays offline; if an Intermediate CA is compromised, it can be revoked without reissuing the Root."
+    },
+    {
+      "question": "Which Wireshark display filter correctly shows only DNS protocol traffic?",
+      "options": ["udp.port == 53", "dns", "ip.protocol == dns", "filter:dns.query"],
+      "correct_index": 1,
+      "explanation": "The display filter 'dns' shows all DNS protocol traffic in Wireshark. While DNS typically uses UDP port 53, using 'dns' correctly catches both UDP and TCP DNS traffic (TCP is used for large responses and zone transfers)."
+    },
+    {
+      "question": "Port 445 is associated with which protocol, and why is it a frequent ransomware target?",
+      "options": ["RDP — attackers brute-force credentials for remote access", "SMB — ransomware spreads via network file shares using exploits like EternalBlue", "SSH — cleartext credentials are captured on this port", "FTP — files can be exfiltrated without authentication"],
+      "correct_index": 1,
+      "explanation": "Port 445 runs SMB (Server Message Block), used for Windows file and printer sharing. The EternalBlue exploit (used by WannaCry and NotPetya ransomware) targeted SMB on port 445. Organisations should block port 445 at the perimeter."
+    }
+  ]
+}

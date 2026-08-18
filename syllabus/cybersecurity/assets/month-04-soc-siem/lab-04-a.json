@@ -1,0 +1,31 @@
+{
+  "asset_type": "lab",
+  "title": "Splunk Log Ingestion & SPL Detection Queries",
+  "description": "Students install Splunk Enterprise, configure Windows Event Log ingestion via Universal Forwarder, write SPL queries to detect suspicious activity, create alert rules, and build a basic SOC monitoring dashboard.",
+  "tags": ["Splunk", "SPL", "Windows Event Logs", "SIEM", "Alert Tuning"],
+  "status": "draft",
+  "objective": "Students will configure a working Splunk SIEM environment, ingest Windows Security Event Logs, write SPL detection queries for brute force and suspicious process execution, and build a dashboard suitable for L1 analyst use.",
+  "steps": [
+    {
+      "title": "Install Splunk Enterprise and Verify Access",
+      "instructions": "Download and install Splunk Enterprise on your lab VM.\n\n**Download:** https://www.splunk.com/en_us/download/splunk-enterprise.html\n\nDuring setup, accept the license and set an admin password.\n\nOnce installed, start the service and navigate to:\n```\nhttp://localhost:8000\n```\nLog in with username `admin` and your chosen password.\n\n**Verify:** The Splunk home screen displays with no data yet. Go to **Settings → Indexes** and confirm the `main` index exists.\n\nAlso install Sysmon on your Windows endpoint for richer telemetry:\n```powershell\n# Download from: https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon\n# Run with the SwiftOnSecurity config:\nsysmon64.exe -accepteula -i sysmonconfig.xml\n```"
+    },
+    {
+      "title": "Configure Universal Forwarder to Ship Windows Event Logs",
+      "instructions": "On the **Windows endpoint** (can be the same machine as Splunk or a separate VM):\n\n1. Download Splunk Universal Forwarder: https://www.splunk.com/en_us/download/universal-forwarder.html\n\n2. Install and configure the forwarder output to your Splunk instance:\n```cmd\n\"C:\\Program Files\\SplunkUniversalForwarder\\bin\\splunk.exe\" add forward-server localhost:9997 -auth admin:yourpassword\n```\n\n3. Add Windows Event Log inputs:\n```cmd\n\"C:\\Program Files\\SplunkUniversalForwarder\\bin\\splunk.exe\" add monitor \"WinEventLog://Security\"\n\"C:\\Program Files\\SplunkUniversalForwarder\\bin\\splunk.exe\" add monitor \"WinEventLog://System\"\n\"C:\\Program Files\\SplunkUniversalForwarder\\bin\\splunk.exe\" add monitor \"WinEventLog://Microsoft-Windows-Sysmon/Operational\"\n```\n\n4. Restart the forwarder:\n```cmd\n\"C:\\Program Files\\SplunkUniversalForwarder\\bin\\splunk.exe\" restart\n```\n\n**Verify:** In Splunk, run `index=main | stats count` — you should see events increasing every few seconds."
+    },
+    {
+      "title": "Write SPL Detection Queries",
+      "instructions": "In the Splunk Search bar, write and test the following SPL queries. Save each as a report.\n\n**Query 1 — Brute Force Detection (Event ID 4625):**\n```spl\nindex=main EventCode=4625\n| stats count AS FailedLogins by Account_Name, src\n| where FailedLogins > 5\n| sort -FailedLogins\n```\n\n**Query 2 — Suspicious Parent Process (cmd.exe from Office apps):**\n```spl\nindex=main EventCode=4688\n| where New_Process_Name IN (\"*cmd.exe\", \"*powershell.exe\", \"*wscript.exe\")\n| where Creator_Process_Name IN (\"*winword.exe\", \"*excel.exe\", \"*outlook.exe\")\n| table _time, Computer, Creator_Process_Name, New_Process_Name, Process_Command_Line\n```\n\n**Query 3 — New Scheduled Tasks (Event ID 4698):**\n```spl\nindex=main EventCode=4698 earliest=-24h\n| table _time, Computer, Account_Name, TaskName, TaskContent\n| sort -_time\n```\n\n**Query 4 — Audit Log Cleared (Event ID 1102):**\n```spl\nindex=main EventCode=1102\n| table _time, Computer, Account_Name, SubjectLogonId\n| sort -_time\n```\n\nSave each query: click **Save As → Report** and name it clearly (e.g. `SOC-BruteForce-Detection`)."
+    },
+    {
+      "title": "Create a Real-Time Alert Rule",
+      "instructions": "Convert your brute force query into a Splunk scheduled alert that fires when more than 10 failed logins occur within 5 minutes for the same account.\n\n1. Run the brute force query:\n```spl\nindex=main EventCode=4625 earliest=-5m\n| stats count AS FailedLogins by Account_Name\n| where FailedLogins > 10\n```\n\n2. Click **Save As → Alert**\n\n3. Configure the alert:\n   - **Title:** `SOC-BruteForce-High`\n   - **Alert type:** Scheduled — Every 5 minutes\n   - **Trigger condition:** Number of results > 0\n   - **Trigger actions:** Add to Triggered Alerts\n   - **Severity:** High\n\n4. Click **Save**.\n\n5. Test by running 11 failed logins against your lab machine:\n```powershell\nfor ($i=1; $i -le 12; $i++) {\n  net use \\\\localhost /user:fakeuser wrongpassword 2>$null\n}\n```\n\n6. Navigate to **Activity → Triggered Alerts** and confirm the alert fired."
+    },
+    {
+      "title": "Build a L1 SOC Monitoring Dashboard",
+      "instructions": "Create a dashboard that an L1 analyst opens at the start of every shift.\n\n1. Go to **Dashboards → Create New Dashboard**\n   - Title: `SOC Morning Shift Dashboard`\n   - Classic dashboard (XML editor option available for fine-tuning)\n\n2. Add Panel 1 — Failed Logins Over Time:\n```spl\nindex=main EventCode=4625 earliest=-8h\n| timechart count span=15m\n```\nVisualization: **Line Chart**\n\n3. Add Panel 2 — Top Accounts by Failed Logins:\n```spl\nindex=main EventCode=4625 earliest=-8h\n| stats count by Account_Name | sort -count | head 10\n```\nVisualization: **Bar Chart**\n\n4. Add Panel 3 — Newly Created Services:\n```spl\nindex=main EventCode=7045 earliest=-8h\n| table _time, Computer, ServiceName, ServiceFileName\n```\nVisualization: **Table**\n\n5. Add Panel 4 — Process Execution Summary:\n```spl\nindex=main EventCode=4688 earliest=-1h\n| stats count by New_Process_Name | sort -count | head 15\n```\nVisualization: **Table**\n\n6. Save and share the dashboard URL. Submit a screenshot of your completed dashboard as part of your portfolio evidence."
+    }
+  ],
+  "expected_output": "Students submit: (1) screenshot of Splunk showing indexed Windows events, (2) four saved SPL report queries, (3) screenshot of triggered brute force alert from the Activity panel, (4) screenshot of completed SOC monitoring dashboard with all four panels populated."
+}

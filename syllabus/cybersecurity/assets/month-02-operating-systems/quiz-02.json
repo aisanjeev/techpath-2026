@@ -1,0 +1,94 @@
+{
+  "questions": [
+    {
+      "question": "Which Windows process is responsible for storing and managing user credential hashes, and is a primary target for credential-dumping tools like Mimikatz?",
+      "options": ["winlogon.exe", "lsass.exe", "svchost.exe", "csrss.exe"],
+      "correct_index": 1,
+      "explanation": "lsass.exe (Local Security Authority Subsystem Service) manages authentication and stores credential hashes in memory. Mimikatz can extract plaintext passwords and NTLM hashes from lsass memory. Defenders monitor for unauthorised access to lsass."
+    },
+    {
+      "question": "A Windows Event ID 4625 appears repeatedly in the Security log for the same account from the same IP. What is the most likely explanation?",
+      "options": ["A user forgot their password once", "A brute-force or password-spray attack is in progress", "A new service was installed", "The audit log was cleared"],
+      "correct_index": 1,
+      "explanation": "Event ID 4625 records failed logon attempts. Repeated 4625 events for the same account from the same IP indicate a brute-force attack. Password spray attacks target many accounts with few attempts each to avoid lockout."
+    },
+    {
+      "question": "Which Windows registry key is most commonly used by malware to achieve persistence on every user login?",
+      "options": ["HKLM\\SYSTEM\\CurrentControlSet\\Services", "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", "HKLM\\SAM\\SAM", "HKCU\\Software\\Classes\\*"],
+      "correct_index": 1,
+      "explanation": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run executes entries automatically when the current user logs in — a classic persistence mechanism. HKLM\\...\\Run does the same for all users. The SAM key holds account hashes (locked)."
+    },
+    {
+      "question": "What does Windows Event ID 4688 record?",
+      "options": ["A user account was created", "A new process was created", "A service was installed", "Kerberos TGT was requested"],
+      "correct_index": 1,
+      "explanation": "Event ID 4688 logs new process creation including the process name, parent process, and (if auditing is configured) the full command line. Security teams watch for Office apps or email clients spawning cmd.exe or powershell.exe — a classic malware indicator."
+    },
+    {
+      "question": "A Linux file has permissions -rwsr-xr-x and is owned by root. What does the 's' in the owner execute field mean?",
+      "options": ["The file is a symbolic link", "The file has the SUID bit set — it runs with the owner's (root) privileges", "The file is shared with all users", "The file has a sticky bit preventing deletion"],
+      "correct_index": 1,
+      "explanation": "SUID (Set User ID) causes an executable to run with the privileges of the file's owner rather than the user running it. A root-owned SUID binary runs as root. Attackers search for SUID binaries using: find / -perm -4000 2>/dev/null"
+    },
+    {
+      "question": "In the /etc/passwd file, what does an entry of '/usr/sbin/nologin' in the shell field indicate?",
+      "options": ["The user can only log in via SSH keys", "The account exists but cannot be used for interactive shell login", "The user has root privileges", "The account is locked with a password hash"],
+      "correct_index": 1,
+      "explanation": "A shell of /usr/sbin/nologin (or /bin/false) prevents interactive login for that account. This is used for system service accounts (www-data, nobody, daemon) that need to exist for file ownership but should never have a login shell."
+    },
+    {
+      "question": "What octal permission value creates a file that the owner can read and write, but all others have no access at all?",
+      "options": ["644", "755", "600", "750"],
+      "correct_index": 2,
+      "explanation": "chmod 600 = rw------- — owner has read (4) + write (2) = 6, group has 0, others have 0. This is the correct permission for sensitive files like SSH private keys (~/.ssh/id_rsa) and /etc/shadow."
+    },
+    {
+      "question": "Which Linux log file records SSH login attempts, sudo usage, and su commands?",
+      "options": ["/var/log/syslog", "/var/log/kern.log", "/var/log/auth.log", "/var/log/messages"],
+      "correct_index": 2,
+      "explanation": "/var/log/auth.log (Debian/Ubuntu) or /var/log/secure (RHEL/CentOS) records authentication events including SSH logins, failed passwords, sudo commands, and su switches. This is the primary log for detecting unauthorised access."
+    },
+    {
+      "question": "In Active Directory, what is a Group Policy Object (GPO) used for?",
+      "options": ["Creating user accounts in bulk", "Pushing configuration and security settings to computers and users in an OU", "Tracking failed logon attempts across the domain", "Encrypting Active Directory database backups"],
+      "correct_index": 1,
+      "explanation": "GPOs are AD policy containers linked to OUs, sites, or the domain. They push settings like password policies, software restrictions, firewall rules, and drive mappings to all computers and users in the linked container."
+    },
+    {
+      "question": "What is the key difference between the sudo and su commands in Linux?",
+      "options": ["sudo is for file permissions; su is for process management", "sudo runs a single command with elevated privileges; su switches to another user's full session", "sudo requires a root password; su requires the current user's password", "sudo only works on Debian; su only works on Red Hat"],
+      "correct_index": 1,
+      "explanation": "sudo executes one command with elevated (typically root) privileges using the current user's password, and logs the action. su switches your entire session to another user (usually root) and requires that user's password."
+    },
+    {
+      "question": "Which PowerShell command lists all members of the local Administrators group?",
+      "options": ["Get-LocalUser -Group Administrators", "Get-LocalGroupMember -Group 'Administrators'", "Get-Process | Where-Object {$_.Admin}", "Get-ADGroupMember Administrators"],
+      "correct_index": 1,
+      "explanation": "Get-LocalGroupMember -Group 'Administrators' lists all members of the local Administrators group. Get-ADGroupMember is for domain groups (requires RSAT). Attackers enumerate admin group membership as part of privilege escalation."
+    },
+    {
+      "question": "An attacker captures an NTLM authentication hash from the network. They use it to authenticate to another system without knowing the plaintext password. What is this attack called?",
+      "options": ["Pass-the-Ticket", "Pass-the-Hash", "Golden Ticket", "Kerberoasting"],
+      "correct_index": 1,
+      "explanation": "Pass-the-Hash exploits NTLM's weakness: the hash itself is the authenticator. An attacker who captures an NTLM hash can authenticate to Windows services that accept NTLM without ever cracking it. Mitigation: enforce Kerberos, disable NTLM where possible."
+    },
+    {
+      "question": "Which Linux command shows all currently running processes including their user, CPU usage, and memory usage?",
+      "options": ["top", "ps aux", "lsof", "jobs"],
+      "correct_index": 1,
+      "explanation": "ps aux shows a snapshot of ALL running processes (a=all users, u=user-oriented format, x=include processes without terminal). top shows real-time updating data. lsof shows open files/sockets. jobs shows background jobs in the current shell."
+    },
+    {
+      "question": "Windows Event ID 7045 is recorded when a new service is installed. Why is this significant from a security perspective?",
+      "options": ["It indicates a user logged on with special privileges", "Malware commonly installs itself as a Windows service for persistence and automatic startup", "It records when the Windows Firewall is disabled", "It logs failed attempts to access the SAM database"],
+      "correct_index": 1,
+      "explanation": "Installing a malicious Windows service is a common persistence mechanism. Event 7045 records the service name, file path, and account it runs as. Defenders watch for services with unusual names, paths pointing to TEMP/AppData, or services running as SYSTEM."
+    },
+    {
+      "question": "What command would you run on a Linux system to find all files modified in the last 24 hours across the entire filesystem?",
+      "options": ["ls -lt / | head", "find / -mtime -1 2>/dev/null", "grep -r --newer=24h /", "locate --modified 24 /"],
+      "correct_index": 1,
+      "explanation": "find / -mtime -1 finds all files modified less than 1 day ago (mtime = modification time, -1 = within 1 day). 2>/dev/null suppresses permission errors. This is a key forensic command for identifying recently changed files after a suspected breach."
+    }
+  ]
+}

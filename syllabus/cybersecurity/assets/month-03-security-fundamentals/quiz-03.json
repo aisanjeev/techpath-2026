@@ -1,0 +1,144 @@
+{
+  "questions": [
+    {
+      "question": "Which hashing algorithm produces a 256-bit output?",
+      "options": ["MD5", "SHA-1", "SHA-256", "AES-256"],
+      "correct_index": 2,
+      "explanation": "SHA-256 produces a 256-bit (64 hex character) hash. MD5 = 128-bit, SHA-1 = 160-bit. AES-256 is an encryption algorithm, not a hash."
+    },
+    {
+      "question": "What is the main advantage of asymmetric encryption over symmetric encryption?",
+      "options": [
+        "It is faster to compute",
+        "It solves the key distribution problem — the public key can be shared openly",
+        "It produces smaller ciphertext",
+        "It uses less memory"
+      ],
+      "correct_index": 1,
+      "explanation": "Asymmetric encryption uses a key pair — you can share your public key with anyone. Symmetric encryption requires a secure way to first exchange the shared secret key."
+    },
+    {
+      "question": "A digital signature proves which two properties?",
+      "options": [
+        "Confidentiality and availability",
+        "Authentication and authorisation",
+        "Integrity and non-repudiation",
+        "Confidentiality and integrity"
+      ],
+      "correct_index": 2,
+      "explanation": "Digital signatures prove integrity (the message was not tampered with) and non-repudiation (the sender cannot deny sending it). They do not encrypt the message content."
+    },
+    {
+      "question": "Which type of malware self-replicates across a network without requiring any user action?",
+      "options": ["Virus", "Worm", "Trojan", "Adware"],
+      "correct_index": 1,
+      "explanation": "A worm self-replicates across networks automatically. A virus needs a user to execute an infected file. A Trojan disguises itself as legitimate software."
+    },
+    {
+      "question": "An attacker calls an employee pretending to be IT support and tricks them into revealing their password. This is an example of:",
+      "options": ["Phishing", "Pretexting / Vishing", "Tailgating", "Baiting"],
+      "correct_index": 1,
+      "explanation": "This is vishing (voice phishing) combined with pretexting — fabricating a scenario (fake IT support) to extract information over the phone."
+    },
+    {
+      "question": "What does the Principle of Least Privilege state?",
+      "options": [
+        "Admin accounts should have no restrictions",
+        "Users should have the minimum access needed to do their job",
+        "All data should be encrypted at rest",
+        "Passwords must be changed every 90 days"
+      ],
+      "correct_index": 1,
+      "explanation": "Least Privilege means granting only the minimum permissions required for a user's role. This limits the blast radius if an account is compromised."
+    },
+    {
+      "question": "ARP spoofing is used to perform which type of attack?",
+      "options": [
+        "DNS poisoning",
+        "SQL injection",
+        "Man-in-the-Middle attack",
+        "Ransomware deployment"
+      ],
+      "correct_index": 2,
+      "explanation": "ARP spoofing sends fake ARP replies to associate the attacker's MAC address with a victim's IP, redirecting traffic through the attacker — enabling a MITM attack."
+    },
+    {
+      "question": "Which MFA factor category does a TOTP app (like Google Authenticator) belong to?",
+      "options": [
+        "Something you know",
+        "Something you have",
+        "Something you are",
+        "Somewhere you are"
+      ],
+      "correct_index": 1,
+      "explanation": "A TOTP app on your phone is 'something you have' — physical possession of the device. Passwords are 'something you know'; biometrics are 'something you are'."
+    },
+    {
+      "question": "A rootkit is primarily designed to:",
+      "options": [
+        "Encrypt files and demand ransom",
+        "Replicate itself across network shares",
+        "Hide its presence from the operating system and security tools",
+        "Record keystrokes and send them to an attacker"
+      ],
+      "correct_index": 2,
+      "explanation": "Rootkits are specifically designed to hide themselves and other malware from the OS, antivirus, and security tools. They operate at a very low level (kernel/firmware)."
+    },
+    {
+      "question": "In Python, which module is used to compute SHA-256 hashes?",
+      "options": ["cryptography", "hashlib", "ssl", "os"],
+      "correct_index": 1,
+      "explanation": "hashlib is Python's standard library for hashing. Use hashlib.sha256(data).hexdigest() to get a SHA-256 hash."
+    },
+    {
+      "question": "What is the first step of the ransomware kill chain?",
+      "options": [
+        "Deploying the encryption payload",
+        "Exfiltrating data",
+        "Establishing persistence",
+        "Initial access (phishing, RDP brute force)"
+      ],
+      "correct_index": 3,
+      "explanation": "Ransomware starts with initial access — typically through phishing emails, exploiting RDP, or using stolen credentials. Everything else follows after the attacker has a foothold."
+    },
+    {
+      "question": "Which encryption mode is considered broken and should NOT be used?",
+      "options": ["AES-256", "RSA-2048", "DES", "ECC-256"],
+      "correct_index": 2,
+      "explanation": "DES (Data Encryption Standard) uses a 56-bit key which can be brute-forced. It was broken in 1999. AES-256, RSA-2048, and ECC-256 are currently considered secure."
+    },
+    {
+      "question": "What is 'spear phishing'?",
+      "options": [
+        "Mass phishing emails sent to millions of random users",
+        "Phishing via SMS text messages",
+        "Targeted phishing aimed at a specific individual with researched personal details",
+        "Phishing that targets senior executives specifically"
+      ],
+      "correct_index": 2,
+      "explanation": "Spear phishing is targeted — the attacker researches the victim and personalises the attack. Whaling is spear phishing targeting executives. Mass phishing is generic."
+    },
+    {
+      "question": "Which Python code correctly reads a file and prints its SHA-256 hash?",
+      "options": [
+        "print(sha256(open('file.txt').read()))",
+        "import hashlib; print(hashlib.sha256(open('file.txt','rb').read()).hexdigest())",
+        "import crypto; crypto.hash('file.txt', 'sha256')",
+        "import os; os.sha256('file.txt')"
+      ],
+      "correct_index": 1,
+      "explanation": "hashlib.sha256() requires bytes input (open file in 'rb' mode), and .hexdigest() returns the hex string. The other options use incorrect or non-existent functions."
+    },
+    {
+      "question": "DNS poisoning (cache poisoning) redirects users by:",
+      "options": [
+        "Encrypting DNS packets in transit",
+        "Injecting false DNS records into a resolver's cache",
+        "Flooding DNS servers with requests",
+        "Registering domains similar to legitimate ones (typosquatting)"
+      ],
+      "correct_index": 1,
+      "explanation": "DNS cache poisoning injects malicious DNS records into a resolver's cache, causing it to return an attacker-controlled IP address for a legitimate domain name."
+    }
+  ]
+}

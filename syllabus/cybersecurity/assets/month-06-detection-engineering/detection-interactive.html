@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detection Engineering — Sigma & YARA Builder</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#263045;--border:#334155;--text:#e2e8f0;--dim:#94a3b8;--accent:#38bdf8;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--purple:#c084fc;--orange:#fb923c;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:20px;min-height:100vh;}
+h1{text-align:center;font-size:1.5rem;margin-bottom:4px;}
+.sub{text-align:center;color:var(--dim);font-size:.88rem;margin-bottom:20px;}
+.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+.tab{padding:8px 18px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:.88rem;color:var(--dim);background:var(--card);transition:.2s;}
+.tab.active{background:var(--accent);color:#0f172a;border-color:var(--accent);font-weight:700;}
+.panel{display:none;max-width:960px;margin:0 auto;}
+.panel.active{display:block;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+label{font-size:.8rem;font-weight:600;color:var(--dim);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;}
+input,select,textarea{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:.88rem;font-family:inherit;outline:none;transition:.2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+select option{background:var(--card);}
+.field{margin-bottom:12px;}
+.btn{padding:8px 20px;border-radius:8px;border:none;cursor:pointer;font-size:.88rem;font-weight:600;transition:.2s;margin-top:4px;}
+.btn-primary{background:var(--accent);color:#0f172a;}
+.btn-secondary{background:var(--card2);color:var(--text);border:1.5px solid var(--border);}
+.btn:hover{opacity:.85;}
+.output-box{background:#080c14;border:1.5px solid var(--border);border-radius:10px;padding:16px;margin-top:16px;}
+.output-box pre{font-family:'Courier New',monospace;font-size:.8rem;color:var(--green);white-space:pre-wrap;line-height:1.7;}
+.output-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:8px;}
+.tag-input-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px;}
+.tag-chip{background:rgba(56,189,248,.12);color:var(--accent);border:1px solid rgba(56,189,248,.3);border-radius:20px;padding:2px 10px;font-size:.78rem;display:inline-flex;align-items:center;gap:4px;}
+.tag-chip button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:.9rem;padding:0;}
+/* Pyramid */
+.pyramid{max-width:560px;margin:0 auto;}
+.pain-level{border-radius:8px;padding:14px 20px;margin-bottom:6px;cursor:pointer;transition:.2s;border:1.5px solid transparent;}
+.pain-level:hover{border-color:rgba(255,255,255,.2);}
+.pain-level.expanded{border-color:var(--accent);}
+.pain-row{display:flex;align-items:center;gap:12px;}
+.pain-icon{font-size:1.3rem;flex-shrink:0;}
+.pain-name{font-weight:700;font-size:.95rem;}
+.pain-cost{font-size:.78rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:auto;white-space:nowrap;}
+.pain-detail{margin-top:10px;font-size:.84rem;color:var(--dim);line-height:1.6;display:none;}
+.pain-level.expanded .pain-detail{display:block;}
+/* YARA builder */
+.yara-section{background:var(--card2);border:1.5px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;}
+.yara-section h4{font-size:.85rem;font-weight:700;color:var(--accent);margin-bottom:8px;}
+.string-row{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start;}
+.string-row input{flex:1;}
+.string-row select{width:100px;flex-shrink:0;}
+</style>
+</head>
+<body>
+<h1>🛡️ Detection Engineering Lab</h1>
+<p class="sub">Month 06 · Build Sigma rules, YARA rules, and explore the Pyramid of Pain</p>
+
+<div class="tabs">
+  <div class="tab active" onclick="showPanel('sigma')">Sigma Builder</div>
+  <div class="tab" onclick="showPanel('yara')">YARA Builder</div>
+  <div class="tab" onclick="showPanel('pyramid')">Pyramid of Pain</div>
+</div>
+
+<!-- SIGMA BUILDER -->
+<div class="panel active" id="panel-sigma">
+  <div class="grid2">
+    <div>
+      <div class="field"><label>Rule Title</label><input id="s-title" value="Suspicious PowerShell Download Cradle"></div>
+      <div class="field"><label>Description</label><textarea id="s-desc" rows="2">Detects PowerShell commands used to download content from the internet</textarea></div>
+      <div class="field">
+        <label>Log Source Category</label>
+        <select id="s-cat">
+          <option>process_creation</option>
+          <option>network_connection</option>
+          <option>file_creation</option>
+          <option>registry_set</option>
+          <option>dns_query</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Product</label>
+        <select id="s-prod">
+          <option>windows</option>
+          <option>linux</option>
+          <option>macos</option>
+          <option>network</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Target Field</label>
+        <select id="s-field">
+          <option value="CommandLine|contains">CommandLine contains</option>
+          <option value="Image|endswith">Image (process) ends with</option>
+          <option value="Image|contains">Image (process) contains</option>
+          <option value="DestinationPort|eq">DestinationPort equals</option>
+          <option value="TargetFilename|endswith">TargetFilename ends with</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Detection Values (one per line)</label>
+        <textarea id="s-values" rows="4">Invoke-WebRequest
+IEX
+DownloadString
+WebClient</textarea>
+      </div>
+      <div class="field">
+        <label>Severity Level</label>
+        <select id="s-level">
+          <option>informational</option>
+          <option>low</option>
+          <option>medium</option>
+          <option selected>high</option>
+          <option>critical</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>MITRE ATT&CK Technique</label>
+        <select id="s-mitre">
+          <option value="attack.t1059.001">T1059.001 — PowerShell (Execution)</option>
+          <option value="attack.t1053.005">T1053.005 — Scheduled Task (Persistence)</option>
+          <option value="attack.t1548.002">T1548.002 — Bypass UAC (Privilege Escalation)</option>
+          <option value="attack.t1110.001">T1110.001 — Brute Force (Credential Access)</option>
+          <option value="attack.t1055">T1055 — Process Injection (Defence Evasion)</option>
+          <option value="attack.t1071.001">T1071.001 — Web Protocols (C2)</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="generateSigma()">Generate Sigma Rule</button>
+    </div>
+    <div>
+      <div class="output-label">Generated Sigma Rule</div>
+      <div class="output-box"><pre id="sigma-output">← Fill in the form and click Generate</pre></div>
+      <button class="btn btn-secondary" style="margin-top:8px" onclick="copySigma()">Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- YARA BUILDER -->
+<div class="panel" id="panel-yara">
+  <div class="grid2">
+    <div>
+      <div class="field"><label>Rule Name (no spaces)</label><input id="y-name" value="RansomwareGeneric"></div>
+      <div class="field"><label>Description</label><input id="y-desc" value="Detects generic ransomware characteristics"></div>
+      <div class="yara-section">
+        <h4>Text Strings</h4>
+        <div id="y-strings">
+          <div class="string-row">
+            <input type="text" placeholder="String value" value="Your files have been encrypted">
+            <select><option>nocase</option><option>exact</option><option>wide</option></select>
+          </div>
+          <div class="string-row">
+            <input type="text" placeholder="String value" value=".locked">
+            <select><option>nocase</option><option>exact</option><option>wide</option></select>
+          </div>
+        </div>
+        <button class="btn btn-secondary" style="margin-top:6px;padding:4px 12px;font-size:.8rem" onclick="addString()">+ Add String</button>
+      </div>
+      <div class="yara-section">
+        <h4>Hex Patterns</h4>
+        <div class="field"><label>MZ Header (PE executable)</label>
+          <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-weight:normal;font-size:.88rem;">
+            <input type="checkbox" id="y-mz" style="width:auto" checked> Include MZ header check { 4D 5A }</label>
+        </div>
+      </div>
+      <div class="yara-section">
+        <h4>Condition Logic</h4>
+        <select id="y-cond" style="margin-bottom:8px">
+          <option value="any">any of ($str*)</option>
+          <option value="all">all of ($str*)</option>
+          <option value="2of">2 of ($str*)</option>
+          <option value="mz-any">$mz_header at 0 and any of ($str*)</option>
+          <option value="mz-2of">$mz_header at 0 and 2 of ($str*)</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="generateYara()">Generate YARA Rule</button>
+    </div>
+    <div>
+      <div class="output-label">Generated YARA Rule</div>
+      <div class="output-box"><pre id="yara-output">← Fill in the form and click Generate</pre></div>
+      <button class="btn btn-secondary" style="margin-top:8px" onclick="copyYara()">Copy to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- PYRAMID OF PAIN -->
+<div class="panel" id="panel-pyramid">
+  <p style="text-align:center;color:var(--dim);font-size:.88rem;margin-bottom:16px">Click each level to learn how much pain blocking that indicator causes the attacker</p>
+  <div class="pyramid">
+    <div class="pain-level" onclick="togglePain(this)" style="background:rgba(248,113,113,.12)">
+      <div class="pain-row"><span class="pain-icon">🏆</span><span class="pain-name">TTPs (Tactics, Techniques, Procedures)</span><span class="pain-cost" style="background:rgba(248,113,113,.2);color:var(--red)">Tough!</span></div>
+      <div class="pain-detail">The highest level. TTPs describe HOW attackers operate — their methodology, tools they habitually use, and the order they do things.<br><br>If you can detect and block TTPs, the attacker must fundamentally change how they operate — retrain their team, rewrite their tooling, rethink their approach. This is massively disruptive and expensive for them.<br><br><strong>Examples:</strong> "Spear phishing with macro-enabled Office docs as initial access", "Kerberoasting for credential access", "Living-off-the-land with LOLBins"<br><br><strong>How to detect:</strong> Behavioral analytics, UEBA, MITRE ATT&CK-mapped Sigma rules that detect patterns (not just exact signatures).</div>
+    </div>
+    <div class="pain-level" onclick="togglePain(this)" style="background:rgba(251,146,60,.1)">
+      <div class="pain-row"><span class="pain-icon">🔧</span><span class="pain-name">Tools</span><span class="pain-cost" style="background:rgba(251,146,60,.2);color:var(--orange)">Challenging</span></div>
+      <div class="pain-detail">Specific attacker tools: Mimikatz, Cobalt Strike, Metasploit, custom malware. If you block their tools (AV detection, YARA rules on specific binaries), the attacker must find or build a replacement.<br><br>This takes days to weeks and is genuinely painful — especially if they use custom tools they invested significant effort in.<br><br><strong>How to detect:</strong> YARA rules on tool-specific byte patterns, heuristic AV rules, detecting tool behaviour (not just the binary hash).</div>
+    </div>
+    <div class="pain-level" onclick="togglePain(this)" style="background:rgba(251,191,36,.1)">
+      <div class="pain-row"><span class="pain-icon">🌐</span><span class="pain-name">Network / Host Artefacts</span><span class="pain-cost" style="background:rgba(251,191,36,.2);color:var(--yellow)">Annoying</span></div>
+      <div class="pain-detail">Artefacts left by attacker activity: specific registry keys malware creates, unusual process parent-child relationships, specific HTTP User-Agent strings, C2 beaconing patterns.<br><br>Changing these requires modifying malware source code — time-consuming but doable for determined attackers.<br><br><strong>How to detect:</strong> Behavioural EDR rules, Sysmon detection of specific artefacts, SIEM correlation rules.</div>
+    </div>
+    <div class="pain-level" onclick="togglePain(this)" style="background:rgba(192,132,252,.1)">
+      <div class="pain-row"><span class="pain-icon">🌍</span><span class="pain-name">Domain Names</span><span class="pain-cost" style="background:rgba(192,132,252,.2);color:var(--purple)">Simple</span></div>
+      <div class="pain-detail">C2 domains and phishing domains used by the attacker. Blocking these forces the attacker to register new domains — a few minutes and a few dollars.<br><br>However, blocking domains is still valuable because it disrupts current campaigns while the attacker pivots.<br><br><strong>How to detect/block:</strong> DNS RPZ (Response Policy Zones), threat intel feeds, domain reputation blocking. Detect fast-flux and DGA (Domain Generation Algorithm) patterns.</div>
+    </div>
+    <div class="pain-level" onclick="togglePain(this)" style="background:rgba(74,222,128,.1)">
+      <div class="pain-row"><span class="pain-icon">🔢</span><span class="pain-name">IP Addresses</span><span class="pain-cost" style="background:rgba(74,222,128,.2);color:var(--green)">Easy for them</span></div>
+      <div class="pain-detail">C2 server IP addresses. Blocking an IP is trivially easy to evade — the attacker moves to a new VPS/bulletproof host for ~$5. They can have hundreds of IPs ready to rotate.<br><br>Still valuable for current campaigns, but don't rely on IP blocking as a primary defence.<br><br><strong>How to block:</strong> Firewall rules, SIEM correlation, threat intel feeds with IP blocklists (AbuseIPDB, Emerging Threats).</div>
+    </div>
+    <div class="pain-level" onclick="togglePain(this)" style="background:rgba(56,189,248,.08)">
+      <div class="pain-row"><span class="pain-icon">🔑</span><span class="pain-name">Hash Values</span><span class="pain-cost" style="background:rgba(56,189,248,.15);color:var(--accent)">Trivial</span></div>
+      <div class="pain-detail">Exact file hashes (MD5, SHA-256) of malware binaries. Blocking specific hashes is the weakest indicator — adding a single null byte to a file changes its hash completely. Takes the attacker seconds to evade.<br><br>Hash-based detection is still useful for known-bad IOC lookups (VirusTotal), but should never be your PRIMARY detection method.<br><br><strong>How to use:</strong> Hash-based lookup on file creation events, VirusTotal integration in SOAR playbooks. Supplement with behaviour-based detection.</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:16px;font-size:.8rem;color:var(--dim)">Higher = more pain for the attacker when you block it. Aim for TTPs and Tools, not just hashes.</div>
+</div>
+
+<script>
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function generateSigma(){
+  const title=document.getElementById('s-title').value;
+  const desc=document.getElementById('s-desc').value;
+  const cat=document.getElementById('s-cat').value;
+  const prod=document.getElementById('s-prod').value;
+  const field=document.getElementById('s-field').value;
+  const vals=document.getElementById('s-values').value.trim().split('\n').filter(v=>v.trim());
+  const level=document.getElementById('s-level').value;
+  const mitre=document.getElementById('s-mitre').value;
+  const mitreParent=mitre.split('.').slice(0,2).join('.');
+
+  const valLines=vals.map(v=>`      - '${v.trim()}'`).join('\n');
+  const id=[...Array(32)].map(()=>Math.floor(Math.random()*16).toString(16)).join('')
+    .replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/,'$1-$2-$3-$4-$5');
+
+  const rule=`title: ${title}
+id: ${id}
+status: experimental
+description: |
+  ${desc}
+author: YourName
+date: ${new Date().toISOString().slice(0,10).replace(/-/g,'/')}
+
+logsource:
+  category: ${cat}
+  product: ${prod}
+
+detection:
+  selection:
+    ${field}:
+${valLines}
+  condition: selection
+
+falsepositives:
+  - Legitimate admin activity
+  - Known security tools
+
+level: ${level}
+tags:
+  - ${mitreParent.replace('attack.t','attack.execution')}
+  - ${mitre}`;
+
+  document.getElementById('sigma-output').textContent=rule;
+}
+
+function copySigma(){
+  navigator.clipboard.writeText(document.getElementById('sigma-output').textContent);
+  alert('Copied to clipboard!');
+}
+
+function addString(){
+  const container=document.getElementById('y-strings');
+  const row=document.createElement('div');
+  row.className='string-row';
+  row.innerHTML=`<input type="text" placeholder="String value"><select><option>nocase</option><option>exact</option><option>wide</option></select>`;
+  container.appendChild(row);
+}
+
+function generateYara(){
+  const name=document.getElementById('y-name').value.replace(/\s+/g,'_');
+  const desc=document.getElementById('y-desc').value;
+  const rows=document.querySelectorAll('#y-strings .string-row');
+  const includeMz=document.getElementById('y-mz').checked;
+  const condMode=document.getElementById('y-cond').value;
+
+  let strDefs='';
+  let strIdx=1;
+  rows.forEach(row=>{
+    const val=row.querySelector('input').value.trim();
+    const mod=row.querySelector('select').value;
+    if(val){
+      const modStr=mod==='exact'?'':(mod==='wide'?' wide':' nocase');
+      strDefs+=`        $str${strIdx} = "${val}"${modStr}\n`;
+      strIdx++;
+    }
+  });
+
+  let hexDefs='';
+  if(includeMz) hexDefs='        $mz_header = { 4D 5A }\n';
+
+  const condMap={
+    'any':'any of ($str*)',
+    'all':'all of ($str*)',
+    '2of':'2 of ($str*)',
+    'mz-any':'$mz_header at 0 and any of ($str*)',
+    'mz-2of':'$mz_header at 0 and 2 of ($str*)'
+  };
+
+  const rule=`rule ${name}
+{
+    meta:
+        description = "${desc}"
+        author = "YourName"
+        date = "${new Date().toISOString().slice(0,10)}"
+        severity = "high"
+
+    strings:
+${strDefs}${hexDefs}
+    condition:
+        ${condMap[condMode]}
+}`;
+  document.getElementById('yara-output').textContent=rule;
+}
+
+function copyYara(){
+  navigator.clipboard.writeText(document.getElementById('yara-output').textContent);
+  alert('Copied to clipboard!');
+}
+
+function togglePain(el){
+  const wasExpanded=el.classList.contains('expanded');
+  document.querySelectorAll('.pain-level').forEach(p=>p.classList.remove('expanded'));
+  if(!wasExpanded) el.classList.add('expanded');
+}
+
+generateSigma();
+generateYara();
+</script>
+</body>
+</html>

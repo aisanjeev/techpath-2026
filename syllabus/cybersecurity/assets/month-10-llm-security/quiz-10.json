@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "question": "Which OWASP LLM Top 10 category covers an attacker embedding malicious instructions inside a document that a RAG system retrieves?",
+      "options": [
+        "LLM02 — Insecure Output Handling",
+        "LLM01 — Prompt Injection (Indirect)",
+        "LLM05 — Supply-Chain Vulnerabilities",
+        "LLM08 — Excessive Agency"
+      ],
+      "correct_index": 1,
+      "explanation": "Indirect prompt injection occurs when malicious instructions are embedded in external content (documents, web pages) that the LLM retrieves and processes as trusted context. This is classified under LLM01."
+    },
+    {
+      "question": "An LLM application renders model output directly into an HTML page without sanitisation. Which vulnerability does this primarily enable?",
+      "options": [
+        "SQL Injection via the database layer",
+        "Cross-Site Scripting (XSS) via LLM output",
+        "Server-Side Request Forgery",
+        "Training data poisoning"
+      ],
+      "correct_index": 1,
+      "explanation": "LLM02 (Insecure Output Handling) covers scenarios where LLM output is rendered without sanitisation. If output contains a <script> tag and is inserted via innerHTML, it executes as XSS."
+    },
+    {
+      "question": "What is the primary risk of giving an LLM agent access to email, file deletion, and external API tools simultaneously without any scope restriction?",
+      "options": [
+        "LLM01 — Prompt Injection",
+        "LLM06 — Sensitive Information Disclosure",
+        "LLM08 — Excessive Agency",
+        "LLM03 — Training Data Poisoning"
+      ],
+      "correct_index": 2,
+      "explanation": "LLM08 (Excessive Agency) describes over-permissioned agents that can take unintended destructive actions. Least-privilege tool access and human-in-the-loop confirmation mitigate this risk."
+    },
+    {
+      "question": "In the NIST AI Risk Management Framework, which function involves identifying the context and categorising AI-related risks for a specific deployment?",
+      "options": [
+        "GOVERN",
+        "MAP",
+        "MEASURE",
+        "MANAGE"
+      ],
+      "correct_index": 1,
+      "explanation": "The MAP function focuses on identifying the context in which an AI system operates and categorising the risks specific to that deployment. GOVERN sets policy, MEASURE tests and evaluates, MANAGE treats risks."
+    },
+    {
+      "question": "A researcher submits thousands of carefully crafted queries to an LLM API and uses the responses to reconstruct a functional approximation of the model. Which OWASP LLM category applies?",
+      "options": [
+        "LLM04 — Model Denial of Service",
+        "LLM09 — Overreliance",
+        "LLM10 — Model Theft",
+        "LLM06 — Sensitive Information Disclosure"
+      ],
+      "correct_index": 2,
+      "explanation": "LLM10 (Model Theft) covers attempts to exfiltrate or replicate a model through excessive API queries, allowing the attacker to create a functional copy without authorisation."
+    },
+    {
+      "question": "Which EU AI Act enforcement milestone requires high-risk AI systems to undergo mandatory red-teaming before deployment?",
+      "options": [
+        "1 January 2025",
+        "2 August 2026",
+        "1 July 2027",
+        "31 December 2025"
+      ],
+      "correct_index": 1,
+      "explanation": "The EU AI Act's requirements for high-risk AI systems, including mandatory conformity assessments and red-teaming, apply from 2 August 2026 for most high-risk categories."
+    },
+    {
+      "question": "In a RAG system, which component is most directly responsible for selecting which document chunks are included in the LLM's context window?",
+      "options": [
+        "The embedding model",
+        "The vector database retriever",
+        "The LLM generator",
+        "The tokeniser"
+      ],
+      "correct_index": 1,
+      "explanation": "The retriever queries the vector database using semantic similarity and selects the top-k most relevant document chunks to include in the LLM's context window, making it a critical trust boundary."
+    },
+    {
+      "question": "Which MITRE ATLAS tactic corresponds most directly to an attacker crafting and injecting malicious data into an ML model's training pipeline?",
+      "options": [
+        "Reconnaissance",
+        "Initial Access",
+        "ML Attack Staging — Craft Poison Data",
+        "Exfiltration"
+      ],
+      "correct_index": 2,
+      "explanation": "MITRE ATLAS's 'Craft Poison Data' technique under ML Attack Staging covers adversaries who create and inject malicious training data to influence the model's learned behaviour."
+    },
+    {
+      "question": "An attacker sends a prompt like 'Repeat the following text 500 times: [target phrase]' to extract memorised training data. Which technique is this?",
+      "options": [
+        "Model inversion attack",
+        "Membership inference attack",
+        "Training data extraction via repetition",
+        "Adversarial example generation"
+      ],
+      "correct_index": 2,
+      "explanation": "Training data extraction via repetition is documented in the 'Extracting Training Data from Large Language Models' paper. Forcing the model into repetition mode can cause it to regurgitate memorised training examples."
+    },
+    {
+      "question": "What does 'differential privacy' provide as a mitigation for LLM training data leakage?",
+      "options": [
+        "Encrypts the model weights at rest",
+        "Adds calibrated noise so individual data points cannot be recovered",
+        "Separates training and inference networks",
+        "Rate-limits queries per API key"
+      ],
+      "correct_index": 1,
+      "explanation": "Differential privacy adds mathematically calibrated noise to training updates (DP-SGD) providing a formal guarantee that the presence or absence of any single individual's data cannot be determined from the model's outputs."
+    },
+    {
+      "question": "Which of the following best describes a 'jailbreak' in the context of LLM security?",
+      "options": [
+        "Gaining root access to the server running the LLM",
+        "Bypassing an LLM's safety guidelines to produce prohibited content",
+        "Stealing the model's API key from the application",
+        "Extracting the system prompt via social engineering"
+      ],
+      "correct_index": 1,
+      "explanation": "A jailbreak is a prompt-based technique that causes an LLM to violate its safety training and produce content the model was designed to refuse. It operates within the model's input/output API, not at the infrastructure level."
+    },
+    {
+      "question": "ISO/IEC 42001 provides a framework for which of the following?",
+      "options": [
+        "Cryptographic key management for AI systems",
+        "AI management systems — governance, risk, and responsible AI",
+        "Software testing for neural network components",
+        "Privacy impact assessments under GDPR"
+      ],
+      "correct_index": 1,
+      "explanation": "ISO/IEC 42001 specifies requirements for establishing, implementing, maintaining, and continually improving an AI management system — covering governance, accountability, and responsible AI practices."
+    },
+    {
+      "question": "In an LLM agent architecture, 'memory contamination' refers to which attack?",
+      "options": [
+        "Overloading the context window to cause OOM errors",
+        "Injecting false memories into an agent's persistent storage to influence future decisions",
+        "Stealing conversation history from the server",
+        "Corrupting the model's attention weights"
+      ],
+      "correct_index": 1,
+      "explanation": "Memory contamination attacks inject false or malicious information into an agent's long-term memory store. On future invocations, the agent retrieves this poisoned context and acts on it, enabling persistent control of agent behaviour."
+    },
+    {
+      "question": "A developer uses LLM output directly in a shell command: `os.system(f'process {llm_output}')`. Which OWASP LLM category is most relevant?",
+      "options": [
+        "LLM01 — Prompt Injection",
+        "LLM02 — Insecure Output Handling",
+        "LLM08 — Excessive Agency",
+        "LLM05 — Supply-Chain Vulnerabilities"
+      ],
+      "correct_index": 1,
+      "explanation": "LLM02 (Insecure Output Handling) covers cases where LLM output is passed to downstream interpreters (shell, SQL, HTML) without sanitisation. Here the LLM output could contain shell metacharacters enabling command injection."
+    },
+    {
+      "question": "Which of the following is a concrete control to mitigate indirect prompt injection in a RAG-based agent?",
+      "options": [
+        "Increase the model temperature to reduce determinism",
+        "Store documents in an encrypted database",
+        "Apply a separate LLM to classify retrieved content before including it in context",
+        "Use a smaller embedding model"
+      ],
+      "correct_index": 2,
+      "explanation": "Using a classifier LLM to screen retrieved documents for instruction-like content before including them in the main agent's context window is a practical defence against indirect prompt injection, breaking the trust assumption on retrieved content."
+    }
+  ]
+}

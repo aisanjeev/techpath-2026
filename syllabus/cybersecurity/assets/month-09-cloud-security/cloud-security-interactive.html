@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Security — IAM Policy Analyser & Shared Responsibility</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#263045;--border:#334155;--text:#e2e8f0;--dim:#94a3b8;--accent:#38bdf8;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--orange:#fb923c;--purple:#c084fc;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:20px;min-height:100vh;}
+h1{text-align:center;font-size:1.5rem;margin-bottom:4px;}
+.sub{text-align:center;color:var(--dim);font-size:.88rem;margin-bottom:20px;}
+.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+.tab{padding:8px 18px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:.88rem;color:var(--dim);background:var(--card);transition:.2s;}
+.tab.active{background:var(--accent);color:#0f172a;border-color:var(--accent);font-weight:700;}
+.panel{display:none;max-width:960px;margin:0 auto;}
+.panel.active{display:block;}
+textarea{width:100%;background:#080c14;border:1.5px solid var(--border);border-radius:8px;padding:12px;color:var(--green);font-family:'Courier New',monospace;font-size:.82rem;resize:vertical;outline:none;}
+textarea:focus{border-color:var(--accent);}
+.btn{padding:8px 20px;border-radius:8px;border:none;cursor:pointer;font-size:.88rem;font-weight:600;transition:.2s;margin-top:8px;}
+.btn-primary{background:var(--accent);color:#0f172a;}
+.btn:hover{opacity:.85;}
+.findings{margin-top:14px;}
+.finding{display:flex;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:6px;align-items:flex-start;font-size:.85rem;line-height:1.5;}
+.finding.critical{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);}
+.finding.high{background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.3);}
+.finding.medium{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);}
+.finding.info{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);}
+.finding-icon{font-size:1rem;flex-shrink:0;margin-top:1px;}
+.finding-title{font-weight:700;margin-bottom:2px;}
+.sev{font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:20px;margin-left:6px;}
+.sev-c{background:rgba(248,113,113,.2);color:var(--red);}
+.sev-h{background:rgba(251,146,60,.2);color:var(--orange);}
+.sev-m{background:rgba(251,191,36,.2);color:var(--yellow);}
+.sev-ok{background:rgba(74,222,128,.2);color:var(--green);}
+/* Shared Responsibility */
+.sr-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin-bottom:14px;}
+@media(max-width:600px){.sr-grid{grid-template-columns:1fr;}}
+.sr-col{background:var(--card);border-radius:8px;overflow:hidden;}
+.sr-header{padding:10px 14px;font-size:.82rem;font-weight:700;text-align:center;}
+.sr-item{padding:8px 12px;font-size:.8rem;border-top:1px solid var(--border);cursor:pointer;transition:.15s;line-height:1.4;}
+.sr-item:hover{background:var(--card2);}
+.sr-item.customer{border-left:3px solid var(--accent);}
+.sr-item.provider{border-left:3px solid var(--green);}
+.sr-item.shared{border-left:3px solid var(--yellow);}
+.sr-detail{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:10px;font-size:.85rem;line-height:1.6;color:var(--dim);display:none;}
+.sr-detail.show{display:block;}
+/* Attack Paths */
+.path-list{display:flex;flex-direction:column;gap:8px;}
+.path-card{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:.2s;}
+.path-card:hover,.path-card.open{border-color:var(--red);}
+.path-head{display:flex;gap:10px;align-items:center;}
+.path-risk{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;}
+.path-steps{margin-top:10px;display:none;}
+.path-card.open .path-steps{display:block;}
+.step-chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;}
+.step-box{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:.78rem;font-family:'Courier New',monospace;}
+.step-arrow{color:var(--red);font-weight:700;}
+.defend{margin-top:10px;padding:10px 12px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);border-radius:6px;font-size:.8rem;line-height:1.6;}
+</style>
+</head>
+<body>
+<h1>☁️ Cloud Security — Interactive Explorer</h1>
+<p class="sub">Month 09 · IAM Policy Analyser · Shared Responsibility · Cloud Attack Paths</p>
+
+<div class="tabs">
+  <div class="tab active" onclick="showPanel('iam')">IAM Policy Analyser</div>
+  <div class="tab" onclick="showPanel('sr')">Shared Responsibility</div>
+  <div class="tab" onclick="showPanel('attacks')">Cloud Attack Paths</div>
+</div>
+
+<!-- IAM ANALYSER -->
+<div class="panel active" id="panel-iam">
+  <p style="font-size:.85rem;color:var(--dim);margin-bottom:10px">Paste an AWS IAM policy JSON below. The analyser will check for dangerous permissions and misconfigurations.</p>
+  <textarea id="policy-input" rows="14">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateUser",
+        "iam:AttachUserPolicy"
+      ],
+      "Resource": "*"
+    }
+  ]
+}</textarea>
+  <button class="btn btn-primary" onclick="analysePolicy()">Analyse Policy</button>
+  <div class="findings" id="findings"></div>
+</div>
+
+<!-- SHARED RESPONSIBILITY -->
+<div class="panel" id="panel-sr">
+  <p style="font-size:.85rem;color:var(--dim);margin-bottom:12px">The shared responsibility model defines what the cloud PROVIDER secures vs what the CUSTOMER must secure. Click any item to learn more.</p>
+  <div class="sr-grid">
+    <div class="sr-col">
+      <div class="sr-header" style="background:rgba(56,189,248,.15);color:var(--accent)">Customer Responsibility</div>
+      <div class="sr-item customer" onclick="showSR(this,'Data classification and encryption','You are responsible for classifying your data (PII, sensitive, public) and encrypting it appropriately. Cloud providers give you the tools but you must configure them.')">Data classification & encryption</div>
+      <div class="sr-item customer" onclick="showSR(this,'Identity & Access Management','You control who has access to your cloud resources and what they can do. IAM policies, MFA enforcement, role assignments — all customer responsibility.')">IAM policies & user access</div>
+      <div class="sr-item customer" onclick="showSR(this,'Application security','Your application code, its vulnerabilities, and its configuration are your responsibility. AWS securing its servers does not protect your vulnerable web app.')">Application code & config</div>
+      <div class="sr-item customer" onclick="showSR(this,'Network traffic protection','You configure security groups, NACLs, VPC routes, and web application firewalls. The provider gives you the building blocks.')">Network security controls</div>
+      <div class="sr-item customer" onclick="showSR(this,'Client-side data protection','Encrypting data before it reaches the cloud, managing your encryption keys, and securing client devices are entirely your responsibility.')">Client-side encryption</div>
+      <div class="sr-item customer" onclick="showSR(this,'Operating system & firewall (IaaS)','For EC2/VMs, you patch and maintain the operating system, configure the host firewall, and harden the instance. Provider manages the hardware beneath.')">OS patching (IaaS/VMs)</div>
+    </div>
+    <div class="sr-col">
+      <div class="sr-header" style="background:rgba(251,191,36,.12);color:var(--yellow)">Shared</div>
+      <div class="sr-item shared" onclick="showSR(this,'Patch management — shared scope','AWS patches its managed services (RDS, Lambda). You patch your EC2 OS and application dependencies. The line varies by service type (IaaS vs PaaS vs SaaS).')">Patch management</div>
+      <div class="sr-item shared" onclick="showSR(this,'Configuration management','Cloud provider ensures services work as designed. Customer must configure them securely — an S3 bucket left public is your misconfiguration, not AWS\'s vulnerability.')">Configuration management</div>
+      <div class="sr-item shared" onclick="showSR(this,'Awareness & training','Provider publishes security documentation and best practices. Customer must train staff to follow them. A phishing attack on your employees is not an AWS failure.')">Security awareness</div>
+      <div class="sr-item shared" onclick="showSR(this,'Incident response','AWS has tools (GuardDuty, CloudTrail) to detect events. You must monitor them, have a response plan, and actually respond. AWS won\'t call you when you\'re breached.')">Incident response</div>
+    </div>
+    <div class="sr-col">
+      <div class="sr-header" style="background:rgba(74,222,128,.12);color:var(--green)">Provider Responsibility</div>
+      <div class="sr-item provider" onclick="showSR(this,'Physical security of data centres','AWS/Azure/GCP physically secure their data centres with guards, biometrics, CCTV, and strict access controls. Customers never need to worry about this.')">Physical DC security</div>
+      <div class="sr-item provider" onclick="showSR(this,'Hardware and infrastructure','Servers, networking equipment, storage hardware — all owned and secured by the cloud provider. Hardware failures, replacements, and disposal are their problem.')">Hardware & infrastructure</div>
+      <div class="sr-item provider" onclick="showSR(this,'Virtualisation layer','The hypervisor separating your VMs from other customers\' VMs. Cloud providers invest heavily in hypervisor security and patch it continuously.')">Virtualisation / hypervisor</div>
+      <div class="sr-item provider" onclick="showSR(this,'Network infrastructure','The global backbone, edge PoPs, and inter-DC networking. AWS Global Accelerator, Azure ExpressRoute — the provider secures the global network fabric.')">Global network fabric</div>
+      <div class="sr-item provider" onclick="showSR(this,'Managed service patching','For PaaS services (RDS, DynamoDB, Lambda), the provider patches the underlying engine. You choose when to apply major version upgrades but they handle security patches.')">Managed service patching</div>
+    </div>
+  </div>
+  <div class="sr-detail" id="sr-detail"></div>
+</div>
+
+<!-- ATTACK PATHS -->
+<div class="panel" id="panel-attacks">
+  <p style="font-size:.85rem;color:var(--dim);margin-bottom:12px">Common cloud attack paths. Click each to see the step-by-step exploitation chain and defences.</p>
+  <div class="path-list">
+    <div class="path-card" onclick="togglePath(this)">
+      <div class="path-head"><span style="font-size:1.2rem">🪣</span><strong>Exposed S3 Bucket → Data Breach</strong><span class="path-risk" style="background:rgba(248,113,113,.2);color:var(--red)">CRITICAL</span></div>
+      <div class="path-steps">
+        <div class="step-chain">
+          <div class="step-box">OSINT / Shodan scan</div><span class="step-arrow">→</span>
+          <div class="step-box">Find s3://company-backups public</div><span class="step-arrow">→</span>
+          <div class="step-box">aws s3 ls s3://company-backups</div><span class="step-arrow">→</span>
+          <div class="step-box">Download entire bucket</div><span class="step-arrow">→</span>
+          <div class="step-box">Find DB dumps, API keys, PII</div>
+        </div>
+        <div class="defend"><strong style="color:var(--green)">Defences:</strong> Enable S3 Block Public Access at account level. Use AWS Config rule 's3-bucket-public-read-prohibited'. Enable GuardDuty S3 Protection. Scan for public buckets with Prowler regularly.</div>
+      </div>
+    </div>
+    <div class="path-card" onclick="togglePath(this)">
+      <div class="path-head"><span style="font-size:1.2rem">🔑</span><strong>Leaked AWS Keys → Full Account Takeover</strong><span class="path-risk" style="background:rgba(248,113,113,.2);color:var(--red)">CRITICAL</span></div>
+      <div class="path-steps">
+        <div class="step-chain">
+          <div class="step-box">GitHub scraper finds AWS keys in .env file</div><span class="step-arrow">→</span>
+          <div class="step-box">aws sts get-caller-identity (verify working)</div><span class="step-arrow">→</span>
+          <div class="step-box">Enumerate permissions (CloudMapper/Pacu)</div><span class="step-arrow">→</span>
+          <div class="step-box">Escalate to admin via iam:CreatePolicyVersion</div><span class="step-arrow">→</span>
+          <div class="step-box">Launch crypto miners, exfil data, pivot</div>
+        </div>
+        <div class="defend"><strong style="color:var(--green)">Defences:</strong> Use GitHub secret scanning. Enable GuardDuty (detects anomalous API calls). Use IAM roles instead of access keys. Rotate keys every 90 days. Set up CloudTrail alerts for unusual IAM activity.</div>
+      </div>
+    </div>
+    <div class="path-card" onclick="togglePath(this)">
+      <div class="path-head"><span style="font-size:1.2rem">⚡</span><strong>SSRF → AWS Metadata → Role Credentials</strong><span class="path-risk" style="background:rgba(248,113,113,.2);color:var(--red)">HIGH</span></div>
+      <div class="path-steps">
+        <div class="step-chain">
+          <div class="step-box">Find SSRF vuln in web app</div><span class="step-arrow">→</span>
+          <div class="step-box">Fetch http://169.254.169.254/latest/meta-data/iam/security-credentials/</div><span class="step-arrow">→</span>
+          <div class="step-box">Get temporary role credentials (AccessKey+Secret+Token)</div><span class="step-arrow">→</span>
+          <div class="step-box">Use credentials from attacker's machine</div><span class="step-arrow">→</span>
+          <div class="step-box">Pivot to other AWS services</div>
+        </div>
+        <div class="defend"><strong style="color:var(--green)">Defences:</strong> Enable IMDSv2 (requires PUT token before GET — blocks simple SSRF). Fix the SSRF vulnerability. Limit EC2 role permissions to minimum needed. Use GuardDuty to detect unusual API calls from EC2.</div>
+      </div>
+    </div>
+    <div class="path-card" onclick="togglePath(this)">
+      <div class="path-head"><span style="font-size:1.2rem">📦</span><strong>Malicious Container Image → Cluster Compromise</strong><span class="path-risk" style="background:rgba(251,146,60,.2);color:var(--orange)">HIGH</span></div>
+      <div class="path-steps">
+        <div class="step-chain">
+          <div class="step-box">Attacker pushes malicious image to public registry</div><span class="step-arrow">→</span>
+          <div class="step-box">Developer pulls "official-looking" image</div><span class="step-arrow">→</span>
+          <div class="step-box">Container deployed with host network access</div><span class="step-arrow">→</span>
+          <div class="step-box">Escape to host node</div><span class="step-arrow">→</span>
+          <div class="step-box">Access cloud metadata → IAM role → AWS APIs</div>
+        </div>
+        <div class="defend"><strong style="color:var(--green)">Defences:</strong> Scan images with Trivy before deployment. Use private registries with signing. Enforce Pod Security Standards (restricted). Use securityContext to run as non-root. Enable Falco for runtime threat detection.</div>
+      </div>
+    </div>
+    <div class="path-card" onclick="togglePath(this)">
+      <div class="path-head"><span style="font-size:1.2rem">🏗️</span><strong>Terraform Misconfiguration → Exposed DB</strong><span class="path-risk" style="background:rgba(251,191,36,.2);color:var(--yellow)">MEDIUM</span></div>
+      <div class="path-steps">
+        <div class="step-chain">
+          <div class="step-box">RDS created with publicly_accessible = true</div><span class="step-arrow">→</span>
+          <div class="step-box">Security group allows 0.0.0.0/0 on port 5432</div><span class="step-arrow">→</span>
+          <div class="step-box">Shodan finds the exposed PostgreSQL endpoint</div><span class="step-arrow">→</span>
+          <div class="step-box">Brute force weak DB password</div><span class="step-arrow">→</span>
+          <div class="step-box">Full database access</div>
+        </div>
+        <div class="defend"><strong style="color:var(--green)">Defences:</strong> Run Checkov on all Terraform before apply (check CKV_AWS_17 for RDS public access). Never allow 0.0.0.0/0 to DB ports. Put RDS in private subnet. Use AWS Secrets Manager for DB passwords. Enable RDS encryption.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function analysePolicy(){
+  const text=document.getElementById('policy-input').value;
+  const findings=[];
+  let policy;
+  try{policy=JSON.parse(text);}catch(e){
+    document.getElementById('findings').innerHTML='<div class="finding critical"><span class="finding-icon">❌</span><div><div class="finding-title">Invalid JSON</div>'+e.message+'</div></div>';
+    return;
+  }
+  const stmts=policy.Statement||[];
+  stmts.forEach((s,i)=>{
+    const actions=[].concat(s.Action||[]);
+    const resources=[].concat(s.Resource||[]);
+    const effect=s.Effect||'Allow';
+    if(effect!=='Allow') return;
+    const hasWildcardAction=actions.some(a=>a==='*'||a.endsWith(':*'));
+    const hasWildcardResource=resources.some(r=>r==='*');
+    if(actions.some(a=>a==='*')&&hasWildcardResource){
+      findings.push({sev:'critical',icon:'🚨',title:'Full Admin Access',msg:`Statement ${i+1}: Action "*" on Resource "*" grants complete admin access to ALL AWS services. Only the root account or dedicated break-glass admins should ever have this.`});
+    } else if(hasWildcardAction){
+      const svcs=[...new Set(actions.filter(a=>a.endsWith(':*')).map(a=>a.split(':')[0]))];
+      findings.push({sev:'high',icon:'⚠️',title:`Wildcard Action on: ${svcs.join(', ')}`,msg:`Statement ${i+1}: Using "${svcs.map(s=>s+':*').join('", "')}" grants ALL permissions for this service. Enumerate specifically which actions are needed.`});
+    }
+    if(hasWildcardResource&&!hasWildcardAction){
+      findings.push({sev:'medium',icon:'🔔',title:'Wildcard Resource',msg:`Statement ${i+1}: Resource "*" applies to ALL resources of the specified type. Restrict to specific ARNs where possible (e.g., arn:aws:s3:::my-bucket/*, not *).`});
+    }
+    const dangerousIAM=['iam:CreateUser','iam:AttachUserPolicy','iam:PutUserPolicy','iam:CreatePolicyVersion','iam:AddUserToGroup','iam:PassRole'];
+    const foundDangerous=actions.filter(a=>dangerousIAM.includes(a));
+    if(foundDangerous.length>0){
+      findings.push({sev:'critical',icon:'🚨',title:'IAM Privilege Escalation Risk',msg:`Statement ${i+1}: Contains ${foundDangerous.join(', ')} — these permissions can be chained to escalate to full admin. If a principal with these permissions is compromised, the attacker can grant themselves any permission.`});
+    }
+    const dangerousSTS=['sts:AssumeRole'];
+    if(actions.some(a=>dangerousSTS.includes(a))&&hasWildcardResource){
+      findings.push({sev:'high',icon:'⚠️',title:'Unrestricted Role Assumption',msg:`Statement ${i+1}: sts:AssumeRole on Resource "*" allows assuming ANY role in the account. Add conditions to restrict which roles can be assumed, or restrict to specific role ARNs.`});
+    }
+    if(!s.Condition){
+      if(hasWildcardResource){
+        findings.push({sev:'medium',icon:'🔔',title:'No Condition Keys',msg:`Statement ${i+1}: Consider adding Condition keys to restrict when this statement applies — e.g., aws:RequestedRegion, aws:SourceVpc, aws:MultiFactorAuthPresent.`});
+      }
+    }
+  });
+  if(findings.length===0){
+    findings.push({sev:'ok',icon:'✅',title:'No major issues detected',msg:'This policy does not contain wildcard admin access or obvious privilege escalation paths. Review each action and resource ARN to ensure minimum required permissions.'});
+  }
+  const sevOrder={critical:0,high:1,medium:2,ok:3};
+  findings.sort((a,b)=>sevOrder[a.sev]-sevOrder[b.sev]);
+  const sevLabel={critical:'CRITICAL',high:'HIGH',medium:'MEDIUM',ok:'OK'};
+  const sevClass={critical:'sev-c',high:'sev-h',medium:'sev-m',ok:'sev-ok'};
+  document.getElementById('findings').innerHTML=findings.map(f=>`
+<div class="finding ${f.sev}">
+  <span class="finding-icon">${f.icon}</span>
+  <div>
+    <div class="finding-title">${f.title} <span class="sev ${sevClass[f.sev]}">${sevLabel[f.sev]}</span></div>
+    <div style="color:var(--dim);font-size:.83rem">${f.msg}</div>
+  </div>
+</div>`).join('');
+}
+
+function showSR(el,title,desc){
+  const detail=document.getElementById('sr-detail');
+  detail.innerHTML=`<strong style="color:var(--text)">${title}</strong><br>${desc}`;
+  detail.classList.add('show');
+}
+
+function togglePath(el){
+  const wasOpen=el.classList.contains('open');
+  document.querySelectorAll('.path-card').forEach(c=>c.classList.remove('open'));
+  if(!wasOpen) el.classList.add('open');
+}
+
+// Auto-analyse default policy on load
+analysePolicy();
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "asset_type": "lab",
+  "title": "Wireshark: Capturing and Analysing Web Traffic",
+  "description": "Students capture live network traffic using Wireshark, then isolate and analyse DNS queries, TCP handshakes, TLS negotiation, and HTTP payloads to understand what travels across the wire.",
+  "tags": ["Wireshark", "TCP/IP", "DNS", "TLS", "Packet Analysis", "Networking"],
+  "status": "draft",
+  "objective": "Students will use Wireshark to capture packets, apply protocol filters, and annotate at least four distinct protocol interactions — demonstrating practical understanding of how DNS, TCP, TLS, and HTTP operate at the packet level.",
+  "steps": [
+    {
+      "title": "Install Wireshark and Start a Capture",
+      "instructions": "Download and install Wireshark from https://www.wireshark.org/download.html\n\nLaunch Wireshark. On the start screen, you will see a list of network interfaces with activity graphs. Select your **active interface** (the one showing traffic — typically `Ethernet 0` or `Wi-Fi`).\n\nClick the **blue shark-fin** icon (or press `Ctrl+E`) to begin capturing. Leave it running.\n\n> **Important:** Wireshark may require elevated privileges on Linux. Run:\n> ```\n> sudo wireshark\n> # OR add yourself to the wireshark group:\n> sudo usermod -aG wireshark $USER\n> ```\n\nYou should immediately see packets appearing. This confirms the capture is working."
+    },
+    {
+      "title": "Generate Traffic: DNS, HTTP, and HTTPS",
+      "instructions": "With the capture running, open a terminal and run the following commands to generate specific traffic types:\n\n**Generate DNS traffic:**\n```bash\nnslookup wikipedia.org\nnslookup github.com 8.8.8.8\n```\n\n**Generate HTTP (unencrypted) traffic:**\nOpen a browser and navigate to:\n```\nhttp://neverssl.com\n```\nThis site intentionally serves unencrypted HTTP — ideal for Wireshark inspection.\n\n**Generate HTTPS (TLS) traffic:**\n```\nhttps://example.com\nhttps://wikipedia.org\n```\n\n**Generate ICMP traffic (ping):**\n```bash\nping -c 4 8.8.8.8\n```\n\nWait 30 seconds, then stop the capture by pressing `Ctrl+E` or clicking the red stop square."
+    },
+    {
+      "title": "Filter and Analyse DNS Traffic",
+      "instructions": "In Wireshark's filter bar (green bar at the top), type `dns` and press Enter.\n\nYou should see DNS query and response pairs. Click on a DNS **query** packet (the one going *to* port 53).\n\nIn the packet details panel, expand **Domain Name System (query)** and find:\n- The queried name (e.g., `wikipedia.org`)\n- The query type (should be `A` for IPv4)\n\nNow click the corresponding DNS **response** (same transaction ID, direction reversed). Find:\n- The answer section — note the returned IP address\n- The TTL value (how long to cache the result)\n\n**Screenshot:** Take a screenshot showing the DNS query and response. Draw arrows or annotate (in any image editor) pointing to: transaction ID, query name, record type, returned IP, TTL.\n\n**Tip:** `Right-click → Follow → UDP Stream` shows the full DNS conversation as decoded text."
+    },
+    {
+      "title": "Identify a TCP Three-Way Handshake",
+      "instructions": "Clear the filter and type: `tcp.flags.syn == 1`\n\nThis shows all TCP SYN packets — the start of new connections. Click on any SYN packet.\n\nIn the details panel, note:\n- Source IP and destination IP\n- Source port (ephemeral, e.g., 52341) and destination port (e.g., 80 or 443)\n- Flags: `SYN` is set, `ACK` is not\n\nNow modify the filter to: `tcp and (ip.addr == [the destination IP from above])`\n\nYou should see the full 3-way handshake sequence:\n1. **SYN** — client to server (Flags: SYN)\n2. **SYN-ACK** — server to client (Flags: SYN, ACK)\n3. **ACK** — client to server (Flags: ACK)\n\n**Screenshot:** Capture the 3-packet handshake. Annotate each packet with its role (SYN / SYN-ACK / ACK) and the port numbers shown.\n\n```bash\n# Verify: what does the source port number tell you?\n# Ephemeral ports (1024-65535) are assigned by the OS to outbound connections.\n# Well-known destination ports (80, 443) identify the service.\n```"
+    },
+    {
+      "title": "Inspect TLS Handshake and Compare with HTTP",
+      "instructions": "**Part A — TLS Client Hello:**\nApply the filter: `tls.handshake.type == 1`\n\nThis shows only TLS Client Hello packets. Click one and expand **Transport Layer Security → TLSv1.3 Record Layer → Handshake Protocol: Client Hello**.\n\nDocument:\n- TLS version supported\n- At least 3 cipher suites offered (e.g., `TLS_AES_256_GCM_SHA384`)\n- SNI (Server Name Indication) — the target hostname in plaintext\n\n**Screenshot:** Show the expanded Client Hello with cipher suites visible.\n\n**Part B — HTTP payload visibility:**\nApply filter: `http`\n\nClick any HTTP packet and expand **Hypertext Transfer Protocol**. If you visited `http://neverssl.com`, you should see the full GET request including:\n- The exact URL path requested\n- User-Agent (browser version)\n- Any cookies sent\n\nCompare: With `tls` filter, the same level of detail is not visible — you only see encrypted records.\n\n**Written submission:** In 3–5 sentences, explain what an attacker on the same Wi-Fi network could learn from the HTTP traffic versus the HTTPS traffic. Include what SNI leaks even in TLS connections."
+    }
+  ],
+  "expected_output": "Students submit: (1) A PDF or document containing 4 annotated screenshots — DNS, TCP handshake, TLS Client Hello, HTTP payload. (2) Written answers to the comparison question. (3) A list of at least 3 cipher suites from the Client Hello. Each screenshot must have labels or arrows identifying the key fields described in each step."
+}

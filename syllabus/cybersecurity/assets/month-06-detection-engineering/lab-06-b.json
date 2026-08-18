@@ -1,0 +1,31 @@
+{
+  "asset_type": "lab",
+  "title": "Build a SOAR Triage Playbook with Shuffle",
+  "description": "Build an automated phishing triage playbook using Shuffle (free, open-source SOAR). The playbook automatically enriches indicators, quarantines emails, creates tickets, and notifies the analyst.",
+  "tags": ["soar", "shuffle", "automation", "phishing", "incident-response", "playbook"],
+  "status": "draft",
+  "objective": "Students will build and test a working SOAR playbook that automates the first 5 minutes of phishing incident response — the most common task an L1 SOC analyst performs.",
+  "steps": [
+    {
+      "title": "Set Up Shuffle SOAR",
+      "instructions": "**Option A — Cloud (fastest):**\nRegister at https://shuffler.io/ — free tier available\n\n**Option B — Self-hosted (Docker):**\n```bash\ngit clone https://github.com/Shuffle/Shuffle\ncd Shuffle\ndocker-compose up -d\n# Access at http://localhost:3001\n# Default: admin@example.com / password\n```\n\nOnce logged in:\n1. Click **Workflows** in the left sidebar\n2. Click **+ New Workflow**\n3. Name it: `Phishing Triage Playbook`\n4. Click the canvas to open the workflow editor\n\nYou'll build the playbook by dragging and connecting 'apps' (nodes) on the canvas."
+    },
+    {
+      "title": "Add a Webhook Trigger",
+      "instructions": "A webhook is how your SIEM or email gateway will send alerts to Shuffle.\n\n1. In the workflow editor, click **+ Trigger**\n2. Select **Webhook** from the trigger list\n3. Name it: `SIEM Phishing Alert`\n4. Click the webhook node → copy the **Webhook URL**\n\nThis URL is what your SIEM would POST to when a phishing alert fires.\n\n**Test the webhook manually** using curl:\n```bash\ncurl -X POST https://shuffler.io/api/v1/hooks/webhook_YOUR_ID \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"alert_name\": \"Phishing Email Detected\",\n    \"sender_ip\": \"45.33.32.156\",\n    \"sender_email\": \"attacker@evil-domain.com\",\n    \"subject\": \"Urgent: Verify your account\",\n    \"recipient\": \"employee@company.com\"\n  }'\n```\n\nVerify in Shuffle that the execution appeared in the **Runs** tab."
+    },
+    {
+      "title": "Add IP Reputation Check (AbuseIPDB)",
+      "instructions": "Add an automatic check of the sender's IP reputation:\n\n1. Search for **HTTP** app in the left panel → drag to canvas\n2. Connect: Webhook → HTTP node\n3. Configure the HTTP node:\n   - URL: `https://api.abuseipdb.com/api/v2/check?ipAddress=$exec.sender_ip&maxAgeInDays=90`\n   - Method: GET\n   - Headers: `Key=0` → `Key: apiKey`, `Value: YOUR_ABUSEIPDB_KEY`\n\n**Get a free API key:** https://www.abuseipdb.com/register\n\n4. Name this node: `Check IP Reputation`\n\nThe response JSON will include:\n```json\n{\"data\": {\"abuseConfidenceScore\": 85, \"countryCode\": \"RU\", \"totalReports\": 42}}\n```\n\nAdd a **Condition** node after:\n- IF `$check_ip.data.abuseConfidenceScore > 50` → HIGH RISK path\n- ELSE → INVESTIGATE path"
+    },
+    {
+      "title": "Add Alert Creation and Notification",
+      "instructions": "**Add a ticket/notification step:**\n\n1. Drag another **HTTP** node to the HIGH RISK path\n2. This will simulate creating a ticket (or use a real integration like Jira or TheHive)\n3. Configure:\n   - URL: `https://webhook.site/YOUR_TEST_URL` (get a free test endpoint at webhook.site)\n   - Method: POST\n   - Body (JSON):\n```json\n{\n  \"title\": \"HIGH RISK Phishing Detected\",\n  \"severity\": \"HIGH\",\n  \"sender_email\": \"$exec.sender_email\",\n  \"sender_ip\": \"$exec.sender_ip\",\n  \"ip_score\": \"$check_ip.data.abuseConfidenceScore\",\n  \"action_taken\": \"IP flagged, analyst notified\",\n  \"analyst\": \"SOC Team\"\n}\n```\n\n4. Name it: `Create High Risk Ticket`\n\n**For the INVESTIGATE path (score < 50):**\nAdd another HTTP node sending to the same webhook.site but with severity: `MEDIUM`\n\nName the whole workflow clearly with node labels."
+    },
+    {
+      "title": "Test the Full Playbook End-to-End",
+      "instructions": "Run your playbook end-to-end with two test cases:\n\n**Test 1 — High Risk IP (known malicious):**\n```bash\ncurl -X POST [YOUR_WEBHOOK_URL] \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"sender_ip\": \"45.33.32.156\",\n    \"sender_email\": \"attacker@evil.com\",\n    \"subject\": \"Your account has been compromised\"\n  }'\n```\nVerify: Shuffle shows a HIGH RISK ticket was created\n\n**Test 2 — Low Risk IP:**\n```bash\ncurl -X POST [YOUR_WEBHOOK_URL] \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"sender_ip\": \"8.8.8.8\",\n    \"sender_email\": \"info@google.com\",\n    \"subject\": \"Newsletter\"\n  }'\n```\nVerify: Shuffle shows a MEDIUM/INVESTIGATE ticket was created\n\n**Document:**\n- Screenshot of your Shuffle workflow canvas showing all connected nodes\n- Screenshot of both test executions in the Runs tab\n- Screenshot of tickets received at webhook.site\n\nPush your playbook export (JSON) to GitHub: **Workflows → Export**"
+    }
+  ],
+  "expected_output": "A working Shuffle SOAR playbook (exported as JSON on GitHub) with screenshots showing: the workflow canvas, two successful test runs (high-risk and low-risk), and the generated alert/ticket outputs."
+}

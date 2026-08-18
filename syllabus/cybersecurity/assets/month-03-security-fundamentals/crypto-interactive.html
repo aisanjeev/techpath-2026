@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cryptography & Attack Types — Interactive Explorer</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#263045;--border:#334155;--text:#e2e8f0;--dim:#94a3b8;--accent:#38bdf8;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--purple:#c084fc;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:20px;min-height:100vh;}
+h1{text-align:center;font-size:1.5rem;margin-bottom:4px;}
+.sub{text-align:center;color:var(--dim);font-size:.9rem;margin-bottom:20px;}
+.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+.tab{padding:8px 18px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:.9rem;color:var(--dim);background:var(--card);transition:.2s;}
+.tab:hover{border-color:var(--accent);color:var(--text);}
+.tab.active{background:var(--accent);color:#0f172a;border-color:var(--accent);font-weight:700;}
+.panel{display:none;max-width:900px;margin:0 auto;}
+.panel.active{display:block;}
+/* Crypto cards */
+.crypto-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:16px;}
+.crypto-card{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:.2s;}
+.crypto-card:hover{border-color:var(--accent);background:var(--card2);}
+.crypto-card.selected{border-color:var(--accent);background:var(--card2);}
+.cc-label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.cc-name{font-size:1.05rem;font-weight:700;margin-bottom:4px;}
+.cc-desc{font-size:.82rem;color:var(--dim);line-height:1.5;}
+.detail{background:var(--card2);border:1.5px solid var(--accent);border-radius:10px;padding:18px;margin-top:4px;}
+.detail h3{color:var(--accent);margin-bottom:10px;}
+.detail p{font-size:.88rem;line-height:1.6;color:var(--dim);margin-bottom:8px;}
+.detail code{background:#0f172a;border:1px solid var(--border);border-radius:4px;padding:8px 12px;display:block;font-size:.8rem;color:var(--green);margin:8px 0;font-family:'Courier New',monospace;white-space:pre;}
+.prop-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.prop{padding:3px 10px;border-radius:20px;font-size:.78rem;font-weight:600;}
+/* Attack explorer */
+.attack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:16px;}
+.attack-btn{padding:12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;text-align:center;background:var(--card);transition:.2s;}
+.attack-btn:hover,.attack-btn.active{border-color:var(--yellow);background:var(--card2);}
+.attack-icon{font-size:1.5rem;margin-bottom:4px;}
+.attack-label{font-size:.78rem;font-weight:600;}
+.attack-detail{background:var(--card);border:1.5px solid var(--yellow);border-radius:10px;padding:18px;margin-top:4px;display:none;}
+.attack-detail.show{display:block;}
+.cia-badges{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap;}
+.cia{padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700;}
+.cia-c{background:rgba(56,189,248,.15);color:var(--accent);}
+.cia-i{background:rgba(74,222,128,.15);color:var(--green);}
+.cia-a{background:rgba(251,191,36,.15);color:var(--yellow);}
+.defence-list{margin-top:10px;}
+.defence-item{font-size:.83rem;color:var(--dim);padding:4px 0;padding-left:16px;position:relative;line-height:1.5;}
+.defence-item::before{content:'✓';position:absolute;left:0;color:var(--green);}
+/* Hash simulator */
+.hash-input{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.hash-input textarea{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:.9rem;resize:vertical;min-height:60px;font-family:inherit;}
+.hash-input textarea:focus{outline:none;border-color:var(--accent);}
+.hash-results{display:grid;gap:8px;}
+.hash-row{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:12px;}
+.hash-algo{font-size:.75rem;font-weight:700;color:var(--accent);text-transform:uppercase;margin-bottom:4px;}
+.hash-value{font-family:'Courier New',monospace;font-size:.8rem;color:var(--green);word-break:break-all;}
+.hash-note{font-size:.75rem;color:var(--dim);margin-top:4px;}
+.btn{padding:8px 20px;border-radius:8px;border:none;cursor:pointer;font-size:.9rem;font-weight:600;transition:.2s;}
+.btn-primary{background:var(--accent);color:#0f172a;}
+.btn-primary:hover{opacity:.85;}
+</style>
+</head>
+<body>
+<h1>🔐 Cryptography & Security — Interactive Explorer</h1>
+<p class="sub">Month 03 · Security Fundamentals</p>
+
+<div class="tabs">
+  <div class="tab active" onclick="showPanel('crypto')">Cryptography Types</div>
+  <div class="tab" onclick="showPanel('attacks')">Attack Types</div>
+  <div class="tab" onclick="showPanel('hash')">Hash Simulator</div>
+</div>
+
+<!-- PANEL 1: CRYPTO -->
+<div class="panel active" id="panel-crypto">
+  <div class="crypto-grid">
+    <div class="crypto-card" onclick="showCrypto('hash')">
+      <div class="cc-label" style="color:var(--accent)">One-Way</div>
+      <div class="cc-name">🔢 Hashing</div>
+      <div class="cc-desc">Produces a fixed-size fingerprint of any data. Cannot be reversed.</div>
+    </div>
+    <div class="crypto-card" onclick="showCrypto('sym')">
+      <div class="cc-label" style="color:var(--green)">Symmetric</div>
+      <div class="cc-name">🔑 Same Key</div>
+      <div class="cc-desc">One key encrypts AND decrypts. Fast. Requires secure key sharing.</div>
+    </div>
+    <div class="crypto-card" onclick="showCrypto('asym')">
+      <div class="cc-label" style="color:var(--yellow)">Asymmetric</div>
+      <div class="cc-name">🗝️ Key Pair</div>
+      <div class="cc-desc">Public key encrypts, private key decrypts. Solves key distribution.</div>
+    </div>
+    <div class="crypto-card" onclick="showCrypto('sign')">
+      <div class="cc-label" style="color:var(--purple)">Signatures</div>
+      <div class="cc-name">✍️ Digital Signature</div>
+      <div class="cc-desc">Proves who sent a message and that it wasn't tampered with.</div>
+    </div>
+  </div>
+  <div class="detail" id="crypto-detail" style="display:none"></div>
+</div>
+
+<!-- PANEL 2: ATTACKS -->
+<div class="panel" id="panel-attacks">
+  <div class="attack-grid">
+    <div class="attack-btn" onclick="showAttack('phishing')"><div class="attack-icon">🎣</div><div class="attack-label">Phishing</div></div>
+    <div class="attack-btn" onclick="showAttack('mitm')"><div class="attack-icon">👥</div><div class="attack-label">MITM</div></div>
+    <div class="attack-btn" onclick="showAttack('ransomware')"><div class="attack-icon">💀</div><div class="attack-label">Ransomware</div></div>
+    <div class="attack-btn" onclick="showAttack('arp')"><div class="attack-icon">🕸️</div><div class="attack-label">ARP Spoofing</div></div>
+    <div class="attack-btn" onclick="showAttack('dns')"><div class="attack-icon">🌐</div><div class="attack-label">DNS Poisoning</div></div>
+    <div class="attack-btn" onclick="showAttack('social')"><div class="attack-icon">🎭</div><div class="attack-label">Social Engineering</div></div>
+    <div class="attack-btn" onclick="showAttack('rootkit')"><div class="attack-icon">🕵️</div><div class="attack-label">Rootkit</div></div>
+    <div class="attack-btn" onclick="showAttack('dos')"><div class="attack-icon">💥</div><div class="attack-label">DoS / DDoS</div></div>
+  </div>
+  <div class="attack-detail" id="attack-detail"></div>
+</div>
+
+<!-- PANEL 3: HASH SIMULATOR -->
+<div class="panel" id="panel-hash">
+  <div class="hash-input">
+    <p style="font-size:.85rem;color:var(--dim)">Type any text below to see simulated hash representations. (Note: This uses a deterministic simulation to show concepts — not real crypto.)</p>
+    <textarea id="hashInput" placeholder="Type something here..." oninput="updateHashes()">password123</textarea>
+    <button class="btn btn-primary" onclick="updateHashes()">Compute Hashes</button>
+  </div>
+  <div class="hash-results" id="hashResults"></div>
+</div>
+
+<script>
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+const cryptoData={
+  hash:{
+    title:'Hashing — One-Way Functions',
+    color:'var(--accent)',
+    body:`<p>A hash function takes ANY input and produces a FIXED-SIZE output (the hash). It is mathematically impossible to reverse — you cannot get the original input from the hash alone.</p>
+<p><strong>Key properties:</strong> Deterministic (same input = same hash), One-way (cannot reverse), Avalanche effect (1 character change = completely different hash), Collision-resistant.</p>
+<code>SHA-256("password") = ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f
+SHA-256("Password") = e7cf3ef04729aa2ab38cd2ef6f2a5f4e9c4e7e53c5c5b83a3a9e8e3b5e7c9a1
+(one capital letter = completely different hash!)</code>
+<p><strong>Use cases:</strong> Password storage (bcrypt/Argon2), file integrity checks (sha256sum), digital signatures, blockchain.</p>`,
+    props:[{t:'No key needed',c:'rgba(56,189,248,.15)',tc:'var(--accent)'},{t:'Fast (SHA-256)',c:'rgba(74,222,128,.15)',tc:'var(--green)'},{t:'One-way only',c:'rgba(251,191,36,.15)',tc:'var(--yellow)'}]
+  },
+  sym:{
+    title:'Symmetric Encryption — One Key',
+    color:'var(--green)',
+    body:`<p>Symmetric encryption uses the SAME key to both encrypt and decrypt. It's very fast, making it ideal for encrypting large amounts of data.</p>
+<p><strong>AES-256</strong> is the gold standard. Used in: TLS (after key exchange), disk encryption (BitLocker), file encryption, VPNs.</p>
+<code>Key: "my_secret_key_256_bits_long"
+Plaintext:  "Transfer $1000 to account 12345"
+Ciphertext: "a8f3c91b2e4d7f6a..." (unreadable without key)
+Decrypted:  "Transfer $1000 to account 12345"</code>
+<p><strong>Problem:</strong> How do you securely share the key with the other party? → This is why we need asymmetric encryption for key exchange.</p>`,
+    props:[{t:'Very fast',c:'rgba(74,222,128,.15)',tc:'var(--green)'},{t:'One shared key',c:'rgba(56,189,248,.15)',tc:'var(--accent)'},{t:'Key exchange problem',c:'rgba(248,113,113,.15)',tc:'var(--red)'}]
+  },
+  asym:{
+    title:'Asymmetric Encryption — Key Pair',
+    color:'var(--yellow)',
+    body:`<p>Asymmetric encryption uses two mathematically linked keys: a <strong>public key</strong> (share freely) and a <strong>private key</strong> (never share).</p>
+<p>What is encrypted with the public key can ONLY be decrypted with the matching private key — and vice versa.</p>
+<code>Bob's public key  → anyone can encrypt messages TO Bob
+Bob's private key → only Bob can decrypt messages sent to him
+
+Alice encrypts: encrypt("Hello Bob", bob_public_key)
+Bob decrypts:   decrypt(ciphertext, bob_private_key) → "Hello Bob"</code>
+<p><strong>Hybrid encryption (how HTTPS works):</strong> Use asymmetric to securely share a random AES key, then use AES for the actual data. Best of both worlds.</p>`,
+    props:[{t:'Solves key exchange',c:'rgba(74,222,128,.15)',tc:'var(--green)'},{t:'Slower than AES',c:'rgba(251,191,36,.15)',tc:'var(--yellow)'},{t:'RSA-2048 / ECC-256',c:'rgba(192,132,252,.15)',tc:'var(--purple)'}]
+  },
+  sign:{
+    title:'Digital Signatures — Prove Identity',
+    color:'var(--purple)',
+    body:`<p>A digital signature proves: (1) the message came from the real sender, and (2) it wasn't tampered with in transit. Note: signatures do NOT encrypt the message content.</p>
+<code>SIGNING (sender, uses PRIVATE key):
+1. Hash the message: SHA-256(message) = "abc123..."
+2. Encrypt the hash with private key: sign("abc123...", private_key)
+
+VERIFYING (receiver, uses PUBLIC key):
+1. Decrypt the signature with sender's public key
+2. Hash the received message yourself
+3. If both hashes match → message is authentic and unmodified</code>
+<p><strong>Proves:</strong> Integrity (not tampered) + Non-repudiation (sender cannot deny sending it).</p>
+<p><strong>Used in:</strong> TLS certificates, software code signing, email (S/MIME), cryptocurrency transactions.</p>`,
+    props:[{t:'Integrity',c:'rgba(74,222,128,.15)',tc:'var(--green)'},{t:'Non-repudiation',c:'rgba(192,132,252,.15)',tc:'var(--purple)'},{t:'Uses private key',c:'rgba(56,189,248,.15)',tc:'var(--accent)'}]
+  }
+};
+
+function showCrypto(type){
+  document.querySelectorAll('.crypto-card').forEach(c=>c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  const d=cryptoData[type];
+  const propsHtml=d.props.map(p=>`<span class="prop" style="background:${p.c};color:${p.tc}">${p.t}</span>`).join('');
+  document.getElementById('crypto-detail').style.display='block';
+  document.getElementById('crypto-detail').innerHTML=`<h3 style="color:${d.color}">${d.title}</h3>${d.body}<div class="prop-list">${propsHtml}</div>`;
+}
+
+const attackData={
+  phishing:{icon:'🎣',name:'Phishing / Spear Phishing',cia:['C'],desc:'Attacker sends a deceptive email impersonating a trusted entity (bank, IT dept, colleague). Victim clicks a malicious link or enters credentials on a fake login page. Spear phishing uses researched personal details to be more convincing.',how:'<strong>How it works:</strong> Fake email → victim clicks link → fake login page harvests credentials → attacker uses credentials.',defences:['Email filtering (spam/phishing detection)','Enable MFA — even if password is stolen, attacker can\'t log in','User security awareness training','Check sender email domain carefully — not just display name','Hover over links before clicking to see real URL']},
+  mitm:{icon:'👥',name:'Man-in-the-Middle (MITM)',cia:['C','I'],desc:'Attacker positions themselves between two communicating parties, intercepting and potentially modifying traffic without either party knowing. Classic example: attacker on same WiFi intercepts unencrypted HTTP traffic.',how:'<strong>How it works:</strong> Attacker intercepts traffic (via ARP spoofing, rogue WiFi AP, or compromised router) → reads/modifies data → forwards to destination.',defences:['Use HTTPS — traffic is encrypted (attacker sees gibberish)','VPN on public WiFi','HSTS (HTTP Strict Transport Security) prevents downgrade attacks','Certificate pinning in mobile apps','Avoid unencrypted protocols (HTTP, FTP, Telnet)']},
+  ransomware:{icon:'💀',name:'Ransomware',cia:['A'],desc:'Malware that encrypts victim\'s files and demands ransom payment (usually cryptocurrency) for the decryption key. Modern ransomware often exfiltrates data first (double extortion) before encrypting.',how:'<strong>Kill chain:</strong> Initial access (phishing/RDP) → persistence → lateral movement → data exfiltration → encrypt all reachable drives → ransom note.',defences:['Offline backups (3-2-1 rule) — backup can\'t be encrypted if it\'s disconnected','Patch systems — many ransomware attacks exploit unpatched vulnerabilities','Restrict RDP — don\'t expose port 3389 to internet','Segment network — limit lateral movement','Email filtering and user training']},
+  arp:{icon:'🕸️',name:'ARP Spoofing',cia:['C','I'],desc:'ARP (Address Resolution Protocol) maps IP addresses to MAC addresses on a local network. An attacker sends fake ARP replies poisoning the ARP cache, causing traffic meant for the gateway to flow through the attacker\'s machine instead.',how:'<strong>How it works:</strong> Attacker sends "I am 192.168.1.1, my MAC is AA:BB:CC..." → victim\'s ARP cache updated → all traffic to gateway goes through attacker.',defences:['Dynamic ARP Inspection (DAI) on managed switches','Static ARP entries for critical systems','Use encrypted protocols (HTTPS, SSH) so intercepted traffic is useless','VPN encrypts all traffic','Network monitoring for ARP anomalies']},
+  dns:{icon:'🌐',name:'DNS Cache Poisoning',cia:['C'],desc:'Attacker injects malicious DNS records into a DNS resolver\'s cache, causing it to return an attacker-controlled IP address for a legitimate domain. Visitors are redirected to a fake site without knowing.',how:'<strong>How it works:</strong> Attacker sends flood of forged DNS responses → resolver accepts a forged response → caches fake IP for bank.com → all users who query that resolver get the fake IP.',defences:['DNSSEC — DNS responses are cryptographically signed','Use trusted DNS resolvers (1.1.1.1, 8.8.8.8) with DNSSEC validation','Randomise DNS source ports and transaction IDs','HTTPS + certificate verification — fake site can\'t get a valid cert','Monitor DNS query anomalies']},
+  social:{icon:'🎭',name:'Social Engineering',cia:['C'],desc:'Attacks that exploit human psychology rather than technical vulnerabilities. Includes pretexting (fabricating scenarios), baiting (leaving infected USB drives), vishing (voice phishing), smishing (SMS phishing), and tailgating (following someone through secure doors).',how:'<strong>Pretexting example:</strong> Caller claims to be IT support → asks employee to "verify account" by providing password → attacker now has credentials.',defences:['Security awareness training — people are the last line of defence','Verification procedures — always call back on known numbers','Need-to-know policies — employees should not share sensitive info without verification','Physical security controls — mantraps, badge-only access','Report suspicious calls/emails immediately']},
+  rootkit:{icon:'🕵️',name:'Rootkit',cia:['C','I'],desc:'Malware designed specifically to hide itself and other malicious software from the operating system, antivirus, and security tools. Operates at kernel level or even firmware (UEFI rootkits). Very difficult to detect once installed.',how:'<strong>How it hides:</strong> Hooks OS system calls → intercepts requests to list processes/files → removes itself from results → AV and security tools never see it.',defences:['Secure Boot — prevents rootkits from loading before the OS','Regular reinstalls of compromised systems (don\'t trust a rootkitted OS)','Offline scanning — boot from clean USB to scan','Trusted Platform Module (TPM) attestation','Integrity monitoring (e.g., Tripwire) on critical system files']},
+  dos:{icon:'💥',name:'DoS / DDoS',cia:['A'],desc:'Denial of Service: overwhelming a target with traffic or requests until it can no longer serve legitimate users. DDoS (Distributed DoS) uses thousands of compromised machines (botnet) to amplify the attack.',how:'<strong>Types:</strong> Volume-based (flood bandwidth), Protocol attacks (exploit TCP handshake — SYN flood), Application layer (HTTP flood — harder to distinguish from real traffic).',defences:['CDN and DDoS mitigation services (Cloudflare, AWS Shield)','Rate limiting and traffic shaping','SYN cookies to handle SYN flood attacks','Anycast network diffusion','Sufficient bandwidth and load balancers','Black-hole routing for attack traffic']}
+};
+
+function showAttack(type){
+  document.querySelectorAll('.attack-btn').forEach(b=>b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const a=attackData[type];
+  const ciaBadges=a.cia.map(c=>{
+    const map={C:['Confidentiality','cia-c'],I:['Integrity','cia-i'],A:['Availability','cia-a']};
+    return `<span class="cia ${map[c][1]}">${map[c][0]} violated</span>`;
+  }).join('');
+  const defHtml=a.defences.map(d=>`<div class="defence-item">${d}</div>`).join('');
+  const el=document.getElementById('attack-detail');
+  el.innerHTML=`<div style="font-size:1.8rem;margin-bottom:8px">${a.icon}</div>
+<h3 style="margin-bottom:8px">${a.name}</h3>
+<div class="cia-badges">${ciaBadges}</div>
+<p style="font-size:.88rem;color:var(--dim);line-height:1.6;margin:10px 0">${a.desc}</p>
+<p style="font-size:.85rem;color:var(--text);margin:10px 0">${a.how}</p>
+<div class="defence-list"><p style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--green);margin-bottom:6px">Defences:</p>${defHtml}</div>`;
+  el.classList.add('show');
+}
+
+// Simple deterministic hash simulator (educational — not real crypto)
+function simHash(str, len){
+  let h=5381;
+  for(let i=0;i<str.length;i++) h=((h<<5)+h)^str.charCodeAt(i);
+  h=Math.abs(h);
+  // Expand to desired length
+  let result='';
+  let seed=h;
+  const chars='0123456789abcdef';
+  while(result.length<len){
+    seed=(seed*1664525+1013904223)&0xffffffff;
+    result+=chars[(Math.abs(seed)%16)];
+    seed^=(seed>>16);
+  }
+  return result.substring(0,len);
+}
+
+function updateHashes(){
+  const input=document.getElementById('hashInput').value;
+  const algos=[
+    {name:'MD5 (128-bit)',len:32,note:'⚠️ Broken — collisions found. Do not use for security.',color:'var(--red)'},
+    {name:'SHA-1 (160-bit)',len:40,note:'⚠️ Deprecated since 2017. Legacy use only.',color:'var(--yellow)'},
+    {name:'SHA-256 (256-bit)',len:64,note:'✓ Current standard. Use for file integrity and signatures.',color:'var(--green)'},
+    {name:'SHA-512 (512-bit)',len:128,note:'✓ Higher security. Used in certificate chains.',color:'var(--accent)'},
+  ];
+  const html=algos.map(a=>`
+<div class="hash-row">
+  <div class="hash-algo" style="color:${a.color}">${a.name}</div>
+  <div class="hash-value">${simHash(input+(a.name),a.len)}</div>
+  <div class="hash-note">${a.note}</div>
+</div>`).join('');
+  document.getElementById('hashResults').innerHTML=html;
+}
+
+updateHashes();
+</script>
+</body>
+</html>

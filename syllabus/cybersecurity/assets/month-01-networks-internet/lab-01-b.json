@@ -1,0 +1,31 @@
+{
+  "asset_type": "lab",
+  "title": "Subnetting and Network Design with Cisco Packet Tracer",
+  "description": "Students practice CIDR subnetting calculations by hand, then build a segmented network topology in Cisco Packet Tracer to validate their designs — assigning correct IP ranges, configuring basic routing, and testing connectivity with ping.",
+  "tags": ["Subnetting", "CIDR", "Cisco Packet Tracer", "Networking", "IP Addressing", "Routing"],
+  "status": "draft",
+  "objective": "Students will correctly subdivide a /22 network into four subnets by hand, then construct and verify a working multi-subnet network in Cisco Packet Tracer — demonstrating that they can translate subnetting theory into a functional network design.",
+  "steps": [
+    {
+      "title": "Manual Subnetting Calculation",
+      "instructions": "Before touching any tool, complete this by hand on paper or in a notes document.\n\n**Given network:** `192.168.40.0/22`\n**Task:** Divide into **4 equal subnets**.\n\n**Step 1:** Find the new prefix length.\n- We need 4 subnets. 2^n ≥ 4, so n = 2. New prefix = /22 + 2 = **/24**\n\n**Step 2:** Calculate block size per subnet.\n- Block size = 2^(32 − 24) = 256 addresses per subnet\n\n**Step 3:** Fill in this table:\n\n| Subnet | Network Address | First Host | Last Host | Broadcast |\n|--------|----------------|------------|-----------|----------|\n| A | 192.168.40.0 | ? | ? | ? |\n| B | 192.168.41.0 | ? | ? | ? |\n| C | 192.168.42.0 | ? | ? | ? |\n| D | 192.168.43.0 | ? | ? | ? |\n\n**Verify with ipcalc (Linux/Mac):**\n```bash\nipcalc 192.168.40.0/24\nipcalc 192.168.41.0/24\n```\n\nConfirm: the broadcast for Subnet A is 192.168.40.255, and Subnet D's broadcast is 192.168.43.255. Take a screenshot of your completed table and any ipcalc output."
+    },
+    {
+      "title": "Build the Topology in Cisco Packet Tracer",
+      "instructions": "Open Cisco Packet Tracer (download from netacad.com — free account required).\n\n**Add these devices from the device panel:**\n- 1x Router (e.g., Cisco 2911) — drag to centre of workspace\n- 4x Switches (e.g., Cisco 2960) — one per subnet\n- 2x PCs per switch (8 PCs total)\n\n**Connect devices:**\n- Use **Copper Straight-through** cable from each PC to its Switch\n- Use **Copper Straight-through** from each Switch to the Router\n- Connect each switch to a **different router interface** (GigabitEthernet0/0 through 0/3)\n\n**Label your devices** by clicking each one and renaming:\n- Router: `R1`\n- Switches: `SW-A`, `SW-B`, `SW-C`, `SW-D`\n- PCs: `PC-A1`, `PC-A2`, `PC-B1`, etc.\n\nSave the file as `lab01b-[yourname].pkt`"
+    },
+    {
+      "title": "Configure Router Interfaces",
+      "instructions": "Click **R1** → CLI tab. Press Enter to get to the Router> prompt.\n\nConfigure each interface with the **first usable host IP** of each subnet as the gateway:\n\n```\nenable\nconfigure terminal\n\ninterface GigabitEthernet0/0\n ip address 192.168.40.1 255.255.255.0\n no shutdown\n description Subnet-A\n exit\n\ninterface GigabitEthernet0/1\n ip address 192.168.41.1 255.255.255.0\n no shutdown\n description Subnet-B\n exit\n\ninterface GigabitEthernet0/2\n ip address 192.168.42.1 255.255.255.0\n no shutdown\n description Subnet-C\n exit\n\ninterface GigabitEthernet0/3\n ip address 192.168.43.1 255.255.255.0\n no shutdown\n description Subnet-D\n exit\n\nend\nwrite memory\n```\n\nVerify: `show ip interface brief` — all four interfaces should show `up/up`.\n\nTake a screenshot of the `show ip interface brief` output."
+    },
+    {
+      "title": "Configure PCs with Static IP Addresses",
+      "instructions": "Configure each PC with an IP in its correct subnet. Click each PC → Desktop → IP Configuration.\n\n**Subnet A PCs (192.168.40.0/24):**\n- PC-A1: IP `192.168.40.10`, Mask `255.255.255.0`, Gateway `192.168.40.1`\n- PC-A2: IP `192.168.40.11`, Mask `255.255.255.0`, Gateway `192.168.40.1`\n\n**Subnet B PCs (192.168.41.0/24):**\n- PC-B1: IP `192.168.41.10`, Mask `255.255.255.0`, Gateway `192.168.41.1`\n- PC-B2: IP `192.168.41.11`, Mask `255.255.255.0`, Gateway `192.168.41.1`\n\n**Subnet C PCs (192.168.42.0/24):**\n- PC-C1: IP `192.168.42.10` / GW `192.168.42.1`\n- PC-C2: IP `192.168.42.11` / GW `192.168.42.1`\n\n**Subnet D PCs (192.168.43.0/24):**\n- PC-D1: IP `192.168.43.10` / GW `192.168.43.1`\n- PC-D2: IP `192.168.43.11` / GW `192.168.43.1`\n\nCommon mistake: if you assign a PC the wrong subnet mask (e.g., /22 instead of /24), routing will break. Double-check every entry."
+    },
+    {
+      "title": "Test Connectivity and Document Results",
+      "instructions": "Test connectivity using ping from the PC command prompts.\n\n**Click PC-A1 → Desktop → Command Prompt**\n\n**Test 1 — Same subnet:**\n```\nping 192.168.40.11\n```\nExpected: 4/4 replies (no router involved)\n\n**Test 2 — Cross-subnet (via router):**\n```\nping 192.168.41.10\nping 192.168.42.10\nping 192.168.43.10\n```\nExpected: 4/4 replies (first ping may timeout — router ARP cache warming)\n\n**Test 3 — Ping the router interfaces:**\n```\nping 192.168.40.1\nping 192.168.43.1\n```\n\nTake a screenshot of successful cross-subnet ping output showing `Reply from 192.168.41.10` (or similar).\n\n**Troubleshooting tips:**\n- If ping fails: check the router interface is `no shutdown` and the PC gateway matches the router IP\n- Use `Simulation Mode` in Packet Tracer to watch the packet travel hop by hop\n- On the router: `show ip route` should list all 4 connected networks (C routes)\n\n**Bonus:** Use Packet Tracer's simulation mode to trace one cross-subnet ping. Document which router interface the packet enters and exits."
+    }
+  ],
+  "expected_output": "Students submit: (1) Completed subnetting table (by hand or typed). (2) Screenshot of the Packet Tracer topology with all devices labelled. (3) Screenshot of 'show ip interface brief' showing all interfaces up. (4) Screenshot of successful cross-subnet ping results from at least two different source PCs. (5) The saved .pkt file (Packet Tracer project file)."
+}

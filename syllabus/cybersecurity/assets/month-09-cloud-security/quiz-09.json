@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "question": "In the AWS Shared Responsibility Model, which of the following is the CUSTOMER's responsibility when using EC2 (IaaS)?",
+      "options": [
+        "Physical security of the data centre",
+        "Hypervisor patching",
+        "Guest OS patching and security configuration",
+        "Network hardware maintenance"
+      ],
+      "correct_index": 2,
+      "explanation": "With IaaS (EC2), AWS manages the physical infrastructure, virtualisation layer, and networking hardware. The customer is responsible for the guest OS (patching, firewall config), applications, and data — including installing security agents and configuring the OS firewall."
+    },
+    {
+      "question": "Which AWS IAM feature sets the MAXIMUM permissions that an IAM entity (user or role) can have, regardless of other attached policies?",
+      "options": [
+        "Service Control Policy (SCP)",
+        "Permission Boundary",
+        "Resource Policy",
+        "Trust Policy"
+      ],
+      "correct_index": 1,
+      "explanation": "A Permission Boundary is an advanced IAM feature that sets the maximum permissions an IAM entity can have. Even if you attach an AdministratorAccess policy, the boundary limits what actions are actually permitted. SCPs operate at the AWS Organizations level across accounts."
+    },
+    {
+      "question": "An attacker has obtained AWS credentials with 'iam:PassRole' and 'ec2:RunInstances' permissions. What is the most likely privilege escalation technique?",
+      "options": [
+        "Create a new IAM user with admin rights",
+        "Modify an existing IAM policy to add admin permissions",
+        "Launch an EC2 instance with a privileged IAM role attached, then use that role via IMDS",
+        "Assume the root account role using sts:AssumeRoot"
+      ],
+      "correct_index": 2,
+      "explanation": "iam:PassRole allows passing a role to an AWS service. Combined with ec2:RunInstances, an attacker can launch an EC2 instance attached to an administrator role, then access the instance and use the role's credentials from the instance metadata service (169.254.169.254)."
+    },
+    {
+      "question": "Which AWS service provides threat detection by analysing CloudTrail, VPC Flow Logs, and DNS logs using machine learning?",
+      "options": [
+        "AWS Config",
+        "AWS Inspector",
+        "AWS GuardDuty",
+        "AWS Security Hub"
+      ],
+      "correct_index": 2,
+      "explanation": "AWS GuardDuty is a threat detection service that continuously monitors for malicious activity by analysing CloudTrail events, VPC Flow Logs, and Route 53 DNS logs. It uses machine learning and threat intelligence to identify threats like compromised credentials, crypto-mining, and data exfiltration."
+    },
+    {
+      "question": "Which AWS S3 setting, when enabled at the account level, prevents any public access to buckets regardless of individual bucket ACLs or policies?",
+      "options": [
+        "S3 Server-Side Encryption",
+        "S3 Block Public Access",
+        "S3 Bucket Versioning",
+        "S3 Access Logging"
+      ],
+      "correct_index": 1,
+      "explanation": "S3 Block Public Access, when enabled at the account level, overrides any bucket-level ACLs or policies that would grant public access. It includes four settings (BlockPublicAcls, IgnorePublicAcls, BlockPublicPolicy, RestrictPublicBuckets) that AWS recommends enabling by default for all accounts."
+    },
+    {
+      "question": "In Azure, what is a Managed Identity?",
+      "options": [
+        "A service account with a password stored in Azure Key Vault",
+        "An Entra ID identity automatically managed by Azure for use by Azure services, requiring no stored credentials",
+        "A user account managed by an Azure administrator",
+        "An API key associated with an Azure App Registration"
+      ],
+      "correct_index": 1,
+      "explanation": "A Managed Identity provides Azure services (VMs, Functions, AKS) with an automatically managed identity in Entra ID. The service can authenticate to any Azure AD-supporting service without needing credentials in code or config files, eliminating the secrets management problem."
+    },
+    {
+      "question": "Which tool performs security posture assessment across AWS, Azure, and GCP, generating findings mapped to CIS benchmarks?",
+      "options": [
+        "Trivy",
+        "Checkov",
+        "Prowler",
+        "tfsec"
+      ],
+      "correct_index": 2,
+      "explanation": "Prowler is an open-source cloud security tool that runs hundreds of checks across AWS, Azure, and GCP mapped to CIS benchmarks, GDPR, HIPAA, and other frameworks. Checkov and tfsec scan Infrastructure-as-Code files, while Trivy focuses on container image and filesystem vulnerability scanning."
+    },
+    {
+      "question": "What security risk does an AWS IAM policy with 'Action: *' and 'Resource: *' create?",
+      "options": [
+        "It only grants read access to all resources",
+        "It is invalid JSON and will be rejected by IAM",
+        "It grants full administrative access to all AWS services and resources in the account",
+        "It only applies within the same AWS region"
+      ],
+      "correct_index": 2,
+      "explanation": "'Action: *' means all AWS API actions, and 'Resource: *' means all resources in the account. Combined with Effect: Allow, this is equivalent to AdministratorAccess — the most permissive policy possible. This violates the principle of least privilege and should never be used for application workloads."
+    },
+    {
+      "question": "Which Kubernetes RBAC role should NEVER be assigned to application workload service accounts in production?",
+      "options": [
+        "pod-reader (custom least-privilege role)",
+        "view (built-in read-only role)",
+        "cluster-admin (built-in full-access role)",
+        "edit (built-in namespace edit role)"
+      ],
+      "correct_index": 2,
+      "explanation": "cluster-admin grants full control over every resource in the cluster. Application workloads should only have the minimum permissions needed for their specific namespace and resources. cluster-admin should only be used by human administrators with temporary elevated access, never by application service accounts."
+    },
+    {
+      "question": "When Checkov reports 'CKV_AWS_18: Ensure the S3 bucket has access logging enabled', what issue does this indicate?",
+      "options": [
+        "The S3 bucket is publicly accessible",
+        "The S3 bucket does not have server access logging configured, making audit trails incomplete",
+        "The Terraform code has a syntax error in the S3 resource block",
+        "The S3 bucket encryption key is not set"
+      ],
+      "correct_index": 1,
+      "explanation": "CKV_AWS_18 checks for S3 server access logging, which records all requests made to the bucket (who accessed it, when, from where). Without logging, there is no audit trail — critical for incident response, forensics, and compliance requirements like PCI-DSS and HIPAA."
+    },
+    {
+      "question": "What is the AWS Instance Metadata Service (IMDS) endpoint, and why is it targeted in cloud SSRF attacks?",
+      "options": [
+        "https://metadata.aws.amazon.com — it provides billing information",
+        "http://169.254.169.254 — it provides IAM credentials attached to the EC2 instance via instance profile",
+        "http://localhost:8080 — it provides application health metrics",
+        "https://iam.amazonaws.com — it provides global IAM policy information"
+      ],
+      "correct_index": 1,
+      "explanation": "The AWS IMDS at 169.254.169.254 is a link-local endpoint accessible from within any EC2 instance. If an instance has an IAM instance profile attached, the /latest/meta-data/iam/security-credentials/ path returns temporary access keys. SSRF attackers target this endpoint to steal IAM credentials and escalate cloud privileges."
+    },
+    {
+      "question": "Which principle does Zero-Trust Architecture primarily reject?",
+      "options": [
+        "The principle of least privilege",
+        "Multi-factor authentication requirements",
+        "Implicit trust based on network location (e.g., being inside the corporate VPN)",
+        "Encryption of data in transit"
+      ],
+      "correct_index": 2,
+      "explanation": "Zero Trust rejects the traditional perimeter-based trust model where resources inside the network are implicitly trusted. Instead, every access request must be verified — identity, device health, and context — regardless of whether it originates from inside or outside the corporate network. 'Never trust, always verify.'"
+    },
+    {
+      "question": "In a Kubernetes Pod security context, which setting specifically prevents a container from gaining more privileges than its parent process via setuid binaries?",
+      "options": [
+        "readOnlyRootFilesystem: true",
+        "runAsNonRoot: true",
+        "allowPrivilegeEscalation: false",
+        "capabilities.drop: [ALL]"
+      ],
+      "correct_index": 2,
+      "explanation": "allowPrivilegeEscalation: false prevents processes inside the container from gaining additional privileges through mechanisms like setuid binaries or file capabilities. This is different from runAsNonRoot (which prevents running as UID 0) and capabilities.drop (which removes Linux capabilities)."
+    },
+    {
+      "question": "Which AWS service provides immutable, tamper-evident audit logs of all API calls made within an AWS account?",
+      "options": [
+        "Amazon CloudWatch Logs",
+        "AWS Config",
+        "AWS CloudTrail",
+        "AWS Inspector"
+      ],
+      "correct_index": 2,
+      "explanation": "AWS CloudTrail records every API call made in your AWS account — who called it, what was called, when, from which IP, and which resources were affected. Log file integrity validation using SHA-256 hashing ensures logs have not been tampered with after delivery. It is the primary audit and forensics service in AWS."
+    },
+    {
+      "question": "What does the 'flaws.cloud' website provide for cloud security practitioners?",
+      "options": [
+        "A free AWS certification exam simulator with practice questions",
+        "A series of challenges in a deliberately misconfigured AWS environment teaching real cloud attack techniques",
+        "An automated cloud security scanning tool with a web interface",
+        "A cloud cost optimisation and right-sizing calculator"
+      ],
+      "correct_index": 1,
+      "explanation": "flaws.cloud (created by Scott Piper) is a real AWS environment with intentional misconfigurations presented as progressive challenges. Players exploit S3 bucket misconfigurations, exposed EC2 instance metadata, insecure IAM policies, and snapshot exposure — learning cloud attack techniques hands-on in a safe, legal environment."
+    }
+  ]
+}

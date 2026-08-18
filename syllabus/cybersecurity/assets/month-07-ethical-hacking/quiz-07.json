@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "question": "Which penetration testing phase comes immediately after exploitation?",
+      "options": [
+        "Scanning",
+        "Post-Exploitation",
+        "Reporting",
+        "Enumeration"
+      ],
+      "correct_index": 1,
+      "explanation": "The standard pen test phases are Recon → Scanning → Enumeration → Exploitation → Post-Exploitation → Reporting. Post-Exploitation follows Exploitation and covers persistence, pivoting, and lateral movement."
+    },
+    {
+      "question": "Which Nmap flag performs a SYN (stealth) scan?",
+      "options": [
+        "-sT",
+        "-sU",
+        "-sS",
+        "-sV"
+      ],
+      "correct_index": 2,
+      "explanation": "-sS performs a TCP SYN scan (half-open scan). It is called 'stealth' because it does not complete the TCP three-way handshake, reducing the chance of logging on the target."
+    },
+    {
+      "question": "What does the Nmap flag -sV do?",
+      "options": [
+        "Scans all 65535 ports",
+        "Enables OS fingerprinting",
+        "Detects service versions on open ports",
+        "Runs vulnerability scripts"
+      ],
+      "correct_index": 2,
+      "explanation": "-sV probes open ports to determine what software and version is listening. This information is critical for identifying exploitable services."
+    },
+    {
+      "question": "In Metasploit, what command lists available exploit modules matching a keyword?",
+      "options": [
+        "show exploits",
+        "find <keyword>",
+        "search <keyword>",
+        "list modules <keyword>"
+      ],
+      "correct_index": 2,
+      "explanation": "The 'search' command in msfconsole searches the module database by name, CVE, platform, or type. For example: search eternalblue."
+    },
+    {
+      "question": "What is a Meterpreter payload?",
+      "options": [
+        "A network scanner built into Metasploit",
+        "An advanced in-memory shell delivered via Metasploit",
+        "A vulnerability scanner for web applications",
+        "A tool for cracking Windows passwords"
+      ],
+      "correct_index": 1,
+      "explanation": "Meterpreter is an advanced, dynamically extensible payload that runs entirely in memory on the victim. It communicates over an encrypted channel and supports file upload/download, pivoting, and post-exploitation modules."
+    },
+    {
+      "question": "Which Linux command finds all files with the SUID bit set?",
+      "options": [
+        "find / -type f -writable 2>/dev/null",
+        "find / -perm -4000 2>/dev/null",
+        "ls -la /usr/bin",
+        "sudo -l"
+      ],
+      "correct_index": 1,
+      "explanation": "The -perm -4000 flag matches files where the SUID bit (octal 4000) is set. Combined with 2>/dev/null to suppress permission errors, this is the standard command for finding SUID binaries."
+    },
+    {
+      "question": "Which technique allows an attacker to authenticate to Windows systems using a captured password hash without cracking it?",
+      "options": [
+        "Kerberoasting",
+        "Pass-the-Hash",
+        "Token Impersonation",
+        "AlwaysInstallElevated"
+      ],
+      "correct_index": 1,
+      "explanation": "Pass-the-Hash exploits the fact that NTLM authentication uses the hash directly rather than a plaintext password. An attacker who obtains an NTLM hash can replay it to authenticate to other systems."
+    },
+    {
+      "question": "What is the primary purpose of Shodan in a penetration test?",
+      "options": [
+        "Crack password hashes",
+        "Intercept HTTPS traffic",
+        "Discover internet-connected devices and open services via banner grabbing",
+        "Generate phishing emails"
+      ],
+      "correct_index": 2,
+      "explanation": "Shodan is a search engine that indexes internet-connected devices by crawling banners. Penetration testers use it during passive recon to discover open ports, software versions, and misconfigured services without directly touching the target."
+    },
+    {
+      "question": "Which Windows privilege escalation technique exploits a service whose binary path contains spaces and is not enclosed in quotation marks?",
+      "options": [
+        "DLL Hijacking",
+        "Token Impersonation",
+        "AlwaysInstallElevated",
+        "Unquoted Service Path"
+      ],
+      "correct_index": 3,
+      "explanation": "If a Windows service path like C:\\Program Files\\My App\\service.exe is not quoted, Windows tries to run C:\\Program.exe, C:\\Program Files\\My.exe, etc. Placing a malicious executable at one of these paths results in SYSTEM execution."
+    },
+    {
+      "question": "What does 'Rules of Engagement' mean in penetration testing?",
+      "options": [
+        "A guide for selecting the best exploit",
+        "A written agreement defining the scope, timing, and restrictions of the test",
+        "A scoring system for vulnerabilities",
+        "The process for reporting findings to clients"
+      ],
+      "correct_index": 1,
+      "explanation": "Rules of Engagement (RoE) is a formal document agreed upon before a test begins. It defines what systems are in scope, testing hours, permitted techniques, and escalation procedures — providing legal protection for the tester."
+    },
+    {
+      "question": "Which CVSS v3.1 score range is classified as 'Critical'?",
+      "options": [
+        "7.0 – 8.9",
+        "5.0 – 7.9",
+        "9.0 – 10.0",
+        "8.0 – 9.5"
+      ],
+      "correct_index": 2,
+      "explanation": "CVSS v3.1 severity ratings: None (0.0), Low (0.1-3.9), Medium (4.0-6.9), High (7.0-8.9), Critical (9.0-10.0). Critical vulnerabilities typically involve remote code execution with no authentication required."
+    },
+    {
+      "question": "The 'theHarvester' tool is primarily used for which OSINT task?",
+      "options": [
+        "Scanning for open ports on a target",
+        "Collecting emails, subdomains, and names from public sources",
+        "Cracking WPA/WPA2 wireless passwords",
+        "Intercepting and replaying network credentials"
+      ],
+      "correct_index": 1,
+      "explanation": "theHarvester queries search engines, LinkedIn, GitHub, and other public sources to harvest email addresses, employee names, subdomains, and IP addresses associated with a target domain."
+    },
+    {
+      "question": "In Meterpreter, which command attempts to gain SYSTEM-level privileges on a Windows target?",
+      "options": [
+        "migrate",
+        "getsystem",
+        "hashdump",
+        "getpid"
+      ],
+      "correct_index": 1,
+      "explanation": "The 'getsystem' command in Meterpreter attempts multiple techniques (named pipe impersonation, token duplication, etc.) to escalate from the current user to SYSTEM-level privileges on Windows."
+    },
+    {
+      "question": "Which tool is a graph-based OSINT platform that visualises relationships between entities like people, domains, and IP addresses?",
+      "options": [
+        "Nessus",
+        "Wireshark",
+        "Maltego",
+        "Nikto"
+      ],
+      "correct_index": 2,
+      "explanation": "Maltego is a graphical link-analysis tool used for OSINT investigations. It maps relationships between entities (person → email → domain → IP → netblock) using 'transforms' that query public data sources."
+    },
+    {
+      "question": "Which Metasploit command is used to generate standalone payloads outside of msfconsole?",
+      "options": [
+        "msfencode",
+        "msfvenom",
+        "msfpayload",
+        "msfgenerate"
+      ],
+      "correct_index": 1,
+      "explanation": "msfvenom combines the functionality of the old msfpayload and msfencode tools. It generates payloads in many formats (exe, elf, php, apk, etc.) and can apply encoders to evade signature-based detection."
+    }
+  ]
+}

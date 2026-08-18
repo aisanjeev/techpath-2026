@@ -1,0 +1,292 @@
+<title>OSI & TCP/IP Layer Explorer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+  h1 { text-align: center; padding: 20px; font-size: 1.5rem; color: #58a6ff; letter-spacing: 1px; }
+  .subtitle { text-align: center; color: #8b949e; font-size: 0.9rem; margin-bottom: 24px; }
+  .tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; padding: 0 12px; }
+  .tab { padding: 8px 20px; border-radius: 6px; border: 1px solid #30363d; background: #161b22; color: #8b949e; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+  .tab.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+  .tab:hover:not(.active) { border-color: #58a6ff; color: #58a6ff; }
+  .panel { display: none; padding: 0 16px 32px; }
+  .panel.active { display: block; }
+
+  /* OSI Explorer */
+  .osi-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; max-width: 900px; margin: 0 auto; }
+  @media (max-width: 640px) { .osi-layout { grid-template-columns: 1fr; } }
+  .layer-stack { display: flex; flex-direction: column; gap: 3px; }
+  .layer-btn { padding: 12px 16px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; text-align: left; font-size: 0.85rem; font-weight: 600; transition: all 0.18s; display: flex; align-items: center; gap: 10px; }
+  .layer-btn .num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; background: rgba(255,255,255,0.1); flex-shrink: 0; }
+  .layer-btn:hover { transform: translateX(4px); }
+  .layer-btn.selected { border-color: currentColor; }
+  .l7 { color: #ff7b72; } .l6 { color: #ffa657; } .l5 { color: #f0b429; }
+  .l4 { color: #7ee787; } .l3 { color: #79c0ff; } .l2 { color: #d2a8ff; } .l1 { color: #8b949e; }
+  .layer-btn { background: #161b22; }
+  .layer-btn.selected { background: #1c2128; }
+
+  .detail-panel { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 24px; min-height: 340px; }
+  .detail-panel h2 { font-size: 1.2rem; margin-bottom: 4px; }
+  .detail-panel .pdu-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #21262d; margin-bottom: 16px; }
+  .detail-panel .desc { color: #8b949e; font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px; }
+  .proto-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .proto-tag { background: #21262d; border: 1px solid #30363d; border-radius: 4px; padding: 3px 8px; font-size: 0.78rem; font-family: monospace; color: #c9d1d9; }
+  .detail-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  .detail-table th { text-align: left; color: #8b949e; font-weight: 600; padding: 6px 8px; border-bottom: 1px solid #21262d; }
+  .detail-table td { padding: 6px 8px; border-bottom: 1px solid #161b22; }
+  .attack-note { background: #2d1a1a; border-left: 3px solid #ff7b72; border-radius: 4px; padding: 10px 12px; font-size: 0.83rem; color: #ffa0a0; margin-top: 12px; }
+  .placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; color: #30363d; text-align: center; }
+  .placeholder svg { width: 60px; height: 60px; margin-bottom: 12px; }
+
+  /* Packet Journey */
+  .journey-container { max-width: 700px; margin: 0 auto; }
+  .journey-controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .btn { padding: 8px 18px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.875rem; font-weight: 600; transition: all 0.2s; }
+  .btn-primary { background: #238636; color: #fff; }
+  .btn-primary:hover { background: #2ea043; }
+  .btn-secondary { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+  .btn-secondary:hover { border-color: #58a6ff; }
+  .journey-steps { display: flex; flex-direction: column; gap: 3px; }
+  .journey-step { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 14px; opacity: 0.4; transition: all 0.4s; }
+  .journey-step.active { opacity: 1; border-color: #58a6ff; background: #1c2128; }
+  .journey-step.done { opacity: 0.75; border-color: #238636; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; background: #21262d; border: 2px solid #30363d; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+  .journey-step.active .step-num { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+  .journey-step.done .step-num { background: #238636; border-color: #238636; color: #fff; }
+  .step-content h4 { font-size: 0.9rem; margin-bottom: 3px; }
+  .step-content p { font-size: 0.82rem; color: #8b949e; line-height: 1.5; }
+  .step-content code { background: #21262d; padding: 1px 5px; border-radius: 3px; font-size: 0.8rem; color: #79c0ff; }
+
+  /* Port Reference */
+  .port-grid { max-width: 900px; margin: 0 auto; }
+  .search-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .search-input { flex: 1; background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; color: #c9d1d9; font-size: 0.9rem; outline: none; }
+  .search-input:focus { border-color: #58a6ff; }
+  .port-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+  .port-table th { text-align: left; background: #161b22; color: #8b949e; padding: 10px 12px; border-bottom: 2px solid #30363d; position: sticky; top: 0; }
+  .port-table td { padding: 9px 12px; border-bottom: 1px solid #21262d; }
+  .port-table tr:hover td { background: #1c2128; }
+  .risk-high { color: #ff7b72; font-weight: 600; }
+  .risk-med { color: #f0b429; }
+  .risk-low { color: #7ee787; }
+  .table-wrap { overflow-x: auto; }
+</style>
+
+<h1>Network Security Explorer</h1>
+<p class="subtitle">Click any OSI layer to explore protocols, PDUs, and attack surfaces</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('osi')">OSI Layer Explorer</button>
+  <button class="tab" onclick="switchTab('journey')">Packet Journey</button>
+  <button class="tab" onclick="switchTab('ports')">Port Reference</button>
+</div>
+
+<!-- OSI EXPLORER PANEL -->
+<div id="panel-osi" class="panel active">
+  <div class="osi-layout">
+    <div class="layer-stack">
+      <button class="layer-btn l7" onclick="showLayer(7)" id="btn7"><span class="num">7</span> Application</button>
+      <button class="layer-btn l6" onclick="showLayer(6)" id="btn6"><span class="num">6</span> Presentation</button>
+      <button class="layer-btn l5" onclick="showLayer(5)" id="btn5"><span class="num">5</span> Session</button>
+      <button class="layer-btn l4" onclick="showLayer(4)" id="btn4"><span class="num">4</span> Transport</button>
+      <button class="layer-btn l3" onclick="showLayer(3)" id="btn3"><span class="num">3</span> Network</button>
+      <button class="layer-btn l2" onclick="showLayer(2)" id="btn2"><span class="num">2</span> Data Link</button>
+      <button class="layer-btn l1" onclick="showLayer(1)" id="btn1"><span class="num">1</span> Physical</button>
+    </div>
+    <div class="detail-panel" id="layer-detail">
+      <div class="placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#30363d" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+        <p>Select a layer from the stack to explore its protocols and attack surface</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PACKET JOURNEY PANEL -->
+<div id="panel-journey" class="panel">
+  <div class="journey-container">
+    <p style="color:#8b949e;font-size:0.9rem;margin-bottom:16px;">Watch how a browser request to <code style="background:#21262d;padding:2px 6px;border-radius:3px;color:#79c0ff">https://example.com</code> travels through the OSI stack.</p>
+    <div class="journey-controls">
+      <button class="btn btn-primary" onclick="startJourney()">Start Animation</button>
+      <button class="btn btn-secondary" onclick="resetJourney()">Reset</button>
+    </div>
+    <div class="journey-steps" id="journey-steps">
+      <div class="journey-step" id="js0"><div class="step-num">1</div><div class="step-content"><h4>Layer 7 — Application: HTTP Request</h4><p>Your browser prepares <code>GET / HTTP/2</code> with headers: Host, User-Agent, Accept, Cookie. This is the payload — everything else wraps around it.</p></div></div>
+      <div class="journey-step" id="js1"><div class="step-num">2</div><div class="step-content"><h4>Layer 6 — Presentation: TLS Encryption</h4><p>TLS encrypts the HTTP request using the session key negotiated during the handshake. The plaintext <code>GET /</code> becomes ciphertext. The server's identity was already verified via PKI.</p></div></div>
+      <div class="journey-step" id="js2"><div class="step-num">3</div><div class="step-content"><h4>Layer 5 — Session: Connection Management</h4><p>The TLS session context is maintained here — session tickets allow resumption without a full handshake. HTTP/2 multiplexes multiple streams over one connection.</p></div></div>
+      <div class="journey-step" id="js3"><div class="step-num">4</div><div class="step-content"><h4>Layer 4 — Transport: TCP Segment</h4><p>TCP adds source port (ephemeral, e.g., <code>52341</code>) and destination port (<code>443</code>), sequence number, and ACK. Ensures ordered, reliable delivery to the correct service.</p></div></div>
+      <div class="journey-step" id="js4"><div class="step-num">5</div><div class="step-content"><h4>Layer 3 — Network: IP Packet</h4><p>IP header added: source IP <code>192.168.1.5</code>, destination IP <code>93.184.216.34</code>, TTL=64, protocol=6 (TCP). The router reads this header to decide the next hop.</p></div></div>
+      <div class="journey-step" id="js5"><div class="step-num">6</div><div class="step-content"><h4>Layer 2 — Data Link: Ethernet Frame</h4><p>Wrapped in an Ethernet frame: source MAC (your NIC), destination MAC (your router's MAC from ARP cache). FCS checksum appended for error detection on this hop only.</p></div></div>
+      <div class="journey-step" id="js6"><div class="step-num">7</div><div class="step-content"><h4>Layer 1 — Physical: Bits on the Wire</h4><p>Frame converted to electrical signals (copper), light pulses (fiber), or radio waves (Wi-Fi). Travels to your router. Router strips Layer 2, makes routing decision, re-frames with new MACs, transmits onward.</p></div></div>
+      <div class="journey-step" id="js7"><div class="step-num">8</div><div class="step-content"><h4>Server — Decapsulation (Reverse)</h4><p>Server's NIC receives bits → assembles frame → strips Ethernet → strips IP → strips TCP → strips TLS → delivers plaintext HTTP to nginx/Apache. Response travels back through the same stack in reverse.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PORT REFERENCE PANEL -->
+<div id="panel-ports" class="panel">
+  <div class="port-grid">
+    <div class="search-row">
+      <input class="search-input" type="text" placeholder="Search port, protocol, or service..." oninput="filterPorts(this.value)" id="port-search">
+    </div>
+    <div class="table-wrap">
+      <table class="port-table" id="port-table">
+        <thead><tr><th>Port</th><th>Protocol</th><th>Service</th><th>Description</th><th>Risk</th></tr></thead>
+        <tbody id="port-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const LAYERS = {
+  7: {
+    name: "Application", color: "#ff7b72", pdu: "Data",
+    desc: "The layer closest to the user. Provides network services directly to applications — web browsers, email clients, file transfer tools. This is where most application-level vulnerabilities live (SQLi, XSS, CSRF).",
+    protocols: ["HTTP", "HTTPS", "DNS", "FTP", "SFTP", "SMTP", "IMAP", "POP3", "SSH", "SNMP", "LDAP", "RDP", "NTP", "DHCP"],
+    device: "Application gateway, WAF, load balancer",
+    attacks: "Phishing, SQL injection, XSS, CSRF, DNS poisoning, SMTP relay abuse, HTTP request smuggling",
+    examples: "Browser GET request, DNS query, email SMTP DATA command"
+  },
+  6: {
+    name: "Presentation", color: "#ffa657", pdu: "Data",
+    desc: "Handles data translation, formatting, compression, and encryption/decryption. TLS lives conceptually at this layer — it encrypts Layer 7 data before it passes to Layer 5.",
+    protocols: ["TLS 1.3", "TLS 1.2", "SSL (deprecated)", "ASCII", "Unicode/UTF-8", "JPEG", "MPEG", "Base64"],
+    device: "Application gateway",
+    attacks: "Downgrade attacks (force TLS 1.0/SSL), weak cipher negotiation, BEAST, POODLE",
+    examples: "TLS encrypting HTTP payload, compressing data before transfer"
+  },
+  5: {
+    name: "Session", color: "#f0b429", pdu: "Data",
+    desc: "Manages sessions — establishing, maintaining, and terminating conversations between applications. Handles authentication tokens and session resumption.",
+    protocols: ["NetBIOS", "RPC", "NFS", "PPTP", "SQL sessions", "H.323", "SIP"],
+    device: "Application gateway",
+    attacks: "Session hijacking, session fixation, replay attacks",
+    examples: "TLS session tickets for resumed connections, remote procedure calls"
+  },
+  4: {
+    name: "Transport", color: "#7ee787", pdu: "Segment",
+    desc: "Provides end-to-end communication between processes on different hosts using port numbers. TCP provides reliability; UDP provides speed. Port numbers identify which application receives the data.",
+    protocols: ["TCP", "UDP", "SCTP", "QUIC (HTTP/3)"],
+    device: "Firewall (port filtering), load balancer",
+    attacks: "SYN flood, UDP flood, port scanning, session hijacking (sequence prediction)",
+    examples: "TCP port 443 → HTTPS, UDP port 53 → DNS, TCP SYN-ACK handshake"
+  },
+  3: {
+    name: "Network", color: "#79c0ff", pdu: "Packet",
+    desc: "Handles logical addressing (IP addresses) and routing — deciding the best path through interconnected networks. Routers operate at this layer, reading IP headers to determine next hops.",
+    protocols: ["IPv4", "IPv6", "ICMP", "ARP", "OSPF", "BGP", "IPsec", "GRE"],
+    device: "Router, Layer 3 switch, firewall",
+    attacks: "IP spoofing, ICMP flood, routing table poisoning, BGP hijacking, ARP spoofing",
+    examples: "Router forwards packet based on destination IP, ping (ICMP echo), traceroute"
+  },
+  2: {
+    name: "Data Link", color: "#d2a8ff", pdu: "Frame",
+    desc: "Handles physical (MAC) addressing and frame delivery between directly connected devices on the same network segment. Switches use MAC address tables at this layer.",
+    protocols: ["Ethernet 802.3", "Wi-Fi 802.11", "PPP", "VLAN 802.1Q", "STP 802.1D", "MAC addressing"],
+    device: "Switch, wireless access point, bridge",
+    attacks: "ARP poisoning, MAC flooding, VLAN hopping, rogue AP, evil twin Wi-Fi",
+    examples: "Ethernet frame from PC to default gateway, switch forwards by MAC table"
+  },
+  1: {
+    name: "Physical", color: "#8b949e", pdu: "Bits",
+    desc: "The actual hardware layer — converting bits into physical signals and transmitting them across a medium. Concerned with voltage, signal timing, cable specifications, and connector types.",
+    protocols: ["Cat5e/Cat6 (1Gbps/10Gbps)", "Fiber: SMF/MMF", "Wi-Fi: 802.11 a/b/g/n/ac/ax", "DSL", "Coaxial", "RS-232"],
+    device: "Hub, repeater, NIC, cable, antenna, transceiver",
+    attacks: "Physical tapping, wiretapping, signal jamming (RF), rogue access points (physical layer)",
+    examples: "Electrical signals on Cat6, light pulses in fiber, radio waves for Wi-Fi"
+  }
+};
+
+const PORTS = [
+  [20, "TCP", "FTP-Data", "FTP data transfer channel", "HIGH"],
+  [21, "TCP", "FTP", "FTP control — plaintext credentials", "HIGH"],
+  [22, "TCP", "SSH", "Encrypted remote shell — secure replacement for Telnet", "LOW"],
+  [23, "TCP", "Telnet", "Plaintext remote shell — completely deprecated", "CRITICAL"],
+  [25, "TCP", "SMTP", "Email relay between mail servers", "MED"],
+  [53, "UDP/TCP", "DNS", "Domain name resolution — UDP for queries, TCP for zone transfers", "MED"],
+  [67, "UDP", "DHCP", "DHCP server — assigns IP addresses to clients", "MED"],
+  [80, "TCP", "HTTP", "Unencrypted web — all data visible in transit", "MED"],
+  [110, "TCP", "POP3", "Email download — cleartext without TLS (use port 995)", "HIGH"],
+  [123, "UDP", "NTP", "Time synchronisation — used in DDoS amplification", "MED"],
+  [143, "TCP", "IMAP", "Email access — cleartext without TLS (use port 993)", "HIGH"],
+  [161, "UDP", "SNMP", "Network device management — v1/v2 use community strings", "HIGH"],
+  [389, "TCP", "LDAP", "Directory services — cleartext (use LDAPS on 636)", "HIGH"],
+  [443, "TCP", "HTTPS", "TLS-encrypted web — standard for all modern web traffic", "LOW"],
+  [445, "TCP", "SMB", "Windows file sharing — EternalBlue/WannaCry vector", "CRITICAL"],
+  [465, "TCP", "SMTPS", "SMTP over TLS — encrypted email submission", "LOW"],
+  [587, "TCP", "SMTP-Sub", "Authenticated email submission (STARTTLS)", "LOW"],
+  [636, "TCP", "LDAPS", "LDAP over TLS — secure directory access", "LOW"],
+  [993, "TCP", "IMAPS", "IMAP over TLS — secure email access", "LOW"],
+  [995, "TCP", "POP3S", "POP3 over TLS — secure email download", "LOW"],
+  [1433, "TCP", "MS-SQL", "Microsoft SQL Server — never expose to internet", "CRITICAL"],
+  [3306, "TCP", "MySQL", "MySQL database — commonly left exposed, easy to attack", "CRITICAL"],
+  [3389, "TCP", "RDP", "Windows Remote Desktop — frequently brute-forced", "HIGH"],
+  [4444, "TCP", "Metasploit", "Default Metasploit listener — malware C2 indicator", "CRITICAL"],
+  [5432, "TCP", "PostgreSQL", "PostgreSQL — should never be internet-facing", "HIGH"],
+  [5900, "TCP", "VNC", "Virtual Network Computing — often unencrypted", "HIGH"],
+  [6379, "TCP", "Redis", "Redis cache — no auth by default, RCE if exposed", "CRITICAL"],
+  [8080, "TCP", "HTTP-Alt", "Alternative HTTP — dev servers, proxies, Tomcat", "MED"],
+  [8443, "TCP", "HTTPS-Alt", "Alternative HTTPS — dev servers, admin panels", "MED"],
+  [27017, "TCP", "MongoDB", "MongoDB — no auth by default in older versions", "CRITICAL"],
+];
+
+function showLayer(n) {
+  const d = LAYERS[n];
+  document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('btn' + n).classList.add('selected');
+  document.getElementById('layer-detail').innerHTML = `
+    <h2 style="color:${d.color}">Layer ${n}: ${d.name}</h2>
+    <span class="pdu-badge">PDU: ${d.pdu}</span>
+    <p class="desc">${d.desc}</p>
+    <p style="font-size:0.78rem;color:#8b949e;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Key Protocols</p>
+    <div class="proto-list">${d.protocols.map(p => `<span class="proto-tag">${p}</span>`).join('')}</div>
+    <table class="detail-table">
+      <tr><th>Device(s)</th><td>${d.device}</td></tr>
+      <tr><th>Examples</th><td>${d.examples}</td></tr>
+    </table>
+    <div class="attack-note"><strong>Attack surface:</strong> ${d.attacks}</div>
+  `;
+}
+
+let journeyTimer = null, journeyStep = -1;
+function startJourney() {
+  resetJourney();
+  journeyStep = 0;
+  advanceJourney();
+}
+function advanceJourney() {
+  if (journeyStep >= 8) return;
+  document.querySelectorAll('.journey-step').forEach((el, i) => {
+    if (i < journeyStep) { el.classList.remove('active'); el.classList.add('done'); }
+    else if (i === journeyStep) { el.classList.add('active'); el.classList.remove('done'); el.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+    else { el.classList.remove('active', 'done'); }
+  });
+  journeyStep++;
+  journeyTimer = setTimeout(advanceJourney, 1800);
+}
+function resetJourney() {
+  clearTimeout(journeyTimer);
+  journeyStep = -1;
+  document.querySelectorAll('.journey-step').forEach(el => el.classList.remove('active', 'done'));
+}
+
+function renderPorts(data) {
+  const tbody = document.getElementById('port-tbody');
+  tbody.innerHTML = data.map(([port, proto, svc, desc, risk]) => {
+    const rc = risk === 'CRITICAL' ? 'risk-high' : risk === 'HIGH' ? 'risk-high' : risk === 'MED' ? 'risk-med' : 'risk-low';
+    return `<tr><td><strong>${port}</strong></td><td>${proto}</td><td>${svc}</td><td style="color:#8b949e">${desc}</td><td class="${rc}">${risk}</td></tr>`;
+  }).join('');
+}
+function filterPorts(q) {
+  const lq = q.toLowerCase();
+  renderPorts(PORTS.filter(([p,pr,s,d]) => String(p).includes(lq) || pr.toLowerCase().includes(lq) || s.toLowerCase().includes(lq) || d.toLowerCase().includes(lq)));
+}
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+renderPorts(PORTS);
+</script>

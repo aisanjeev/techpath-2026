@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "question": "What is the primary responsibility of an L1 SOC analyst?",
+      "options": [
+        "Write and tune detection rules in the SIEM",
+        "Perform deep forensic investigation on compromised endpoints",
+        "Monitor alert queues, perform initial triage, and open tickets",
+        "Manage threat intelligence feeds and platform integrations"
+      ],
+      "correct_index": 2,
+      "explanation": "L1 analysts are the first line of response. They watch dashboards, classify incoming alerts, and either close false positives or escalate true positives. Deep investigation and rule writing belong to L2/L3."
+    },
+    {
+      "question": "Which SPL command is used to aggregate and calculate statistics across search results?",
+      "options": [
+        "search",
+        "stats",
+        "fields",
+        "eval"
+      ],
+      "correct_index": 1,
+      "explanation": "The 'stats' command performs aggregation operations like count, sum, avg, and dc (distinct count). 'eval' computes derived fields, 'fields' selects output columns, and 'search' filters events."
+    },
+    {
+      "question": "What query language does Microsoft Sentinel use for searching and creating analytics rules?",
+      "options": [
+        "SPL (Search Processing Language)",
+        "SQL (Structured Query Language)",
+        "KQL (Kusto Query Language)",
+        "Lucene Query Syntax"
+      ],
+      "correct_index": 2,
+      "explanation": "Microsoft Sentinel is built on Azure Monitor and uses KQL (Kusto Query Language). Splunk uses SPL, Elasticsearch uses Lucene-based syntax, and traditional databases use SQL."
+    },
+    {
+      "question": "Windows Event ID 4625 indicates which security event?",
+      "options": [
+        "A user account was successfully logged on",
+        "An account logon attempt failed",
+        "An account was locked out after too many failures",
+        "A new user account was created"
+      ],
+      "correct_index": 1,
+      "explanation": "Event ID 4625 is generated when an account fails to log on. It includes the logon type, reason, account name, and source IP — critical for detecting brute force (T1110). Event ID 4624 is successful logon, 4720 is account creation."
+    },
+    {
+      "question": "Which MITRE ATT&CK tactic covers techniques used to maintain access after an attacker's initial compromise?",
+      "options": [
+        "Initial Access (TA0001)",
+        "Execution (TA0002)",
+        "Persistence (TA0003)",
+        "Lateral Movement (TA0008)"
+      ],
+      "correct_index": 2,
+      "explanation": "Persistence (TA0003) covers techniques that allow attackers to maintain their foothold across reboots and credential changes — e.g. scheduled tasks, registry run keys, new user accounts."
+    },
+    {
+      "question": "What does SIEM stand for?",
+      "options": [
+        "Security Information and Event Management",
+        "System Intrusion and Event Monitoring",
+        "Security Integration and Endpoint Management",
+        "Structured Incident and Error Monitoring"
+      ],
+      "correct_index": 0,
+      "explanation": "SIEM stands for Security Information and Event Management. SIEMs aggregate logs from across the environment, correlate events, and generate alerts for suspicious activity."
+    },
+    {
+      "question": "In the ELK Stack, which component is responsible for data visualisation and building dashboards?",
+      "options": [
+        "Elasticsearch",
+        "Logstash",
+        "Kibana",
+        "Filebeat"
+      ],
+      "correct_index": 2,
+      "explanation": "Kibana provides the web interface for exploring data, building dashboards, and creating alert rules. Elasticsearch is the storage/search engine, Logstash processes and transforms logs, and Filebeat ships logs from endpoints."
+    },
+    {
+      "question": "What is the main purpose of alert tuning in a SOC?",
+      "options": [
+        "Increase the total number of alerts generated per day",
+        "Reduce false positives without missing genuine threats",
+        "Permanently disable all low-severity alert rules",
+        "Forward all alerts to external threat intelligence platforms"
+      ],
+      "correct_index": 1,
+      "explanation": "Alert tuning refines detection rules to reduce noise (false positives) while keeping the signal (true positives). Disabling rules or forwarding everything externally are not solutions to false positive rates."
+    },
+    {
+      "question": "Which SOC metric measures the average time from when an attack begins to when the SOC first detects it?",
+      "options": [
+        "MTTR (Mean Time to Respond)",
+        "MTTD (Mean Time to Detect)",
+        "SLA breach rate",
+        "False Positive Rate"
+      ],
+      "correct_index": 1,
+      "explanation": "MTTD (Mean Time to Detect) measures detection speed — how long attackers had undetected access. MTTR measures how fast the team responds after detection. Both are key SOC performance KPIs."
+    },
+    {
+      "question": "What does XDR extend beyond traditional EDR capabilities?",
+      "options": [
+        "XDR only adds mobile device monitoring",
+        "XDR integrates network, cloud, identity, and endpoint telemetry into a unified detection platform",
+        "XDR completely replaces SIEM",
+        "XDR is limited to antivirus signature updates"
+      ],
+      "correct_index": 1,
+      "explanation": "XDR (Extended Detection and Response) correlates telemetry across endpoints, network, cloud workloads, and identity systems for broader threat visibility. EDR focuses only on endpoint activity."
+    },
+    {
+      "question": "In Splunk SPL, which command limits the output to the first N results?",
+      "options": [
+        "limit N",
+        "restrict N",
+        "head N",
+        "cap N"
+      ],
+      "correct_index": 2,
+      "explanation": "The 'head N' command returns the first N results from a search pipeline. 'tail N' returns the last N. There is no 'limit' or 'cap' command in Splunk SPL."
+    },
+    {
+      "question": "Windows Event ID 1102 should immediately concern a SOC analyst because it indicates:",
+      "options": [
+        "A new process was created on a domain controller",
+        "A Windows service was installed",
+        "The security audit event log was cleared",
+        "A Kerberos ticket-granting ticket was requested"
+      ],
+      "correct_index": 2,
+      "explanation": "Event ID 1102 fires when an attacker (or admin) clears the Security event log — a classic defense evasion technique (T1070.001). This destroys forensic evidence and should trigger an immediate investigation."
+    },
+    {
+      "question": "The 'Pyramid of Pain' model describes what relationship between IOC types and attacker cost?",
+      "options": [
+        "The analyst pain in processing high volumes of alerts",
+        "The difficulty for attackers when defenders successfully block different types of indicators",
+        "The cost of deploying enterprise SIEM platforms",
+        "The severity tiers used in alert classification"
+      ],
+      "correct_index": 1,
+      "explanation": "David Bianco's Pyramid of Pain ranks IOCs by how much pain blocking them causes attackers. At the base: hash values (trivial to change). At the top: TTPs (extremely hard and costly to change)."
+    },
+    {
+      "question": "Which log source is most effective for detecting DNS-based command-and-control (C2) communication?",
+      "options": [
+        "Windows Security Event Log (Event ID 4688)",
+        "Windows Firewall logs (blocked outbound)",
+        "DNS query logs (full query logging enabled)",
+        "Application event logs"
+      ],
+      "correct_index": 2,
+      "explanation": "DNS query logs record every domain lookup made by hosts on the network. C2 frameworks often use DNS for communication (T1071.004) and domain generation algorithms (DGA) — patterns only visible in full DNS query logs."
+    },
+    {
+      "question": "In MITRE ATT&CK, what does the acronym TTP stand for?",
+      "options": [
+        "Threat Transfer Protocols",
+        "Tactics, Techniques, and Procedures",
+        "Tool Test Parameters",
+        "Token Transfer Policies"
+      ],
+      "correct_index": 1,
+      "explanation": "TTPs — Tactics, Techniques, and Procedures — describe the behaviour of threat actors at increasing levels of granularity. Tactics are the 'why', techniques are the 'how', and procedures are the specific implementation. Mapping to TTPs is the core of threat-informed defence."
+    }
+  ]
+}

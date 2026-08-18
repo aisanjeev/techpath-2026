@@ -1,0 +1,31 @@
+{
+  "asset_type": "lab",
+  "title": "Nmap Recon & Enumeration Against Metasploitable 2",
+  "description": "Students perform a structured network reconnaissance and enumeration exercise against a deliberately vulnerable VM (Metasploitable 2) using Nmap and auxiliary Metasploit modules, documenting discovered services and potential attack vectors.",
+  "tags": ["nmap", "enumeration", "metasploitable", "recon", "NSE"],
+  "status": "draft",
+  "objective": "Students will conduct a multi-stage network scan, identify open services with version information, execute relevant NSE scripts, and produce a structured findings document that maps each service to a potential vulnerability.",
+  "steps": [
+    {
+      "title": "Environment Setup & Host Discovery",
+      "instructions": "Boot Metasploitable 2 in VirtualBox/VMware on a host-only network. From your Kali attack VM, confirm connectivity and discover the target.\n\n```bash\n# Identify your attack machine's IP\nip addr show eth0\n\n# Ping sweep to confirm target is alive\nnmap -sn 192.168.56.0/24\n\n# Confirm target responds\nping -c 3 <METASPLOITABLE_IP>\n```\n\nRecord the Metasploitable IP address. Substitute it for `<TARGET>` in all subsequent commands."
+    },
+    {
+      "title": "Full Port Scan with Service Version Detection",
+      "instructions": "Run a comprehensive scan covering all TCP ports with service and version detection. Save output in all formats.\n\n```bash\n# Full port scan - may take 5-10 minutes\nnmap -sS -sV -p- -T4 <TARGET> -oA /root/lab07/full_scan\n\n# View results\ncat /root/lab07/full_scan.nmap\n```\n\n**Expected findings to document:**\n- Port 21 (FTP — vsftpd 2.3.4)\n- Port 22 (SSH — OpenSSH)\n- Port 23 (Telnet)\n- Port 80 (HTTP — Apache)\n- Port 3306 (MySQL)\n- Port 5432 (PostgreSQL)\n- Port 6667 (IRC — UnrealIRCd)\n- Port 8180 (Apache Tomcat)\n\nCreate a table in your notes listing: Port | Service | Version | Risk Level."
+    },
+    {
+      "title": "OS Fingerprinting and Default Script Scan",
+      "instructions": "Run Nmap's OS detection and default scripts against discovered open ports.\n\n```bash\n# OS fingerprinting + default scripts on key ports\nnmap -sC -O -p 21,22,23,80,139,445,3306,5432,6667,8180 <TARGET> -oN /root/lab07/scripts_scan.txt\n\n# View the output\ncat /root/lab07/scripts_scan.txt\n```\n\nNote observations:\n- Does the FTP service allow anonymous login? (check ftp-anon script output)\n- What SMB shares are visible? (check smb-enum-shares output)\n- What OS does Nmap guess for the target?"
+    },
+    {
+      "title": "Targeted NSE Vulnerability Scripts",
+      "instructions": "Run vulnerability-category NSE scripts to identify known CVEs on discovered services.\n\n```bash\n# Run vulnerability scripts (takes several minutes)\nnmap --script vuln -p 21,23,80,139,445,3306,6667 <TARGET> -oN /root/lab07/vuln_scan.txt\n\n# Also run specific high-value scripts\nnmap --script ftp-vsftpd-backdoor -p 21 <TARGET>\nnmap --script smb-vuln-ms17-010 -p 445 <TARGET>\nnmap --script http-shellshock -p 80 <TARGET>\n```\n\nDocument each vulnerability found:\n- Script name\n- CVE number (if provided)\n- Description of the vulnerability\n- CVSS score (look it up on nvd.nist.gov)"
+    },
+    {
+      "title": "Findings Documentation & Attack Surface Map",
+      "instructions": "Compile your findings into a structured attack surface document.\n\n```bash\n# Generate XML output for structured parsing\nnmap -sV -p- <TARGET> -oX /root/lab07/final_scan.xml\n\n# Optional: convert to HTML for readable report\nxsltproc /usr/share/nmap/nmap.xsl /root/lab07/final_scan.xml -o /root/lab07/report.html\n```\n\n**Your submission document must include:**\n1. Network diagram (hand-drawn or draw.io) showing Kali → Metasploitable\n2. Findings table: Port | Service | Version | CVE | CVSS | Priority\n3. Top 3 recommended attack paths with justification\n4. Screenshots of: host discovery, full scan, and at least one vuln script result\n\nPrioritise the vsftpd backdoor (CVE-2011-2523) and UnrealIRCd backdoor (CVE-2010-2075) as high-impact targets for Lab 07-B."
+    }
+  ],
+  "expected_output": "A PDF lab report containing: network diagram, findings table (minimum 8 services documented with CVE references), attack surface analysis, and screenshots of each nmap scan. XML scan output file attached."
+}

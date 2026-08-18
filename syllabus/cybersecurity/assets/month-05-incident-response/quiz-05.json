@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "question": "What is the correct order of the NIST Incident Response lifecycle phases?",
+      "options": [
+        "Identify → Prepare → Contain → Eradicate → Recover → Learn",
+        "Prepare → Identify → Contain → Eradicate → Recover → Learn",
+        "Prepare → Contain → Identify → Recover → Eradicate → Learn",
+        "Identify → Contain → Prepare → Recover → Eradicate → Learn"
+      ],
+      "correct_index": 1,
+      "explanation": "The NIST IR lifecycle is: Prepare → Identify → Contain → Eradicate → Recover → Learn (Post-Incident Activity). Preparation happens before any incident. Identification (detection) comes first when an incident occurs, before containment."
+    },
+    {
+      "question": "Which Volatility 3 plugin displays running processes as a parent-child tree, making orphaned or injected processes easier to spot?",
+      "options": [
+        "windows.pslist.PsList",
+        "windows.pstree.PsTree",
+        "windows.cmdline.CmdLine",
+        "windows.procmap.ProcMap"
+      ],
+      "correct_index": 1,
+      "explanation": "windows.pstree.PsTree shows the hierarchical parent-child relationship between processes. This makes it easy to spot anomalies like cmd.exe with WINWORD.EXE as parent, or svchost.exe spawned by explorer.exe (which is abnormal)."
+    },
+    {
+      "question": "What is the primary purpose of maintaining chain of custody in digital forensics?",
+      "options": [
+        "To encrypt collected evidence before storage",
+        "To ensure evidence integrity and legal admissibility in court",
+        "To speed up the investigation process significantly",
+        "To allow sharing evidence with external threat intelligence services"
+      ],
+      "correct_index": 1,
+      "explanation": "Chain of custody documents the complete handling history of evidence — who collected it, when, how, and who accessed it. This ensures the evidence has not been tampered with and can be admitted in legal proceedings."
+    },
+    {
+      "question": "Which forensics tool is primarily used for memory analysis and extracting artifacts from RAM dumps?",
+      "options": [
+        "Autopsy",
+        "Wireshark",
+        "Volatility",
+        "Nmap"
+      ],
+      "correct_index": 2,
+      "explanation": "Volatility is the leading open-source memory forensics framework. It analyses RAM dumps to extract processes, network connections, registry data, and detect malicious code injection. Autopsy is for disk forensics."
+    },
+    {
+      "question": "Sysmon Event ID 1 captures which type of activity?",
+      "options": [
+        "Network connection established by a process",
+        "Registry key created or modified",
+        "Process creation with full command line and file hash",
+        "DNS query resolution per process"
+      ],
+      "correct_index": 2,
+      "explanation": "Sysmon Event ID 1 (Process Creation) logs every new process with the full command line, executable hash, parent process, and user context. This is invaluable for detecting malicious execution and LOLBin abuse."
+    },
+    {
+      "question": "In the Pyramid of Pain, which type of indicator sits at the top and is most costly for attackers to change?",
+      "options": [
+        "File hash values (MD5/SHA256)",
+        "IP addresses and C2 server IPs",
+        "Domain names registered for campaigns",
+        "Tactics, Techniques, and Procedures (TTPs)"
+      ],
+      "correct_index": 3,
+      "explanation": "TTPs sit at the top of David Bianco's Pyramid of Pain. Changing how attackers operate (their procedures and techniques) requires significant effort, retraining, and retooling. Hash values at the base can be changed in seconds by recompiling."
+    },
+    {
+      "question": "Which open-source platform aggregates threat intelligence, allows IOC sharing between organisations, and supports structured threat information exchange (STIX/TAXII)?",
+      "options": [
+        "Volatility Foundation",
+        "Autopsy",
+        "MISP (Malware Information Sharing Platform)",
+        "Velociraptor"
+      ],
+      "correct_index": 2,
+      "explanation": "MISP is a free, open-source threat intelligence platform that enables organisations to share IOCs, malware samples, and threat reports in structured formats. It supports STIX, TAXII, and OpenIOC standards."
+    },
+    {
+      "question": "What does IOC stand for in the context of threat intelligence?",
+      "options": [
+        "Incident Operations Center",
+        "Indicator of Compromise",
+        "Internal Operations Configuration",
+        "Intrusion Operations Command"
+      ],
+      "correct_index": 1,
+      "explanation": "IOC stands for Indicator of Compromise — observable artefacts that suggest a system has been compromised. Common IOCs include file hashes, malicious IP addresses, suspicious domains, and registry key modifications."
+    },
+    {
+      "question": "The Volatility 3 'malfind' plugin is specifically designed to:",
+      "options": [
+        "List all network connections from the memory dump",
+        "Find processes with injected code or executable memory regions not backed by a file on disk",
+        "Extract Windows registry hives from memory",
+        "Enumerate all loaded kernel modules and drivers"
+      ],
+      "correct_index": 1,
+      "explanation": "malfind scans process memory regions for characteristics of injected code: executable memory (RWX permissions) that is not backed by a mapped file on disk, and PE headers (MZ signature) in unexpected locations — hallmarks of process injection (T1055)."
+    },
+    {
+      "question": "What is the key difference between threat hunting and alert-based detection in a SOC?",
+      "options": [
+        "Threat hunting only uses fully automated tools with no analyst involvement",
+        "Threat hunting is hypothesis-driven and proactive — analysts search for threats without waiting for alerts",
+        "Alert-based detection is always more effective than threat hunting",
+        "Threat hunting is a reactive process that begins only after a confirmed incident"
+      ],
+      "correct_index": 1,
+      "explanation": "Threat hunting is a proactive discipline where analysts form hypotheses about attacker behaviour (based on threat intel or ATT&CK) and actively search for evidence — without needing an alert to trigger. It finds threats that evade automated detection."
+    },
+    {
+      "question": "Which Autopsy feature reconstructs file system activity into a chronological view, helping analysts understand what happened and when?",
+      "options": [
+        "Hash Lookup Module",
+        "Keyword Search Module",
+        "Timeline Analysis",
+        "Data Carving"
+      ],
+      "correct_index": 2,
+      "explanation": "Timeline Analysis in Autopsy combines MAC timestamps (Modified, Accessed, Created) from the file system to create a chronological activity log. This helps analysts reconstruct the attack sequence and identify when malicious files were dropped."
+    },
+    {
+      "question": "What Volatility 3 plugin should you run first to reveal active and recently terminated network connections from a memory dump?",
+      "options": [
+        "windows.connections.Connections",
+        "windows.netstat.NetStat",
+        "windows.network.list",
+        "windows.pcap.Dump"
+      ],
+      "correct_index": 1,
+      "explanation": "windows.netstat.NetStat extracts network connection information from memory, including active, established, listening, and recently closed connections with their associated processes. This reveals C2 connections even if the process is no longer running."
+    },
+    {
+      "question": "VirusTotal is primarily used by security analysts to:",
+      "options": [
+        "Perform live dynamic malware analysis in a completely isolated sandbox",
+        "Scan files, URLs, IPs, and domains against dozens of antivirus engines and threat feeds simultaneously",
+        "Manage and automate incident response playbooks",
+        "Monitor real-time network traffic for anomalous behaviour"
+      ],
+      "correct_index": 1,
+      "explanation": "VirusTotal submits suspicious files, URLs, IPs, and domains to 70+ antivirus engines and threat intelligence services and aggregates the results. It is a quick first-pass enrichment tool — note that uploaded files are shared with subscribers."
+    },
+    {
+      "question": "In forensic evidence collection, what does a hardware or software write-blocker prevent?",
+      "options": [
+        "Copying files from the original evidence drive to an image",
+        "Any write operations to the original evidence media during acquisition",
+        "Unauthorised sharing of evidence with external parties",
+        "Running malware analysis tools on the live production system"
+      ],
+      "correct_index": 1,
+      "explanation": "A write-blocker prevents any write operations to the source evidence media. Without one, accessing a drive (even read-only) can modify timestamps and journal entries, contaminating the evidence. Write-blockers are essential for forensic admissibility."
+    },
+    {
+      "question": "Velociraptor is best described as:",
+      "options": [
+        "A disk imaging tool specifically designed for single-endpoint forensic evidence collection",
+        "A free, open-source platform for enterprise-scale endpoint visibility, live forensic collection, and threat hunting across thousands of endpoints simultaneously",
+        "A memory analysis framework that competes directly with Volatility",
+        "A threat intelligence feed aggregator and IOC management platform"
+      ],
+      "correct_index": 1,
+      "explanation": "Velociraptor is an enterprise endpoint visibility and DFIR tool that deploys lightweight agents to endpoints. Analysts can run forensic collection artefacts across thousands of machines simultaneously using VQL (Velociraptor Query Language)."
+    }
+  ]
+}

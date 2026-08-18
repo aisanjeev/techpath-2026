@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "question": "Which OWASP Top 10 2021 category covers Insecure Direct Object Reference (IDOR)?",
+      "options": [
+        "A03 — Injection",
+        "A07 — Identification and Authentication Failures",
+        "A01 — Broken Access Control",
+        "A04 — Insecure Design"
+      ],
+      "correct_index": 2,
+      "explanation": "IDOR is a subcategory of A01 — Broken Access Control. It occurs when an application uses user-controllable input (such as an object ID in a URL or request body) to access objects without verifying the requesting user is authorised to access that specific object."
+    },
+    {
+      "question": "What is the primary defence against SQL injection vulnerabilities?",
+      "options": [
+        "Input length validation",
+        "Parameterised queries / prepared statements",
+        "Escaping single quotes with backslashes",
+        "Using a Web Application Firewall (WAF)"
+      ],
+      "correct_index": 1,
+      "explanation": "Parameterised queries (prepared statements) separate SQL code from data, making injection impossible regardless of the input value. WAFs and escaping are partial mitigations but not the primary fix — they can often be bypassed."
+    },
+    {
+      "question": "An attacker injects a script into a comment field that is stored in the database. When other users view the page, the script runs in their browser. Which XSS type is this?",
+      "options": [
+        "Reflected XSS",
+        "DOM-based XSS",
+        "Stored XSS",
+        "Universal XSS"
+      ],
+      "correct_index": 2,
+      "explanation": "Stored (Persistent) XSS occurs when the malicious script is saved on the server (e.g., in a database) and then served to every user who views the affected page. It is typically more severe than reflected XSS because no user interaction beyond viewing the page is needed."
+    },
+    {
+      "question": "Which HTTP header helps mitigate XSS by restricting the sources from which scripts can be loaded?",
+      "options": [
+        "X-Frame-Options",
+        "Content-Security-Policy",
+        "Strict-Transport-Security",
+        "X-Content-Type-Options"
+      ],
+      "correct_index": 1,
+      "explanation": "Content-Security-Policy (CSP) allows a website to declare which sources of content are trusted. A strict CSP (e.g., default-src 'self') blocks inline scripts and external script sources, significantly reducing the impact of XSS vulnerabilities."
+    },
+    {
+      "question": "An attacker sends a request to a vulnerable server: GET /api/fetch?url=http://169.254.169.254/latest/meta-data/. What attack type is this?",
+      "options": [
+        "XML External Entity (XXE) Injection",
+        "Server-Side Request Forgery (SSRF)",
+        "Cross-Site Request Forgery (CSRF)",
+        "Remote File Inclusion"
+      ],
+      "correct_index": 1,
+      "explanation": "SSRF (Server-Side Request Forgery) tricks the server into making HTTP requests to attacker-specified destinations. Targeting 169.254.169.254 is an attempt to reach the AWS Instance Metadata Service to steal IAM credentials."
+    },
+    {
+      "question": "In a JWT token, what does the 'alg:none' attack attempt to exploit?",
+      "options": [
+        "A weak signing secret that can be brute-forced",
+        "A missing expiration claim in the payload",
+        "The server accepting tokens with no signature when the algorithm is set to 'none'",
+        "Changing the JWT payload to include admin privileges"
+      ],
+      "correct_index": 2,
+      "explanation": "If a server does not strictly validate the algorithm, an attacker can modify the JWT header to set 'alg':'none', remove the signature, and the server may accept the unsigned token. A correct implementation must reject any token with alg:none."
+    },
+    {
+      "question": "Which Burp Suite tool is used to automatically fuzz parameters with a wordlist?",
+      "options": [
+        "Repeater",
+        "Decoder",
+        "Comparer",
+        "Intruder"
+      ],
+      "correct_index": 3,
+      "explanation": "Burp Intruder allows you to mark injection points in a request and then automatically send many variations using a wordlist or payload set. It is used for fuzzing, brute-forcing, and parameter tampering at scale."
+    },
+    {
+      "question": "What is BOLA in the context of API security?",
+      "options": [
+        "Broken Object Level Authorisation — accessing another user's resources by changing the object ID",
+        "Broken OAuth Login Architecture — exploiting OAuth redirect URIs",
+        "Batch Object Layer Attack — sending many API requests in a single batch call",
+        "Backend Object Link Abuse — chaining API calls to escalate access"
+      ],
+      "correct_index": 0,
+      "explanation": "BOLA (Broken Object Level Authorization), also called IDOR in APIs, is the top API security risk. It occurs when the API does not verify that the requesting user owns or is authorised to access the object ID supplied in the request."
+    },
+    {
+      "question": "A developer stores user passwords as unsalted MD5 hashes. Which OWASP category does this fall under?",
+      "options": [
+        "A03 — Injection",
+        "A07 — Authentication Failures",
+        "A02 — Cryptographic Failures",
+        "A05 — Security Misconfiguration"
+      ],
+      "correct_index": 2,
+      "explanation": "A02 — Cryptographic Failures covers weak or broken cryptographic implementations, including using MD5/SHA1 for passwords (should use bcrypt/argon2), missing salts, weak TLS configurations, and storing sensitive data in cleartext."
+    },
+    {
+      "question": "In DVWA, which technique determines the number of columns in the original SQL query during a UNION-based injection?",
+      "options": [
+        "Gradually increasing ORDER BY clause number until an error occurs",
+        "Adding LIMIT 1 to the query",
+        "Using the HAVING 1=1 clause",
+        "Sending an empty string as the parameter"
+      ],
+      "correct_index": 0,
+      "explanation": "ORDER BY <number>-- increases the column reference number. When the number exceeds the actual column count, the database returns an error. The last successful number is the column count. You can also use UNION SELECT NULL,NULL... adding NULLs until no error occurs."
+    },
+    {
+      "question": "Which of the following is NOT a valid defence against SSRF attacks?",
+      "options": [
+        "Implementing an allowlist of permitted external URLs",
+        "Blocking requests to private IP ranges at the application layer",
+        "Upgrading to IMDSv2 on AWS EC2 instances",
+        "Encoding user input with HTML entity encoding"
+      ],
+      "correct_index": 3,
+      "explanation": "HTML entity encoding is an XSS mitigation, not relevant to SSRF. SSRF defences include: allowlisting permitted external URLs, blocking private IP ranges (10.x.x.x, 172.16.x.x, 192.168.x.x, 169.254.x.x), and using IMDSv2 which requires a PUT request with a token before GET requests can access metadata."
+    },
+    {
+      "question": "What happens when an API accepts and persists unexpected fields sent in a JSON request body, such as a 'role' or 'isAdmin' field?",
+      "options": [
+        "SQL Injection",
+        "Mass Assignment",
+        "Excessive Data Exposure",
+        "Rate Limit Bypass"
+      ],
+      "correct_index": 1,
+      "explanation": "Mass Assignment occurs when an API binds all incoming request body fields directly to internal objects without filtering. An attacker can send undocumented privileged fields (like role:admin) to elevate their access level."
+    },
+    {
+      "question": "Which cookie attribute prevents JavaScript from reading a cookie's value, mitigating XSS-based cookie theft?",
+      "options": [
+        "SameSite=Strict",
+        "Secure",
+        "HttpOnly",
+        "Domain=.example.com"
+      ],
+      "correct_index": 2,
+      "explanation": "The HttpOnly flag instructs the browser to prevent JavaScript from accessing the cookie via document.cookie. This is a critical defence against cookie theft via XSS. The Secure flag ensures the cookie is only sent over HTTPS, which is a different but equally important protection."
+    },
+    {
+      "question": "PortSwigger Web Security Academy provides which type of learning resource?",
+      "options": [
+        "Certification exams for penetration testers",
+        "Free interactive browser-based labs with theory covering real-world web vulnerabilities",
+        "Paid video courses about network security",
+        "A job board for cybersecurity professionals"
+      ],
+      "correct_index": 1,
+      "explanation": "PortSwigger Web Security Academy (portswigger.net/web-security) provides free, interactive labs hosted in the browser covering all major web vulnerability classes including SQLi, XSS, SSRF, CSRF, XXE, and more — each with theory, practitioner labs, and expert labs of increasing difficulty."
+    },
+    {
+      "question": "Which tool is specifically designed to detect SQL injection vulnerabilities by automatically sending crafted payloads and analysing database responses?",
+      "options": [
+        "Nikto",
+        "Gobuster",
+        "SQLMap",
+        "theHarvester"
+      ],
+      "correct_index": 2,
+      "explanation": "SQLMap is an open-source tool that automates the detection and exploitation of SQL injection vulnerabilities. It can fingerprint the database, enumerate schemas, dump data, and in some cases achieve remote code execution via techniques like xp_cmdshell (MSSQL) or UDF injection (MySQL)."
+    }
+  ]
+}

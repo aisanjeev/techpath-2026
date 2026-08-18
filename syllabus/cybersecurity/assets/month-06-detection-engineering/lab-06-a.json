@@ -1,0 +1,31 @@
+{
+  "asset_type": "lab",
+  "title": "Write and Deploy Your First Sigma Detection Rule",
+  "description": "Write a Sigma rule to detect a common attacker technique, convert it to your SIEM's query language, and verify it produces an alert when the technique is simulated in your homelab.",
+  "tags": ["sigma", "detection-engineering", "siem", "mitre-attack", "sysmon"],
+  "status": "draft",
+  "objective": "Students will write a working Sigma detection rule for a real attacker technique, convert it to SIEM query syntax, deploy it, and verify it alerts when the technique is executed in the homelab.",
+  "steps": [
+    {
+      "title": "Install Sysmon and Configure Logging",
+      "instructions": "Sysmon gives you detailed Windows telemetry that basic Event Logs miss. Install it on your Windows VM:\n\n**Download Sysmon:**\nhttps://docs.microsoft.com/en-us/sysinternals/downloads/sysmon\n\n**Download SwiftOnSecurity's config (best practice baseline):**\nhttps://github.com/SwiftOnSecurity/sysmon-config\n\n```powershell\n# Install Sysmon with the config\nSysmon64.exe -accepteula -i sysmonconfig-export.xml\n\n# Verify it's running\nGet-Service Sysmon64\n\n# Check events are being generated\nGet-WinEvent -LogName 'Microsoft-Windows-Sysmon/Operational' -MaxEvents 10\n```\n\nVerify you can see EventID 1 (Process Create) entries. These are what your Sigma rule will target."
+    },
+    {
+      "title": "Write the Sigma Rule",
+      "instructions": "Create a file `detect_powershell_download.yml`:\n\n```yaml\ntitle: PowerShell Download Cradle Detection\nid: a1b2c3d4-e5f6-7890-abcd-ef1234567890\nstatus: experimental\ndescription: |\n  Detects PowerShell commands commonly used to download\n  and execute payloads from the internet (LOLBin technique).\nauthor: YourName\ndate: 2026/08/04\nlogsource:\n  category: process_creation\n  product: windows\ndetection:\n  selection_process:\n    Image|endswith:\n      - '\\powershell.exe'\n      - '\\pwsh.exe'\n  selection_commands:\n    CommandLine|contains:\n      - 'Invoke-WebRequest'\n      - 'IWR'\n      - 'DownloadString'\n      - 'IEX'\n      - 'Invoke-Expression'\n      - 'WebClient'\n  condition: selection_process and selection_commands\nfalsepositives:\n  - Legitimate admin scripts (document and whitelist)\n  - Windows Update components (validate with full path)\nlevel: high\ntags:\n  - attack.execution\n  - attack.t1059.001\n  - attack.defense_evasion\n  - attack.t1027\n```\n\nSave the file. Verify the YAML is valid using: https://yamlchecker.com/"
+    },
+    {
+      "title": "Convert Sigma to Your SIEM Query",
+      "instructions": "Use the online Sigma converter to translate your rule:\n\n**Option 1 — Online (easiest):**\nGo to https://sigconverter.io/\n- Upload or paste your `.yml` rule\n- Select your target: Splunk, Microsoft Sentinel, Elastic, etc.\n- Copy the generated query\n\n**Option 2 — Command line (pySigma):**\n```bash\npip install pySigma pySigma-backend-splunk\n\n# Convert to Splunk SPL\npython -c \"\nfrom sigma.collection import SigmaCollection\nfrom sigma.backends.splunk import SplunkBackend\nwith open('detect_powershell_download.yml') as f:\n    rules = SigmaCollection.from_yaml(f.read())\nbackend = SplunkBackend()\nprint(backend.convert(rules))\n\"\n```\n\n**Document the converted query** — paste it into your notes."
+    },
+    {
+      "title": "Trigger the Detection",
+      "instructions": "In your Windows homelab VM (isolated lab only!), run a benign command that would match your Sigma rule:\n\n```powershell\n# BENIGN TEST — downloads from a safe URL\nInvoke-WebRequest -Uri https://www.google.com -OutFile test.html\n\n# Another test pattern\n$wc = New-Object System.Net.WebClient\n$wc.DownloadString(\"https://example.com\")\n```\n\nThese are real patterns attackers use — you're confirming your detection works.\n\n**In your SIEM (or Event Viewer):**\n- Check Sysmon EventID 1 events\n- Filter for `powershell.exe` in the CommandLine\n- Verify the `Invoke-WebRequest` command was logged\n\n```powershell\n# Check Sysmon for your test\nGet-WinEvent -LogName 'Microsoft-Windows-Sysmon/Operational' |\nWhere-Object {$_.Message -like '*Invoke-WebRequest*'} |\nSelect-Object TimeCreated, Message | Format-List\n```\n\nTake a screenshot showing the Sysmon event captured."
+    },
+    {
+      "title": "Document and Share",
+      "instructions": "Create a `README.md` in your detection-rules GitHub folder:\n\n```markdown\n## detect_powershell_download.yml\n\n**Technique:** T1059.001 — PowerShell\n**Severity:** High\n**MITRE Phase:** Execution / Defense Evasion\n\n### What it detects\nPowerShell processes spawning with command-line arguments that indicate\na download cradle — a common technique used by malware loaders.\n\n### How to test\nRun in isolated lab: `Invoke-WebRequest -Uri https://test.com -OutFile out.txt`\n\n### False positives\n- Windows Update: whitelist `C:\\Windows\\System32\\`\n- Known admin scripts: document and exclude specific hashes\n\n### Converted SIEM queries\n- Splunk SPL: `[paste your converted query]`\n- Microsoft Sentinel KQL: `[paste your converted query]`\n```\n\nPush all files to your GitHub portfolio:\n```bash\ngit add detect_powershell_download.yml README.md screenshots/\ngit commit -m \"Add PowerShell download cradle Sigma detection rule\"\ngit push\n```"
+    }
+  ],
+  "expected_output": "A working Sigma rule file (.yml) on GitHub, a screenshot of the Sysmon event captured when the test PowerShell command was run, and the SIEM query equivalents for at least one platform."
+}

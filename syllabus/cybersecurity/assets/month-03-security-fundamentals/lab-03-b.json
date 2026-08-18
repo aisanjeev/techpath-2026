@@ -1,0 +1,31 @@
+{
+  "asset_type": "lab",
+  "title": "CyberChef Cryptography Lab — Hands-on Encryption & Encoding",
+  "description": "Use CyberChef to perform real-world cryptographic operations: hashing, encoding, encryption, and decoding. Understand what each operation produces and why it matters in security.",
+  "tags": ["cryptography", "cyberchef", "hashing", "aes", "base64", "encoding"],
+  "status": "draft",
+  "objective": "Students will use CyberChef to hash, encode, encrypt, and decode data — building practical cryptography intuition that directly applies to CTF challenges and security investigations.",
+  "steps": [
+    {
+      "title": "Hashing — Understand One-Way Functions",
+      "instructions": "Open CyberChef at https://gchq.github.io/CyberChef/\n\nIn the **Input** box, type your full name (e.g., `Sanjeev Kumar`).\n\n**Task 1 — MD5:**\n- Drag **MD5** from the Operations panel to the Recipe\n- Note the output (32 hex characters)\n- Change one letter in your name — note how the hash completely changes\n\n**Task 2 — SHA-256:**\n- Replace MD5 with **SHA2 256-bit** in the Recipe\n- Compare the output length (64 hex characters)\n\n**Task 3 — Hash Collision Test:**\n- Hash `password` → note the SHA-256\n- Hash `Password` → completely different hash\n- Hash `password1` vs `password2` — always different\n\n**Document:** Screenshot each hash and note: can you reverse the hash back to your name?"
+    },
+    {
+      "title": "Encoding — Base64 and URL Encoding",
+      "instructions": "**Task 1 — Base64 Encode:**\nIn CyberChef Input: `Hello, this is a secret message!`\nRecipe: **To Base64**\nOutput should be: `SGVsbG8sIHRoaXMgaXMgYSBzZWNyZXQgbWVzc2FnZSE=`\n\n**Task 2 — Base64 Decode (why attackers use this):**\nNew recipe. Input: `Y3liZXJzZWN1cml0eTIwMjY=`\nRecipe: **From Base64**\nNote: Base64 is NOT encryption — it's encoding. Anyone can decode it.\n\n**Task 3 — URL Encoding:**\nInput: `'; DROP TABLE users; --`\nRecipe: **URL Encode**\nThis is how SQL injection payloads get smuggled in URLs.\n\n**Task 4 — Hex Encoding:**\nInput: `EICAR` (the test antivirus string prefix)\nRecipe: **To Hex**\nObserve: This is how malware samples are shared safely in reports."
+    },
+    {
+      "title": "Symmetric Encryption — AES",
+      "instructions": "**Task 1 — AES Encrypt:**\nInput: `This is my secret data`\nRecipe: **AES Encrypt**\n- Key (hex): `0123456789abcdef0123456789abcdef` (32 chars = 128-bit key)\n- IV (hex): `00000000000000000000000000000000`\n- Mode: CBC\n- Output format: Hex\n\nCopy the output hex string.\n\n**Task 2 — AES Decrypt:**\nNew CyberChef tab. Input: (paste the hex from Task 1)\nRecipe: **From Hex** → **AES Decrypt** (same key, IV, mode)\nOutput should be your original message.\n\n**Key insight:** Same key for encrypt AND decrypt = symmetric. This is fast but requires secure key sharing.\n\n**Document:** Screenshot both operations showing the round-trip."
+    },
+    {
+      "title": "Analyse a Suspicious File Hash",
+      "instructions": "**Scenario:** You receive an email with an attachment. Before opening it, you want to check if it's malware.\n\n**Step 1:** Download the EICAR antivirus test file (safe fake malware):\nhttps://www.eicar.org/download/eicar-com-2/ → download `eicar.com.txt`\n\n**Step 2:** Compute its SHA-256 hash:\n- Windows PowerShell: `Get-FileHash .\\eicar.com.txt -Algorithm SHA256`\n- Or drag the file into CyberChef Input → Recipe: **SHA2 256-bit**\n\n**Step 3:** Go to VirusTotal: https://www.virustotal.com/\nClick **Search** and paste the SHA-256 hash.\nHow many vendors detect it as malicious?\n\n**Step 4:** Now search this known malware hash on VirusTotal:\n`44d88612fea8a8f36de82e1278abb02f` (EICAR MD5)\n\n**Document:** Screenshot showing detection ratio on VirusTotal."
+    },
+    {
+      "title": "Decode a Suspicious String — CTF Style",
+      "instructions": "Security analysts regularly encounter obfuscated strings in malware, phishing emails, and logs. Use CyberChef's 'Magic' feature to decode these:\n\n**Challenge 1:** Decode this string (figure out the encoding first):\n`U2VjdXJpdHkrPUxlYXJuaW5n`\nHint: Try From Base64\n\n**Challenge 2:** Decode this ROT13 string:\n`Plorefrphevgl vf sha!`\nRecipe: **ROT13**\n\n**Challenge 3:** Decode this hex:\n`48656c6c6f2043796265725365637572697479`\nRecipe: **From Hex**\n\n**Challenge 4 — Use Magic:**\nInput: `MDExMDEwMDAgMDExMDEwMDEgMDExMDExMDAgMDExMDExMDA=`\nDrag **Magic** to Recipe and let CyberChef figure out the encoding chain.\n\n**Document:** Screenshot of each decoded result. Write what encoding method was used for each challenge."
+    }
+  ],
+  "expected_output": "A document (PDF or Word) with screenshots of: SHA-256 hash of your name, Base64 encode/decode operations, AES encrypt/decrypt round-trip, VirusTotal EICAR hash lookup, and all 4 CTF challenge solutions with encoding methods identified."
+}

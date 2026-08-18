@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevSecOps & GRC Interactive Lab</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+  h1{text-align:center;padding:28px 16px 8px;font-size:1.6rem;color:#58a6ff}
+  .subtitle{text-align:center;color:#8b949e;margin-bottom:24px;font-size:.9rem}
+  .tabs{display:flex;justify-content:center;gap:8px;padding:0 16px 20px;flex-wrap:wrap}
+  .tab{padding:9px 20px;border-radius:8px;border:1px solid #30363d;background:#161b22;color:#8b949e;cursor:pointer;font-size:.88rem;transition:all .2s}
+  .tab.active{background:#1f6feb;border-color:#1f6feb;color:#fff}
+  .panel{display:none;max-width:1100px;margin:0 auto;padding:0 16px 40px}
+  .panel.active{display:block}
+
+  /* ─── PANEL 1: Pipeline Visualiser ─── */
+  .pipeline-wrap{display:flex;flex-direction:column;gap:4px;align-items:center}
+  .stage{display:flex;align-items:flex-start;width:100%;gap:12px;padding:10px 0}
+  .stage-arrow{display:flex;flex-direction:column;align-items:center;color:#30363d;font-size:1.4rem;min-width:24px;padding-top:4px}
+  .stage-box{flex:1;background:#161b22;border:1px solid #30363d;border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .2s}
+  .stage-box:hover{border-color:#58a6ff}
+  .stage-box.active{border-color:#58a6ff;background:#0d1f36}
+  .stage-header{display:flex;align-items:center;gap:10px;padding:12px 16px}
+  .stage-icon{font-size:1.5rem;width:40px;text-align:center}
+  .stage-title{font-weight:600;font-size:.95rem}
+  .stage-label{font-size:.78rem;color:#8b949e;margin-top:2px}
+  .stage-status{margin-left:auto;font-size:.78rem;padding:3px 10px;border-radius:12px;font-weight:600}
+  .s-green{background:#1a4731;color:#3fb950}
+  .s-red{background:#3d1a1a;color:#f85149}
+  .s-blue{background:#0d2040;color:#58a6ff}
+  .s-orange{background:#3a2200;color:#e3b341}
+  .stage-body{display:none;padding:14px 16px 16px;border-top:1px solid #21262d;font-size:.85rem;line-height:1.7}
+  .stage-box.active .stage-body{display:block}
+  .tool-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+  .chip{padding:3px 10px;border-radius:12px;font-size:.78rem;background:#21262d;color:#58a6ff;border:1px solid #30363d}
+  .findings-box{background:#0d1117;border-radius:8px;padding:10px 14px;margin-top:10px;font-family:monospace;font-size:.8rem;color:#3fb950;white-space:pre-wrap}
+  .vuln-box{background:#0d1117;border-radius:8px;padding:10px 14px;margin-top:10px;font-family:monospace;font-size:.8rem;color:#f85149;white-space:pre-wrap}
+
+  /* ─── PANEL 2: Risk Register Builder ─── */
+  .risk-form{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:22px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+  .form-group{display:flex;flex-direction:column;gap:5px}
+  .form-group.full{grid-column:1/-1}
+  label{font-size:.82rem;color:#8b949e;font-weight:500}
+  input,select,textarea{background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;padding:8px 11px;font-size:.88rem;font-family:inherit;width:100%}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:#58a6ff}
+  .slider-row{display:flex;align-items:center;gap:12px}
+  input[type=range]{flex:1;height:6px;background:#21262d;cursor:pointer;accent-color:#58a6ff}
+  .slider-val{font-size:1.1rem;font-weight:700;min-width:24px;text-align:center;color:#58a6ff}
+  .btn{padding:10px 28px;background:#1f6feb;border:none;border-radius:8px;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;margin-top:10px}
+  .btn:hover{background:#2d7ff7}
+  .btn-clear{background:#21262d;margin-left:8px}
+  .btn-clear:hover{background:#30363d}
+  .risk-result{margin-top:18px;display:none}
+  .risk-card{background:#0d1117;border-radius:10px;border:2px solid #30363d;overflow:hidden}
+  .risk-banner{padding:14px 18px;display:flex;align-items:center;gap:14px}
+  .risk-score-big{font-size:2.5rem;font-weight:900;min-width:64px;text-align:center}
+  .risk-level{font-size:1.1rem;font-weight:700}
+  .risk-sublevel{font-size:.83rem;color:#8b949e;margin-top:2px}
+  .risk-body{padding:16px 18px}
+  .risk-table{width:100%;border-collapse:collapse;font-size:.84rem}
+  .risk-table td{padding:7px 10px;border-bottom:1px solid #21262d}
+  .risk-table td:first-child{color:#8b949e;width:40%}
+  .controls-suggest{margin-top:14px;background:#0a1a0f;border-left:3px solid #3fb950;padding:10px 14px;border-radius:0 8px 8px 0}
+  .controls-suggest h4{color:#3fb950;font-size:.85rem;margin-bottom:6px}
+  .controls-suggest ul{padding-left:16px;font-size:.83rem;line-height:1.8;color:#c9d1d9}
+  .register-table{margin-top:20px;display:none}
+  .reg-table{width:100%;border-collapse:collapse;font-size:.82rem}
+  .reg-table th{background:#21262d;padding:8px 10px;text-align:left;color:#8b949e;font-weight:500}
+  .reg-table td{padding:7px 10px;border-bottom:1px solid #21262d}
+  .badge{padding:2px 8px;border-radius:10px;font-size:.75rem;font-weight:600}
+  .c-critical{background:#3d1a1a;color:#f85149}
+  .c-high{background:#3a2200;color:#e3b341}
+  .c-medium{background:#1f3a1f;color:#3fb950}
+  .c-low{background:#0d2040;color:#58a6ff}
+
+  /* ─── PANEL 3: NIST CSF 2.0 ─── */
+  .csf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px}
+  .fn-card{border-radius:10px;border:2px solid;padding:14px;cursor:pointer;transition:all .2s}
+  .fn-card:hover{transform:translateY(-2px)}
+  .fn-card.sel{transform:translateY(-2px)}
+  .fn-icon{font-size:1.6rem;margin-bottom:6px}
+  .fn-name{font-weight:700;font-size:.95rem}
+  .fn-code{font-size:.75rem;margin-top:2px;opacity:.75}
+  .fn-desc{font-size:.78rem;margin-top:6px;line-height:1.5;opacity:.85}
+  .fn-gov{border-color:#a371f7;background:#1a0a2e}
+  .fn-gov .fn-icon,.fn-gov .fn-name,.fn-gov .fn-desc{color:#a371f7}
+  .fn-id{border-color:#58a6ff;background:#0d1f36}
+  .fn-id .fn-icon,.fn-id .fn-name,.fn-id .fn-desc{color:#58a6ff}
+  .fn-pr{border-color:#3fb950;background:#0a1a0f}
+  .fn-pr .fn-icon,.fn-pr .fn-name,.fn-pr .fn-desc{color:#3fb950}
+  .fn-de{border-color:#e3b341;background:#2a1f00}
+  .fn-de .fn-icon,.fn-de .fn-name,.fn-de .fn-desc{color:#e3b341}
+  .fn-rs{border-color:#f85149;background:#1a0505}
+  .fn-rs .fn-icon,.fn-rs .fn-name,.fn-rs .fn-desc{color:#f85149}
+  .fn-rc{border-color:#e3b341;background:#2a1f00}
+  .fn-rc .fn-icon,.fn-rc .fn-name,.fn-rc .fn-desc{color:#e3b341}
+  .csf-detail{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:18px;min-height:200px}
+  .csf-detail h3{margin-bottom:12px;font-size:1rem}
+  .cat-list{display:flex;flex-direction:column;gap:10px}
+  .cat-item{background:#0d1117;border-radius:8px;padding:12px 14px;border-left:3px solid}
+  .cat-item h4{font-size:.88rem;font-weight:600;margin-bottom:4px}
+  .cat-item p{font-size:.8rem;color:#8b949e;line-height:1.5}
+  .cat-item .examples{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+  .ex-chip{background:#21262d;border-radius:12px;padding:2px 9px;font-size:.75rem;color:#58a6ff}
+  .placeholder{color:#8b949e;text-align:center;padding:30px;font-size:.9rem}
+</style>
+</head>
+<body>
+
+<h1>DevSecOps &amp; GRC Interactive Lab</h1>
+<p class="subtitle">Month 12 — Explore the security pipeline, build risk registers, and master NIST CSF 2.0</p>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab(0)">⚙️ DevSecOps Pipeline</button>
+  <button class="tab" onclick="switchTab(1)">📊 Risk Register Builder</button>
+  <button class="tab" onclick="switchTab(2)">🛡️ NIST CSF 2.0</button>
+</div>
+
+<!-- ═══════════════════════════════ PANEL 1 ═══════════════════════════════ -->
+<div class="panel active" id="panel0">
+  <p style="text-align:center;color:#8b949e;font-size:.85rem;margin-bottom:18px">Click any pipeline stage to expand it and see tools, what it catches, and sample findings</p>
+  <div class="pipeline-wrap" id="pipelineWrap"></div>
+</div>
+
+<!-- ═══════════════════════════════ PANEL 2 ═══════════════════════════════ -->
+<div class="panel" id="panel1">
+  <div class="risk-form">
+    <h3 style="margin-bottom:16px;color:#58a6ff">Risk Register Entry Builder</h3>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Risk Description</label>
+        <textarea id="riskDesc" rows="2" placeholder="e.g. External attacker exploits misconfigured S3 bucket to exfiltrate customer PAN data"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Asset / System at Risk</label>
+        <input id="riskAsset" type="text" placeholder="e.g. Customer database (AWS RDS)">
+      </div>
+      <div class="form-group">
+        <label>Threat Source</label>
+        <select id="riskThreat">
+          <option>External attacker</option>
+          <option>Insider threat (malicious)</option>
+          <option>Insider threat (accidental)</option>
+          <option>Supply chain / third party</option>
+          <option>Natural disaster / physical</option>
+          <option>Nation-state APT</option>
+          <option>Script kiddie / opportunist</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Likelihood (1 = Rare → 5 = Almost Certain)</label>
+        <div class="slider-row">
+          <input type="range" id="likelihood" min="1" max="5" value="3" oninput="updateSlider('likelihood','lv')">
+          <span class="slider-val" id="lv">3</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Impact (1 = Insignificant → 5 = Critical)</label>
+        <div class="slider-row">
+          <input type="range" id="impact" min="1" max="5" value="3" oninput="updateSlider('impact','iv')">
+          <span class="slider-val" id="iv">3</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Risk Owner</label>
+        <input id="riskOwner" type="text" placeholder="e.g. CTO, Head of Engineering">
+      </div>
+      <div class="form-group">
+        <label>Treatment Option</label>
+        <select id="riskTreat">
+          <option>Mitigate (implement controls)</option>
+          <option>Transfer (insurance / outsource)</option>
+          <option>Accept (document and monitor)</option>
+          <option>Avoid (stop the activity)</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Existing Controls (if any)</label>
+        <input id="riskControls" type="text" placeholder="e.g. S3 bucket encryption enabled, KMS key rotation">
+      </div>
+    </div>
+    <button class="btn" onclick="buildRisk()">Generate Risk Entry</button>
+    <button class="btn btn-clear" onclick="addToRegister()">Add to Register</button>
+    <button class="btn btn-clear" onclick="clearRegister()">Clear All</button>
+  </div>
+
+  <div class="risk-result" id="riskResult"></div>
+  <div class="register-table" id="registerTable"></div>
+</div>
+
+<!-- ═══════════════════════════════ PANEL 3 ═══════════════════════════════ -->
+<div class="panel" id="panel2">
+  <p style="text-align:center;color:#8b949e;font-size:.85rem;margin-bottom:18px">Click a function to explore its subcategories and example security controls</p>
+  <div class="csf-grid" id="csfGrid"></div>
+  <div class="csf-detail" id="csfDetail">
+    <p class="placeholder">Select a function above to explore its categories and controls</p>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// PANEL 1 — PIPELINE STAGES DATA
+// ══════════════════════════════════════════════════════
+const stages=[
+  {
+    icon:'💻',title:'Developer Commits',label:'Local machine → Git push',status:'Developer action',statusClass:'s-blue',
+    body:`The developer writes code and commits to a feature branch. Security starts here — before the code reaches CI.
+<div class="tool-row">
+  <span class="chip">git-secrets</span><span class="chip">detect-secrets</span><span class="chip">pre-commit hooks</span><span class="chip">Semgrep (quick)</span>
+</div>
+<b>Pre-commit hook catches:</b>
+<div class="findings-box">✔ No AWS key patterns detected
+✔ No private key fingerprints
+✔ No hardcoded password patterns
+✔ Quick SAST: 0 high findings
+→ Commit allowed</div>
+<b>If a secret is found:</b>
+<div class="vuln-box">✗ BLOCKED: Secret pattern detected in config.py line 14
+  Pattern: AWS Access Key (AKIA...)
+  Action: Rotate this key IMMEDIATELY if it was ever pushed
+  Fix: Use environment variables or AWS Secrets Manager</div>`,
+  },
+  {
+    icon:'🔍',title:'SAST — Static Analysis',label:'Runs on: pull request creation',status:'Security Gate',statusClass:'s-orange',
+    body:`Semgrep and/or CodeQL analyse the source code without running it. Findings above HIGH severity fail the pipeline.
+<div class="tool-row">
+  <span class="chip">Semgrep</span><span class="chip">SonarQube</span><span class="chip">CodeQL</span><span class="chip">Bandit (Python)</span>
+</div>
+<b>Common findings (and fixes):</b>
+<div class="findings-box">⚠ HIGH: sql-injection (app/api.py:47)
+  code: db.execute("SELECT * FROM users WHERE id="+req.id)
+  fix:  db.execute("SELECT * FROM users WHERE id=?", [req.id])
+
+⚠ HIGH: hardcoded-secret (config.py:12)
+  code: SECRET_KEY = "dev-secret-please-change"
+  fix:  SECRET_KEY = os.environ['SECRET_KEY']
+
+✔ PASS: No CRITICAL findings → pipeline continues</div>`,
+  },
+  {
+    icon:'📦',title:'SCA — Dependency Scan',label:'Runs on: build trigger',status:'Security Gate',statusClass:'s-orange',
+    body:`Trivy scans all dependency manifests (requirements.txt, package.json, pom.xml) for packages with known CVEs.
+<div class="tool-row">
+  <span class="chip">Trivy</span><span class="chip">Snyk</span><span class="chip">Dependabot</span><span class="chip">OWASP Dep-Check</span>
+</div>
+<b>Sample Trivy output — CRITICAL found (pipeline fails):</b>
+<div class="vuln-box">requirements.txt (pip)
+======================
+Total: 2 (HIGH: 1, CRITICAL: 1)
+
+Library       CVE              Severity  Fixed
+Flask 0.12.2  CVE-2018-1000656  HIGH     0.12.3
+requests 2.18 CVE-2018-18074    CRITICAL  2.20.0
+
+→ EXIT CODE 1 — pipeline BLOCKED</div>
+<b>After fix (Flask 3.0.3, requests 2.31.0):</b>
+<div class="findings-box">Total: 0 (HIGH: 0, CRITICAL: 0)
+→ EXIT CODE 0 — pipeline continues</div>`,
+  },
+  {
+    icon:'🔑',title:'Secret Scanning',label:'Runs on: every push (full history)',status:'Security Gate',statusClass:'s-orange',
+    body:`TruffleHog scans the entire git history — not just the current commit — for leaked credentials. Git history is permanent.
+<div class="tool-row">
+  <span class="chip">TruffleHog</span><span class="chip">GitGuardian</span><span class="chip">git-secrets</span><span class="chip">GitHub Secret Scanning</span>
+</div>
+<b>TruffleHog finding in old commit:</b>
+<div class="vuln-box">🚨 Verified secret found!
+  Detector: AWS
+  Raw: AKIAIOSFODNN7EXAMPLE / wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  Commit: a3f7c9d (2 commits ago)
+  File: src/config.py (now deleted — but still in history!)
+
+  RESPONSE: Rotate key NOW — delete does not help</div>
+<b>Key insight:</b> Even after <code>git rm</code> and a new commit, the secret remains in git history. Use <code>git filter-repo</code> to rewrite history AND rotate the credential.`,
+  },
+  {
+    icon:'🏗️',title:'Container Build',label:'Build Docker image',status:'Artefact creation',statusClass:'s-blue',
+    body:`A Docker image is built and scanned before being pushed to the registry.
+<div class="tool-row">
+  <span class="chip">Docker multi-stage build</span><span class="chip">Trivy image scan</span><span class="chip">Cosign signing</span><span class="chip">Non-root USER</span>
+</div>
+<b>Trivy image scan before push:</b>
+<div class="findings-box">python:3.11-alpine (alpine 3.19.1)
+================================
+Total: 3 (LOW: 3, HIGH: 0, CRITICAL: 0)
+→ PASS — image pushed to registry</div>
+<b>Image signed with Cosign:</b>
+<div class="findings-box">cosign sign --key cosign.key myregistry/myapp:v1.2.3@sha256:abc...
+→ Signature verified — only signed images will deploy</div>`,
+  },
+  {
+    icon:'🌐',title:'DAST — Dynamic Scan',label:'Runs against: staging environment',status:'Security Gate',statusClass:'s-orange',
+    body:`OWASP ZAP spider the running application in staging and tests for runtime vulnerabilities SAST cannot find.
+<div class="tool-row">
+  <span class="chip">OWASP ZAP</span><span class="chip">Burp Suite Enterprise</span><span class="chip">Nuclei</span>
+</div>
+<b>ZAP baseline scan findings:</b>
+<div class="vuln-box">WARN: Missing Anti-clickjacking Header (GET /)
+WARN: X-Content-Type-Options Header Missing (GET /api/v1/users)
+ALERT: SQL Injection (GET /search?q=1'OR'1'='1)
+  Evidence: Database error in response body
+  Risk: HIGH
+→ Pipeline blocked — fix SQL injection before prod deploy</div>
+<b>Fix applied — rescan:</b>
+<div class="findings-box">WARN: Missing Anti-clickjacking Header (low risk, accepted)
+→ 0 HIGH/CRITICAL alerts — deploy approved</div>`,
+  },
+  {
+    icon:'🚀',title:'Production Deploy',label:'Manual approval + automated gates',status:'Gated release',statusClass:'s-blue',
+    body:`After all gates pass, the deployment goes to production with runtime monitoring active.
+<div class="tool-row">
+  <span class="chip">Falco (runtime)</span><span class="chip">AWS GuardDuty</span><span class="chip">Datadog CSPM</span><span class="chip">Wazuh</span>
+</div>
+<b>Required to proceed to production:</b>
+<div class="findings-box">✔ SAST: 0 critical findings
+✔ SCA: 0 high/critical CVEs
+✔ Secret scan: clean history
+✔ Container: image signed, 0 critical vulns
+✔ DAST: 0 high/critical alerts
+✔ Manual approval: security lead sign-off
+→ DEPLOY TO PRODUCTION</div>
+<b>Runtime alert (Falco):</b>
+<div class="vuln-box">⚠ RUNTIME ALERT: Unexpected outbound connection
+  container: myapp-prod-7d4f9b
+  process: python (cmd: curl http://malicious.example.com)
+  → Potential reverse shell or data exfiltration
+  Action: Container quarantined, IR team notified</div>`,
+  }
+];
+
+function buildPipeline(){
+  const wrap=document.getElementById('pipelineWrap');
+  stages.forEach((s,i)=>{
+    if(i>0){
+      const arrow=document.createElement('div');
+      arrow.style.cssText='text-align:center;color:#30363d;font-size:1.2rem;padding:2px 0;width:100%';
+      arrow.textContent='↓';
+      wrap.appendChild(arrow);
+    }
+    const stage=document.createElement('div');
+    stage.className='stage';
+    stage.innerHTML=`<div class="stage-box" id="stg${i}" onclick="toggleStage(${i})">
+      <div class="stage-header">
+        <div class="stage-icon">${s.icon}</div>
+        <div><div class="stage-title">${s.title}</div><div class="stage-label">${s.label}</div></div>
+        <div class="stage-status ${s.statusClass}">${s.status}</div>
+      </div>
+      <div class="stage-body">${s.body}</div>
+    </div>`;
+    wrap.appendChild(stage);
+  });
+}
+
+function toggleStage(i){
+  const box=document.getElementById('stg'+i);
+  box.classList.toggle('active');
+}
+
+buildPipeline();
+
+// ══════════════════════════════════════════════════════
+// PANEL 2 — RISK REGISTER BUILDER
+// ══════════════════════════════════════════════════════
+let register=[];
+
+function updateSlider(id,valId){
+  document.getElementById(valId).textContent=document.getElementById(id).value;
+}
+
+const isoControls={
+  critical:{
+    label:'CRITICAL — Immediate Action Required',
+    color:'#f85149',bg:'#3d1a1a',
+    controls:['A.5.17 Authentication information','A.8.2 Privileged access rights','A.8.5 Secure authentication','A.5.16 Identity management','A.8.7 Protection against malware','A.8.13 Information backup']
+  },
+  high:{
+    label:'HIGH — Address Within 30 Days',
+    color:'#e3b341',bg:'#3a2200',
+    controls:['A.5.19 Information security in supplier relationships','A.6.3 Information security awareness training','A.8.8 Management of technical vulnerabilities','A.8.12 Data leakage prevention']
+  },
+  medium:{
+    label:'MEDIUM — Address Within 90 Days',
+    color:'#3fb950',bg:'#1a4731',
+    controls:['A.5.1 Policies for information security','A.7.9 Security of assets off-premises','A.8.16 Monitoring activities']
+  },
+  low:{
+    label:'LOW — Accept or Monitor',
+    color:'#58a6ff',bg:'#0d2040',
+    controls:['A.8.14 Redundancy of information processing','A.5.29 Information security during disruption']
+  }
+};
+
+function getRiskLevel(score){
+  if(score>=15) return 'critical';
+  if(score>=8) return 'high';
+  if(score>=4) return 'medium';
+  return 'low';
+}
+
+const likelihoodLabels=['','Rare','Unlikely','Possible','Likely','Almost Certain'];
+const impactLabels=['','Insignificant','Minor','Moderate','Major','Critical'];
+
+function buildRisk(){
+  const L=parseInt(document.getElementById('likelihood').value);
+  const I=parseInt(document.getElementById('impact').value);
+  const score=L*I;
+  const level=getRiskLevel(score);
+  const info=isoControls[level];
+  const desc=document.getElementById('riskDesc').value||'(no description entered)';
+  const asset=document.getElementById('riskAsset').value||'N/A';
+  const owner=document.getElementById('riskOwner').value||'TBD';
+  const treat=document.getElementById('riskTreat').value;
+  const controls=document.getElementById('riskControls').value||'None identified';
+
+  const html=`<div class="risk-card">
+    <div class="risk-banner" style="background:${info.bg}">
+      <div class="risk-score-big" style="color:${info.color}">${score}</div>
+      <div>
+        <div class="risk-level" style="color:${info.color}">${info.label}</div>
+        <div class="risk-sublevel">Likelihood ${L} (${likelihoodLabels[L]}) × Impact ${I} (${impactLabels[I]}) = ${score}</div>
+      </div>
+    </div>
+    <div class="risk-body">
+      <table class="risk-table">
+        <tr><td>Risk Description</td><td>${desc}</td></tr>
+        <tr><td>Asset</td><td>${asset}</td></tr>
+        <tr><td>Threat Source</td><td>${document.getElementById('riskThreat').value}</td></tr>
+        <tr><td>Risk Owner</td><td>${owner}</td></tr>
+        <tr><td>Existing Controls</td><td>${controls}</td></tr>
+        <tr><td>Treatment</td><td>${treat}</td></tr>
+      </table>
+      <div class="controls-suggest">
+        <h4>Suggested ISO 27001 Annex A Controls</h4>
+        <ul>${info.controls.map(c=>`<li>${c}</li>`).join('')}</ul>
+      </div>
+    </div>
+  </div>`;
+
+  const result=document.getElementById('riskResult');
+  result.innerHTML=html;
+  result.style.display='block';
+}
+
+function addToRegister(){
+  const L=parseInt(document.getElementById('likelihood').value);
+  const I=parseInt(document.getElementById('impact').value);
+  const score=L*I;
+  const level=getRiskLevel(score);
+  const desc=document.getElementById('riskDesc').value||'(no description)';
+  register.push({id:'R-'+String(register.length+1).padStart(2,'0'),desc,score,level,L,I,
+    treat:document.getElementById('riskTreat').value.split(' ')[0],
+    owner:document.getElementById('riskOwner').value||'TBD'});
+  renderRegister();
+}
+
+function renderRegister(){
+  if(register.length===0){document.getElementById('registerTable').style.display='none';return;}
+  const sorted=[...register].sort((a,b)=>b.score-a.score);
+  const rows=sorted.map(r=>`<tr>
+    <td>${r.id}</td>
+    <td style="max-width:260px">${r.desc}</td>
+    <td style="text-align:center">${r.L}</td>
+    <td style="text-align:center">${r.I}</td>
+    <td style="text-align:center;font-weight:700">${r.score}</td>
+    <td style="text-align:center"><span class="badge c-${r.level}">${r.level.toUpperCase()}</span></td>
+    <td>${r.treat}</td>
+    <td>${r.owner}</td>
+  </tr>`).join('');
+  document.getElementById('registerTable').innerHTML=`
+    <h3 style="margin-bottom:10px;color:#58a6ff">Risk Register (${register.length} risks, sorted by score)</h3>
+    <div style="overflow-x:auto"><table class="reg-table">
+      <thead><tr>
+        <th>ID</th><th>Description</th><th>L</th><th>I</th><th>Score</th><th>Level</th><th>Treatment</th><th>Owner</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+  document.getElementById('registerTable').style.display='block';
+}
+
+function clearRegister(){register=[];document.getElementById('registerTable').style.display='none';}
+
+// ══════════════════════════════════════════════════════
+// PANEL 3 — NIST CSF 2.0
+// ══════════════════════════════════════════════════════
+const csfFunctions=[
+  {
+    id:'GV',icon:'🏛️',name:'GOVERN',cls:'fn-gov',
+    desc:'Strategy, policies, roles, risk management (new in v2.0)',
+    cats:[
+      {name:'Organisational Context',color:'#a371f7',body:'Understand the business, regulatory, and threat environment that shapes security decisions.',examples:['Business objectives inventory','Regulatory landscape (DPDP, PCI-DSS)','Threat landscape briefing']},
+      {name:'Risk Management Strategy',color:'#a371f7',body:'Define and communicate the organisation\'s risk appetite and tolerance levels.',examples:['Board-approved risk appetite statement','Risk tolerance thresholds by category','Executive risk reporting cadence']},
+      {name:'Roles & Responsibilities',color:'#a371f7',body:'Ensure cybersecurity roles are defined, staffed, and understood across the organisation.',examples:['RACI matrix for security tasks','DPO appointment (DPDP/GDPR)','CISO reporting line to board']},
+      {name:'Policies',color:'#a371f7',body:'Maintain information security policies that reflect the organisation\'s risk posture.',examples:['Information security policy','Acceptable use policy','Data classification policy']},
+      {name:'Oversight',color:'#a371f7',body:'Board and senior management actively oversee cybersecurity performance.',examples:['Quarterly CISO board report','Security KPIs and metrics dashboard','Third-party audit results review']},
+    ]
+  },
+  {
+    id:'ID',icon:'🗺️',name:'IDENTIFY',cls:'fn-id',
+    desc:'Know your assets, data, and risks',
+    cats:[
+      {name:'Asset Management',color:'#58a6ff',body:'Inventory all hardware, software, data, cloud services, and personnel that are in scope.',examples:['CMDB (Configuration Management DB)','Cloud asset inventory (AWS Config)','Data classification and mapping']},
+      {name:'Risk Assessment',color:'#58a6ff',body:'Identify threats, assess likelihood and impact, and prioritise risks for treatment.',examples:['Annual risk assessment','Threat modelling (STRIDE, PASTA)','Vulnerability scan results review']},
+      {name:'Improvement',color:'#58a6ff',body:'Learn from past incidents, near-misses, and external intelligence to improve risk identification.',examples:['Post-incident review actions','CTI feed integration','Bug bounty programme findings']},
+    ]
+  },
+  {
+    id:'PR',icon:'🛡️',name:'PROTECT',cls:'fn-pr',
+    desc:'Limit or prevent the impact of incidents',
+    cats:[
+      {name:'Identity & Access Control',color:'#3fb950',body:'Manage identities and permissions; enforce least privilege and strong authentication.',examples:['MFA enforcement (all accounts)','Privileged Access Management (PAM)','Quarterly access reviews']},
+      {name:'Awareness & Training',color:'#3fb950',body:'Equip staff with security knowledge to avoid being the weakest link.',examples:['Annual security awareness training','Monthly phishing simulations','Developer secure coding training']},
+      {name:'Data Security',color:'#3fb950',body:'Protect data at rest and in transit; enforce data classification and handling rules.',examples:['AES-256 encryption at rest','TLS 1.3 for all data in transit','DLP policy for sensitive data']},
+      {name:'Platform Security',color:'#3fb950',body:'Maintain secure configurations for all platforms, systems, and software.',examples:['CIS Benchmark hardening','Patch management SLAs (CRITICAL: 24h)','IaC security scanning (Checkov)']},
+      {name:'Technology Resilience',color:'#3fb950',body:'Ensure systems can withstand and recover from security events.',examples:['3-2-1 backup strategy','Tested disaster recovery plan','Multi-region failover capability']},
+    ]
+  },
+  {
+    id:'DE',icon:'👁️',name:'DETECT',cls:'fn-de',
+    desc:'Identify cybersecurity events quickly',
+    cats:[
+      {name:'Continuous Monitoring',color:'#e3b341',body:'Continuously monitor networks, systems, and activities for anomalies and threats.',examples:['SIEM (Splunk/Sentinel/ELK)','IDS/IPS on network perimeter','EDR on all endpoints (CrowdStrike)']},
+      {name:'Adverse Event Analysis',color:'#e3b341',body:'Analyse detected events to understand their nature, scope, and potential impact.',examples:['Alert triage SOC workflow','UEBA for insider threat detection','Threat hunting programme']},
+    ]
+  },
+  {
+    id:'RS',icon:'🚨',name:'RESPOND',cls:'fn-rs',
+    desc:'Act on a detected cybersecurity incident',
+    cats:[
+      {name:'Incident Management',color:'#f85149',body:'Execute the incident response plan with clearly defined roles and decision authority.',examples:['Tested IR playbooks','Incident commander role','24/7 SOC or on-call rotation']},
+      {name:'Incident Analysis',color:'#f85149',body:'Investigate the incident to determine root cause, scope, and impacted systems.',examples:['Forensic investigation process','Chain of custody for evidence','Timeline reconstruction methodology']},
+      {name:'Incident Reporting',color:'#f85149',body:'Communicate the incident status and findings to internal and external stakeholders.',examples:['DPDP Act breach notification (72h)','Executive incident briefing template','Regulatory disclosure process']},
+      {name:'Mitigation',color:'#f85149',body:'Contain the incident, eliminate the threat, and prevent re-entry.',examples:['Network isolation playbook','Malware eradication checklist','Password reset for compromised accounts']},
+    ]
+  },
+  {
+    id:'RC',icon:'🔄',name:'RECOVER',cls:'fn-rc',
+    desc:'Restore systems and learn from incidents',
+    cats:[
+      {name:'Incident Recovery',color:'#e3b341',body:'Restore systems, data, and services to normal operation in order of priority.',examples:['Recovery time objectives (RTO)','Recovery point objectives (RPO)','System restoration runbooks']},
+      {name:'Incident Recovery Comms',color:'#e3b341',body:'Coordinate recovery communications with staff, customers, partners, and regulators.',examples:['Customer incident communication template','Regulator notification letter','PR/media response plan']},
+      {name:'Improvements',color:'#e3b341',body:'Incorporate lessons learned from incidents into policies, controls, and training.',examples:['Post-incident review (PIR) within 72h','Control gap tracking','NIST CSF profile update after major incident']},
+    ]
+  }
+];
+
+let selectedFn=-1;
+
+function buildCSF(){
+  const grid=document.getElementById('csfGrid');
+  csfFunctions.forEach((fn,i)=>{
+    const card=document.createElement('div');
+    card.className=`fn-card ${fn.cls}`;
+    card.id=`fn${i}`;
+    card.innerHTML=`<div class="fn-icon">${fn.icon}</div>
+      <div class="fn-name">${fn.id} — ${fn.name}</div>
+      <div class="fn-desc">${fn.desc}</div>`;
+    card.onclick=()=>showFn(i);
+    grid.appendChild(card);
+  });
+}
+
+function showFn(i){
+  if(selectedFn===i){
+    document.getElementById('fn'+i).classList.remove('sel');
+    selectedFn=-1;
+    document.getElementById('csfDetail').innerHTML='<p class="placeholder">Select a function above to explore its categories and controls</p>';
+    return;
+  }
+  if(selectedFn>=0) document.getElementById('fn'+selectedFn).classList.remove('sel');
+  selectedFn=i;
+  document.getElementById('fn'+i).classList.add('sel');
+  const fn=csfFunctions[i];
+  const cats=fn.cats.map(c=>`<div class="cat-item" style="border-left-color:${c.color}">
+    <h4 style="color:${c.color}">${c.name}</h4>
+    <p>${c.body}</p>
+    <div class="examples">${c.examples.map(e=>`<span class="ex-chip">${e}</span>`).join('')}</div>
+  </div>`).join('');
+  document.getElementById('csfDetail').innerHTML=`
+    <h3>${fn.icon} ${fn.id} — ${fn.name}: Categories &amp; Example Controls</h3>
+    <div class="cat-list">${cats}</div>`;
+}
+
+buildCSF();
+
+// ══════════════════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════════════════
+function switchTab(i){
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+}
+</script>
+</body>
+</html>

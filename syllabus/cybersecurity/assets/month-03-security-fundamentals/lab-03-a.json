@@ -1,0 +1,31 @@
+{
+  "asset_type": "lab",
+  "title": "Python Log Analyser — Detect Brute Force Attacks",
+  "description": "Write a Python script that parses an auth.log file and flags IPs with excessive failed SSH login attempts — your first real security automation tool.",
+  "tags": ["python", "log-analysis", "brute-force", "automation", "regex"],
+  "status": "draft",
+  "objective": "Students will write a Python script using regex to parse authentication logs, count failed login attempts per IP, and generate a threat report identifying potential brute-force attackers.",
+  "steps": [
+    {
+      "title": "Create a Sample Auth Log",
+      "instructions": "Create a file called `auth.log` with at least 50 lines. Mix successful and failed logins from several IPs. Use this format:\n\n```\nAug 04 10:23:45 server sshd[1234]: Failed password for root from 192.168.1.100 port 54321 ssh2\nAug 04 10:23:47 server sshd[1235]: Failed password for admin from 10.0.0.50 port 54322 ssh2\nAug 04 10:23:49 server sshd[1236]: Accepted password for user1 from 172.16.0.5 port 54323 ssh2\nAug 04 10:23:51 server sshd[1237]: Failed password for root from 192.168.1.100 port 54324 ssh2\n```\n\nMake sure at least 3 IPs have more than 5 failed attempts each. Save as `auth.log` in the same folder as your script."
+    },
+    {
+      "title": "Write the Log Parser",
+      "instructions": "Create `log_analyser.py`. Write code to:\n1. Open and read `auth.log`\n2. Use `re.findall()` to find all lines containing `Failed password`\n3. Extract the IP address from each failed line using regex `r'from (\\d+\\.\\d+\\.\\d+\\.\\d+)'`\n4. Count occurrences of each IP using a dictionary or `collections.Counter`\n\n```python\nimport re\nfrom collections import Counter\n\nwith open('auth.log') as f:\n    content = f.read()\n\nfailed_lines = [l for l in content.splitlines() if 'Failed password' in l]\nips = [re.search(r'from (\\d+\\.\\d+\\.\\d+\\.\\d+)', l).group(1)\n       for l in failed_lines if re.search(r'from (\\d+\\.\\d+\\.\\d+\\.\\d+)', l)]\n\nip_counts = Counter(ips)\nprint(f'Total failed attempts: {len(ips)}')\n```"
+    },
+    {
+      "title": "Identify Top Attackers and Flag High Risk",
+      "instructions": "Add code to:\n1. Print the top 5 IPs with most failed attempts\n2. Flag any IP with more than 5 attempts as HIGH RISK\n\n```python\nprint('\\n--- Top 5 Attacking IPs ---')\nfor ip, count in ip_counts.most_common(5):\n    risk = ' ⚠️  HIGH RISK' if count > 5 else ''\n    print(f'{ip}: {count} failed attempts{risk}')\n\nprint('\\n--- HIGH RISK IPs (>5 attempts) ---')\nhigh_risk = [(ip, c) for ip, c in ip_counts.items() if c > 5]\nfor ip, count in sorted(high_risk, key=lambda x: -x[1]):\n    print(f'BLOCK: {ip} — {count} attempts')\n```\n\nRun your script: `python log_analyser.py`. Verify the output matches your sample log."
+    },
+    {
+      "title": "Write a Summary Report to File",
+      "instructions": "Add code to write the findings to `report.txt`:\n\n```python\nfrom datetime import datetime\n\nwith open('report.txt', 'w') as r:\n    r.write(f'SSH Brute Force Analysis Report\\n')\n    r.write(f'Generated: {datetime.now().strftime(\"%Y-%m-%d %H:%M\")}\\n')\n    r.write(f'Log file: auth.log\\n')\n    r.write(f'Total failed attempts: {len(ips)}\\n\\n')\n    r.write('TOP 5 ATTACKING IPs:\\n')\n    for ip, count in ip_counts.most_common(5):\n        r.write(f'  {ip}: {count} attempts\\n')\n    r.write('\\nHIGH RISK (block immediately):\\n')\n    for ip, count in sorted(high_risk, key=lambda x: -x[1]):\n        r.write(f'  {ip}: {count} attempts\\n')\n\nprint('Report written to report.txt')\n```\n\nOpen `report.txt` and verify it contains all the correct information."
+    },
+    {
+      "title": "Extend: Count Successful Logins Too",
+      "instructions": "Extend your script to also count successful logins and calculate a success/failure ratio:\n\n```python\nsuccess_lines = [l for l in content.splitlines() if 'Accepted password' in l]\nsuccessful_ips = [re.search(r'from (\\d+\\.\\d+\\.\\d+\\.\\d+)', l).group(1)\n                  for l in success_lines if re.search(r'from (\\d+\\.\\d+\\.\\d+\\.\\d+)', l)]\n\nprint(f'Total successful logins: {len(successful_ips)}')\nprint(f'Total failed logins: {len(ips)}')\nprint(f'Failure ratio: {len(ips)/(len(ips)+len(successful_ips))*100:.1f}%')\n\n# Check for IPs that had fails then a success (successful brute force?)\nfor ip in successful_ips:\n    if ip in ip_counts and ip_counts[ip] > 3:\n        print(f'ALERT: {ip} had {ip_counts[ip]} failures then succeeded — possible brute force!')\n```\n\nPush your complete `log_analyser.py`, `auth.log`, and `report.txt` to your GitHub portfolio."
+    }
+  ],
+  "expected_output": "A working Python script (log_analyser.py) that parses auth.log, identifies top attacking IPs, flags HIGH RISK IPs, and writes a formatted report.txt. All files pushed to GitHub."
+}

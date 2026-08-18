@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "question": "What is Sigma in the context of detection engineering?",
+      "options": [
+        "A SIEM platform by Microsoft",
+        "A vendor-neutral detection rule format that can be converted to any SIEM query language",
+        "A malware sandboxing tool",
+        "A Python library for log analysis"
+      ],
+      "correct_index": 1,
+      "explanation": "Sigma is a generic, vendor-neutral rule format for describing detection logic. Rules can be converted to SPL (Splunk), KQL (Sentinel), Lucene (ELK), and other query languages using the sigmac/pySigma tools."
+    },
+    {
+      "question": "YARA rules are primarily used to:",
+      "options": [
+        "Block network traffic based on IP reputation",
+        "Convert Sigma rules to SIEM queries",
+        "Pattern-match against files and memory to identify malware",
+        "Automate incident response playbooks"
+      ],
+      "correct_index": 2,
+      "explanation": "YARA is a pattern-matching tool for identifying malware. Rules define strings and conditions to match against file content or memory. Used by AV vendors, threat hunters, and IR teams."
+    },
+    {
+      "question": "What does SOAR stand for?",
+      "options": [
+        "Security Operations Automation and Response",
+        "Security Orchestration, Automation and Response",
+        "System Operations and Alert Routing",
+        "Security Operations Analytics and Reporting"
+      ],
+      "correct_index": 1,
+      "explanation": "SOAR = Security Orchestration, Automation and Response. It connects security tools, automates repetitive tasks (enrichment, triage), and manages cases — reducing analyst workload."
+    },
+    {
+      "question": "In the detection lifecycle, what comes after writing a detection rule?",
+      "options": [
+        "Immediately deploy to production",
+        "Test the rule against known-good and known-bad traffic",
+        "Archive the rule for future use",
+        "Convert it to a YARA rule"
+      ],
+      "correct_index": 1,
+      "explanation": "The detection lifecycle is: Write → Test → Tune → Deploy → Review. Rules must be tested against known malicious and benign data before deployment to avoid both misses and false positives."
+    },
+    {
+      "question": "What is 'alert fatigue' in a SOC context?",
+      "options": [
+        "When the SIEM stops generating alerts due to a configuration error",
+        "When analysts become desensitised to alerts due to excessive volume of false positives",
+        "When detection rules become outdated after a tool update",
+        "When a threat actor deliberately avoids triggering alerts"
+      ],
+      "correct_index": 1,
+      "explanation": "Alert fatigue occurs when analysts are overwhelmed by too many low-quality alerts (mostly false positives). It causes real threats to be missed as analysts stop investigating every alert thoroughly."
+    },
+    {
+      "question": "A Sigma rule's 'condition' field does what?",
+      "options": [
+        "Specifies which SIEM to deploy the rule to",
+        "Defines the log source (Windows, Linux, network)",
+        "Combines the defined search patterns using logical operators to define when to fire",
+        "Sets the severity level of the alert"
+      ],
+      "correct_index": 2,
+      "explanation": "In Sigma, 'detection' defines named search patterns, and 'condition' combines them with logic (AND, OR, NOT, all of, 1 of) to specify exactly when the rule should trigger."
+    },
+    {
+      "question": "Which of these is a free, open-source SOAR platform?",
+      "options": [
+        "Splunk SOAR",
+        "Palo Alto XSOAR",
+        "Shuffle",
+        "IBM QRadar SOAR"
+      ],
+      "correct_index": 2,
+      "explanation": "Shuffle (shuffler.io) is a free, open-source SOAR platform. Splunk SOAR, Palo Alto XSOAR, and IBM QRadar SOAR are commercial products. Tines also has a free community tier."
+    },
+    {
+      "question": "What is the purpose of 'detection as code'?",
+      "options": [
+        "Writing malware in Python to test defences",
+        "Storing, versioning, testing, and deploying detection logic through software development practices (Git, CI/CD)",
+        "Converting code vulnerabilities into SIEM alerts automatically",
+        "Generating detection rules from machine learning models"
+      ],
+      "correct_index": 1,
+      "explanation": "Detection as code treats detection rules like software — stored in version control (Git), peer-reviewed, tested automatically, and deployed via CI/CD pipelines. This improves quality and consistency."
+    },
+    {
+      "question": "In a SOC analyst interview, you're asked: 'An alert fires for a PowerShell command downloading a file from an external IP.' What is your FIRST step?",
+      "options": [
+        "Immediately block the IP on the firewall",
+        "Reimagine the endpoint",
+        "Triage — determine if it's a false positive by checking the context (who ran it, what system, is the IP known)",
+        "Escalate to L3 analyst immediately"
+      ],
+      "correct_index": 2,
+      "explanation": "First step is always triage — gather context before acting. Check: is the PowerShell command from a legitimate admin tool? Is the IP known-good (e.g., Windows Update)? Is this system in a role where this would be expected?"
+    },
+    {
+      "question": "Which format do YARA rules use to define matching patterns?",
+      "options": [
+        "JSON arrays",
+        "YAML key-value pairs",
+        "SQL-like syntax with SELECT statements",
+        "Strings (text, hex, regex) combined with a boolean condition block"
+      ],
+      "correct_index": 3,
+      "explanation": "YARA rules define strings (text: 'malware_string', hex: {4D 5A 90 00}, regex: /pattern/) and a condition block that uses boolean logic to determine when to match."
+    },
+    {
+      "question": "What does the 'Pyramid of Pain' concept explain about threat intelligence?",
+      "options": [
+        "The hierarchy of job levels in a SOC",
+        "How difficult it is to detect different attack stages",
+        "How much effort it costs the attacker when defenders use different types of indicators",
+        "The severity levels of security incidents"
+      ],
+      "correct_index": 2,
+      "explanation": "The Pyramid of Pain (David Bianco) shows that blocking hash values costs attackers almost nothing (easy to change), while detecting and blocking TTPs (tactics/techniques) is very painful for attackers to work around."
+    },
+    {
+      "question": "A SOAR playbook for a phishing alert would typically include which steps?",
+      "options": [
+        "Immediately delete all company emails",
+        "Enrich sender IP, check URL reputation, extract IOCs, quarantine email, notify user, create ticket",
+        "Block the sender's entire email domain permanently",
+        "Restart all endpoint agents across the organization"
+      ],
+      "correct_index": 1,
+      "explanation": "A phishing SOAR playbook automates: extract sender/URL/attachment IOCs, check against threat feeds, quarantine the email from all mailboxes, notify the affected user, create a ticket, and potentially block the sender."
+    },
+    {
+      "question": "CompTIA CySA+ is focused on which security specialisation?",
+      "options": [
+        "Penetration testing and offensive security",
+        "Cloud security architecture",
+        "Cybersecurity analyst skills — threat detection, analysis, and response",
+        "Governance, risk, and compliance"
+      ],
+      "correct_index": 2,
+      "explanation": "CySA+ (Cybersecurity Analyst) validates skills in threat detection, security monitoring, incident analysis, and response. It is the natural next cert after Security+ for SOC/analyst roles."
+    },
+    {
+      "question": "When writing a security report for executive management, you should prioritise:",
+      "options": [
+        "Technical details of every CVE exploited",
+        "Raw log extracts and SIEM query syntax",
+        "Business impact, risk in non-technical language, and recommended actions with cost/benefit",
+        "A complete timeline of all analyst actions taken"
+      ],
+      "correct_index": 2,
+      "explanation": "Executives need business context: what was the impact, what is the risk, what do we do about it and what will it cost? Technical details belong in appendices for the engineering team, not the executive summary."
+    },
+    {
+      "question": "What is the key difference between a SIEM rule and a Sigma rule?",
+      "options": [
+        "SIEM rules use machine learning; Sigma rules are manual",
+        "SIEM rules are vendor-specific (SPL, KQL etc.); Sigma rules are vendor-neutral and can be converted",
+        "Sigma rules only work for Windows events; SIEM rules work everywhere",
+        "SIEM rules detect malware in files; Sigma rules detect network traffic"
+      ],
+      "correct_index": 1,
+      "explanation": "SIEM rules are written in vendor-specific query languages (Splunk SPL, Microsoft KQL, Elastic Lucene). Sigma rules are vendor-neutral YAML that can be converted to any SIEM's query language, enabling sharing across organisations."
+    }
+  ]
+}

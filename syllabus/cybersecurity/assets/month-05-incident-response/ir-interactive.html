@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NIST IR Playbook — Interactive Walkthrough</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+    min-height: 100vh;
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header {
+    text-align: center;
+    padding: 24px;
+    background: linear-gradient(135deg, #1c2333 0%, #161b27 100%);
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    margin-bottom: 24px;
+  }
+  header h1 { font-size: 1.6rem; color: #58a6ff; margin-bottom: 6px; }
+  .scenario-badge {
+    display: inline-block;
+    background: #21262d;
+    border: 1px solid #f85149;
+    color: #f85149;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.8rem;
+    margin-top: 8px;
+  }
+  .progress-bar {
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #8b949e;
+    margin-bottom: 10px;
+  }
+  .phase-dots {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .dot {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid #30363d;
+    background: #161b22;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #8b949e;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .dot.done {
+    background: #1f6feb;
+    border-color: #58a6ff;
+    color: #fff;
+  }
+  .dot.active {
+    background: var(--phase-color);
+    border-color: var(--phase-color);
+    color: #0d1117;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.1);
+  }
+  .dot-line {
+    flex: 1;
+    height: 2px;
+    background: #21262d;
+    transition: background 0.3s;
+  }
+  .dot-line.done { background: #1f6feb; }
+
+  .phase-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-top: 4px solid var(--phase-color, #58a6ff);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .phase-icon {
+    width: 50px; height: 50px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--phase-color) 20%, #0d1117);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--phase-color) 40%, transparent);
+  }
+  .phase-meta { flex: 1; }
+  .phase-number { font-size: 0.75rem; color: #8b949e; margin-bottom: 2px; }
+  .phase-name { font-size: 1.3rem; font-weight: 700; color: #e6edf3; }
+  .phase-goal {
+    color: var(--phase-color);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: 3px;
+  }
+
+  .scenario-box {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-left: 4px solid #e3b341;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .scenario-box .scenario-title {
+    font-size: 0.75rem;
+    color: #e3b341;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .scenario-box p { font-size: 0.9rem; color: #c9d1d9; line-height: 1.6; }
+
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #21262d;
+    font-size: 0.9rem;
+    color: #c9d1d9;
+    line-height: 1.5;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-btn {
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    border: 2px solid #30363d;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 12px;
+    color: transparent;
+    margin-top: 1px;
+  }
+  .check-btn.checked {
+    background: var(--phase-color);
+    border-color: var(--phase-color);
+    color: #0d1117;
+  }
+  .item-text.crossed {
+    text-decoration: line-through;
+    color: #484f58;
+  }
+
+  .key-outputs {
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 20px;
+  }
+  .key-outputs h4 {
+    font-size: 0.8rem;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+  .output-tag {
+    display: inline-block;
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 0.78rem;
+    margin: 3px;
+  }
+
+  .nav-row {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nav-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+    background: #21262d;
+    color: #e6edf3;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { border-color: #58a6ff; color: #58a6ff; }
+  .nav-btn.primary {
+    background: var(--phase-color);
+    border-color: var(--phase-color);
+    color: #0d1117;
+    font-weight: 600;
+  }
+  .nav-btn.primary:hover { opacity: 0.85; color: #0d1117; }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .progress-text {
+    font-size: 0.85rem;
+    color: #8b949e;
+  }
+
+  .completion-screen {
+    display: none;
+    text-align: center;
+    padding: 40px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-top: 4px solid #3fb950;
+    border-radius: 12px;
+    animation: fadeIn 0.5s ease;
+  }
+  .completion-screen.visible { display: block; }
+  .completion-screen h2 { font-size: 1.8rem; color: #3fb950; margin-bottom: 16px; }
+  .completion-screen p { color: #8b949e; font-size: 0.95rem; margin-bottom: 24px; }
+  .restart-btn {
+    padding: 12px 32px;
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #e6edf3;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+  .restart-btn:hover { border-color: #58a6ff; }
+
+  footer { text-align: center; color: #484f58; font-size: 0.78rem; margin-top: 24px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>NIST IR Playbook — Interactive Walkthrough</h1>
+  <p style="color:#8b949e; font-size:0.9rem;">Work through each phase of the NIST Incident Response lifecycle</p>
+  <span class="scenario-badge">🚨 SCENARIO: Ransomware Attack on Corporate Network</span>
+</header>
+
+<div class="progress-bar">
+  <div class="progress-label">
+    <span>IR Lifecycle Progress</span>
+    <span id="progressText">Phase 1 of 6</span>
+  </div>
+  <div class="phase-dots" id="phaseDots"></div>
+</div>
+
+<div id="phaseCard" class="phase-card"></div>
+<div id="completionScreen" class="completion-screen">
+  <div style="font-size:3rem; margin-bottom:16px;">✅</div>
+  <h2>Incident Resolved!</h2>
+  <p>You have completed all 6 phases of the NIST IR lifecycle.<br>
+  In a real incident, you would now document all findings and conduct a post-incident review.</p>
+  <div style="background:#0d1117; border:1px solid #30363d; border-radius:8px; padding:20px; margin:24px 0; text-align:left;">
+    <h4 style="color:#8b949e; font-size:0.8rem; text-transform:uppercase; margin-bottom:12px;">Your IR Scorecard</h4>
+    <p style="color:#c9d1d9; font-size:0.9rem; margin:6px 0;">MTTD: ~2 hours (alert detection to declaration)</p>
+    <p style="color:#c9d1d9; font-size:0.9rem; margin:6px 0;">MTTR: ~48 hours (detection to full recovery)</p>
+    <p style="color:#c9d1d9; font-size:0.9rem; margin:6px 0;">Playbook adherence: All 6 phases completed</p>
+    <p style="color:#3fb950; font-size:0.9rem; margin:6px 0; font-weight:600;">Evidence preserved throughout containment ✓</p>
+  </div>
+  <button class="restart-btn" onclick="restart()">↺ Run Another Scenario</button>
+</div>
+
+<footer>NIST SP 800-61 Incident Response | TechPath Cybersecurity Training | Month 5 — IR & Threat Intelligence</footer>
+
+<script>
+const phases = [
+  {
+    id: 1,
+    name: "Prepare",
+    icon: "🛡️",
+    color: "#58a6ff",
+    goal: "Be ready before incidents happen",
+    scenario: "Your organisation has just experienced its first ransomware alert. Before you can respond effectively, let's review what preparation should have already been in place.",
+    items: [
+      "Incident Response Plan (IRP) is documented, tested, and current",
+      "Playbooks exist for: ransomware, phishing, insider threat, account compromise",
+      "Contact tree confirmed: CISO, Legal, IT, HR, PR on standby",
+      "Detection tools deployed: SIEM, EDR, Sysmon on all endpoints",
+      "Forensic jump bag prepared: write-blocker, WinPMem, Autopsy on USB",
+      "Tabletop exercise completed with exec team in last 6 months",
+      "Backup strategy confirmed: offline backups tested within 30 days"
+    ],
+    outputs: ["IR Plan document", "Runbooks", "Contact list", "Tool inventory", "Training records"]
+  },
+  {
+    id: 2,
+    name: "Identify",
+    icon: "🔍",
+    color: "#e3b341",
+    goal: "Detect and confirm the incident",
+    scenario: "SIEM alert at 14:23 UTC: mass file rename events on fileserver-01 (extensions .locked). EDR alert: vssadmin.exe deleting shadow copies. User j.smith calls IT: 'All my files are corrupted.'",
+    items: [
+      "Validate alert: confirm file extensions changed and ransom note present on fileserver-01",
+      "Check EDR: confirm shadow copy deletion event (T1490) on affected system",
+      "Determine patient zero: review event logs for first encryption activity",
+      "Scope assessment: query SIEM — how many hosts show similar activity?",
+      "Declare formal incident: open INC-2026-001 ticket, assign severity CRITICAL",
+      "Notify Incident Commander and stakeholders per IRP escalation path",
+      "Preserve volatile evidence: capture RAM on patient zero BEFORE isolation"
+    ],
+    outputs: ["Incident ticket", "Severity declaration", "Initial scope estimate", "RAM capture"]
+  },
+  {
+    id: 3,
+    name: "Contain",
+    icon: "🔒",
+    color: "#ffa657",
+    goal: "Stop the spread without destroying evidence",
+    scenario: "Confirmed ransomware on 3 hosts. Attacker used j.smith's credentials (likely phished). Active C2 connection to 185.220.101.47 on port 443 detected on fileserver-01.",
+    items: [
+      "Network isolate fileserver-01: change VLAN at managed switch (do NOT power off — keep RAM capture running)",
+      "Block C2 IP 185.220.101.47 at perimeter firewall and internal DNS sinkhole",
+      "Disable account j.smith in Active Directory (do NOT reset yet — attacker may have second account)",
+      "Identify and isolate the 2 additional affected hosts (same VLAN change procedure)",
+      "Alert backup team: HALT all backup jobs (risk of encrypting the backup target)",
+      "Deploy additional monitoring: enhanced logging on domain controllers and file servers",
+      "Brief IT operations team: no reboots of affected systems until forensics is complete"
+    ],
+    outputs: ["Isolation confirmation", "Firewall rules", "Disabled accounts", "Monitoring uplift"]
+  },
+  {
+    id: 4,
+    name: "Eradicate",
+    icon: "🧹",
+    color: "#f85149",
+    goal: "Remove every trace of the attacker",
+    scenario: "Memory forensics revealed Cobalt Strike beacon injected into explorer.exe. Entry point: malicious Word macro from phishing email sent 48 hours earlier. Lateral movement via Pass-the-Hash.",
+    items: [
+      "Confirm attacker's full scope: check all endpoints for Cobalt Strike C2 beacon IOC (IP/cert)",
+      "Remove malware: re-image all 3 confirmed hosts (do not attempt to clean — too risky)",
+      "Patch entry point: block macro execution in Office via Group Policy, deploy latest Office patches",
+      "Rotate ALL privileged account passwords (Domain Admin, Service Accounts, Local Admin)",
+      "Search for additional attacker accounts created during dwell time (Event ID 4720 in SIEM)",
+      "Remove any attacker-created scheduled tasks or services found during forensics",
+      "Verify eradication: run fresh EDR scan on all previously affected hosts"
+    ],
+    outputs: ["Re-imaged systems", "Patched vulnerabilities", "Rotated credentials", "Clean system verification"]
+  },
+  {
+    id: 5,
+    name: "Recover",
+    icon: "🔄",
+    color: "#3fb950",
+    goal: "Restore operations with enhanced monitoring",
+    scenario: "All affected hosts reimaged. Backups verified clean (last good backup: 3 days before incident). Restoring business operations with a 3-day data loss accepted by management.",
+    items: [
+      "Verify backup integrity: test restore on isolated environment before production use",
+      "Restore fileserver-01 from last clean backup (timestamp: 3 days prior to incident)",
+      "Reconnect systems to production network ONE AT A TIME with enhanced monitoring running",
+      "Validate business operations: confirm critical file shares accessible and data intact",
+      "Re-enable j.smith account with new credentials, MFA enforced",
+      "Monitor restored environment for 72 hours with heightened alert sensitivity",
+      "Communicate recovery status to affected users and management stakeholders"
+    ],
+    outputs: ["Restored systems", "Recovery confirmation", "Enhanced monitoring config", "User communication"]
+  },
+  {
+    id: 6,
+    name: "Learn",
+    icon: "📖",
+    color: "#d2a8ff",
+    goal: "Improve to prevent the next incident",
+    scenario: "Incident is fully resolved. Time elapsed: 47 hours from first alert to full recovery. Post-Incident Review (PIR) meeting scheduled within 2 weeks of closure.",
+    items: [
+      "Conduct PIR meeting: IT, Security, Legal, affected business unit manager",
+      "Root cause documented: phishing email delivered macro-enabled document, bypassed email filter",
+      "Create new SIEM detection rule: flag when vssadmin.exe deletes shadow copies (immediate alert)",
+      "Update email security: enable sandboxing for Office macros, block .docm from external senders",
+      "Update playbook: add memory capture step explicitly BEFORE network isolation",
+      "Schedule simulated phishing test within 30 days for all staff",
+      "Write executive summary report: business impact, root cause, 5 hardening actions with ETA"
+    ],
+    outputs: ["PIR report", "New SIEM rules", "Updated playbooks", "Hardening backlog", "Executive summary"]
+  }
+];
+
+let currentPhase = 0;
+let checkStates = phases.map(p => new Array(p.items.length).fill(false));
+
+function renderDots() {
+  const container = document.getElementById('phaseDots');
+  container.innerHTML = phases.map((p, i) => {
+    const isDone = i < currentPhase;
+    const isActive = i === currentPhase;
+    const dot = `<div class="dot ${isDone ? 'done' : ''} ${isActive ? 'active' : ''}"
+      style="--phase-color: ${p.color}"
+      onclick="goToPhase(${i})"
+      title="Phase ${p.id}: ${p.name}">
+      ${isDone ? '✓' : p.id}
+    </div>`;
+    const line = i < phases.length - 1
+      ? `<div class="dot-line ${isDone ? 'done' : ''}"></div>` : '';
+    return dot + line;
+  }).join('');
+  document.getElementById('progressText').textContent = `Phase ${currentPhase + 1} of ${phases.length}`;
+}
+
+function renderPhase() {
+  const p = phases[currentPhase];
+  const checked = checkStates[currentPhase];
+  const doneCount = checked.filter(Boolean).length;
+
+  document.getElementById('phaseCard').style.setProperty('--phase-color', p.color);
+  document.getElementById('phaseCard').innerHTML = `
+    <div class="phase-header">
+      <div class="phase-icon">${p.icon}</div>
+      <div class="phase-meta">
+        <div class="phase-number">PHASE ${p.id} OF 6</div>
+        <div class="phase-name">${p.name}</div>
+        <div class="phase-goal">${p.goal}</div>
+      </div>
+    </div>
+
+    <div class="scenario-box">
+      <div class="scenario-title">Scenario Context</div>
+      <p>${p.scenario}</p>
+    </div>
+
+    <div style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="font-size:0.95rem; color:#e6edf3;">Actions to Complete</h3>
+      <span style="font-size:0.82rem; color:#8b949e;">${doneCount}/${p.items.length} done</span>
+    </div>
+    <ul class="checklist">
+      ${p.items.map((item, idx) => `
+        <li>
+          <button class="check-btn ${checked[idx] ? 'checked' : ''}"
+            style="--phase-color: ${p.color}"
+            onclick="toggleCheck(${idx})">
+            ${checked[idx] ? '✓' : ''}
+          </button>
+          <span class="item-text ${checked[idx] ? 'crossed' : ''}">${item}</span>
+        </li>
+      `).join('')}
+    </ul>
+
+    <div class="key-outputs">
+      <h4>Phase Outputs</h4>
+      ${p.outputs.map(o => `<span class="output-tag">${o}</span>`).join('')}
+    </div>
+
+    <div class="nav-row" style="margin-top:24px;">
+      <button class="nav-btn" onclick="prevPhase()" ${currentPhase === 0 ? 'disabled' : ''}>← Previous</button>
+      <span class="progress-text">${doneCount}/${p.items.length} actions completed</span>
+      <button class="nav-btn primary" style="background:${p.color}; border-color:${p.color};"
+        onclick="nextPhase()">
+        ${currentPhase === phases.length - 1 ? 'Complete Incident ✓' : 'Next Phase →'}
+      </button>
+    </div>
+  `;
+}
+
+function toggleCheck(idx) {
+  checkStates[currentPhase][idx] = !checkStates[currentPhase][idx];
+  renderPhase();
+}
+
+function goToPhase(idx) {
+  currentPhase = idx;
+  document.getElementById('completionScreen').classList.remove('visible');
+  document.getElementById('phaseCard').style.display = 'block';
+  renderDots();
+  renderPhase();
+}
+
+function nextPhase() {
+  if (currentPhase < phases.length - 1) {
+    currentPhase++;
+    renderDots();
+    renderPhase();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    document.getElementById('phaseCard').style.display = 'none';
+    document.getElementById('completionScreen').classList.add('visible');
+    document.getElementById('progressText').textContent = 'All 6 phases complete!';
+  }
+}
+
+function prevPhase() {
+  if (currentPhase > 0) {
+    currentPhase--;
+    renderDots();
+    renderPhase();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function restart() {
+  currentPhase = 0;
+  checkStates = phases.map(p => new Array(p.items.length).fill(false));
+  document.getElementById('completionScreen').classList.remove('visible');
+  document.getElementById('phaseCard').style.display = 'block';
+  renderDots();
+  renderPhase();
+}
+
+renderDots();
+renderPhase();
+</script>
+</body>
+</html>

